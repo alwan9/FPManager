@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Proyek Baru - Kelola ProjekBareng</title>
+  <!-- Tailwind CSS v2 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Outer Shell wrapper -->
+  <div class="min-h-screen flex flex-col md:flex-row">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col shadow-xl z-20">
+      <div class="p-5 flex items-center justify-between border-b border-slate-800">
+        <a href="index.html" class="flex items-center space-x-3">
+          <div class="bg-indigo-600 p-2 rounded-lg text-white shadow-md">
+            <i class="fa-solid fa-folder-open text-xl"></i>
+          </div>
+          <span class="font-bold text-lg tracking-wide">ProjekBareng</span>
+        </a>
+        <button id="mobileMenuBtn" class="md:hidden text-slate-400 hover:text-white focus:outline-none">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav id="navMenu" class="hidden md:flex flex-col flex-1 p-4 space-y-1">
+        <a href="index.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
+          <i class="fa-solid fa-chart-line w-5"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="proyek.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
+          <i class="fa-solid fa-list-check w-5"></i>
+          <span>Data Proyek</span>
+        </a>
+        <a href="tambah-proyek.html" id="sidebarAddLink" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium shadow-md">
+          <i class="fa-solid fa-circle-plus w-5"></i>
+          <span id="sidebarAddText">Tambah Proyek</span>
+        </a>
+        <a href="keuangan.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
+          <i class="fa-solid fa-wallet w-5"></i>
+          <span>Keuangan</span>
+        </a>
+        <a href="laporan.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
+          <i class="fa-solid fa-file-invoice-dollar w-5"></i>
+          <span>Laporan Keuangan</span>
+        </a>
+        <div class="pt-4 border-t border-slate-800 mt-4">
+          <button onclick="Auth.logout()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left">
+            <i class="fa-solid fa-right-from-bracket w-5"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0">
+      
+      <!-- Top navbar header -->
+      <header class="bg-white border-b border-slate-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
+        <h2 id="pageTitleHeader" class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+          <i class="fa-solid fa-circle-plus text-indigo-600"></i>
+          <span>Form Proyek Baru</span>
+        </h2>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
+          <span id="apiStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+            Mock Mode (Offline)
+          </span>
+          <div class="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-sm shadow">
+            A
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <section class="flex-grow p-6 md:p-8 max-w-4xl mx-auto w-full">
+        
+        <!-- Navigation Back -->
+        <div class="mb-6">
+          <a href="proyek.html" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Daftar Proyek
+          </a>
+        </div>
+
+        <!-- Form Card Container -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 md:p-8">
+          <h3 id="formTitle" class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-4 mb-6">
+            Detail Informasi Proyek
+          </h3>
+
+          <form id="proyekForm" class="space-y-6">
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <!-- Nama Proyek -->
+              <div>
+                <label for="namaProyek" class="block text-sm font-medium text-slate-700 mb-1">Nama Pekerjaan / Proyek*</label>
+                <input type="text" id="namaProyek" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="Contoh: Cetak Brosur Kopi">
+              </div>
+
+              <!-- Nama Pelanggan -->
+              <div>
+                <label for="pelanggan" class="block text-sm font-medium text-slate-700 mb-1">Nama Pelanggan*</label>
+                <input type="text" id="pelanggan" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="Contoh: Budi Santoso">
+              </div>
+
+              <!-- WhatsApp Pelanggan -->
+              <div>
+                <label for="wa" class="block text-sm font-medium text-slate-700 mb-1">Nomor WhatsApp*</label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 text-sm">
+                    62
+                  </span>
+                  <input type="tel" id="wa" required class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="8123456789">
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Gunakan kode negara (62) tanpa karakter + atau spasi.</p>
+              </div>
+
+              <!-- Jenis Produk -->
+              <div>
+                <label for="produk" class="block text-sm font-medium text-slate-700 mb-1">Jenis Produk*</label>
+                <input type="text" id="produk" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="Contoh: Brosur A5, Banner 2x1">
+              </div>
+
+              <!-- Jumlah -->
+              <div>
+                <label for="jumlah" class="block text-sm font-medium text-slate-700 mb-1">Jumlah / Qty*</label>
+                <input type="number" id="jumlah" min="1" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="1">
+              </div>
+
+              <!-- Satuan -->
+              <div>
+                <label for="satuan" class="block text-sm font-medium text-slate-700 mb-1">Satuan*</label>
+                <select id="satuan" required class="w-full px-4 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                  <option value="pcs">pcs</option>
+                  <option value="lembar">lembar</option>
+                  <option value="meter">meter</option>
+                  <option value="dus">dus</option>
+                  <option value="paket">paket</option>
+                  <option value="rim">rim</option>
+                  <option value="buku">buku</option>
+                </select>
+              </div>
+
+              <!-- Harga Satuan -->
+              <div>
+                <label for="hargaSatuan" class="block text-sm font-medium text-slate-700 mb-1">Harga per Satuan (Rp)*</label>
+                <input type="number" id="hargaSatuan" min="0" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="0">
+              </div>
+
+              <!-- Nominal Proyek (Kalkulasi Otomatis) -->
+              <div>
+                <label class="block text-sm font-medium text-slate-500 mb-1">Total Nominal Proyek (Rp)</label>
+                <input type="text" id="nominal" readonly class="w-full px-4 py-2 border border-slate-200 bg-slate-100 rounded-xl font-bold text-slate-600 text-sm focus:outline-none" value="0">
+              </div>
+
+              <!-- Uang Muka / DP -->
+              <div>
+                <label for="dp" class="block text-sm font-medium text-slate-700 mb-1">Uang Muka / DP (Rp)*</label>
+                <input type="number" id="dp" min="0" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="0">
+              </div>
+
+              <!-- Sisa Pembayaran (Kalkulasi Otomatis) -->
+              <div>
+                <label class="block text-sm font-medium text-slate-500 mb-1">Sisa Pembayaran (Rp)</label>
+                <input type="text" id="sisa" readonly class="w-full px-4 py-2 border border-slate-200 bg-slate-100 rounded-xl font-bold text-slate-600 text-sm focus:outline-none" value="0">
+              </div>
+
+              <!-- Deadline -->
+              <div>
+                <label for="deadline" class="block text-sm font-medium text-slate-700 mb-1">Deadline / Target Selesai*</label>
+                <input type="date" id="deadline" required class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                <p id="deadlineWarning" class="hidden text-xs text-amber-600 font-semibold mt-1">
+                  <i class="fa-solid fa-triangle-exclamation mr-1"></i> Deadline sangat mepet (kurang dari 3 hari)!
+                </p>
+              </div>
+
+              <!-- Status Proyek -->
+              <div>
+                <label for="status" class="block text-sm font-medium text-slate-700 mb-1">Status Proyek*</label>
+                <select id="status" required class="w-full px-4 py-2 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                  <option value="Menunggu">Menunggu</option>
+                  <option value="Sedang Dikerjakan">Sedang Dikerjakan</option>
+                  <option value="Selesai">Selesai</option>
+                  <option value="Sudah Diambil">Sudah Diambil</option>
+                  <option value="Dibatalkan">Dibatalkan</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- Catatan Tambahan -->
+            <div>
+              <label for="catatan" class="block text-sm font-medium text-slate-700 mb-1">Catatan Tambahan / Spesifikasi</label>
+              <textarea id="catatan" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="Masukkan spesifikasi kertas, finishing, dsb."></textarea>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="border-t border-slate-100 pt-6 flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+              <a href="proyek.html" class="px-5 py-2.5 border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-100 text-center text-sm transition-all">
+                Batal
+              </a>
+              <button type="submit" id="submitBtn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold rounded-xl text-sm shadow-md transform transition hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Simpan Proyek
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </section>
+      
+      <!-- Footer -->
+      <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 Kelola ProjekBareng. Crafted with care.
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Load Global Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <!-- Load Local Form Script -->
+  <script src="js/tambah.js"></script>
+  
+  <script>
+    // Responsive sidebar toggler
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navMenu = document.getElementById('navMenu');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('flex');
+    });
+  </script>
+</body>
+</html>
