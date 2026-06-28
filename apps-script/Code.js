@@ -11,7 +11,7 @@ const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
 function doGet(e) {
   const action = e.parameter.action;
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  
+
   // Inisialisasi sheet jika belum ada
   initSheets(ss);
 
@@ -22,7 +22,7 @@ function doGet(e) {
       const sheet = ss.getSheetByName('Proyek');
       const data = getRowsData(sheet);
       responseData = { success: true, data: data };
-    } 
+    }
     else if (action === 'getKeuangan') {
       const sheet = ss.getSheetByName('Keuangan');
       const data = getRowsData(sheet);
@@ -32,9 +32,9 @@ function doGet(e) {
     responseData = { success: false, message: error.toString() };
   }
 
-  return ContentService.createTextOutput(JSON.stringify(responseData))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*'); // Bypass CORS
+  return ContentService
+    .createTextOutput(JSON.stringify(responseData))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 // Fungsi merespon request HTTP POST
@@ -51,11 +51,11 @@ function doPost(e) {
 
     if (action === 'addProyek') {
       const sheet = ss.getSheetByName('Proyek');
-      
+
       // Auto ID Increment
       const nextId = generateNextId(sheet, 'PRJ-');
       const tanggal = new Date().toISOString().split('T')[0];
-      
+
       // Susun baris baru sesuai struktur kolom
       // ID | Tanggal | Nama Proyek | Pelanggan | WA | Produk | Jumlah | Satuan | Harga Satuan | Nominal | DP | Sisa | Deadline | Status | Catatan
       const newRow = [
@@ -75,7 +75,7 @@ function doPost(e) {
         data.status,
         data.catatan || ''
       ];
-      
+
       sheet.appendRow(newRow);
 
       // Jika ada uang muka (DP), otomatis catat ke buku kas Keuangan
@@ -92,8 +92,8 @@ function doPost(e) {
       }
 
       responseData = { success: true, id: nextId };
-    } 
-    
+    }
+
     else if (action === 'updateProyek' && id) {
       const sheet = ss.getSheetByName('Proyek');
       const rows = sheet.getDataRange().getValues();
@@ -109,7 +109,7 @@ function doPost(e) {
 
       if (rowIndex !== -1) {
         const oldDp = Number(rows[rowIndex - 1][10]); // Kolom DP lama
-        
+
         // Kolom update: Nama Proyek, Pelanggan, WA, Produk, Jumlah, Satuan, Harga Satuan, Nominal, DP, Sisa, Deadline, Status, Catatan
         sheet.getRange(rowIndex, 3).setValue(data.namaProyek);
         sheet.getRange(rowIndex, 4).setValue(data.pelanggan);
@@ -144,8 +144,8 @@ function doPost(e) {
       } else {
         responseData = { success: false, message: 'ID Proyek tidak ditemukan' };
       }
-    } 
-    
+    }
+
     else if (action === 'deleteProyek' && id) {
       const sheet = ss.getSheetByName('Proyek');
       const rows = sheet.getDataRange().getValues();
@@ -164,12 +164,12 @@ function doPost(e) {
       } else {
         responseData = { success: false, message: 'ID Proyek tidak ditemukan' };
       }
-    } 
-    
+    }
+
     else if (action === 'addKeuangan') {
       const sheet = ss.getSheetByName('Keuangan');
       const nextId = generateNextId(sheet, 'KAS-');
-      
+
       // ID | Tanggal | Jenis | Keterangan | Nominal
       const newRow = [
         nextId,
@@ -186,9 +186,9 @@ function doPost(e) {
     responseData = { success: false, message: error.toString() };
   }
 
-  return ContentService.createTextOutput(JSON.stringify(responseData))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*'); // Bypass CORS
+  return ContentService
+    .createTextOutput(JSON.stringify(responseData))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 // Inisialisasi Sheet jika masih kosong
@@ -197,8 +197,8 @@ function initSheets(ss) {
   if (!sheetProyek) {
     sheetProyek = ss.insertSheet('Proyek');
     sheetProyek.appendRow([
-      'ID Proyek', 'Tanggal', 'Nama Proyek', 'Nama Pelanggan', 'Nomor WA', 
-      'Produk', 'Jumlah', 'Satuan', 'Harga Satuan', 'Nominal Proyek', 
+      'ID Proyek', 'Tanggal', 'Nama Proyek', 'Nama Pelanggan', 'Nomor WA',
+      'Produk', 'Jumlah', 'Satuan', 'Harga Satuan', 'Nominal Proyek',
       'DP', 'Sisa Pembayaran', 'Deadline', 'Status', 'Catatan'
     ]);
   }
@@ -241,7 +241,7 @@ function getRowsData(sheet) {
     for (let j = 0; j < headers.length; j++) {
       const colName = headers[j];
       const camelName = toCamelCase(colName);
-      
+
       // Format tanggal ke String YYYY-MM-DD jika value adalah Date
       if (row[j] instanceof Date) {
         obj[camelName] = row[j].toISOString().split('T')[0];
@@ -257,7 +257,7 @@ function getRowsData(sheet) {
 // Helper convert "Nama Proyek" ke "namaProyek"
 function toCamelCase(str) {
   return str
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     })
     .replace(/\s+/g, '');
