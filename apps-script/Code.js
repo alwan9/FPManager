@@ -99,9 +99,9 @@ function doPost(e) {
       const rows = sheet.getDataRange().getValues();
       let rowIndex = -1;
 
-      // Cari baris berdasarkan ID Proyek
+      // Cari baris berdasarkan ID Proyek (dikonversi ke String untuk keamanan tipe data)
       for (let i = 1; i < rows.length; i++) {
-        if (rows[i][0] === id) {
+        if (String(rows[i][0]).trim() === String(id).trim()) {
           rowIndex = i + 1; // 1-indexed row number
           break;
         }
@@ -152,7 +152,7 @@ function doPost(e) {
       let rowIndex = -1;
 
       for (let i = 1; i < rows.length; i++) {
-        if (rows[i][0] === id) {
+        if (String(rows[i][0]).trim() === String(id).trim()) {
           rowIndex = i + 1;
           break;
         }
