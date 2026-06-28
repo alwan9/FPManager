@@ -227,38 +227,43 @@ function generateNextId(sheet, prefix) {
 }
 
 // Helper membaca data row spreadsheet ke array of JSON objects
+// Helper membaca data Spreadsheet menjadi JSON sesuai frontend
 function getRowsData(sheet) {
-  const range = sheet.getDataRange();
-  const values = range.getValues();
+  const values = sheet.getDataRange().getValues();
+
+  // Jika hanya header
   if (values.length <= 1) return [];
 
-  const headers = values[0];
-  const objects = [];
+  const data = [];
 
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
-    const obj = {};
-    for (let j = 0; j < headers.length; j++) {
-      const colName = headers[j];
-      const camelName = toCamelCase(colName);
 
-      // Format tanggal ke String YYYY-MM-DD jika value adalah Date
-      if (row[j] instanceof Date) {
-        obj[camelName] = row[j].toISOString().split('T')[0];
-      } else {
-        obj[camelName] = row[j];
-      }
-    }
-    objects.push(obj);
+    data.push({
+      id: row[0], // PRJ-001
+      tanggal: row[1] instanceof Date
+        ? Utilities.formatDate(row[1], Session.getScriptTimeZone(), "yyyy-MM-dd")
+        : row[1],
+
+      namaProyek: row[2],
+      pelanggan: row[3],
+      wa: row[4],
+      produk: row[5],
+      jumlah: Number(row[6]) || 0,
+      satuan: row[7],
+      hargaSatuan: Number(row[8]) || 0,
+      nominal: Number(row[9]) || 0,
+      dp: Number(row[10]) || 0,
+      sisa: Number(row[11]) || 0,
+
+      deadline: row[12] instanceof Date
+        ? Utilities.formatDate(row[12], Session.getScriptTimeZone(), "yyyy-MM-dd")
+        : row[12],
+
+      status: row[13],
+      catatan: row[14]
+    });
   }
-  return objects;
-}
 
-// Helper convert "Nama Proyek" ke "namaProyek"
-function toCamelCase(str) {
-  return str
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
-      return index === 0 ? word.toLowerCase() : word.toUpperCase();
-    })
-    .replace(/\s+/g, '');
+  return data;
 }
