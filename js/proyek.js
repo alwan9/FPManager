@@ -61,24 +61,24 @@ function initTable(data) {
   table = $('#proyekTable').DataTable({
     data: data,
     columns: [
-      { data: 'idProyek' },
+      { data: 'iDProyek' },
       { data: 'tanggal' },
       { data: 'namaProyek' },
-      { data: 'pelanggan' },
+      { data: 'namaPelanggan' },
       {
-        data: 'wa',
+        data: 'nomorWA',
         render: function (data) {
           return `+${data}`;
         }
       },
       {
-        data: 'nominal',
+        data: 'nominalProyek',
         render: function (data) {
           return formatRupiah(data);
         }
       },
       {
-        data: 'sisa',
+        data: 'sisaPembayaran',
         render: function (data) {
           if (data > 0) {
             return `<span class="text-rose-600 font-semibold">${formatRupiah(data)}</span>`;
@@ -100,13 +100,13 @@ function initTable(data) {
         render: function (data) {
           return `
             <div class="flex space-x-1.5">
-              <button onclick="viewDetail('${data.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-semibold" title="Detail Proyek">
+              <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-semibold" title="Detail Proyek">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <a href="tambah-proyek.html?id=${data.id}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
+              <a href="tambah-proyek.html?id=${data.iDProyek}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
                 <i class="fa-solid fa-pen"></i>
               </a>
-              <button onclick="hapusProyek('${data.id}', '${data.namaProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Proyek">
+              <button onclick="hapusProyek('${data.iDProyek}', '${data.namaProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Proyek">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
@@ -157,19 +157,19 @@ function filterStatus(status) {
 async function viewDetail(id) {
   try {
     const list = await API.getProyek();
-    const proyek = list.find(p => p.id === id);
+    const proyek = list.find(p => p.iDProyek === id);
 
     if (proyek) {
-      document.getElementById('modalId').textContent = proyek.id;
-      document.getElementById('modalPelanggan').textContent = proyek.pelanggan;
-      document.getElementById('modalWa').textContent = `+${proyek.wa}`;
+      document.getElementById('modalId').textContent = proyek.iDProyek;
+      document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
+      document.getElementById('modalWa').textContent = `+${proyek.nomorWA}`;
       document.getElementById('modalNamaProyek').textContent = proyek.namaProyek;
       document.getElementById('modalProduk').textContent = proyek.produk || proyek.jenisProduk || '-';
       document.getElementById('modalJumlah').textContent = proyek.jumlah;
       document.getElementById('modalSatuan').textContent = proyek.satuan;
-      document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominal);
-      document.getElementById('modalDp').textContent = formatRupiah(proyek.dp);
-      document.getElementById('modalSisa').textContent = formatRupiah(proyek.sisa);
+      document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
+      document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
+      document.getElementById('modalSisa').textContent = formatRupiah(proyek.sisaPembayaran);
       document.getElementById('modalDeadline').textContent = proyek.deadline;
       document.getElementById('modalCatatan').textContent = proyek.catatan || 'Tidak ada catatan.';
 
@@ -180,18 +180,18 @@ async function viewDetail(id) {
 
       // Edit Button
       document.getElementById('modalEditBtn').onclick = () => {
-        window.location.href = `tambah-proyek.html?id=${proyek.id}`;
+        window.location.href = `tambah-proyek.html?id=${proyek.iDProyek}`;
       };
 
       // Hapus Button
       document.getElementById('modalHapusBtn').onclick = () => {
         closeModal();
-        hapusProyek(proyek.id, proyek.namaProyek);
+        hapusProyek(proyek.iDProyek, proyek.namaProyek);
       };
 
       // WA Button
       const waText = encodeURIComponent(CONFIG.WA_TEMPLATE);
-      const waUrl = `https://api.whatsapp.com/send?phone=${proyek.wa}&text=${waText}`;
+      const waUrl = `https://api.whatsapp.com/send?phone=${proyek.nomorWA}&text=${waText}`;
       document.getElementById('modalWaBtn').href = waUrl;
 
       // Show Modal
@@ -210,6 +210,8 @@ function closeModal() {
 
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
+  console.log("ID yang akan dihapus =", id);
+
   if (confirm(`Apakah Anda yakin ingin menghapus proyek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
     try {
       const res = await API.deleteProyek(id);

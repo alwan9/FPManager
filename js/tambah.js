@@ -21,10 +21,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const dpInput = document.getElementById('dp');
   const sisaInput = document.getElementById('sisa');
   const deadlineInput = document.getElementById('deadline');
+  const todayBtn = document.getElementById('todayBtn');
+  const tomorrowBtn = document.getElementById('tomorrowBtn');
+  const threeDaysBtn = document.getElementById('threeDaysBtn');
   const statusInput = document.getElementById('status');
   const catatanInput = document.getElementById('catatan');
   const deadlineWarning = document.getElementById('deadlineWarning');
   const submitBtn = document.getElementById('submitBtn');
+
 
   // Deteksi mode Edit vs Tambah
   const urlParams = new URLSearchParams(window.location.search);
@@ -37,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('formTitle').textContent = `Ubah Rincian Proyek (${proyekId})`;
     document.title = `Edit Proyek ${proyekId} - Kelola ProjekBareng`;
     submitBtn.textContent = 'Simpan Perubahan';
-    
+
     // Ubah sidebar active link ke Data Proyek daripada Tambah Proyek
     const sidebarAddLink = document.getElementById('sidebarAddLink');
     if (sidebarAddLink) {
@@ -48,23 +52,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ambil data proyek untuk diisi ke form
     try {
       const projects = await API.getProyek();
-      const proyek = projects.find(p => p.id === proyekId);
+      const proyek = projects.find(p => p.iDProyek === proyekId);
       if (proyek) {
         namaProyekInput.value = proyek.namaProyek;
-        pelangganInput.value = proyek.pelanggan;
-        // hilangkan awalan '62' di form agar user tidak bingung, atau pertahankan jika format utuh
-        waInput.value = proyek.wa.startsWith('62') ? proyek.wa.slice(2) : proyek.wa;
-        produkInput.value = proyek.produk || proyek.jenisProduk || ''; // antisipasi perbedaan field
+        pelangganInput.value = proyek.namaPelanggan;
+        const nomorWA = String(proyek.nomorWA);
+        waInput.value = nomorWA.startsWith("62")
+          ? nomorWA.slice(2)
+          : nomorWA;
+        produkInput.value = proyek.produk;
         jumlahInput.value = proyek.jumlah;
         satuanInput.value = proyek.satuan;
-        hargaSatuanInput.value = proyek.hargaSatuan || (proyek.nominal / proyek.jumlah) || 0;
-        nominalInput.value = proyek.nominal;
-        dpInput.value = proyek.dp;
-        sisaInput.value = proyek.sisa;
+        hargaSatuanInput.value = proyek.hargaSatuan;
+        nominalInput.value = proyek.nominalProyek;
+        dpInput.value = proyek.dP;
+        sisaInput.value = proyek.sisaPembayaran;
         deadlineInput.value = proyek.deadline;
         statusInput.value = proyek.status;
-        catatanInput.value = proyek.catatan || '';
-        
+        catatanInput.value = proyek.catatan || "";
+
         checkDeadline(proyek.deadline);
       } else {
         alert('Proyek tidak ditemukan!');
@@ -89,6 +95,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     sisaInput.value = formatRupiah(sisa);
   };
 
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
+
   jumlahInput.addEventListener('input', kalkulasiNominalDanSisa);
   hargaSatuanInput.addEventListener('input', kalkulasiNominalDanSisa);
   dpInput.addEventListener('input', kalkulasiNominalDanSisa);
@@ -98,13 +112,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkDeadline(e.target.value);
   });
 
+  todayBtn.addEventListener("click", () => {
+    const date = new Date();
+
+    deadlineInput.value = formatDate(date);
+
+    checkDeadline(deadlineInput.value);
+  });
+
+  tomorrowBtn.addEventListener("click", () => {
+    const date = new Date();
+
+    date.setDate(date.getDate() + 1);
+
+    deadlineInput.value = formatDate(date);
+
+    checkDeadline(deadlineInput.value);
+  });
+
+  threeDaysBtn.addEventListener("click", () => {
+    const date = new Date();
+
+    date.setDate(date.getDate() + 3);
+
+    deadlineInput.value = formatDate(date);
+
+    checkDeadline(deadlineInput.value);
+  });
+
   function checkDeadline(dateStr) {
     if (!dateStr) return;
     const deadlineDate = new Date(dateStr);
     const today = new Date();
     // Reset jam agar perbandingan fokus pada tanggal saja
-    today.setHours(0,0,0,0);
-    deadlineDate.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
+    deadlineDate.setHours(0, 0, 0, 0);
 
     const diffTime = deadlineDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

@@ -56,7 +56,7 @@ function renderSummaryStats(proyekList, keuanganList) {
   document.getElementById('statTotalProyek').textContent = `${totalProyek} Proyek`;
   document.getElementById('statPendapatan').textContent = formatRupiah(totalPemasukan);
   document.getElementById('statPengeluaran').textContent = formatRupiah(totalPengeluaran);
-  
+
   const labaEl = document.getElementById('statKeuntungan');
   labaEl.textContent = formatRupiah(labaBersih);
   if (labaBersih < 0) {
@@ -105,7 +105,7 @@ function renderDeadlineAlerts(proyekList) {
         <div class="min-w-0 flex-1 pr-2">
           <span class="font-bold text-xs text-red-600 block tracking-wider uppercase mb-0.5">${dayText}</span>
           <span class="font-semibold text-sm text-slate-900 block truncate">${proyek.namaProyek}</span>
-          <span class="text-xs text-slate-500 truncate block">Pelanggan: ${proyek.pelanggan}</span>
+          <span class="text-xs text-slate-500 truncate block">Pelanggan: ${proyek.namaPelanggan}</span>
         </div>
         <a href="proyek.html" class="flex-shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
           Cek
@@ -142,11 +142,11 @@ function renderRecentProjects(proyekList) {
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
         <span class="font-bold text-sm text-slate-900 block truncate">${p.namaProyek}</span>
-        <span class="text-xs text-slate-500 block truncate">Klien: ${p.pelanggan}</span>
+        <span class="text-xs text-slate-500 block truncate">Klien: ${p.namaPelanggan}</span>
         <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}">${p.status}</span>
       </div>
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-sm text-slate-800 block">${formatRupiah(p.nominal)}</span>
+        <span class="font-bold text-sm text-slate-800 block">${formatRupiah(p.nominalProyek)}</span>
         <span class="text-[10px] text-slate-400 block">${p.tanggal}</span>
       </div>
     `;
@@ -232,7 +232,7 @@ function renderDashboardChart(keuanganList) {
           beginAtZero: true,
           ticks: {
             font: { family: 'Inter' },
-            callback: function(value) {
+            callback: function (value) {
               return 'Rp ' + value.toLocaleString('id-ID');
             }
           }

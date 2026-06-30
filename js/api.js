@@ -1,7 +1,3 @@
-// Inisialisasi Mock Data jika belum ada di LocalStorage
-
-
-
 
 // Wrapper API Helper
 const API = {
@@ -21,6 +17,8 @@ const API = {
 
       const result = await response.json();
 
+
+
       console.log("Response API :");
       console.log(result);
 
@@ -30,7 +28,8 @@ const API = {
       }
 
       console.table(result.data);
-
+      console.log(result.data[0]);
+      console.log(JSON.stringify(result.data, null, 2));
       return result.data;
 
     } catch (error) {
@@ -132,43 +131,71 @@ const API = {
   // Hapus Proyek
   deleteProyek: async (id) => {
 
+    console.log("DELETE ID =", id);
+
     try {
 
       const body = new URLSearchParams();
 
       body.append("action", "deleteProyek");
-
       body.append("id", id);
 
+      console.log(body.toString());
+
       const response = await fetch(CONFIG.API_URL, {
-
         method: "POST",
-
-
-
         body
-
       });
 
-      return await response.json();
+      const result = await response.json();
+
+      console.log(result);
+
+      return result;
 
     } catch (error) {
 
       console.error(error);
 
       return {
-
         success: false,
-
         message: error.message
-
-      };
+      }
 
     }
 
   },
 
   // Ambil semua data keuangan
+  getKeuangan: async () => {
+    try {
+      console.log("===== GET KEUANGAN =====");
+      console.log("URL :", `${CONFIG.API_URL}?action=getKeuangan`);
+
+      const response = await fetch(
+        `${CONFIG.API_URL}?action=getKeuangan`
+      );
+
+      console.log("HTTP Status :", response.status);
+
+      const result = await response.json();
+
+      console.log("Response API :");
+      console.log(result);
+
+      if (!result.success) {
+        console.error("API ERROR :", result.message);
+        return [];
+      }
+
+      console.log(JSON.stringify(result.data, null, 2));
+      return result.data;
+
+    } catch (error) {
+      console.error("FETCH ERROR :", error);
+      return [];
+    }
+  },
 
   // Tambah Transaksi Keuangan
   addKeuangan: async (transaksiData) => {
