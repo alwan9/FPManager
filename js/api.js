@@ -10,29 +10,40 @@ const API = {
 
     try {
 
+      console.log("===== GET PROYEK =====");
+      console.log("URL :", `${CONFIG.API_URL}?action=getProyek`);
+
       const response = await fetch(
         `${CONFIG.API_URL}?action=getProyek`
       );
 
+      console.log("HTTP Status :", response.status);
+
       const result = await response.json();
 
-      if (result.success) {
+      console.log("Response API :");
+      console.log(result);
 
-        return result.data;
-
+      if (!result.success) {
+        console.error("API ERROR :", result.message);
+        return [];
       }
 
-      throw new Error(result.message);
+      console.table(result.data);
+
+      return result.data;
 
     } catch (error) {
 
-      console.error(error);
+      console.error("FETCH ERROR :", error);
 
       return [];
 
     }
 
   },
+
+
   addProyek: async (proyekData) => {
 
     try {
@@ -49,9 +60,6 @@ const API = {
 
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
 
         body
 
@@ -98,9 +106,6 @@ const API = {
 
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
 
         body
 
@@ -139,9 +144,7 @@ const API = {
 
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+
 
         body
 
@@ -182,9 +185,7 @@ const API = {
 
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+
 
         body
 

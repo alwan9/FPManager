@@ -61,25 +61,25 @@ function initTable(data) {
   table = $('#proyekTable').DataTable({
     data: data,
     columns: [
-      { data: 'id' },
+      { data: 'idProyek' },
       { data: 'tanggal' },
       { data: 'namaProyek' },
       { data: 'pelanggan' },
-      { 
+      {
         data: 'wa',
-        render: function(data) {
+        render: function (data) {
           return `+${data}`;
         }
       },
-      { 
+      {
         data: 'nominal',
-        render: function(data) {
+        render: function (data) {
           return formatRupiah(data);
         }
       },
-      { 
+      {
         data: 'sisa',
-        render: function(data) {
+        render: function (data) {
           if (data > 0) {
             return `<span class="text-rose-600 font-semibold">${formatRupiah(data)}</span>`;
           }
@@ -87,9 +87,9 @@ function initTable(data) {
         }
       },
       { data: 'deadline' },
-      { 
+      {
         data: 'status',
-        render: function(data) {
+        render: function (data) {
           const badgeClass = 'badge-' + data.toLowerCase().replace(/\s+/g, '');
           return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${badgeClass}">${data}</span>`;
         }
@@ -97,7 +97,7 @@ function initTable(data) {
       {
         data: null,
         orderable: false,
-        render: function(data) {
+        render: function (data) {
           return `
             <div class="flex space-x-1.5">
               <button onclick="viewDetail('${data.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-semibold" title="Detail Proyek">
