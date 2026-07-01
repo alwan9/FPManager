@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadKeuanganData() {
   try {
     const listMutasi = await API.getKeuangan();
+
     calculateSummary(listMutasi);
     initTable(listMutasi);
   } catch (error) {
@@ -37,7 +38,6 @@ async function loadKeuanganData() {
     alert('Terjadi kesalahan saat mengambil riwayat keuangan.');
   }
 }
-
 // Compute total income, expenses, and current cash balance
 function calculateSummary(mutasiList) {
   let totalIn = 0;
@@ -56,7 +56,7 @@ function calculateSummary(mutasiList) {
 
   document.getElementById('totalPemasukan').textContent = formatRupiah(totalIn);
   document.getElementById('totalPengeluaran').textContent = formatRupiah(totalOut);
-  
+
   const saldoEl = document.getElementById('saldoBersih');
   saldoEl.textContent = formatRupiah(saldo);
   if (saldo < 0) {
@@ -77,9 +77,9 @@ function initTable(data) {
     columns: [
       { data: 'id' },
       { data: 'tanggal' },
-      { 
+      {
         data: 'jenis',
-        render: function(data) {
+        render: function (data) {
           if (data === 'Pemasukan') {
             return `<span class="inline-flex items-center text-xs font-semibold text-emerald-600"><i class="fa-solid fa-arrow-turn-down mr-1"></i> Pemasukan</span>`;
           }
@@ -87,10 +87,10 @@ function initTable(data) {
         }
       },
       { data: 'keterangan' },
-      { 
+      {
         data: 'nominal',
-        render: function(data, type, row) {
-          const formatted = formatRupiah(data);
+        render: function (data, type, row) {
+          const formatted = formatRupiah(Number(data) || 0);
           if (row.jenis === 'Pemasukan') {
             return `<span class="text-emerald-600 font-semibold">+ ${formatted}</span>`;
           }
@@ -116,23 +116,48 @@ function initTable(data) {
   });
 }
 
+function sanitize(text) {
+  return String(text)
+    .replace(/[<>]/g, "")
+    .trim();
+}
+
 // Add transaction callback
 async function handleAddTransaksi(e) {
   e.preventDefault();
-
   const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn.disabled) return;
   const tanggal = document.getElementById('tanggal').value;
   const jenis = document.getElementById('jenis').value;
   const keterangan = document.getElementById('keterangan').value;
-  const nominal = parseFloat(document.getElementById('nominal').value) || 0;
+  const nominal = Number(document.getElementById('nominal').value);
 
   const payload = {
-    tanggal,
-    jenis,
-    keterangan,
-    nominal
+    tanggal: tanggal.trim(),
+    jenis: jenis.trim(),
+    keterangan: sanitize(keterangan),
+    nominal: Number(nominal)
   };
 
+  if (!payload.tanggal) {
+    alert("Tanggal wajib diisi!");
+    return;
+  }
+
+  if (!payload.jenis) {
+    alert("Jenis transaksi wajib dipilih!");
+    return;
+  }
+
+  if (!payload.keterangan) {
+    alert("Keterangan wajib diisi!");
+    return;
+  }
+
+  if (!Number.isFinite(payload.nominal) || payload.nominal <= 0) {
+    alert("Nominal harus lebih dari 0!");
+    return;
+  }
   try {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Menyimpan...';
@@ -140,13 +165,14 @@ async function handleAddTransaksi(e) {
     const res = await API.addKeuangan(payload);
     if (res.success) {
       alert('Transaksi berhasil dicatat!');
-      
+
       // Reset form kecuali tanggal
-      document.getElementById('keterangan').value = '';
-      document.getElementById('nominal').value = '';
-      
+      document.getElementById('transaksiForm').reset();
+      document.getElementById('tanggal').value =
+        new Date().toISOString().split('T')[0];
+
       // Muat ulang data
-      loadKeuanganData();
+      await loadKeuanganData();
     } else {
       alert('Gagal menyimpan transaksi: ' + res.message);
     }
