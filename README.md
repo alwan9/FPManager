@@ -53,7 +53,6 @@ Berikut adalah langkah-langkah untuk melakukan setup dan mengaktifkan **Live Mod
      MOCK_MODE: false, // Ubah dari true ke false
      API_URL: 'URL_APLIKASI_WEB_APPS_SCRIPT_ANDA', // Tempel URL Apps Script Anda di sini
      WA_TEMPLATE: 'gimana kak? apakah sudah sesuai? atau bagai mana ya kak?',
-     ADMIN_PASS: 'admin123' // Anda dapat mengganti password login admin di sini
    };
    ```
 3. Simpan perubahan file `config.js`.

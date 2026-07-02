@@ -1,36 +1,95 @@
-// Logika Autentikasi Admin Sederhana
 const Auth = {
-  // Cek apakah admin sudah login
+
+  login: async (password) => {
+
+    try {
+
+      const body = new URLSearchParams();
+
+      body.append("action", "login");
+      body.append("password", password);
+
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+
+        sessionStorage.setItem("token", result.token);
+
+      }
+
+      return result;
+
+    } catch (err) {
+
+      console.error(err);
+
+      return {
+        success: false,
+        message: "Tidak dapat terhubung ke server."
+      };
+
+    }
+
+  },
+
   checkLogin: () => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const isLoginPage = window.location.pathname.endsWith('login.html');
 
-    if (!isLoggedIn && !isLoginPage) {
-      // Jika belum login dan tidak di halaman login, redirect ke login.html
-      window.location.href = 'login.html';
-    } else if (isLoggedIn && isLoginPage) {
-      // Jika sudah login tapi mengakses halaman login, redirect ke dashboard
-      window.location.href = 'index.html';
+    const token = sessionStorage.getItem("token");
+
+    const isLoginPage =
+      window.location.pathname.endsWith("login.html");
+
+    if (!token && !isLoginPage) {
+
+      window.location.href = "login.html";
+
     }
+
+    if (token && isLoginPage) {
+
+      window.location.href = "index.html";
+
+    }
+
   },
 
-  // Proses Login
-  login: (password) => {
-    if (password === CONFIG.ADMIN_PASS) {
-      localStorage.setItem('isLoggedIn', 'true');
-      return { success: true };
-    }
-    return { success: false, message: 'Password admin salah!' };
-  },
+  logout: async () => {
 
-  // Proses Logout
-  logout: () => {
-    localStorage.removeItem('isLoggedIn');
-    window.location.href = 'login.html';
+    try {
+
+      const body = new URLSearchParams();
+
+      body.append("action", "logout");
+      body.append("token", sessionStorage.getItem("token"));
+
+      await fetch(CONFIG.API_URL, {
+
+        method: "POST",
+        body
+
+      });
+
+    } catch (e) {
+
+      console.log(e);
+
+    }
+
+    sessionStorage.removeItem("token");
+
+    window.location.href = "login.html";
+
   }
+
 };
 
-// Jalankan pengecekan rute saat script dimuat
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+
   Auth.checkLogin();
+
 });

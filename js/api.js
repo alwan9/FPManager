@@ -1,15 +1,37 @@
+// Helper Unauthorized
+const handleUnauthorized = (result) => {
+
+  if (result.message === "Error: Unauthorized") {
+
+    sessionStorage.removeItem("token");
+
+    window.location.href = "login.html";
+
+    return true;
+
+  }
+
+  return false;
+
+};
 
 // Wrapper API Helper
 const API = {
+
+  // Ambil token login
+  getToken: () => {
+    return sessionStorage.getItem("token");
+  },
   // Ambil semua data proyek
   getProyek: async () => {
 
     try {
       const response = await fetch(
-        `${CONFIG.API_URL}?action=getProyek`
+        `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}`
       );
 
       const result = await response.json();
+      if (handleUnauthorized(result)) return [];
 
       if (!result.success) {
         console.error("API ERROR :", result.message);
@@ -39,6 +61,7 @@ const API = {
       const body = new URLSearchParams();
 
       body.append("action", "addProyek");
+      body.append("token", API.getToken());
       body.append("data", JSON.stringify(proyekData));
 
       const response = await fetch(CONFIG.API_URL, {
@@ -75,6 +98,7 @@ const API = {
     try {
       const body = new URLSearchParams();
       body.append("action", "updateProyek");
+      body.append("token", API.getToken());
       body.append("id", id);
       body.append("data", JSON.stringify(proyekData));
       const response = await fetch(CONFIG.API_URL, {
@@ -114,12 +138,9 @@ const API = {
     try {
 
       const body = new URLSearchParams();
-
       body.append("action", "deleteProyek");
+      body.append("token", API.getToken());
       body.append("id", id);
-
-
-
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body
@@ -131,6 +152,7 @@ const API = {
 
       }
       const result = await response.json();
+      if (handleUnauthorized(result)) return result;
 
 
 
@@ -159,7 +181,7 @@ const API = {
 
 
       const response = await fetch(
-        `${CONFIG.API_URL}?action=getKeuangan`
+        `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}`
       );
       if (!response.ok) {
 
@@ -169,7 +191,7 @@ const API = {
 
 
       const result = await response.json();
-
+      if (handleUnauthorized(result)) return [];
 
 
 
@@ -194,8 +216,8 @@ const API = {
 
       const body = new URLSearchParams();
       body.append("action", "addKeuangan");
+      body.append("token", API.getToken());
       body.append("data", JSON.stringify(transaksiData));
-
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body
