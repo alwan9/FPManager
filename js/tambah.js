@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     isEditMode = true;
     document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>Edit Proyek ${proyekId}</span>`;
     document.getElementById('formTitle').textContent = `Ubah Rincian Proyek (${proyekId})`;
-    document.title = `Edit Proyek ${proyekId} - Kelola ProjekBareng`;
+    document.title = `Edit Proyek ${proyekId} - FPManager`;
     submitBtn.textContent = 'Simpan Perubahan';
     // Ubah sidebar active link ke Data Proyek daripada Tambah Proyek
     const sidebarAddLink = document.getElementById('sidebarAddLink');
