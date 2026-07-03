@@ -1,5 +1,4 @@
 let table; // Global table instance
-
 document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
@@ -9,11 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
       apiStatusBadge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
-
   // Load Data
   loadProyekData();
 });
-
 // Load proyek data and initialize DataTables
 async function loadProyekData() {
   try {
@@ -25,7 +22,6 @@ async function loadProyekData() {
     alert('Terjadi kesalahan saat memuat data proyek dari database.');
   }
 }
-
 // Update status summary numbers on dashboard/top badges
 function updateStatusCounters(proyekList) {
   const counts = {
@@ -35,7 +31,6 @@ function updateStatusCounters(proyekList) {
     selesai: 0,
     diambil: 0
   };
-
   proyekList.forEach(p => {
     const status = p.status.toLowerCase();
     if (status === 'menunggu') counts.menunggu++;
@@ -43,21 +38,18 @@ function updateStatusCounters(proyekList) {
     else if (status === 'selesai') counts.selesai++;
     else if (status === 'sudah diambil') counts.diambil++;
   });
-
   document.getElementById('count-all').textContent = counts.all;
   document.getElementById('count-menunggu').textContent = counts.menunggu;
   document.getElementById('count-dikerjakan').textContent = counts.dikerjakan;
   document.getElementById('count-selesai').textContent = counts.selesai;
   document.getElementById('count-diambil').textContent = counts.diambil;
 }
-
 // Initialize DataTables with customized styles and features
 function initTable(data) {
   // Destroy existing table if any
   if ($.fn.DataTable.isDataTable('#proyekTable')) {
     $('#proyekTable').DataTable().destroy();
   }
-
   table = $('#proyekTable').DataTable({
     data: data,
     columns: [
@@ -131,20 +123,17 @@ function initTable(data) {
     }
   });
 }
-
 // Filter status by badges
 function filterStatus(status) {
   // Hapus warna ring aktif pada filter sebelumnya
   document.querySelectorAll('.status-filter-btn').forEach(btn => {
     btn.classList.remove('ring-2', 'ring-indigo-500');
   });
-
   // Tambah ring aktif pada filter saat ini
   const activeBtn = event.currentTarget;
   if (activeBtn) {
     activeBtn.classList.add('ring-2', 'ring-indigo-500');
   }
-
   if (status === 'all') {
     table.column(8).search('').draw();
   } else {
@@ -152,14 +141,11 @@ function filterStatus(status) {
     table.column(8).search('^' + status + '$', true, false).draw();
   }
 }
-
 // View Project details inside Modal
 async function viewDetail(id) {
   try {
     const list = await API.getProyek();
-
     const proyek = list.find(p => p.iDProyek === id);
-
     if (proyek) {
       document.getElementById('modalId').textContent = proyek.iDProyek;
       document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
@@ -173,17 +159,14 @@ async function viewDetail(id) {
       document.getElementById('modalSisa').textContent = formatRupiah(proyek.sisaPembayaran);
       document.getElementById('modalDeadline').textContent = proyek.deadline;
       document.getElementById('modalCatatan').textContent = proyek.catatan || 'Tidak ada catatan.';
-
       // Style badge status
       const statusBadge = document.getElementById('modalStatus');
       statusBadge.textContent = proyek.status;
       statusBadge.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full badge-${proyek.status.toLowerCase().replace(/\s+/g, '')}`;
-
       // Edit Button
       document.getElementById('modalEditBtn').onclick = () => {
         window.location.href = `tambah-proyek.html?id=${proyek.iDProyek}`;
       };
-
       document.getElementById("modalInvoiceBtn").onclick = () => {
         window.location.href =
           "invoice.html?id=" + proyek.iDProyek;
@@ -193,12 +176,10 @@ async function viewDetail(id) {
         closeModal();
         hapusProyek(proyek.iDProyek, proyek.namaProyek);
       };
-
       // WA Button
       const waText = encodeURIComponent(CONFIG.WA_TEMPLATE);
       const waUrl = `https://api.whatsapp.com/send?phone=${proyek.nomorWA}&text=${waText}`;
       document.getElementById('modalWaBtn').href = waUrl;
-
       // Show Modal
       document.getElementById('detailModal').classList.remove('hidden');
     }
@@ -207,16 +188,13 @@ async function viewDetail(id) {
     alert('Gagal memuat detail proyek');
   }
 }
-
 // Close Modal
 function closeModal() {
   document.getElementById('detailModal').classList.add('hidden');
 }
-
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
   console.log("ID yang akan dihapus =", id);
-
   if (confirm(`Apakah Anda yakin ingin menghapus proyek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
     try {
       const res = await API.deleteProyek(id);
@@ -232,7 +210,6 @@ async function hapusProyek(id, name) {
     }
   }
 }
-
 // Format Rupiah Helper
 function formatRupiah(number) {
   return new Intl.NumberFormat('id-ID', {
