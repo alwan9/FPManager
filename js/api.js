@@ -27,7 +27,8 @@ const API = {
 
     try {
       const response = await fetch(
-        `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}`
+        `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
+
       );
 
       const result = await response.json();
@@ -62,6 +63,7 @@ const API = {
 
       body.append("action", "addProyek");
       body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
       body.append("data", JSON.stringify(proyekData));
 
       const response = await fetch(CONFIG.API_URL, {
@@ -97,8 +99,10 @@ const API = {
 
     try {
       const body = new URLSearchParams();
+
       body.append("action", "updateProyek");
       body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
       body.append("id", id);
       body.append("data", JSON.stringify(proyekData));
       const response = await fetch(CONFIG.API_URL, {
@@ -114,7 +118,6 @@ const API = {
 
     } catch (error) {
 
-      console.error(error);
 
       console.error(error);
 
@@ -138,8 +141,10 @@ const API = {
     try {
 
       const body = new URLSearchParams();
+
       body.append("action", "deleteProyek");
       body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
       body.append("id", id);
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -178,10 +183,8 @@ const API = {
   getKeuangan: async () => {
     try {
 
-
-
       const response = await fetch(
-        `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}`
+        `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
       );
       if (!response.ok) {
 
@@ -215,8 +218,10 @@ const API = {
     try {
 
       const body = new URLSearchParams();
+
       body.append("action", "addKeuangan");
       body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
       body.append("data", JSON.stringify(transaksiData));
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -227,15 +232,9 @@ const API = {
       return await response.json();
 
     } catch (error) {
-
       console.error(error);
-
-      console.error(error);
-
       return {
-
         success: false,
-
         message: "Terjadi kesalahan saat menghubungi server."
 
       };

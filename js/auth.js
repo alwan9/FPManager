@@ -8,6 +8,7 @@ const Auth = {
 
       body.append("action", "login");
       body.append("password", password);
+      body.append("apiKey", CONFIG.API_KEY);
 
       const res = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -66,7 +67,7 @@ const Auth = {
 
       body.append("action", "logout");
       body.append("token", sessionStorage.getItem("token"));
-
+      body.append("apiKey", CONFIG.API_KEY);
       await fetch(CONFIG.API_URL, {
 
         method: "POST",

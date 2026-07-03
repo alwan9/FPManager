@@ -19,3 +19,4 @@ Kelola ProjekBareng adalah aplikasi mini-ERP berbasis web yang didesain khusus u
 Aplikasi ini mendukung **Dual-Mode API**:
 *   **Mock Mode (Offline)**: Berjalan secara lokal menggunakan memori browser (`localStorage`). Seluruh fitur CRUD, grafik, dan laporan keuangan langsung aktif 100% saat dibuka tanpa konfigurasi backend.
 *   **Live Mode (Online)**: Terhubung ke Google Spreadsheet milik akun Google Anda untuk menyimpan data secara permanen dan real-time.
+      
