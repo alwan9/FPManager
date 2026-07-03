@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - ProjekManager</title>
+
+    <!-- Tailwind -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Global Style -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .no-print {
+            display: block;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+
+</head>
+
+<body class="bg-slate-100">
+
+    <div class="max-w-5xl mx-auto py-10 px-6">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+
+            <div class="no-print">
+                <h1 class="text-3xl font-bold text-slate-800">
+                    Invoice
+                </h1>
+
+                <p class="text-slate-500">
+                    Preview Invoice Proyek
+                </p>
+            </div>
+
+            <button onclick="history.back()"
+                class="no-print  bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg">
+                <i class="fa fa-arrow-left mr-2"></i>
+                Kembali
+            </button>
+
+        </div>
+
+        <!-- Invoice -->
+
+        <div id="invoiceArea" class="bg-white rounded-xl shadow-xl border border-slate-200 p-10">
+
+            <div class="flex justify-between border-b pb-6">
+
+                <div>
+
+                    <h2 class="text-4xl font-bold text-indigo-600">
+
+                        INVOICE
+
+                    </h2>
+
+                    <p class="mt-4">
+
+                        <b>No Invoice :</b>
+
+                        <span id="previewInvoiceNo">-</span>
+
+                    </p>
+
+                    <p>
+
+                        <b>Tanggal :</b>
+
+                        <span id="previewTanggal">-</span>
+
+                    </p>
+
+                </div>
+
+                <div class="text-right">
+
+                    <h2 class="text-2xl font-bold">
+
+                        ProjekManager
+
+                    </h2>
+
+                    <p class="text-slate-500">
+
+                        Indonesia
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Customer -->
+
+            <div class="grid grid-cols-2 gap-6 mt-8">
+
+                <div>
+
+                    <h3 class="font-bold text-lg mb-2">
+
+                        Kepada
+
+                    </h3>
+
+                    <p id="previewPelanggan"></p>
+
+                    <p id="previewWA"></p>
+
+                </div>
+
+                <div class="text-right">
+
+                    <p>
+
+                        <b>Status :</b>
+
+                        <span id="previewStatus" class="bg-yellow-500 text-white px-4 py-1 rounded-full">
+
+                        </span>
+
+                    </p>
+
+                    <!-- <p class="mt-2">
+
+                        <b>Deadline :</b>
+
+                        <span id="previewDeadline"></span>
+
+                    </p> -->
+
+                </div>
+
+            </div>
+
+            <!-- Table -->
+
+            <table class="w-full mt-8 border">
+
+                <thead class="bg-indigo-600 text-white">
+
+                    <tr>
+
+                        <th class="p-3">
+
+                            Produk
+
+                        </th>
+
+                        <th>
+
+                            Jumlah
+
+                        </th>
+
+                        <th>
+
+                            Harga
+
+                        </th>
+
+                        <th>
+
+                            Total
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td class="border p-3" id="previewProduk"></td>
+
+                        <td class="border text-center" id="previewJumlah"></td>
+
+                        <td class="border text-center" id="previewHarga"></td>
+
+                        <td class="border text-center font-bold" id="previewNominal"></td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <!-- Total -->
+
+            <div class="flex justify-end mt-8">
+
+                <table class="w-80">
+
+                    <tr>
+
+                        <td>Total</td>
+
+                        <td class="text-right font-bold" id="previewTotal"></td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>DP</td>
+
+                        <td class="text-right" id="previewDP"></td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Sisa Pembayaran</td>
+
+                        <td class="text-right text-red-600 font-bold" id="previewSisa"></td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <!-- Catatan -->
+
+            <div class="mt-8">
+
+                <h3 class="font-bold mb-2">
+
+                    Catatan
+
+                </h3>
+
+                <div class="bg-slate-100 rounded-lg p-4">
+
+                    <span id="previewCatatan">
+
+                        -
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Action -->
+
+        <div class="grid md:grid-cols-3 gap-5 mt-8 no-print ">
+
+            <button id="btnPDF" class="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold">
+
+                <i class="fa fa-file-pdf mr-2"></i>
+
+                Download PDF
+
+            </button>
+
+            <button onclick="window.print()"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-lg font-semibold">
+
+                <i class="fa fa-print mr-2"></i>
+
+                Print
+
+            </button>
+
+            <button onclick="history.back()"
+                class="bg-slate-700 hover:bg-slate-800 text-white px-6 py-4 rounded-lg font-semibold">
+
+                <i class="fa fa-arrow-left mr-2"></i>
+
+                Kembali
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Library PDF -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Global JS -->
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+
+    <!-- Invoice JS -->
+    <script src="js/invoice.js"></script>
+
+</body>
+
+</html>

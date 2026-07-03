@@ -157,6 +157,7 @@ function filterStatus(status) {
 async function viewDetail(id) {
   try {
     const list = await API.getProyek();
+
     const proyek = list.find(p => p.iDProyek === id);
 
     if (proyek) {
@@ -183,6 +184,10 @@ async function viewDetail(id) {
         window.location.href = `tambah-proyek.html?id=${proyek.iDProyek}`;
       };
 
+      document.getElementById("modalInvoiceBtn").onclick = () => {
+        window.location.href =
+          "invoice.html?id=" + proyek.iDProyek;
+      };
       // Hapus Button
       document.getElementById('modalHapusBtn').onclick = () => {
         closeModal();
