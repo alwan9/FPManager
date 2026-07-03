@@ -5,6 +5,16 @@ body {
   background-color: #f8fafc;
 }
 
+.no-print {
+  display: block;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -56,18 +66,22 @@ body {
   background-color: #fef3c7;
   color: #d97706;
 }
+
 .badge-dikerjakan {
   background-color: #dbeafe;
   color: #2563eb;
 }
+
 .badge-selesai {
   background-color: #d1fae5;
   color: #059669;
 }
+
 .badge-diambil {
   background-color: #ede9fe;
   color: #7c3aed;
 }
+
 .badge-dibatalkan {
   background-color: #fee2e2;
   color: #dc2626;
