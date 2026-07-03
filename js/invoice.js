@@ -7,8 +7,14 @@ const Invoice = {
             const id = new URLSearchParams(window.location.search).get("id");
             console.log("ID URL =", id);
             if (!id) {
-                alert("ID proyek tidak ditemukan.");
+
+                Toast.warning(
+                    "Invoice Tidak Ditemukan",
+                    "ID proyek tidak ditemukan."
+                );
+
                 return;
+
             }
             this.loadInvoice(id);
             document
@@ -17,8 +23,14 @@ const Invoice = {
                     this.exportPDF();
                 });
         } catch (err) {
+
             console.error(err);
-            alert("Gagal memuat invoice.");
+
+            Toast.error(
+                "Gagal Memuat Invoice",
+                err.message || "Terjadi kesalahan saat mengambil data invoice."
+            );
+
         }
     },
     loadInvoice(id) {
@@ -28,10 +40,16 @@ const Invoice = {
         );
         console.log("HASIL FIND =", data);
         if (!data) {
-            alert("Data proyek tidak ditemukan");
+
+            Toast.warning(
+                "Data Tidak Ditemukan",
+                "Proyek yang dipilih tidak tersedia atau sudah dihapus."
+            );
+
             return;
+
         }
-        // ==========================
+
         // HEADER
         // ==========================
         document.getElementById("previewInvoiceNo").innerText =

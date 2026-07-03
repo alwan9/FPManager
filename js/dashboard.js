@@ -24,8 +24,11 @@ async function loadDashboardData() {
     // 4. Render Grafik Keuangan Bulanan
     renderDashboardChart(keuanganList);
   } catch (error) {
-    console.error('Error loading dashboard data:', error);
-    alert('Terjadi kesalahan saat memproses informasi dashboard.');
+    console.error("Error loading dashboard data:", error);
+    Toast.error(
+      "Dashboard Gagal Dimuat",
+      "Terjadi kesalahan saat memproses informasi dashboard."
+    );
   }
 }
 // Calculate and render statistic card counters

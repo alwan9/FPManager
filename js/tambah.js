@@ -66,12 +66,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         catatanInput.value = proyek.catatan || "";
         checkDeadline(proyek.deadline);
       } else {
-        alert('Proyek tidak ditemukan!');
-        window.location.href = 'proyek.html';
+
+        showToast({
+          title: "Data Proyek",
+          message: "Proyek tidak ditemukan.",
+          type: "warning"
+        });
+
+        setTimeout(() => {
+          window.location.href = "proyek.html";
+        }, 1500);
+
       }
     } catch (e) {
+
       console.error(e);
-      alert('Gagal mengambil data proyek untuk edit');
+
+      showToast({
+        title: "Error",
+        message: "Gagal mengambil data proyek untuk diedit.",
+        type: "error"
+      });
+
     }
   }
   // Hitung Nominal Proyek & Sisa secara Dinamis
@@ -177,14 +193,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         result = await API.addProyek(payload);
       }
       if (result.success) {
-        alert(isEditMode ? 'Proyek berhasil diperbarui!' : 'Proyek baru berhasil didaftarkan!');
-        window.location.href = 'proyek.html';
+
+        showToast({
+          title: "Berhasil",
+          message: isEditMode
+            ? "Proyek berhasil diperbarui."
+            : "Proyek baru berhasil ditambahkan.",
+          type: "success"
+        });
+
+        setTimeout(() => {
+          window.location.href = "proyek.html";
+        }, 1500);
+
       } else {
-        alert('Gagal menyimpan: ' + result.message);
+
+        showToast({
+          title: "Gagal",
+          message: result.message,
+          type: "error"
+        });
+
       }
     } catch (err) {
+
       console.error(err);
-      alert('Terjadi kesalahan saat menyimpan data');
+
+      showToast({
+        title: "Error",
+        message: "Terjadi kesalahan saat menyimpan data.",
+        type: "error"
+      });
+
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = isEditMode ? 'Simpan Perubahan' : 'Simpan Proyek';

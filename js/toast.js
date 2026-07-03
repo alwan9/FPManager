@@ -169,3 +169,30 @@ const Toast = (() => {
     };
 
 })();
+
+function showToast({
+    title = "",
+    message = "",
+    type = "info"
+}) {
+
+    switch (type) {
+
+        case "success":
+            Toast.success(title, message);
+            break;
+
+        case "error":
+            Toast.error(title, message);
+            break;
+
+        case "warning":
+            Toast.warning(title, message);
+            break;
+
+        default:
+            Toast.info(title, message);
+
+    }
+
+}

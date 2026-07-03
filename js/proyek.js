@@ -19,7 +19,12 @@ async function loadProyekData() {
     initTable(listProyek);
   } catch (error) {
     console.error('Gagal memuat data proyek:', error);
-    alert('Terjadi kesalahan saat memuat data proyek dari database.');
+
+    showToast({
+      title: "Data Proyek",
+      message: "Terjadi kesalahan saat memuat data proyek.",
+      type: "error"
+    });
   }
 }
 // Update status summary numbers on dashboard/top badges
@@ -185,7 +190,12 @@ async function viewDetail(id) {
     }
   } catch (error) {
     console.error(error);
-    alert('Gagal memuat detail proyek');
+
+    showToast({
+      title: "Detail Proyek",
+      message: "Gagal memuat detail proyek.",
+      type: "error"
+    });
   }
 }
 // Close Modal
@@ -199,14 +209,27 @@ async function hapusProyek(id, name) {
     try {
       const res = await API.deleteProyek(id);
       if (res.success) {
-        alert('Proyek berhasil dihapus!');
+        showToast({
+          title: "Berhasil",
+          message: "Proyek berhasil dihapus.",
+          type: "success"
+        });
         loadProyekData(); // Refresh data
       } else {
-        alert('Gagal menghapus proyek: ' + res.message);
+        showToast({
+          title: "Gagal",
+          message: res.message,
+          type: "error"
+        });
       }
     } catch (e) {
       console.error(e);
-      alert('Terjadi kesalahan saat menghapus proyek');
+
+      showToast({
+        title: "Error",
+        message: "Terjadi kesalahan saat menghapus proyek.",
+        type: "error"
+      });
     }
   }
 }
