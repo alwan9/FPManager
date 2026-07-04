@@ -1,4 +1,5 @@
 let table; // Global table instance
+let currentProyek = null;
 document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
@@ -151,6 +152,7 @@ async function viewDetail(id) {
   try {
     const list = await API.getProyek();
     const proyek = list.find(p => p.iDProyek === id);
+    currentProyek = proyek;
     if (proyek) {
       document.getElementById('modalId').textContent = proyek.iDProyek;
       document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
@@ -198,6 +200,7 @@ async function viewDetail(id) {
     });
   }
 }
+
 // Close Modal
 function closeModal() {
   document.getElementById('detailModal').classList.add('hidden');
@@ -233,6 +236,82 @@ async function hapusProyek(id, name) {
     }
   }
 }
+async function generateAI(jenis) {
+
+  if (!currentProyek) {
+
+    showToast({
+      title: "AI",
+      message: "Data proyek belum dipilih.",
+      type: "error"
+    });
+
+    return;
+  }
+
+  showToast({
+    title: "AI",
+    message: "Sedang membuat teks...",
+    type: "info"
+  });
+
+  const data = {
+    ...currentProyek,
+    jenis
+  };
+
+  const result = await API.generateAI(data);
+
+  if (!result.success) {
+
+    showToast({
+      title: "AI",
+      message: result.message,
+      type: "error"
+    });
+
+    return;
+  }
+
+  document.getElementById("hasilAI").value = result.text;
+
+}
+
+function copyAIText() {
+  const text = document.getElementById("hasilAI").value;
+  navigator.clipboard.writeText(text);
+  showToast({
+    title: "AI",
+    message: "Teks berhasil disalin.",
+    type: "success"
+  });
+}
+
+function sendAIWhatsapp() {
+  if (!currentProyek || !currentProyek.nomorWA) {
+    showToast({
+      title: "Error",
+      message: "Data proyek atau nomor WhatsApp tidak tersedia.",
+      type: "error"
+    });
+    return;
+  }
+  
+  const text = document.getElementById("hasilAI").value;
+  if (!text.trim()) {
+    showToast({
+      title: "Warning",
+      message: "Teks AI masih kosong. Silakan generate terlebih dahulu.",
+      type: "warning"
+    });
+    return;
+  }
+
+  const waText = encodeURIComponent(text);
+  const waUrl = `https://api.whatsapp.com/send?phone=${currentProyek.nomorWA}&text=${waText}`;
+  window.open(waUrl, '_blank');
+}
+
 // Format Rupiah Helper
 function formatRupiah(number) {
   return new Intl.NumberFormat('id-ID', {

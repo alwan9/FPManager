@@ -65,7 +65,7 @@ function renderOverviewCards(proyekList, keuanganList) {
   document.getElementById('recapTotalDp').textContent = formatRupiah(totalDp);
   document.getElementById('recapTotalPiutang').textContent = formatRupiah(totalPiutang);
   document.getElementById('recapTotalPengeluaran').textContent = formatRupiah(totalPengeluaran);
-  
+
   const labaEl = document.getElementById('recapTotalLaba');
   labaEl.textContent = formatRupiah(estimasiLaba);
   if (estimasiLaba < 0) {
@@ -191,7 +191,7 @@ function renderChart(monthlyList) {
           beginAtZero: true,
           ticks: {
             font: { family: 'Inter' },
-            callback: function(value) {
+            callback: function (value) {
               return 'Rp ' + value.toLocaleString('id-ID');
             }
           }
@@ -242,7 +242,7 @@ async function exportToExcel() {
 
     // Buat Workbook dan pasangkan sheet
     const wb = XLSX.utils.book_new();
-    
+
     const wsProyek = XLSX.utils.json_to_sheet(wsProyekData);
     const wsKeuangan = XLSX.utils.json_to_sheet(wsKeuanganData);
 
@@ -250,7 +250,7 @@ async function exportToExcel() {
     XLSX.utils.book_append_sheet(wb, wsKeuangan, 'Buku Kas & Keuangan');
 
     // Trigger unduhan file excel
-    XLSX.writeFile(wb, 'Laporan_Kelola_ProjekBareng.xlsx');
+    XLSX.writeFile(wb, 'Laporan_FPManager.xlsx');
 
   } catch (error) {
     console.error(error);

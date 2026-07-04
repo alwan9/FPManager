@@ -15,7 +15,7 @@
   <meta name="robots" content="index, follow">
   <meta name="language" content="Indonesian">
   <meta name="theme-color" content="#2563EB">
-  <meta name="application-name" content="ProjekBareng">
+  <meta name="application-name" content="FPManager">
 
   <!-- Mobile -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -306,7 +306,55 @@
         </div>
 
       </div>
+      <div class="mt-6 border-t pt-5">
 
+        <h3 class="font-semibold mb-3">
+
+          🤖 AI Assistant
+
+        </h3>
+
+        <div class="grid grid-cols-2 gap-2">
+
+          <button onclick="generateAI('followup')" class="bg-indigo-600 text-white rounded p-2">
+
+            Follow Up
+
+          </button>
+
+          <button onclick="generateAI('penawaran')" class="bg-blue-600 text-white rounded p-2">
+
+            Penawaran
+
+          </button>
+
+          <button onclick="generateAI('invoice')" class="bg-green-600 text-white rounded p-2">
+
+            Invoice
+
+          </button>
+
+          <button onclick="generateAI('deadline')" class="bg-red-600 text-white rounded p-2">
+
+            Reminder Deadline
+
+          </button>
+
+        </div>
+
+        <textarea id="hasilAI" class="w-full mt-4 border rounded-lg p-3" rows="8"
+          placeholder="Hasil AI akan muncul di sini..."></textarea>
+
+        <div class="flex gap-2 mt-3">
+          <button onclick="copyAIText()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded">
+            <i class="fa-solid fa-copy mr-1"></i> Copy
+          </button>
+          <button onclick="sendAIWhatsapp()" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded">
+            <i class="fa-brands fa-whatsapp mr-1"></i> Kirim WA
+          </button>
+        </div>
+
+      </div>
       <!-- Modal Footer -->
       <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-between gap-3">
         <!-- WA action button -->
@@ -314,6 +362,9 @@
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-xs text-center shadow flex items-center justify-center">
           <i class="fa-brands fa-whatsapp mr-2 text-base"></i> Hubungi WhatsApp
         </a>
+        <!-- ================= AI Assistant ================= -->
+
+
         <div class="flex flex-wrap gap-2">
 
           <button id="modalInvoiceBtn"
@@ -335,7 +386,45 @@
     </div>
   </div>
 
+  <div id="aiResultCard" class="hidden mt-5 bg-slate-50 rounded-xl border" style="z-index: 100;">
 
+    <div class="p-4">
+
+      <div class="flex justify-between mb-3">
+
+        <h5 class="font-semibold">
+          Hasil AI
+        </h5>
+
+        <button onclick="copyAIResult()" class="text-indigo-600 text-xs">
+
+          Copy
+
+        </button>
+
+      </div>
+
+      <textarea id="aiResult" rows="8" class="w-full h-8 border rounded-lg p-3 text-sm"></textarea>
+
+      <div class="grid grid-cols-2 gap-2 mt-3">
+
+        <button onclick="copyAIResult()" class="bg-indigo-600 text-white rounded-lg py-2">
+
+          Copy
+
+        </button>
+
+        <button onclick="sendAIWhatsapp()" class="bg-green-600 text-white rounded-lg py-2">
+
+          Kirim WA
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
   <!-- Export Excel Modal -->
 
   <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
