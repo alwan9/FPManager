@@ -35,20 +35,20 @@ function updateStatusCounters(proyekList) {
     menunggu: 0,
     dikerjakan: 0,
     selesai: 0,
-    diambil: 0
+    belumpembayaran: 0
   };
   proyekList.forEach(p => {
     const status = p.status.toLowerCase();
     if (status === 'menunggu') counts.menunggu++;
     else if (status === 'sedang dikerjakan') counts.dikerjakan++;
     else if (status === 'selesai') counts.selesai++;
-    else if (status === 'sudah diambil') counts.diambil++;
+    else if (status === 'belum pembayaran') counts.belumpembayaran++;
   });
   document.getElementById('count-all').textContent = counts.all;
   document.getElementById('count-menunggu').textContent = counts.menunggu;
   document.getElementById('count-dikerjakan').textContent = counts.dikerjakan;
   document.getElementById('count-selesai').textContent = counts.selesai;
-  document.getElementById('count-diambil').textContent = counts.diambil;
+  document.getElementById('count-belumpembayaran').textContent = counts.belumpembayaran;
 }
 // Initialize DataTables with customized styles and features
 function initTable(data) {
@@ -59,10 +59,10 @@ function initTable(data) {
   table = $('#proyekTable').DataTable({
     data: data,
     columns: [
-      { data: 'iDProyek' },
+      { data: 'iDProyek', className: 'hidden md:table-cell' },
       { data: 'tanggal' },
       { data: 'namaProyek' },
-      { data: 'namaPelanggan' },
+      { data: 'namaPelanggan', className: 'hidden md:table-cell' },
       {
         data: 'nomorWA',
         render: function (data) {
@@ -77,6 +77,7 @@ function initTable(data) {
       },
       {
         data: 'sisaPembayaran',
+        className: 'hidden md:table-cell',
         render: function (data) {
           if (data > 0) {
             return `<span class="text-rose-600 font-semibold">${formatRupiah(data)}</span>`;
@@ -143,7 +144,7 @@ function filterStatus(status) {
   if (status === 'all') {
     table.column(8).search('').draw();
   } else {
-    // Regex exact match agar status seperti 'Selesai' tidak menyaring 'Sudah Diambil'
+    // Regex exact match agar status tidak saling menyaring
     table.column(8).search('^' + status + '$', true, false).draw();
   }
 }

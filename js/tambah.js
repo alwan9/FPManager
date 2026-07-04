@@ -106,6 +106,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
+
+  if (!isEditMode) {
+    const defaultDate = new Date();
+    deadlineInput.value = formatDate(defaultDate);
+    checkDeadline(deadlineInput.value);
+  }
   jumlahInput.addEventListener('input', kalkulasiNominalDanSisa);
   hargaSatuanInput.addEventListener('input', kalkulasiNominalDanSisa);
   dpInput.addEventListener('input', kalkulasiNominalDanSisa);

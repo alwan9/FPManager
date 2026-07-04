@@ -77,9 +77,9 @@ body {
   color: #059669;
 }
 
-.badge-diambil {
-  background-color: #ede9fe;
-  color: #7c3aed;
+.badge-belumpembayaran {
+  background-color: #fef2f2;
+  color: #ef4444;
 }
 
 .badge-dibatalkan {
@@ -144,6 +144,17 @@ table.dataTable tbody td {
   padding: 0.875rem 1rem !important;
   border-bottom: 1px solid #f1f5f9 !important;
   color: #334155 !important;
+}
+
+@media (max-width: 640px) {
+  table.dataTable thead th {
+    font-size: 0.65rem !important;
+    padding: 0.5rem 0.5rem !important;
+  }
+  table.dataTable tbody td {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 0.5rem !important;
+  }
 }
 
 table.dataTable.no-footer {

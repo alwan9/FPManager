@@ -67,7 +67,7 @@ function renderDeadlineAlerts(proyekList) {
   proyekList.forEach(proyek => {
     // Abaikan proyek yang sudah selesai/diambil/dibatalkan
     const statusLower = proyek.status.toLowerCase();
-    if (statusLower === 'selesai' || statusLower === 'sudah diambil' || statusLower === 'dibatalkan') {
+    if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
       return;
     }
     if (!proyek.deadline) return;

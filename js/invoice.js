@@ -100,8 +100,8 @@ const Invoice = {
             case "Selesai":
                 status.classList.add("bg-green-600");
                 break;
-            case "Sudah Diambil":
-                status.classList.add("bg-purple-600");
+            case "Belum Pembayaran":
+                status.classList.add("bg-red-600");
                 break;
             default:
                 status.classList.add("bg-gray-500");

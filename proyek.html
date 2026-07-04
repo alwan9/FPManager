@@ -175,10 +175,10 @@
             <span class="text-xs text-green-600 font-medium uppercase">Selesai</span>
             <span id="count-selesai" class="text-xl font-bold text-green-600 mt-1">-</span>
           </button>
-          <button onclick="filterStatus('Sudah Diambil')"
-            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-purple-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all col-span-2 sm:col-span-1">
-            <span class="text-xs text-purple-600 font-medium uppercase">Diambil</span>
-            <span id="count-diambil" class="text-xl font-bold text-purple-600 mt-1">-</span>
+          <button onclick="filterStatus('Belum Pembayaran')"
+            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-red-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all col-span-2 sm:col-span-1">
+            <span class="text-xs text-red-600 font-medium uppercase">Belum Bayar</span>
+            <span id="count-belumpembayaran" class="text-xl font-bold text-red-600 mt-1">-</span>
           </button>
         </div>
 
@@ -188,13 +188,13 @@
             <table id="proyekTable" class="w-full text-sm text-left">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th class="hidden md:table-cell">ID</th>
                   <th>Tanggal</th>
                   <th>Nama Projek</th>
-                  <th>Pelanggan</th>
+                  <th class="hidden md:table-cell">Pelanggan</th>
                   <th>WhatsApp</th>
                   <th>Total (Rp)</th>
-                  <th>Piutang (Rp)</th>
+                  <th class="hidden md:table-cell">Piutang (Rp)</th>
                   <th>Deadline</th>
                   <th>Status</th>
                   <th>Aksi</th>
@@ -327,9 +327,6 @@
               </button>
               <button onclick="generateAI('invoice')" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-sm transition">
                 Invoice
-              </button>
-              <button onclick="generateAI('deadline')" class="bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 text-sm transition">
-                Reminder Deadline
               </button>
             </div>
 
