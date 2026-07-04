@@ -54,7 +54,7 @@
     <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col shadow-xl z-20">
       <div class="p-5 flex items-center justify-between border-b border-slate-800">
         <a href="index.html" class="flex items-center space-x-3">
-          <img src="./assets/img/logo.png" class=" p-4 w-full">
+          <img src="./assets/img/logo.png" class="p-4 w-40 md:w-full">
         </a>
         <button id="mobileMenuBtn" class="md:hidden text-slate-400 hover:text-white focus:outline-none">
           <i class="fa-solid fa-bars text-xl"></i>
@@ -219,11 +219,10 @@
   <!-- Detail Modal -->
   <div id="detailModal"
     class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
-    <div
-      class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all border border-slate-100">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-slate-100">
 
       <!-- Modal Header -->
-      <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center">
+      <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center shrink-0">
         <h4 class="font-bold text-lg flex items-center space-x-2">
           <i class="fa-solid fa-circle-info"></i>
           <span>Detail Projek <span id="modalId">PRJ-001</span></span>
@@ -233,8 +232,9 @@
         </button>
       </div>
 
-      <!-- Modal Body -->
-      <div class="p-6 space-y-4 text-sm text-slate-700">
+      <!-- Modal Body (Scrollable) -->
+      <div class="overflow-y-auto flex-1">
+        <div class="p-6 space-y-4 text-sm text-slate-700">
 
         <!-- Status & Deadline Info -->
         <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
@@ -306,57 +306,50 @@
         </div>
 
       </div>
-      <div class="mt-6 border-t pt-5">
+      <div class="border-t border-slate-100 px-6 py-4 bg-white">
+        <details class="group">
+          <summary class="font-semibold cursor-pointer list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 transition-colors">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-robot"></i> AI Assistant
+            </span>
+            <span class="transition-transform duration-300 group-open:rotate-180">
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+          </summary>
+          
+          <div class="mt-4 pb-2">
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="generateAI('followup')" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-2 text-sm transition">
+                Follow Up
+              </button>
+              <button onclick="generateAI('penawaran')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 text-sm transition">
+                Penawaran
+              </button>
+              <button onclick="generateAI('invoice')" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-sm transition">
+                Invoice
+              </button>
+              <button onclick="generateAI('deadline')" class="bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 text-sm transition">
+                Reminder Deadline
+              </button>
+            </div>
 
-        <h3 class="font-semibold mb-3">
+            <textarea id="hasilAI" class="w-full mt-4 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" rows="6"
+              placeholder="Hasil AI akan muncul di sini..."></textarea>
 
-          🤖 AI Assistant
-
-        </h3>
-
-        <div class="grid grid-cols-2 gap-2">
-
-          <button onclick="generateAI('followup')" class="bg-indigo-600 text-white rounded p-2">
-
-            Follow Up
-
-          </button>
-
-          <button onclick="generateAI('penawaran')" class="bg-blue-600 text-white rounded p-2">
-
-            Penawaran
-
-          </button>
-
-          <button onclick="generateAI('invoice')" class="bg-green-600 text-white rounded p-2">
-
-            Invoice
-
-          </button>
-
-          <button onclick="generateAI('deadline')" class="bg-red-600 text-white rounded p-2">
-
-            Reminder Deadline
-
-          </button>
-
-        </div>
-
-        <textarea id="hasilAI" class="w-full mt-4 border rounded-lg p-3" rows="8"
-          placeholder="Hasil AI akan muncul di sini..."></textarea>
-
-        <div class="flex gap-2 mt-3">
-          <button onclick="copyAIText()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded">
-            <i class="fa-solid fa-copy mr-1"></i> Copy
-          </button>
-          <button onclick="sendAIWhatsapp()" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded">
-            <i class="fa-brands fa-whatsapp mr-1"></i> Kirim WA
-          </button>
-        </div>
-
+            <div class="flex gap-2 mt-3">
+              <button onclick="copyAIText()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                <i class="fa-solid fa-copy mr-2"></i> Copy
+              </button>
+              <button onclick="sendAIWhatsapp()" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                <i class="fa-brands fa-whatsapp mr-2"></i> Kirim WA
+              </button>
+            </div>
+          </div>
+        </details>
+      </div>
       </div>
       <!-- Modal Footer -->
-      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-between gap-3">
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
         <!-- WA action button -->
         <a id="modalWaBtn" target="_blank" href="#"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-xs text-center shadow flex items-center justify-center">
