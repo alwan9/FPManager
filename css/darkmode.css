@@ -1,0 +1,128 @@
+/* Real Dark Mode Overrides (Zinc Theme) */
+html.dark body,
+html.dark body.bg-slate-50 {
+  background-color: #09090b !important; /* zinc-950 */
+  color: #e4e4e7 !important; /* zinc-200 */
+}
+
+/* For panels, cards, headers */
+html.dark .bg-white,
+html.dark section .bg-slate-50,
+html.dark div.bg-slate-50 {
+  background-color: #27272a !important; /* zinc-800 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+}
+
+/* Hover utilities */
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-slate-800:hover,
+html.dark .hover\:bg-slate-50:hover {
+  background-color: #27272a !important; /* zinc-800 */
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-600,
+html.dark .text-slate-400 {
+  color: #a1a1aa !important; /* zinc-400 */
+}
+
+html.dark .border-slate-200,
+html.dark .border-slate-100 {
+  border-color: #27272a !important; /* zinc-800 */
+}
+
+html.dark .hover-card:hover {
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.7), 0 8px 8px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* Sidebar adjustments */
+html.dark aside.bg-slate-900,
+html.dark aside {
+  background-color: #18181b !important; /* zinc-900 */
+  border-color: #27272a !important; /* zinc-800 */
+}
+
+/* Modals & Glass Panels */
+html.dark .glass-panel {
+  background: rgba(24, 24, 27, 0.8) !important; /* zinc-900 */
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* DataTables Overrides for Dark Mode */
+html.dark table.dataTable thead th {
+  background-color: #18181b !important; /* zinc-900 */
+  color: #d4d4d8 !important; /* zinc-300 */
+  border-bottom: 2px solid #3f3f46 !important; /* zinc-700 */
+}
+
+html.dark table.dataTable tbody td {
+  border-bottom: 1px solid #27272a !important; /* zinc-800 */
+  color: #e4e4e7 !important; /* zinc-200 */
+}
+
+html.dark .dataTables_wrapper .dataTables_filter input,
+html.dark .dataTables_wrapper .dataTables_length select {
+  background-color: #18181b !important; /* zinc-900 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+  color: #e4e4e7 !important; /* zinc-200 */
+}
+
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: #27272a !important; /* zinc-800 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+  color: #d4d4d8 !important; /* zinc-300 */
+}
+
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: #3f3f46 !important; /* zinc-700 */
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #4f46e5 !important;
+  color: #fff !important;
+  border-color: #4f46e5 !important;
+}
+
+/* Inputs and Forms */
+html.dark input[type="text"],
+html.dark input[type="number"],
+html.dark input[type="date"],
+html.dark input[type="password"],
+html.dark select,
+html.dark textarea {
+  background-color: #18181b !important; /* zinc-900 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #71717a !important; /* zinc-500 */
+}
+
+/* Specific background adjustments for alerts/badges */
+html.dark .bg-red-50, html.dark .badge-belumpembayaran, html.dark .badge-dibatalkan {
+  background-color: rgba(220, 38, 38, 0.15) !important;
+}
+html.dark .bg-emerald-50, html.dark .badge-selesai {
+  background-color: rgba(5, 150, 105, 0.15) !important;
+}
+html.dark .bg-indigo-50 {
+  background-color: rgba(79, 70, 229, 0.15) !important;
+}
+html.dark .badge-menunggu {
+  background-color: rgba(217, 119, 6, 0.15) !important;
+}
+html.dark .badge-dikerjakan {
+  background-color: rgba(37, 99, 235, 0.15) !important;
+}
+
+html.dark #globalLoader {
+  background-color: #18181b !important; /* zinc-900 */
+}

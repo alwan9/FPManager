@@ -43,12 +43,15 @@
   <!-- DataTables -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
   <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-  <link rel="stylesheet" href="css/style.css">
-</head>
+  
+  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="manifest" href="manifest.json">
+
 
 <body class="bg-slate-50 text-slate-800">
   <!-- Global Loader -->
-  <div id="globalLoader" class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+  <div id="globalLoader"
+    class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
     <div class="flex flex-col items-center">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
       <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
@@ -117,7 +120,7 @@
           <span>Manajemen Data Projek</span>
         </h2>
         <div class="flex items-center space-x-4">
-          <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
+          <button id="darkModeToggle" class="text-slate-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
           <span id="apiStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
@@ -226,7 +229,8 @@
   <!-- Detail Modal -->
   <div id="detailModal"
     class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-slate-100">
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-slate-100">
 
       <!-- Modal Header -->
       <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center shrink-0">
@@ -243,117 +247,125 @@
       <div class="overflow-y-auto flex-1">
         <div class="p-6 space-y-4 text-sm text-slate-700">
 
-        <!-- Status & Deadline Info -->
-        <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <span class="text-xs text-slate-400 block">Status Projek</span>
-            <span id="modalStatus"
-              class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mt-1">Status</span>
-          </div>
-          <div>
-            <span class="text-xs text-slate-400 block">Deadline Target</span>
-            <span id="modalDeadline" class="font-semibold text-slate-800 mt-1 block">Tanggal</span>
-          </div>
-        </div>
-
-        <!-- Customer details -->
-        <div>
-          <span class="text-xs text-slate-400 block">Pelanggan</span>
-          <span id="modalPelanggan" class="font-bold text-base text-slate-900 block mt-0.5">Nama Pelanggan</span>
-          <div class="flex items-center space-x-2 mt-1">
-            <i class="fa-brands fa-whatsapp text-green-500"></i>
-            <span id="modalWa" class="text-slate-600 text-xs">62812345</span>
-          </div>
-        </div>
-
-        <!-- Product Details -->
-        <div class="bg-slate-50 p-4 rounded-xl space-y-2">
-          <div>
-            <span class="text-xs text-slate-400 block">Nama Pekerjaan</span>
-            <span id="modalNamaProyek" class="font-semibold text-slate-800">Nama Brosur</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2">
+          <!-- Status & Deadline Info -->
+          <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
             <div>
-              <span class="text-xs text-slate-400 block">Produk</span>
-              <span id="modalProduk" class="font-medium text-xs text-slate-700">Brosur</span>
+              <span class="text-xs text-slate-400 block">Status Projek</span>
+              <span id="modalStatus"
+                class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mt-1">Status</span>
             </div>
             <div>
-              <span class="text-xs text-slate-400 block">Jumlah</span>
-              <span id="modalJumlah" class="font-medium text-xs text-slate-700">500</span>
+              <span class="text-xs text-slate-400 block">Deadline Target</span>
+              <span id="modalDeadline" class="font-semibold text-slate-800 mt-1 block">Tanggal</span>
+            </div>
+          </div>
+
+          <!-- Customer details -->
+          <div>
+            <span class="text-xs text-slate-400 block">Pelanggan</span>
+            <span id="modalPelanggan" class="font-bold text-base text-slate-900 block mt-0.5">Nama Pelanggan</span>
+            <div class="flex items-center space-x-2 mt-1">
+              <i class="fa-brands fa-whatsapp text-green-500"></i>
+              <span id="modalWa" class="text-slate-600 text-xs">62812345</span>
+            </div>
+          </div>
+
+          <!-- Product Details -->
+          <div class="bg-slate-50 p-4 rounded-xl space-y-2">
+            <div>
+              <span class="text-xs text-slate-400 block">Nama Pekerjaan</span>
+              <span id="modalNamaProyek" class="font-semibold text-slate-800">Nama Brosur</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <span class="text-xs text-slate-400 block">Produk</span>
+                <span id="modalProduk" class="font-medium text-xs text-slate-700">Brosur</span>
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 block">Jumlah</span>
+                <span id="modalJumlah" class="font-medium text-xs text-slate-700">500</span>
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 block">Satuan</span>
+                <span id="modalSatuan" class="font-medium text-xs text-slate-700">pcs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Finance Breakdown -->
+          <div class="grid grid-cols-3 gap-4 py-2">
+            <div>
+              <span class="text-xs text-slate-400 block">Total Nominal</span>
+              <span id="modalNominal" class="font-bold text-slate-800 text-sm">Rp0</span>
             </div>
             <div>
-              <span class="text-xs text-slate-400 block">Satuan</span>
-              <span id="modalSatuan" class="font-medium text-xs text-slate-700">pcs</span>
+              <span class="text-xs text-slate-400 block">Uang Muka (DP)</span>
+              <span id="modalDp" class="font-bold text-slate-800 text-sm">Rp0</span>
+            </div>
+            <div>
+              <span class="text-xs text-slate-400 block">Sisa / Piutang</span>
+              <span id="modalSisa" class="font-bold text-rose-600 text-sm">Rp0</span>
             </div>
           </div>
-        </div>
 
-        <!-- Finance Breakdown -->
-        <div class="grid grid-cols-3 gap-4 py-2">
+          <!-- Catatan -->
           <div>
-            <span class="text-xs text-slate-400 block">Total Nominal</span>
-            <span id="modalNominal" class="font-bold text-slate-800 text-sm">Rp0</span>
+            <span class="text-xs text-slate-400 block">Catatan / Keterangan</span>
+            <p id="modalCatatan"
+              class="mt-1 bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-600 italic">Tidak ada
+              catatan.</p>
           </div>
-          <div>
-            <span class="text-xs text-slate-400 block">Uang Muka (DP)</span>
-            <span id="modalDp" class="font-bold text-slate-800 text-sm">Rp0</span>
-          </div>
-          <div>
-            <span class="text-xs text-slate-400 block">Sisa / Piutang</span>
-            <span id="modalSisa" class="font-bold text-rose-600 text-sm">Rp0</span>
-          </div>
-        </div>
 
-        <!-- Catatan -->
-        <div>
-          <span class="text-xs text-slate-400 block">Catatan / Keterangan</span>
-          <p id="modalCatatan"
-            class="mt-1 bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-600 italic">Tidak ada
-            catatan.</p>
         </div>
+        <div class="border-t border-slate-100 px-6 py-4 bg-white">
+          <details class="group">
+            <summary
+              class="font-semibold cursor-pointer list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 transition-colors">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-robot"></i> AI Assistant
+              </span>
+              <span class="transition-transform duration-300 group-open:rotate-180">
+                <i class="fa-solid fa-chevron-down"></i>
+              </span>
+            </summary>
 
-      </div>
-      <div class="border-t border-slate-100 px-6 py-4 bg-white">
-        <details class="group">
-          <summary class="font-semibold cursor-pointer list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 transition-colors">
-            <span class="flex items-center gap-2">
-              <i class="fa-solid fa-robot"></i> AI Assistant
-            </span>
-            <span class="transition-transform duration-300 group-open:rotate-180">
-              <i class="fa-solid fa-chevron-down"></i>
-            </span>
-          </summary>
-          
-          <div class="mt-4 pb-2">
-            <div class="grid grid-cols-2 gap-2">
-              <button onclick="generateAI('followup')" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-2 text-sm transition">
-                Follow Up
-              </button>
-              <button onclick="generateAI('penawaran')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 text-sm transition">
-                Penawaran
-              </button>
-              <button onclick="generateAI('invoice')" class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-sm transition">
-                Invoice
-              </button>
+            <div class="mt-4 pb-2">
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="generateAI('followup')"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-2 text-sm transition">
+                  Follow Up
+                </button>
+                <button onclick="generateAI('penawaran')"
+                  class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 text-sm transition">
+                  Penawaran
+                </button>
+                <button onclick="generateAI('invoice')"
+                  class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-sm transition">
+                  Invoice
+                </button>
+              </div>
+
+              <textarea id="hasilAI"
+                class="w-full mt-4 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                rows="6" placeholder="Hasil AI akan muncul di sini..."></textarea>
+
+              <div class="flex gap-2 mt-3">
+                <button onclick="copyAIText()"
+                  class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                  <i class="fa-solid fa-copy mr-2"></i> Copy
+                </button>
+                <button onclick="sendAIWhatsapp()"
+                  class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                  <i class="fa-brands fa-whatsapp mr-2"></i> Kirim WA
+                </button>
+              </div>
             </div>
-
-            <textarea id="hasilAI" class="w-full mt-4 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" rows="6"
-              placeholder="Hasil AI akan muncul di sini..."></textarea>
-
-            <div class="flex gap-2 mt-3">
-              <button onclick="copyAIText()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
-                <i class="fa-solid fa-copy mr-2"></i> Copy
-              </button>
-              <button onclick="sendAIWhatsapp()" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
-                <i class="fa-brands fa-whatsapp mr-2"></i> Kirim WA
-              </button>
-            </div>
-          </div>
-        </details>
-      </div>
+          </details>
+        </div>
       </div>
       <!-- Modal Footer -->
-      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
+      <div
+        class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
         <!-- WA action button -->
         <a id="modalWaBtn" target="_blank" href="#"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-xs text-center shadow flex items-center justify-center">
@@ -528,6 +540,8 @@
       navMenu.classList.toggle('flex');
     });
   </script>
-</body>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
+
 
 </html>

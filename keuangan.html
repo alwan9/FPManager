@@ -43,12 +43,15 @@
   <!-- DataTables -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
   <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-  <link rel="stylesheet" href="css/style.css">
-</head>
+  
+  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="manifest" href="manifest.json">
+
 
 <body class="bg-slate-50 text-slate-800">
   <!-- Global Loader -->
-  <div id="globalLoader" class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+  <div id="globalLoader"
+    class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
     <div class="flex flex-col items-center">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
       <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
@@ -115,7 +118,7 @@
           <span>Arus Kas & Keuangan</span>
         </h2>
         <div class="flex items-center space-x-4">
-          <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
+          <button id="darkModeToggle" class="text-slate-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
           <span id="apiStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
@@ -282,6 +285,8 @@
       navMenu.classList.toggle('flex');
     });
   </script>
-</body>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
+
 
 </html>

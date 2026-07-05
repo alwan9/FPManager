@@ -42,7 +42,8 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <!-- Chart.js (Optional here if we display mini charts) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="css/style.css">
+  
+  <link rel="stylesheet" href="css/darkmode.css">
 
   <style>
     /* Styling khusus cetak (Print-friendly CSS) */
@@ -79,11 +80,13 @@
       }
     }
   </style>
-</head>
+  <link rel="manifest" href="manifest.json">
+
 
 <body class="bg-slate-50 text-slate-800">
   <!-- Global Loader -->
-  <div id="globalLoader" class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+  <div id="globalLoader"
+    class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
     <div class="flex flex-col items-center">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
       <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
@@ -151,7 +154,7 @@
           <span>Laporan Bisnis & Ekspor</span>
         </h2>
         <div class="flex items-center space-x-4">
-          <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
+          <button id="darkModeToggle" class="text-slate-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
           <span id="apiStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
@@ -195,45 +198,54 @@
 
           <!-- Total Proyek & Omzet -->
           <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Kinerja Proyek</span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Kinerja
+              Proyek</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-slate-500 block truncate">Total Proyek</span>
-                <span id="recapTotalProyek" class="text-base md:text-xl font-extrabold text-slate-950 block truncate">-</span>
+                <span id="recapTotalProyek"
+                  class="text-base md:text-xl font-extrabold text-slate-950 block truncate">-</span>
               </div>
               <div class="text-right min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-slate-500 block truncate">Total Omzet</span>
-                <span id="recapTotalOmzet" class="text-base md:text-xl font-extrabold text-indigo-600 block truncate">Rp0</span>
+                <span id="recapTotalOmzet"
+                  class="text-base md:text-xl font-extrabold text-indigo-600 block truncate">Rp0</span>
               </div>
             </div>
           </div>
 
           <!-- Total DP & Piutang -->
           <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Piutang & DP</span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Piutang &
+              DP</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-slate-500 block truncate">DP Diterima</span>
-                <span id="recapTotalDp" class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
+                <span id="recapTotalDp"
+                  class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
               </div>
               <div class="text-right min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-slate-500 block truncate">Sisa Piutang</span>
-                <span id="recapTotalPiutang" class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
+                <span id="recapTotalPiutang"
+                  class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
               </div>
             </div>
           </div>
 
           <!-- Pengeluaran & Laba Rugi -->
           <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Hasil Finansial</span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Hasil
+              Finansial</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-slate-500 block truncate">Pengeluaran</span>
-                <span id="recapTotalPengeluaran" class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
+                <span id="recapTotalPengeluaran"
+                  class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
               </div>
               <div class="text-right min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-slate-500 block truncate">Laba Bersih</span>
-                <span id="recapTotalLaba" class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
+                <span id="recapTotalLaba"
+                  class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
               </div>
             </div>
           </div>
@@ -296,6 +308,8 @@
       navMenu.classList.toggle('flex');
     });
   </script>
-</body>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
+
 
 </html>

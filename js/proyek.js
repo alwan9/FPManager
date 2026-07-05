@@ -297,7 +297,7 @@ function sendAIWhatsapp() {
     });
     return;
   }
-  
+
   const text = document.getElementById("hasilAI").value;
   if (!text.trim()) {
     showToast({

@@ -36,6 +36,9 @@
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/favicon.png">
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
 
   <!-- Tailwind CSS v2 CDN okeee -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -44,13 +47,15 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/darkmode.css">
 
 
 </head>
 
 <body class="bg-slate-50 text-slate-800">
   <!-- Global Loader -->
-  <div id="globalLoader" class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+  <div id="globalLoader"
+    class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
     <div class="flex flex-col items-center">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
       <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
@@ -118,6 +123,9 @@
           <span>Dashboard Usaha</span>
         </h2>
         <div class="flex items-center space-x-4">
+          <button id="darkModeToggle" class="text-slate-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode">
+            <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i>
+          </button>
           <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
           <span id="apiStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
@@ -161,10 +169,14 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
 
           <!-- Card Total Proyek -->
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
+          <div
+            class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Total Projek</span>
-              <span id="statTotalProyek" class="text-base sm:text-lg md:text-2xl font-extrabold text-slate-900 mt-1 block truncate">-</span>
+              <span
+                class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Total
+                Projek</span>
+              <span id="statTotalProyek"
+                class="text-base sm:text-lg md:text-2xl font-extrabold text-slate-900 mt-1 block truncate">-</span>
             </div>
             <div class="bg-slate-100 text-slate-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-briefcase text-base md:text-lg"></i>
@@ -172,10 +184,13 @@
           </div>
 
           <!-- Card Pendapatan -->
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
+          <div
+            class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Pendapatan</span>
-              <span id="statPendapatan" class="text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate">Rp0</span>
+              <span
+                class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Pendapatan</span>
+              <span id="statPendapatan"
+                class="text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate">Rp0</span>
             </div>
             <div class="bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-arrow-trend-up text-base md:text-lg"></i>
@@ -183,10 +198,13 @@
           </div>
 
           <!-- Card Pengeluaran -->
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
+          <div
+            class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Pengeluaran</span>
-              <span id="statPengeluaran" class="text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate">Rp0</span>
+              <span
+                class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Pengeluaran</span>
+              <span id="statPengeluaran"
+                class="text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate">Rp0</span>
             </div>
             <div class="bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-arrow-trend-down text-base md:text-lg"></i>
@@ -194,10 +212,14 @@
           </div>
 
           <!-- Card Keuntungan -->
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
+          <div
+            class="bg-white rounded-2xl border border-slate-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Laba Bersih</span>
-              <span id="statKeuntungan" class="text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 mt-1 block truncate">Rp0</span>
+              <span
+                class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase tracking-wider block truncate">Laba
+                Bersih</span>
+              <span id="statKeuntungan"
+                class="text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 mt-1 block truncate">Rp0</span>
             </div>
             <div class="bg-indigo-50 text-indigo-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-scale-balanced text-base md:text-lg"></i>
@@ -266,6 +288,8 @@
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
 
   <script>
     // Mobile responsive menu toggle

@@ -41,18 +41,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <!-- Global Style -->
-    <link rel="stylesheet" href="css/style.css">
+    
+  <link rel="stylesheet" href="css/darkmode.css">
 
-</head>
+  <link rel="manifest" href="manifest.json">
+
 
 <body class="bg-slate-100">
-  <!-- Global Loader -->
-  <div id="globalLoader" class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
-    <div class="flex flex-col items-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
-      <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
+    <!-- Global Loader -->
+    <div id="globalLoader"
+        class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
+            <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
+        </div>
     </div>
-  </div>
 
     <div class="max-w-5xl mx-auto py-10 px-6">
 
@@ -328,6 +331,8 @@
     <!-- Invoice JS -->
     <script src="js/invoice.js"></script>
 
-</body>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
+
 
 </html>
