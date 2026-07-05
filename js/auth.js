@@ -1,5 +1,13 @@
 const Auth = {
   login: async (password) => {
+    if (CONFIG.MOCK_MODE) {
+      if (password === 'admin' || password === 'admin123') {
+        sessionStorage.setItem("token", "mock_token_12345");
+        return { success: true, token: "mock_token_12345" };
+      } else {
+        return { success: false, message: "Password admin salah (Mode Mock: gunakan 'admin' atau 'admin123')." };
+      }
+    }
     try {
       const body = new URLSearchParams();
       body.append("action", "login");
