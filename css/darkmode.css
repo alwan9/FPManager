@@ -25,6 +25,18 @@ html.dark .text-slate-800 {
   color: #f4f4f5 !important; /* zinc-100 */
 }
 
+/* Indigo text adjustments */
+html.dark .text-indigo-600,
+html.dark .text-indigo-700,
+html.dark .text-indigo-800 {
+  color: #6366f1 !important; /* indigo-500 */
+}
+
+html.dark .hover\:text-indigo-800:hover,
+html.dark .hover\:text-indigo-600:hover {
+  color: #818cf8 !important; /* indigo-400 */
+}
+
 html.dark .text-slate-500,
 html.dark .text-slate-600,
 html.dark .text-slate-400 {
