@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
       apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
 
@@ -113,7 +113,7 @@ function renderMonthlySummaryList(monthlyList) {
   container.innerHTML = '';
 
   if (monthlyList.length === 0) {
-    container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">Belum ada mutasi keuangan tercatat.</div>`;
+    container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">Belum ada mutasi keuangan tercatat.</div>`;
     return;
   }
 
@@ -123,15 +123,15 @@ function renderMonthlySummaryList(monthlyList) {
   reversedList.forEach(item => {
     const profit = item.pemasukan - item.pengeluaran;
     const itemEl = document.createElement('div');
-    itemEl.className = 'p-4 border border-slate-100 rounded-xl space-y-1.5 bg-slate-50';
+    itemEl.className = 'p-4 border border-zinc-100 rounded-xl space-y-1.5 bg-zinc-50';
     itemEl.innerHTML = `
       <div class="flex justify-between items-center">
-        <span class="font-bold text-slate-800 text-sm">${item.monthLabel}</span>
+        <span class="font-bold text-zinc-800 text-sm">${item.monthLabel}</span>
         <span class="text-xs font-semibold ${profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
           Profit: ${formatRupiah(profit)}
         </span>
       </div>
-      <div class="grid grid-cols-2 gap-2 text-xs text-slate-500">
+      <div class="grid grid-cols-2 gap-2 text-xs text-zinc-500">
         <div>Masuk: <span class="text-emerald-600 font-medium">${formatRupiah(item.pemasukan)}</span></div>
         <div class="text-right">Keluar: <span class="text-rose-600 font-medium">${formatRupiah(item.pengeluaran)}</span></div>
       </div>
@@ -266,3 +266,5 @@ function formatRupiah(number) {
     minimumFractionDigits: 0
   }).format(number);
 }
+
+

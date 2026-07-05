@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
       apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
   // Ambil element form
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ubah sidebar active link ke Data Proyek daripada Tambah Proyek
     const sidebarAddLink = document.getElementById('sidebarAddLink');
     if (sidebarAddLink) {
-      sidebarAddLink.className = 'sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100';
+      sidebarAddLink.className = 'sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100';
       sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>Tambah Proyek</span>`;
     }
     // Ambil data proyek untuk diisi ke form
@@ -237,3 +237,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+
+

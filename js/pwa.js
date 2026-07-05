@@ -11,6 +11,45 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// PWA Install Prompt Logic
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  // Update UI notify the user they can install the PWA
+  const installBtn = document.getElementById('pwaInstallBtn');
+  const installBtnMobile = document.getElementById('pwaInstallBtnMobile');
+  
+  const setupInstallBtn = (btn, isFlex) => {
+    if (!btn) return;
+    btn.classList.remove('hidden');
+    if (isFlex) btn.classList.add('flex');
+    else btn.classList.add('block');
+    
+    btn.addEventListener('click', async () => {
+      if (installBtn) {
+        installBtn.classList.add('hidden');
+        installBtn.classList.remove('flex');
+      }
+      if (installBtnMobile) {
+        installBtnMobile.classList.add('hidden');
+        installBtnMobile.classList.remove('block');
+      }
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+      }
+    });
+  };
+
+  setupInstallBtn(installBtn, true);
+  setupInstallBtn(installBtnMobile, false);
+});
+
 // Request Notification Permission on load if not already handled
 if ('Notification' in window && Notification.permission === 'default') {
   Notification.requestPermission();
@@ -19,7 +58,7 @@ if ('Notification' in window && Notification.permission === 'default') {
 // Check for Deadlines (H-1)
 async function checkDeadlines() {
   if (!('Notification' in window)) return;
-  
+
   if (Notification.permission === 'granted') {
     if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
       try {
@@ -32,14 +71,14 @@ async function checkDeadlines() {
           if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
             return;
           }
-          
+
           if (!proyek.deadline) return;
           const deadlineDate = new Date(proyek.deadline);
           deadlineDate.setHours(0, 0, 0, 0);
-          
+
           const diffTime = deadlineDate - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
+
           if (diffDays === 1) { // H-1
             // Check if we already notified today to prevent spam
             const notifKey = `notified_${proyek.id || proyek.namaProyek}_${today.getTime()}`;
@@ -73,3 +112,5 @@ function showNotification(title, options) {
 setTimeout(checkDeadlines, 5000);
 // Run check periodically (every 1 hour)
 setInterval(checkDeadlines, 60 * 60 * 1000);
+
+

@@ -152,3 +152,4 @@ const Invoice = {
 document.addEventListener("DOMContentLoaded", () => {
     Invoice.init();
 });
+

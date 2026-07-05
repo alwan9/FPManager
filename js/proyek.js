@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
       apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
   // Load Data
@@ -99,7 +99,7 @@ function initTable(data) {
         render: function (data) {
           return `
             <div class="flex space-x-1.5">
-              <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-xs font-semibold" title="Detail Proyek">
+              <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
                 <i class="fa-solid fa-eye"></i>
               </button>
               <a href="tambah-proyek.html?id=${data.iDProyek}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
@@ -321,3 +321,5 @@ function formatRupiah(number) {
     minimumFractionDigits: 0
   }).format(number);
 }
+
+

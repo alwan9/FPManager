@@ -42,13 +42,13 @@
 </head>
 
 <body
-  class="bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900 min-h-screen flex items-center justify-center p-4">
+  class="bg-gradient-to-br from-indigo-900 via-blue-900 to-zinc-900 min-h-screen flex items-center justify-center p-4">
   <!-- Global Loader -->
   <div id="globalLoader"
-    class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+    class="fixed inset-0 z-[9999] bg-zinc-50 flex items-center justify-center transition-opacity duration-500">
     <div class="flex flex-col items-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
-      <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-zinc-200 border-t-indigo-600 mb-3"></div>
+      <p class="text-zinc-500 font-medium text-sm">Memuat data...</p>
     </div>
   </div>
 
@@ -60,22 +60,22 @@
         <i class="fa-solid fa-folder-open text-3xl"></i>
       </div>
       <h1 class="text-3xl font-extrabold tracking-tight">ProjekManager</h1>
-      <p class="text-slate-300 mt-2 text-sm">Masuk untuk mengelola proyek dan laporan keuangan</p>
+      <p class="text-zinc-300 mt-2 text-sm">Masuk untuk mengelola proyek dan laporan keuangan</p>
     </div>
 
     <!-- Login Form -->
     <form id="loginForm" class="space-y-6">
       <div>
-        <label for="password" class="block text-sm font-medium text-slate-300 mb-2">Password Admin</label>
+        <label for="password" class="block text-sm font-medium text-zinc-300 mb-2">Password Admin</label>
         <div class="relative rounded-md shadow-sm">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fa-solid fa-lock text-slate-400"></i>
+            <i class="fa-solid fa-lock text-zinc-400"></i>
           </div>
           <input type="password" name="password" id="password" required
-            class="block w-full pl-10 pr-10 py-3 bg-slate-800 bg-opacity-50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent  placeholder-slate-500 text-sm transition-all"
+            class="block w-full pl-10 pr-10 py-3 bg-zinc-800 bg-opacity-50 border border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent  placeholder-zinc-500 text-sm transition-all"
             placeholder="Masukkan password admin">
           <button type="button" id="togglePassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors">
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white transition-colors">
             <i class="fa-solid fa-eye" id="eyeIcon"></i>
           </button>
         </div>
@@ -90,13 +90,13 @@
 
       <div>
         <button type="submit"
-          class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl font-semibold text-white shadow-lg transform transition hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 text-sm">
+          class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl font-semibold text-white shadow-lg transform transition hover:-tranzinc-y-0.5 active:tranzinc-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-indigo-500 text-sm">
           Masuk ke Dashboard
         </button>
       </div>
     </form>
 
-    <div class="text-center mt-8 text-xs text-slate-400">
+    <div class="text-center mt-8 text-xs text-zinc-400">
       &copy; 2026 Kelola FPManager. All rights reserved.
     </div>
   </div>

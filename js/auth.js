@@ -53,3 +53,4 @@ const Auth = {
 document.addEventListener("DOMContentLoaded", () => {
   Auth.checkLogin();
 });
+

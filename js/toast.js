@@ -46,7 +46,7 @@ const Toast = (() => {
         const toast = document.createElement("div");
 
         toast.className =
-            "w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform translate-x-[450px] opacity-0 transition-all duration-300";
+            "w-96 bg-white rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden transform tranzinc-x-[450px] opacity-0 transition-all duration-300";
 
         toast.innerHTML = `
 
@@ -66,13 +66,13 @@ const Toast = (() => {
 
                         <div>
 
-                            <h3 class="font-bold text-slate-800">
+                            <h3 class="font-bold text-zinc-800">
 
                                 ${title}
 
                             </h3>
 
-                            <p class="text-sm text-slate-500 mt-1">
+                            <p class="text-sm text-zinc-500 mt-1">
 
                                 ${message}
 
@@ -82,7 +82,7 @@ const Toast = (() => {
 
                     </div>
 
-                    <button class="close text-slate-400 hover:text-black">
+                    <button class="close text-zinc-400 hover:text-black">
 
                         <i class="fa-solid fa-xmark"></i>
 
@@ -92,7 +92,7 @@ const Toast = (() => {
 
             </div>
 
-            <div class="h-1 bg-slate-100">
+            <div class="h-1 bg-zinc-100">
 
                 <div
                     class="progress h-full"
@@ -111,7 +111,7 @@ const Toast = (() => {
 
         requestAnimationFrame(() => {
 
-            toast.classList.remove("translate-x-[450px]", "opacity-0");
+            toast.classList.remove("tranzinc-x-[450px]", "opacity-0");
 
         });
 
@@ -123,7 +123,7 @@ const Toast = (() => {
 
         function removeToast() {
 
-            toast.classList.add("translate-x-[450px]", "opacity-0");
+            toast.classList.add("tranzinc-x-[450px]", "opacity-0");
 
             setTimeout(() => {
 
@@ -196,3 +196,4 @@ function showToast({
     }
 
 }
+

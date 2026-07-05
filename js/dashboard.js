@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
       apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
   // Load Dashboard Data
@@ -83,12 +83,12 @@ function renderDeadlineAlerts(proyekList) {
       else if (diffDays === 1) dayText = 'BESOK!';
       else dayText = `${diffDays} hari lagi`;
       const alertCard = document.createElement('div');
-      alertCard.className = 'flex items-center justify-between p-3.5 bg-red-50 border border-red-200 rounded-xl text-slate-800 shadow-sm';
+      alertCard.className = 'flex items-center justify-between p-3.5 bg-red-50 border border-red-200 rounded-xl text-zinc-800 shadow-sm';
       alertCard.innerHTML = `
         <div class="min-w-0 flex-1 pr-2">
           <span class="font-bold text-xs text-red-600 block tracking-wider uppercase mb-0.5">${dayText}</span>
-          <span class="font-semibold text-sm text-slate-900 block truncate">${proyek.namaProyek}</span>
-          <span class="text-xs text-slate-500 truncate block">Pelanggan: ${proyek.namaPelanggan}</span>
+          <span class="font-semibold text-sm text-zinc-900 block truncate">${proyek.namaProyek}</span>
+          <span class="text-xs text-zinc-500 truncate block">Pelanggan: ${proyek.namaPelanggan}</span>
         </div>
         <a href="proyek.html" class="flex-shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
           Cek
@@ -108,7 +108,7 @@ function renderRecentProjects(proyekList) {
   const container = document.getElementById('recentProyekList');
   container.innerHTML = '';
   if (proyekList.length === 0) {
-    container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">Belum ada proyek terdaftar.</div>`;
+    container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">Belum ada proyek terdaftar.</div>`;
     return;
   }
   // Ambil maksimal 5 proyek terakhir (mengacu dari belakang array)
@@ -116,16 +116,16 @@ function renderRecentProjects(proyekList) {
   recent.forEach(p => {
     const badgeClass = 'badge-' + p.status.toLowerCase().replace(/\s+/g, '');
     const item = document.createElement('div');
-    item.className = 'flex items-center justify-between p-3 border border-slate-100 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors duration-150';
+    item.className = 'flex items-center justify-between p-3 border border-zinc-100 rounded-xl bg-zinc-50 hover:bg-zinc-100 transition-colors duration-150';
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
-        <span class="font-bold text-sm text-slate-900 block truncate">${p.namaProyek}</span>
-        <span class="text-xs text-slate-500 block truncate">Klien: ${p.namaPelanggan}</span>
+        <span class="font-bold text-sm text-zinc-900 block truncate">${p.namaProyek}</span>
+        <span class="text-xs text-zinc-500 block truncate">Klien: ${p.namaPelanggan}</span>
         <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}">${p.status}</span>
       </div>
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-sm text-slate-800 block">${formatRupiah(p.nominalProyek)}</span>
-        <span class="text-[10px] text-slate-400 block">${p.tanggal}</span>
+        <span class="font-bold text-sm text-zinc-800 block">${formatRupiah(p.nominalProyek)}</span>
+        <span class="text-[10px] text-zinc-400 block">${p.tanggal}</span>
       </div>
     `;
     container.appendChild(item);
@@ -225,3 +225,5 @@ function formatRupiah(number) {
     minimumFractionDigits: 0
   }).format(number);
 }
+
+

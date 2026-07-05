@@ -48,58 +48,63 @@
   <link rel="manifest" href="manifest.json">
 
 
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-zinc-50 text-zinc-800">
   <!-- Global Loader -->
   <div id="globalLoader"
-    class="fixed inset-0 z-[9999] bg-slate-50 flex items-center justify-center transition-opacity duration-500">
+    class="fixed inset-0 z-[9999] bg-zinc-50 flex items-center justify-center transition-opacity duration-500">
     <div class="flex flex-col items-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-3"></div>
-      <p class="text-slate-500 font-medium text-sm">Memuat data...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-zinc-200 border-t-indigo-600 mb-3"></div>
+      <p class="text-zinc-500 font-medium text-sm">Memuat data...</p>
     </div>
   </div>
 
   <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Sidebar Navigation -->
-    <aside class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-slate-900 text-slate-100 flex flex-col-reverse md:flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50 transition-all duration-300">
-      <div class="p-4 md:p-5 flex items-center justify-between border-t md:border-t-0 md:border-b border-slate-800 bg-slate-900 z-10">
+        <aside
+      class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-zinc-900 text-zinc-100 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50 transition-all duration-300">
+      <div
+        class="hidden md:flex p-4 md:p-5 items-center justify-between border-b border-zinc-800 bg-zinc-900 z-10">
         <a href="index.html" class="flex items-center space-x-3">
           <img src="./assets/img/logo.png" class="p-4 w-40 md:w-full">
         </a>
-        <button id="mobileMenuBtn" class="md:hidden text-slate-400 hover:text-white focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
       </div>
 
-
       <!-- Navigation Links -->
-      <nav id="navMenu" class="hidden md:flex flex-col flex-1 p-4 space-y-1 bg-slate-900 overflow-y-auto max-h-[60vh] md:max-h-none md:overflow-visible border-t md:border-t-0 border-slate-800">
+      <nav id="navMenu"
+        class="flex flex-row md:flex-col justify-around md:justify-start md:space-y-1 p-2 md:p-4 bg-zinc-900 border-t md:border-t-0 border-zinc-800 w-full md:w-auto overflow-x-auto md:overflow-visible">
         <a href="index.html"
-          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
-          <i class="fa-solid fa-chart-line w-5"></i>
-          <span>Dashboard</span>
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-chart-line text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Home</span>
         </a>
         <a href="proyek.html"
-          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium shadow-md">
-          <i class="fa-solid fa-list-check w-5"></i>
-          <span>Data Projek</span>
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-list-check text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Projek</span>
         </a>
         <a href="tambah-proyek.html"
-          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
-          <i class="fa-solid fa-circle-plus w-5"></i>
-          <span>Tambah Projek</span>
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-circle-plus text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Tambah</span>
         </a>
         <a href="keuangan.html"
-          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
-          <i class="fa-solid fa-wallet w-5"></i>
-          <span>Keuangan</span>
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-wallet text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Keuangan</span>
         </a>
         <a href="laporan.html"
-          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100">
-          <i class="fa-solid fa-file-invoice-dollar w-5"></i>
-          <span>Laporan Keuangan</span>
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Laporan</span>
         </a>
-        <div class="pt-4 border-t border-slate-800 mt-4">
+
+        <button id="pwaInstallBtn"
+          class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
+          <i class="fa-solid fa-download w-5"></i>
+          <span>Install Aplikasi</span>
+        </button>
+        <div class="hidden md:block pt-4 border-t border-zinc-800 mt-4">
           <button onclick="Auth.logout()"
             class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left">
             <i class="fa-solid fa-right-from-bracket w-5"></i>
@@ -114,18 +119,18 @@
 
       <!-- Top navbar header -->
       <header
-        class="bg-white border-b border-slate-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
+        class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
+        <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
           <i class="fa-solid fa-list-check text-indigo-600"></i>
           <span>Manajemen Data Projek</span>
         </h2>
         <div class="flex items-center space-x-4">
-          <button id="darkModeToggle" class="text-slate-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <span class="text-sm text-slate-500 hidden sm:inline-block">Status API:</span>
-          <span id="apiStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          <button id="pwaInstallBtnMobile" class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors" title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button> <button id="darkModeToggle" class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <button onclick="Auth.logout()" class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout"><i class="fa-solid fa-right-from-bracket text-lg"></i></button> <span class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
+          <span id="apiStatusBadge" class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
           <div
-            class="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600 text-sm shadow">
+            class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow">
             A
           </div>
         </div>
@@ -137,8 +142,8 @@
         <!-- Header Actions -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
           <div>
-            <h3 class="text-2xl font-extrabold text-slate-900 tracking-tight">Daftar Projek</h3>
-            <p class="text-slate-500 text-sm">Kelola status, pembayaran, dan tenggat waktu proyek secara langsung.</p>
+            <h3 class="text-2xl font-extrabold text-zinc-900 tracking-tight">Daftar Projek</h3>
+            <p class="text-zinc-500 text-sm">Kelola status, pembayaran, dan tenggat waktu proyek secara langsung.</p>
           </div>
           <div class="flex gap-3">
 
@@ -166,34 +171,34 @@
         <!-- Filter Status Quick Badges -->
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
           <button onclick="filterStatus('all')"
-            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-indigo-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all active:ring-2 active:ring-indigo-200 ring-offset-1">
-            <span class="text-xs text-slate-500 font-medium uppercase">Semua</span>
-            <span id="count-all" class="text-xl font-bold text-slate-800 mt-1">-</span>
+            class="status-filter-btn px-4 py-3 bg-white border border-zinc-200 hover:border-indigo-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all active:ring-2 active:ring-indigo-200 ring-offset-1">
+            <span class="text-xs text-zinc-500 font-medium uppercase">Semua</span>
+            <span id="count-all" class="text-xl font-bold text-zinc-800 mt-1">-</span>
           </button>
           <button onclick="filterStatus('Menunggu')"
-            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-amber-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn px-4 py-3 bg-white border border-zinc-200 hover:border-amber-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-xs text-amber-600 font-medium uppercase">Menunggu</span>
             <span id="count-menunggu" class="text-xl font-bold text-amber-600 mt-1">-</span>
           </button>
           <button onclick="filterStatus('Sedang Dikerjakan')"
-            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-blue-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn px-4 py-3 bg-white border border-zinc-200 hover:border-blue-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-xs text-blue-600 font-medium uppercase">Dikerjakan</span>
             <span id="count-dikerjakan" class="text-xl font-bold text-blue-600 mt-1">-</span>
           </button>
           <button onclick="filterStatus('Selesai')"
-            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-green-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn px-4 py-3 bg-white border border-zinc-200 hover:border-green-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-xs text-green-600 font-medium uppercase">Selesai</span>
             <span id="count-selesai" class="text-xl font-bold text-green-600 mt-1">-</span>
           </button>
           <button onclick="filterStatus('Belum Pembayaran')"
-            class="status-filter-btn px-4 py-3 bg-white border border-slate-200 hover:border-red-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all col-span-2 sm:col-span-1">
+            class="status-filter-btn px-4 py-3 bg-white border border-zinc-200 hover:border-red-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all col-span-2 sm:col-span-1">
             <span class="text-xs text-red-600 font-medium uppercase">Belum Bayar</span>
             <span id="count-belumpembayaran" class="text-xl font-bold text-red-600 mt-1">-</span>
           </button>
         </div>
 
         <!-- Main Table Card -->
-        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 overflow-hidden">
           <div class="overflow-x-auto">
             <table id="proyekTable" class="w-full text-sm text-left">
               <thead>
@@ -220,7 +225,7 @@
       </section>
 
       <!-- Footer -->
-      <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+      <footer class="bg-white border-t border-zinc-200 py-4 px-6 text-center text-xs text-zinc-500 mt-auto">
         &copy; 2026 Freelance Projek Manager. Created by Alwan.
       </footer>
     </main>
@@ -228,9 +233,9 @@
 
   <!-- Detail Modal -->
   <div id="detailModal"
-    class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    class="fixed inset-0 bg-zinc-900 bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
     <div
-      class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-slate-100">
+      class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-zinc-100">
 
       <!-- Modal Header -->
       <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center shrink-0">
@@ -245,49 +250,49 @@
 
       <!-- Modal Body (Scrollable) -->
       <div class="overflow-y-auto flex-1">
-        <div class="p-6 space-y-4 text-sm text-slate-700">
+        <div class="p-6 space-y-4 text-sm text-zinc-700">
 
           <!-- Status & Deadline Info -->
-          <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+          <div class="grid grid-cols-2 gap-4 pb-4 border-b border-zinc-100">
             <div>
-              <span class="text-xs text-slate-400 block">Status Projek</span>
+              <span class="text-xs text-zinc-400 block">Status Projek</span>
               <span id="modalStatus"
                 class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mt-1">Status</span>
             </div>
             <div>
-              <span class="text-xs text-slate-400 block">Deadline Target</span>
-              <span id="modalDeadline" class="font-semibold text-slate-800 mt-1 block">Tanggal</span>
+              <span class="text-xs text-zinc-400 block">Deadline Target</span>
+              <span id="modalDeadline" class="font-semibold text-zinc-800 mt-1 block">Tanggal</span>
             </div>
           </div>
 
           <!-- Customer details -->
           <div>
-            <span class="text-xs text-slate-400 block">Pelanggan</span>
-            <span id="modalPelanggan" class="font-bold text-base text-slate-900 block mt-0.5">Nama Pelanggan</span>
+            <span class="text-xs text-zinc-400 block">Pelanggan</span>
+            <span id="modalPelanggan" class="font-bold text-base text-zinc-900 block mt-0.5">Nama Pelanggan</span>
             <div class="flex items-center space-x-2 mt-1">
               <i class="fa-brands fa-whatsapp text-green-500"></i>
-              <span id="modalWa" class="text-slate-600 text-xs">62812345</span>
+              <span id="modalWa" class="text-zinc-600 text-xs">62812345</span>
             </div>
           </div>
 
           <!-- Product Details -->
-          <div class="bg-slate-50 p-4 rounded-xl space-y-2">
+          <div class="bg-zinc-50 p-4 rounded-xl space-y-2">
             <div>
-              <span class="text-xs text-slate-400 block">Nama Pekerjaan</span>
-              <span id="modalNamaProyek" class="font-semibold text-slate-800">Nama Brosur</span>
+              <span class="text-xs text-zinc-400 block">Nama Pekerjaan</span>
+              <span id="modalNamaProyek" class="font-semibold text-zinc-800">Nama Brosur</span>
             </div>
             <div class="grid grid-cols-3 gap-2">
               <div>
-                <span class="text-xs text-slate-400 block">Produk</span>
-                <span id="modalProduk" class="font-medium text-xs text-slate-700">Brosur</span>
+                <span class="text-xs text-zinc-400 block">Produk</span>
+                <span id="modalProduk" class="font-medium text-xs text-zinc-700">Brosur</span>
               </div>
               <div>
-                <span class="text-xs text-slate-400 block">Jumlah</span>
-                <span id="modalJumlah" class="font-medium text-xs text-slate-700">500</span>
+                <span class="text-xs text-zinc-400 block">Jumlah</span>
+                <span id="modalJumlah" class="font-medium text-xs text-zinc-700">500</span>
               </div>
               <div>
-                <span class="text-xs text-slate-400 block">Satuan</span>
-                <span id="modalSatuan" class="font-medium text-xs text-slate-700">pcs</span>
+                <span class="text-xs text-zinc-400 block">Satuan</span>
+                <span id="modalSatuan" class="font-medium text-xs text-zinc-700">pcs</span>
               </div>
             </div>
           </div>
@@ -295,29 +300,29 @@
           <!-- Finance Breakdown -->
           <div class="grid grid-cols-3 gap-4 py-2">
             <div>
-              <span class="text-xs text-slate-400 block">Total Nominal</span>
-              <span id="modalNominal" class="font-bold text-slate-800 text-sm">Rp0</span>
+              <span class="text-xs text-zinc-400 block">Total Nominal</span>
+              <span id="modalNominal" class="font-bold text-zinc-800 text-sm">Rp0</span>
             </div>
             <div>
-              <span class="text-xs text-slate-400 block">Uang Muka (DP)</span>
-              <span id="modalDp" class="font-bold text-slate-800 text-sm">Rp0</span>
+              <span class="text-xs text-zinc-400 block">Uang Muka (DP)</span>
+              <span id="modalDp" class="font-bold text-zinc-800 text-sm">Rp0</span>
             </div>
             <div>
-              <span class="text-xs text-slate-400 block">Sisa / Piutang</span>
+              <span class="text-xs text-zinc-400 block">Sisa / Piutang</span>
               <span id="modalSisa" class="font-bold text-rose-600 text-sm">Rp0</span>
             </div>
           </div>
 
           <!-- Catatan -->
           <div>
-            <span class="text-xs text-slate-400 block">Catatan / Keterangan</span>
+            <span class="text-xs text-zinc-400 block">Catatan / Keterangan</span>
             <p id="modalCatatan"
-              class="mt-1 bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-600 italic">Tidak ada
+              class="mt-1 bg-zinc-50 p-3 rounded-lg border border-zinc-100 text-xs text-zinc-600 italic">Tidak ada
               catatan.</p>
           </div>
 
         </div>
-        <div class="border-t border-slate-100 px-6 py-4 bg-white">
+        <div class="border-t border-zinc-100 px-6 py-4 bg-white">
           <details class="group">
             <summary
               class="font-semibold cursor-pointer list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 transition-colors">
@@ -346,12 +351,12 @@
               </div>
 
               <textarea id="hasilAI"
-                class="w-full mt-4 border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                class="w-full mt-4 border border-zinc-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                 rows="6" placeholder="Hasil AI akan muncul di sini..."></textarea>
 
               <div class="flex gap-2 mt-3">
                 <button onclick="copyAIText()"
-                  class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                  class="bg-zinc-700 hover:bg-zinc-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
                   <i class="fa-solid fa-copy mr-2"></i> Copy
                 </button>
                 <button onclick="sendAIWhatsapp()"
@@ -365,7 +370,7 @@
       </div>
       <!-- Modal Footer -->
       <div
-        class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
+        class="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
         <!-- WA action button -->
         <a id="modalWaBtn" target="_blank" href="#"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-xs text-center shadow flex items-center justify-center">
@@ -382,7 +387,7 @@
             Invoice
           </button>
 
-          <button id="modalEditBtn" class="px-4 py-2 border border-slate-300 rounded-xl text-xs">
+          <button id="modalEditBtn" class="px-4 py-2 border border-zinc-300 rounded-xl text-xs">
             Edit
           </button>
           <button id="modalHapusBtn" class="px-4 py-2 bg-red-600 text-white rounded-xl text-xs">
@@ -395,7 +400,7 @@
     </div>
   </div>
 
-  <div id="aiResultCard" class="hidden mt-5 bg-slate-50 rounded-xl border" style="z-index: 100;">
+  <div id="aiResultCard" class="hidden mt-5 bg-zinc-50 rounded-xl border" style="z-index: 100;">
 
     <div class="p-4">
 
@@ -545,4 +550,8 @@
 
 
 </html>
+
+
+
+
 

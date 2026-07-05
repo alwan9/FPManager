@@ -15,3 +15,5 @@ window.addEventListener('load', () => {
     }, 500); // Wait for the transition to finish
   }
 });
+
+

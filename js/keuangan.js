@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
       apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
 
@@ -193,3 +193,5 @@ function formatRupiah(number) {
     minimumFractionDigits: 0
   }).format(number);
 }
+
+
