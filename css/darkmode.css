@@ -26,7 +26,8 @@ html.dark .hover\:bg-zinc-50:hover {
 }
 
 html.dark .text-zinc-900,
-html.dark .text-zinc-800 {
+html.dark .text-zinc-800,
+html.dark .text-zinc-700 {
   color: #f4f4f5 !important;
   /* zinc-100 */
 }
@@ -46,10 +47,14 @@ html.dark .hover\:text-indigo-600:hover {
 }
 
 html.dark .text-zinc-500,
-html.dark .text-zinc-600,
-html.dark .text-zinc-400 {
+html.dark .text-zinc-600 {
   color: #a1a1aa !important;
   /* zinc-400 */
+}
+
+html.dark .text-zinc-400 {
+  color: #e4e4e7 !important;
+  /* zinc-200 */
 }
 
 html.dark .border-zinc-200,
@@ -132,6 +137,7 @@ html.dark input[type="text"],
 html.dark input[type="number"],
 html.dark input[type="date"],
 html.dark input[type="password"],
+html.dark input[type="tel"],
 html.dark select,
 html.dark textarea {
   background-color: #18181b !important;
@@ -175,4 +181,44 @@ html.dark .badge-dikerjakan {
 html.dark #globalLoader {
   background-color: #18181b !important;
   /* zinc-900 */
+}
+
+/* Keep slider dots white in dark mode */
+html.dark .slide-dot.bg-white {
+  background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1)) !important;
+}
+
+/* ========================================== */
+/* Light Mode Sidebar Overrides (default view) */
+/* ========================================== */
+html:not(.dark) aside,
+html:not(.dark) aside div,
+html:not(.dark) aside nav {
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  color: #18181b !important;
+}
+
+html:not(.dark) aside .text-zinc-200 {
+  color: #18181b !important;
+}
+
+html:not(.dark) .sidebar-link:not(.bg-indigo-600) {
+  color: #52525b !important; /* zinc-600 */
+}
+
+html:not(.dark) .sidebar-link:not(.bg-indigo-600):hover {
+  background-color: #f4f4f5 !important; /* zinc-100 */
+  color: #18181b !important;
+}
+
+html:not(.dark) aside button {
+  border-color: #e4e4e7 !important;
+  color: #52525b !important;
+  background-color: transparent !important;
+}
+
+html:not(.dark) aside button:hover {
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
 }

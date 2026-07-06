@@ -94,6 +94,11 @@
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Laporan</span>
         </a>
+        <a href="layanan.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Layanan</span>
+        </a>
 
         <button id="pwaInstallBtn"
           class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
@@ -222,6 +227,7 @@
                 <input type="number" id="hargaSatuan" min="0" value="50000" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   placeholder="0">
+                <div id="hargaSatuanPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
               </div>
 
               <!-- Nominal Proyek (Kalkulasi Otomatis) -->
@@ -238,6 +244,7 @@
                 <input type="number" id="dp" min="0" value="50000" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   placeholder="0">
+                <div id="dpPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
               </div>
 
               <!-- Sisa Pembayaran (Kalkulasi Otomatis) -->

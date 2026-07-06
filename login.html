@@ -32,7 +32,7 @@
   <meta property="og:site_name" content="FPManager">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link class="favicon" rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/favicon.png">
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -41,10 +41,11 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/darkmode.css">
 </head>
 
-<body
-  class="bg-gradient-to-br from-indigo-900 via-blue-900 to-zinc-900 min-h-screen flex items-center justify-center p-4">
+<body class="bg-zinc-50 dark:bg-zinc-950 min-h-screen flex transition-all duration-300">
+
   <!-- Global Loader -->
   <div id="globalLoader"
     class="fixed inset-0 z-[9999] bg-zinc-50 flex items-center justify-center transition-opacity duration-500">
@@ -54,52 +55,142 @@
     </div>
   </div>
 
-  <!-- Glassmorphic Login Container -->
-  <div
-    class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl flex flex-col justify-center border border-white border-opacity-10 text-white">
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-lg mb-4">
-        <i class="fa-solid fa-folder-open text-3xl"></i>
-      </div>
-      <h1 class="text-3xl font-extrabold tracking-tight">ProjekManager</h1>
-      <p class="text-zinc-300 mt-2 text-sm">Masuk untuk mengelola proyek dan laporan keuangan</p>
-    </div>
+  <!-- Main split container -->
+  <div class="flex-1 flex flex-col md:flex-row">
 
-    <!-- Login Form -->
-    <form id="loginForm" class="space-y-6">
-      <div>
-        <label for="password" class="block text-sm font-medium text-zinc-300 mb-2">Password Admin</label>
-        <div class="relative rounded-md shadow-sm">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fa-solid fa-lock text-zinc-400"></i>
-          </div>
-          <input type="password" name="password" id="password" required
-            class="block w-full pl-10 pr-10 py-3 bg-zinc-800 bg-opacity-50 border border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent  placeholder-zinc-500 text-sm transition-all"
-            placeholder="Masukkan password admin">
-          <button type="button" id="togglePassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-eye" id="eyeIcon"></i>
-          </button>
+    <!-- Left Side: Gradient Banner (Hidden on mobile) -->
+    <div
+      class="hidden md:flex md:w-2/3 bg-gradient-to-br from-indigo-900 via-blue-900 to-zinc-950 text-white p-12 flex-col justify-between relative overflow-hidden">
+      <!-- Decorative circles / ambient lights -->
+      <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
+      <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-blue-500 opacity-20 blur-3xl"></div>
+
+      <!-- Top brand / logo -->
+      <div class="z-10 flex items-center space-x-3">
+        <div class="bg-white p-2 rounded-xl shadow-lg inline-block" style="background-color: #ffffff !important;">
+          <img src="./assets/img/logo.png" alt="FPManager Logo" class="h-8 w-auto object-contain">
         </div>
       </div>
 
-      <!-- Error Alert -->
-      <div id="errorAlert"
-        class="hidden flex items-center p-4 bg-red-900 bg-opacity-50 border border-red-500 rounded-xl text-red-200 text-sm">
-        <i class="fa-solid fa-circle-exclamation mr-2 text-base"></i>
-        <span id="errorMessage">Password admin salah!</span>
+      <!-- Middle quote / description (SLIDER) -->
+      <div class="z-10 my-auto max-w-lg w-full relative h-48 flex flex-col justify-center">
+        <!-- Slide 1 -->
+        <div
+          class="login-slide transition-all duration-500 transform translate-x-0 opacity-100 flex flex-col space-y-4 absolute inset-0">
+          <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Kelola Projek Secara
+            Terstruktur</h2>
+          <p class="text-zinc-300 text-sm lg:text-base leading-relaxed">Pantau tenggat waktu, status pembayaran, dan
+            rincian pekerjaan setiap klien dalam satu dasbor terpadu.</p>
+        </div>
+        <!-- Slide 2 -->
+        <div
+          class="login-slide transition-all duration-500 transform translate-x-8 opacity-0 flex flex-col space-y-4 absolute inset-0 pointer-events-none">
+          <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Notifikasi Deadline
+            Langsung di HP</h2>
+          <p class="text-zinc-300 text-sm lg:text-base leading-relaxed">Sistem PWA akan mengirimkan pengingat deadline
+            projek H-1 langsung ke bar notifikasi dan lockscreen HP Anda.</p>
+        </div>
+        <!-- Slide 3 -->
+        <div
+          class="login-slide transition-all duration-500 transform translate-x-8 opacity-0 flex flex-col space-y-4 absolute inset-0 pointer-events-none">
+          <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Laporan Keuangan &
+            Omzet Otomatis</h2>
+          <p class="text-zinc-300 text-sm lg:text-base leading-relaxed">Catat DP, pelunasan, sisa hutang, dan
+            pengeluaran operasional secara instan dengan rekapan otomatis.</p>
+        </div>
       </div>
 
-      <div>
-        <button type="submit"
-          class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl font-semibold text-white shadow-lg transform transition hover:-tranzinc-y-0.5 active:tranzinc-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-indigo-500 text-sm">
-          Masuk ke Dashboard
+      <!-- Slide Indicators (Dots) -->
+      <div class="z-10 flex space-x-2 mt-4" style="margin-bottom: 5px;">
+        <button onclick="goToSlide(0)"
+          class="slide-dot w-8 h-2 rounded-full bg-white bg-opacity-100 transition-all duration-300 focus:outline-none"
+          style="background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1)) !important;"
+          aria-label="Slide 1"></button>
+        <button onclick="goToSlide(1)"
+          class="slide-dot w-2 h-2 rounded-full bg-white bg-opacity-40 hover:bg-opacity-70 transition-all duration-300 focus:outline-none"
+          style="background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1)) !important;"
+          aria-label="Slide 2"></button>
+        <button onclick="goToSlide(2)"
+          class="slide-dot w-2 h-2 rounded-full bg-white bg-opacity-40 hover:bg-opacity-70 transition-all duration-300 focus:outline-none"
+          style="background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1)) !important;"
+          aria-label="Slide 3"></button>
+      </div>
+
+      <!-- Bottom copyright -->
+      <div class="z-10 text-xs text-zinc-400 font-medium">
+        &copy; 2026 FPManager. Created by Alwan.
+      </div>
+    </div>
+
+    <!-- Right Side: Login Form (Visible on all screens) -->
+    <div
+      class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-indigo-50 via-blue-50 to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 relative min-h-screen transition-all duration-300">
+
+      <!-- Dark Mode Toggle -->
+      <div class="absolute top-6 right-6 z-50">
+        <button id="darkModeToggle"
+          class="bg-white bg-opacity-80 dark:bg-zinc-800 dark:bg-opacity-50 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-full p-3 shadow-lg focus:outline-none transition-all flex items-center justify-center">
+          <i class="fa-solid fa-moon text-lg" id="darkModeIcon"></i>
         </button>
       </div>
-    </form>
 
-    <div class="text-center mt-8 text-xs text-zinc-400">
-      &copy; 2026 Kelola FPManager. All rights reserved.
+      <!-- Glassmorphic Login Container -->
+      <div
+        class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl flex flex-col justify-center border text-zinc-800 dark:text-zinc-100 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-lg border-white/20">
+
+        <!-- Logo for mobile only -->
+        <div class="text-center mb-8">
+          <div class="flex justify-center mb-6 md:hidden">
+            <div class="bg-white p-3 rounded-2xl lg:shadow-md inline-block"
+              style="background-color: #ffffff !important;">
+              <img src="./assets/img/logo.png" alt="FPManager Logo" class="h-12 w-auto object-contain">
+            </div>
+          </div>
+          <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white font-sans">Login
+            Administrator</h1>
+          <p class="text-zinc-500 dark:text-zinc-300 mt-2 text-sm font-sans">Masuk untuk mengelola projek dan laporan
+            keuangan</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-6">
+          <div>
+            <label for="password" class="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-2">Password
+              Admin</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-lock text-zinc-400"></i>
+              </div>
+              <input type="password" name="password" id="password" required
+                class="block w-full pl-10 pr-10 py-3 bg-white bg-opacity-70 dark:bg-zinc-800 dark:bg-opacity-50 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-zinc-400 dark:placeholder-zinc-500 text-zinc-800 dark:text-white text-sm transition-all"
+                placeholder="Masukkan password admin">
+              <button type="button" id="togglePassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors">
+                <i class="fa-solid fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Alert -->
+          <div id="errorAlert"
+            class="hidden flex items-center p-4 bg-red-900 bg-opacity-50 border border-red-500 rounded-xl text-red-200 text-sm">
+            <i class="fa-solid fa-circle-exclamation mr-2 text-base"></i>
+            <span id="errorMessage">Password admin salah!</span>
+          </div>
+
+          <div>
+            <button type="submit"
+              class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl font-semibold text-white shadow-lg transform transition hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-sm">
+              Masuk ke Dashboard
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center mt-8 text-xs text-zinc-400 dark:text-zinc-500 md:hidden">
+          &copy; 2026 Kelola FPManager. All rights reserved.
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -108,7 +199,57 @@
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
   <script>
+    // Login Slider Logic
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.login-slide');
+    const dots = document.querySelectorAll('.slide-dot');
+    const slideInterval = 5000;
+    let slideTimer;
+
+    function showSlide(index) {
+      if (slides.length === 0) return;
+      slides.forEach((slide, i) => {
+        if (i === index) {
+          slide.classList.remove('opacity-0', 'translate-x-8', 'pointer-events-none');
+          slide.classList.add('opacity-100', 'translate-x-0');
+        } else {
+          slide.classList.remove('opacity-100', 'translate-x-0');
+          slide.classList.add('opacity-0', 'translate-x-8', 'pointer-events-none');
+        }
+      });
+      dots.forEach((dot, i) => {
+        if (i === index) {
+          dot.classList.remove('w-2', 'bg-opacity-40');
+          dot.classList.add('w-8', 'bg-opacity-100');
+        } else {
+          dot.classList.remove('w-8', 'bg-opacity-100');
+          dot.classList.add('w-2', 'bg-opacity-40');
+        }
+      });
+      currentSlide = index;
+    }
+
+    function nextSlide() {
+      let next = (currentSlide + 1) % slides.length;
+      showSlide(next);
+    }
+
+    window.goToSlide = function (index) {
+      clearInterval(slideTimer);
+      showSlide(index);
+      startSlideShow();
+    };
+
+    function startSlideShow() {
+      slideTimer = setInterval(nextSlide, slideInterval);
+    }
+
+    if (slides.length > 0) {
+      startSlideShow();
+    }
+
     // Toggle Password Visibility
     const passwordInput = document.getElementById('password');
     const togglePasswordBtn = document.getElementById('togglePassword');

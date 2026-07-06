@@ -42,7 +42,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <!-- Chart.js (Optional here if we display mini charts) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
   <link rel="stylesheet" href="css/darkmode.css">
 
   <style>
@@ -96,10 +96,9 @@
   <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Sidebar Navigation -->
-        <aside
+    <aside
       class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-zinc-900 text-zinc-100 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50 transition-all duration-300">
-      <div
-        class="hidden md:flex p-4 md:p-5 items-center justify-between border-b border-zinc-800 bg-zinc-900 z-10">
+      <div class="hidden md:flex p-4 md:p-5 items-center justify-between border-b border-zinc-800 bg-zinc-900 z-10">
         <a href="index.html" class="flex items-center space-x-3">
           <img src="./assets/img/logo.png" class="p-4 w-40 md:w-full">
         </a>
@@ -133,6 +132,11 @@
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Laporan</span>
         </a>
+        <a href="layanan.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Layanan</span>
+        </a>
 
         <button id="pwaInstallBtn"
           class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
@@ -160,8 +164,16 @@
           <span>Laporan Bisnis & Ekspor</span>
         </h2>
         <div class="flex items-center space-x-4">
-          <button id="pwaInstallBtnMobile" class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors" title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button> <button id="darkModeToggle" class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <button onclick="Auth.logout()" class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout"><i class="fa-solid fa-right-from-bracket text-lg"></i></button> <span class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
-          <span id="apiStatusBadge" class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          <button id="pwaInstallBtnMobile"
+            class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors"
+            title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button> <button id="darkModeToggle"
+            class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode">
+            <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <button onclick="Auth.logout()"
+            class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout"><i
+              class="fa-solid fa-right-from-bracket text-lg"></i></button> <span
+            class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
+          <span id="apiStatusBadge"
+            class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
           <div
@@ -178,7 +190,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 no-print">
           <div>
             <h3 class="text-2xl font-extrabold text-zinc-900 tracking-tight">Laporan Keuangan</h3>
-            <p class="text-zinc-500 text-sm">Rekap proyek, pendapatan kotor (omzet), piutang, pengeluaran, dan laba
+            <p class="text-zinc-500 text-sm">Rekap projek, pendapatan kotor (omzet), hutang, pengeluaran, dan laba
               rugi.</p>
           </div>
           <div class="flex space-x-3">
@@ -205,10 +217,10 @@
           <!-- Total Proyek & Omzet -->
           <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
             <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Kinerja
-              Proyek</span>
+              Projek</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Total Proyek</span>
+                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Total Projek</span>
                 <span id="recapTotalProyek"
                   class="text-base md:text-xl font-extrabold text-zinc-950 block truncate">-</span>
               </div>
@@ -222,7 +234,7 @@
 
           <!-- Total DP & Piutang -->
           <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Piutang &
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Hutang &
               DP</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
@@ -231,7 +243,7 @@
                   class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
               </div>
               <div class="text-right min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Sisa Piutang</span>
+                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Sisa Hutang</span>
                 <span id="recapTotalPiutang"
                   class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
               </div>
@@ -319,8 +331,3 @@
 
 
 </html>
-
-
-
-
-

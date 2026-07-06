@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layanan & Harga Jasa Desain - FPManager</title>
+  <!-- meta informasi -->
+  <meta name="title" content="Layanan & Harga - FPManager">
+  <meta name="description" content="Daftar harga resmi jasa desain grafis, branding, media sosial, dan UI/UX.">
+  <meta name="author" content="Alwan">
+  <meta name="theme-color" content="#2563EB">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <!-- Tailwind CSS v2 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/darkmode.css">
+</head>
+
+<body class="bg-zinc-50 dark:bg-zinc-950 min-h-screen flex flex-col transition-all duration-300">
+
+  <!-- Global Loader -->
+  <div id="globalLoader"
+    class="fixed inset-0 z-[9999] bg-zinc-50 flex items-center justify-center transition-opacity duration-500">
+    <div class="flex flex-col items-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-zinc-200 border-t-indigo-600 mb-3"></div>
+      <p class="text-zinc-500 font-medium text-sm">Memuat data...</p>
+    </div>
+  </div>
+
+  <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
+
+    <!-- Sidebar Navigation -->
+    <aside
+      class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-zinc-900 text-zinc-100 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50 transition-all duration-300">
+      <div class="hidden md:flex p-4 md:p-5 items-center justify-between border-b border-zinc-800 bg-zinc-900 z-10">
+        <a href="index.html" class="flex items-center space-x-3">
+          <img src="./assets/img/logo.png" class="p-4 w-40 md:w-full">
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav id="navMenu"
+        class="flex flex-row md:flex-col justify-around md:justify-start md:space-y-1 p-2 md:p-4 bg-zinc-900 border-t md:border-t-0 border-zinc-800 w-full md:w-auto overflow-x-auto md:overflow-visible">
+        <a href="index.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-chart-line text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Home</span>
+        </a>
+        <a href="proyek.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-list-check text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Projek</span>
+        </a>
+        <a href="tambah-proyek.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-circle-plus text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Tambah</span>
+        </a>
+        <a href="keuangan.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-wallet text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Keuangan</span>
+        </a>
+        <a href="laporan.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-chart-pie text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Laporan</span>
+        </a>
+        <a href="layanan.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium">Layanan</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar footer / user info -->
+      <div class="hidden md:flex flex-col p-4 border-t border-zinc-800 space-y-3 bg-zinc-900 mt-auto">
+        <div class="flex items-center space-x-3">
+          <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold text-sm h-9 w-9 flex items-center justify-center">
+            AD
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-zinc-200 truncate">Administrator</p>
+            <p class="text-xs text-zinc-500 truncate">admin@fpmanager.com</p>
+          </div>
+        </div>
+        <button onclick="Auth.logout()"
+          class="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-zinc-800 hover:bg-zinc-800 hover:text-white rounded-xl text-xs font-semibold text-zinc-400 transition-all">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Area -->
+    <main class="flex-1 flex flex-col min-w-0 bg-transparent relative">
+
+      <!-- Header Top Bar -->
+      <header
+        class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
+        <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
+          <i class="fa-solid fa-tags text-indigo-600"></i>
+          <span>Layanan & Pricelist Jasa</span>
+        </h2>
+        <div class="flex items-center space-x-4">
+          <button id="pwaInstallBtnMobile"
+            class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors"
+            title="Install Aplikasi">
+            <i class="fa-solid fa-download text-lg"></i>
+          </button>
+          <button id="darkModeToggle" class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors"
+            title="Toggle Dark Mode">
+            <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i>
+          </button>
+          <button onclick="Auth.logout()"
+            class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout">
+            <i class="fa-solid fa-right-from-bracket text-lg"></i>
+          </button>
+          <span class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
+          <span id="apiStatusBadge"
+            class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+            Mock Mode (Offline)
+          </span>
+          <div
+            class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow">
+            A
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <section class="flex-grow p-6 md:p-8 space-y-8">
+
+        <!-- Welcome Banner / Intro -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
+          <div>
+            <h3 class="text-xl md:text-2xl font-bold tracking-tight">Katalog Jasa Desain 🎨</h3>
+            <p class="text-indigo-100 text-xs md:text-sm mt-1">Gunakan katalog harga ini untuk membuat penawaran atau langsung mendaftarkan projek baru.</p>
+          </div>
+          <a href="#estimasiKalkulator"
+            class="inline-flex items-center justify-center px-4 py-2.5 bg-white text-indigo-700 font-semibold rounded-xl text-sm shadow hover:bg-zinc-100 transition-colors">
+            <i class="fa-solid fa-calculator mr-2 text-indigo-600"></i> Hitung Estimasi
+          </a>
+        </div>
+
+        <!-- Catalog Grids -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+
+          <!-- Category 1: Media Sosial & Digital -->
+          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm space-y-4">
+            <h4 class="font-bold text-zinc-800 text-base flex items-center">
+              <i class="fa-solid fa-share-nodes text-indigo-600 mr-2"></i> Desain Media Sosial & Digital
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Feed Instagram Single</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Desain postingan feed 1:1, pengerjaan 1-2 hari.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp75.000</span>
+                  <button onclick="buatProjek('Feed Instagram Single', 75000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Feed Instagram Carousel</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Hingga 5 slide materi konten edukasi/promosi.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp150.000</span>
+                  <button onclick="buatProjek('Feed Instagram Carousel', 150000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Instagram Story</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Layout 9:16 portrait, dinamis, materi promosi kilat.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp50.000</span>
+                  <button onclick="buatProjek('Instagram Story', 50000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Banner YouTube / Web</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Desain header banner responsif resolusi tinggi.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp90.000</span>
+                  <button onclick="buatProjek('Banner YouTube/Web', 90000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 2: Media Cetak & Promosi -->
+          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm space-y-4">
+            <h4 class="font-bold text-zinc-800 text-base flex items-center">
+              <i class="fa-solid fa-print text-indigo-600 mr-2"></i> Desain Cetak & Promosi Fisik
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Banner / Spanduk</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Desain spanduk MMT/baliho berbagai ukuran custom.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp80.000</span>
+                  <button onclick="buatProjek('Desain Banner/Spanduk', 80000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Brosur Lipat A5</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Desain bolak-balik (2 halaman), layout teks rapi.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp120.000</span>
+                  <button onclick="buatProjek('Desain Brosur A5', 120000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Desain Poster</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Ukuran A3/A4 untuk promosi event atau produk baru.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp100.000</span>
+                  <button onclick="buatProjek('Desain Poster', 100000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Kartu Nama Bisnis</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Double side layout profesional minimalis premium.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp50.000</span>
+                  <button onclick="buatProjek('Desain Kartu Nama', 50000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 3: Branding & Identitas -->
+          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm space-y-4">
+            <h4 class="font-bold text-zinc-800 text-base flex items-center">
+              <i class="fa-solid fa-award text-indigo-600 mr-2"></i> Branding & Identitas Visual
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Desain Logo Standar</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Logo vektor profesional, 2 opsi konsep, revisi 3x.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp350.000</span>
+                  <button onclick="buatProjek('Desain Logo Standar', 350000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Logo Premium + Mascot</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Desain logo detail tinggi dengan maskot ilustrasi khusus.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp750.000</span>
+                  <button onclick="buatProjek('Desain Logo Premium', 750000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Brand Guidelines Lengkap</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Panduan warna, tipografi, logo rules, mockups PDF.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp1.500.000</span>
+                  <button onclick="buatProjek('Brand Guidelines Lengkap', 1500000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Desain Kemasan / Label</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Layout kemasan (packaging box/bottle label) 3D mockup.</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp400.000</span>
+                  <button onclick="buatProjek('Desain Kemasan/Label', 400000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 4: UI/UX & Web Development -->
+          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm space-y-4">
+            <h4 class="font-bold text-zinc-800 text-base flex items-center">
+              <i class="fa-solid fa-code text-indigo-600 mr-2"></i> Desain UI/UX & Website
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">UI Landing Page Figma</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Desain mockup landing page modern di Figma (1 Halaman).</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp1.200.000</span>
+                  <button onclick="buatProjek('UI Landing Page Figma', 1200000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+              <!-- Item -->
+              <div class="border border-zinc-100 rounded-xl p-4 bg-zinc-50/50 hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex flex-col justify-between">
+                <div>
+                  <span class="font-bold text-sm text-zinc-900 block">Landing Page Website</span>
+                  <span class="text-xs text-zinc-500 block mt-1">Pengembangan website responsif statis (HTML/CSS/JS).</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 border-t border-zinc-100/50 pt-3">
+                  <span class="font-extrabold text-indigo-600 text-sm">Rp2.500.000</span>
+                  <button onclick="buatProjek('Landing Page Website', 2500000)" class="text-xs px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow transition-colors">
+                    Pilih
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section: Interactive Cost Estimator -->
+        <div id="estimasiKalkulator" class="bg-white rounded-2xl border border-zinc-200 p-6 md:p-8 shadow-sm space-y-6">
+          <div class="border-b border-zinc-100 pb-4">
+            <h4 class="font-bold text-zinc-800 text-base flex items-center">
+              <i class="fa-solid fa-calculator text-indigo-600 mr-2"></i> Kalkulator Estimasi Biaya Desain
+            </h4>
+            <p class="text-zinc-500 text-xs md:text-sm mt-1">Pilih beberapa jenis jasa sekaligus, tentukan kuantitas, dan hitung estimasi total secara instan.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left inputs (Estimator) -->
+            <div class="lg:col-span-2 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end bg-zinc-50 dark:bg-zinc-900/30 p-4 rounded-xl border border-zinc-100">
+                <div class="sm:col-span-2">
+                  <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Pilih Layanan</label>
+                  <select id="calcLayanan" class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-sm text-zinc-800 dark:text-zinc-100 focus:outline-none">
+                    <option value="75000" data-name="Feed Instagram Single">Feed Instagram Single (Rp75.000)</option>
+                    <option value="150000" data-name="Feed Instagram Carousel">Feed Instagram Carousel (Rp150.000)</option>
+                    <option value="50000" data-name="Instagram Story">Instagram Story (Rp50.000)</option>
+                    <option value="90000" data-name="Banner YouTube/Web">Banner YouTube/Web (Rp90.000)</option>
+                    <option value="80000" data-name="Desain Banner/Spanduk">Desain Banner/Spanduk (Rp80.000)</option>
+                    <option value="120000" data-name="Desain Brosur A5">Desain Brosur A5 (Rp120.000)</option>
+                    <option value="100000" data-name="Desain Poster">Desain Poster (Rp100.000)</option>
+                    <option value="50000" data-name="Desain Kartu Nama">Desain Kartu Nama (Rp50.000)</option>
+                    <option value="350000" data-name="Desain Logo Standar">Desain Logo Standar (Rp350.000)</option>
+                    <option value="750000" data-name="Desain Logo Premium">Desain Logo Premium (Rp750.000)</option>
+                    <option value="1500000" data-name="Brand Guidelines Lengkap">Brand Guidelines Lengkap (Rp1.500.000)</option>
+                    <option value="400000" data-name="Desain Kemasan/Label">Desain Kemasan/Label (Rp400.000)</option>
+                    <option value="1200000" data-name="UI Landing Page Figma">UI Landing Page Figma (Rp1.200.000)</option>
+                    <option value="2500000" data-name="Landing Page Website">Landing Page Website (Rp2.500.000)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Jumlah (Qty)</label>
+                  <div class="flex space-x-2">
+                    <input type="number" id="calcQty" min="1" value="1" class="w-16 px-2 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-sm text-zinc-800 dark:text-zinc-100 text-center focus:outline-none">
+                    <button onclick="tambahItemKalkulator()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm transition-colors">
+                      Tambah
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Estimation List Table -->
+              <div class="border border-zinc-200 rounded-xl overflow-hidden">
+                <table class="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr class="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200">
+                      <th class="p-3 font-semibold text-zinc-700 dark:text-zinc-200">Nama Layanan</th>
+                      <th class="p-3 font-semibold text-zinc-700 dark:text-zinc-200 text-center">Harga</th>
+                      <th class="p-3 font-semibold text-zinc-700 dark:text-zinc-200 text-center">Qty</th>
+                      <th class="p-3 font-semibold text-zinc-700 dark:text-zinc-200 text-right">Subtotal</th>
+                      <th class="p-3 font-semibold text-zinc-700 dark:text-zinc-200 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="calcListBody">
+                    <tr>
+                      <td colspan="5" class="p-6 text-center text-zinc-400 italic">Belum ada item ditambahkan ke kalkulator.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right calculation stats summary -->
+            <div class="bg-zinc-50 dark:bg-zinc-900/40 p-6 rounded-2xl border border-zinc-200 flex flex-col justify-between">
+              <div class="space-y-4">
+                <h5 class="font-bold text-zinc-800 text-sm border-b border-zinc-200 pb-2 flex items-center">
+                  <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Ringkasan Estimasi
+                </h5>
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-zinc-500">Jumlah Jenis Jasa:</span>
+                  <span id="calcUniqueItems" class="font-bold text-zinc-800">0</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-zinc-500">Total Kuantitas:</span>
+                  <span id="calcTotalQty" class="font-bold text-zinc-800">0</span>
+                </div>
+                <div class="border-t border-zinc-200/50 pt-4 flex flex-col">
+                  <span class="text-xs text-zinc-400 font-semibold uppercase">Total Estimasi Harga</span>
+                  <span id="calcGrandTotal" class="text-2xl md:text-3xl font-extrabold text-indigo-600 mt-1">Rp0</span>
+                </div>
+              </div>
+
+              <div class="mt-8 space-y-3">
+                <button onclick="buatProjekDariKalkulator()" id="btnCreateFromCalc" disabled class="w-full py-3 bg-indigo-600 disabled:bg-zinc-300 hover:bg-indigo-700 disabled:cursor-not-allowed text-white font-bold rounded-xl text-sm shadow-md transition-all flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-circle-plus"></i>
+                  <span>Buat Projek Baru dari Sini</span>
+                </button>
+                <button onclick="resetKalkulator()" class="w-full py-2 border border-zinc-300 hover:bg-zinc-100 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-400 transition-all">
+                  Kosongkan Estimasi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Footer -->
+      <footer class="bg-white border-t border-zinc-200 py-4 px-6 text-center text-xs text-zinc-500 mt-auto">
+        &copy; 2026 Freelance Projek Manager. Created by Alwan.
+      </footer>
+    </main>
+  </div>
+
+  <!-- Load Global Scripts -->
+  <script src="js/toast.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
+
+  <script>
+    // Global array for calc items
+    let kalkulatorItems = [];
+
+    // format currency helper
+    function formatRupiah(number) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(number);
+    }
+
+    // Direct project registration helper
+    window.buatProjek = function(namaLayanan, harga) {
+      const url = `tambah-proyek.html?produk=${encodeURIComponent(namaLayanan)}&harga=${harga}`;
+      window.location.href = url;
+    };
+
+    // Add item to calculator lists
+    window.tambahItemKalkulator = function() {
+      const select = document.getElementById('calcLayanan');
+      const selectedOption = select.options[select.selectedIndex];
+      const harga = parseFloat(selectedOption.value);
+      const nama = selectedOption.getAttribute('data-name');
+      const qty = parseInt(document.getElementById('calcQty').value) || 1;
+
+      // Check if already in list
+      const existing = kalkulatorItems.find(item => item.nama === nama);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        kalkulatorItems.push({ nama, harga, qty });
+      }
+
+      // Reset qty input to 1
+      document.getElementById('calcQty').value = 1;
+
+      // render table
+      renderKalkulatorTable();
+    };
+
+    // Delete item from calculator
+    window.hapusItemKalkulator = function(namaItem) {
+      kalkulatorItems = kalkulatorItems.filter(item => item.nama !== namaItem);
+      renderKalkulatorTable();
+    };
+
+    // Reset estimator calculator
+    window.resetKalkulator = function() {
+      kalkulatorItems = [];
+      renderKalkulatorTable();
+    };
+
+    // Render estimator Table data
+    function renderKalkulatorTable() {
+      const tbody = document.getElementById('calcListBody');
+      const btnCreate = document.getElementById('btnCreateFromCalc');
+      tbody.innerHTML = '';
+
+      if (kalkulatorItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="p-6 text-center text-zinc-400 italic">Belum ada item ditambahkan ke kalkulator.</td>
+          </tr>
+        `;
+        document.getElementById('calcUniqueItems').textContent = '0';
+        document.getElementById('calcTotalQty').textContent = '0';
+        document.getElementById('calcGrandTotal').textContent = 'Rp0';
+        btnCreate.disabled = true;
+        return;
+      }
+
+      let grandTotal = 0;
+      let totalQty = 0;
+
+      kalkulatorItems.forEach((item, index) => {
+        const subtotal = item.harga * item.qty;
+        grandTotal += subtotal;
+        totalQty += item.qty;
+
+        const row = document.createElement('tr');
+        row.className = 'border-b border-zinc-100 hover:bg-zinc-50/50';
+        row.innerHTML = `
+          <td class="p-3 font-semibold text-zinc-800">${item.nama}</td>
+          <td class="p-3 text-center text-zinc-600">${formatRupiah(item.harga)}</td>
+          <td class="p-3 text-center text-zinc-800 font-bold">${item.qty}</td>
+          <td class="p-3 text-right text-indigo-600 font-bold">${formatRupiah(subtotal)}</td>
+          <td class="p-3 text-center">
+            <button onclick="hapusItemKalkulator('${item.nama}')" class="text-rose-500 hover:text-rose-700 transition-colors">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Update summaries
+      document.getElementById('calcUniqueItems').textContent = kalkulatorItems.length;
+      document.getElementById('calcTotalQty').textContent = totalQty;
+      document.getElementById('calcGrandTotal').textContent = formatRupiah(grandTotal);
+      btnCreate.disabled = false;
+    }
+
+    // Redirect to tambah-proyek prefilled with total calculated sum
+    window.buatProjekDariKalkulator = function() {
+      if (kalkulatorItems.length === 0) return;
+      
+      let total = 0;
+      let names = [];
+      kalkulatorItems.forEach(item => {
+        total += item.harga * item.qty;
+        names.push(`${item.nama} (x${item.qty})`);
+      });
+
+      const productName = `Paket: ${names.join(', ')}`;
+      const url = `tambah-proyek.html?produk=${encodeURIComponent(productName)}&harga=${total}`;
+      window.location.href = url;
+    };
+  </script>
+</body>
+
+</html>

@@ -108,7 +108,7 @@ function renderRecentProjects(proyekList) {
   const container = document.getElementById('recentProyekList');
   container.innerHTML = '';
   if (proyekList.length === 0) {
-    container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">Belum ada proyek terdaftar.</div>`;
+    container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">Belum ada projek terdaftar.</div>`;
     return;
   }
   // Ambil maksimal 5 proyek terakhir (mengacu dari belakang array)
@@ -125,7 +125,7 @@ function renderRecentProjects(proyekList) {
       </div>
       <div class="text-right flex-shrink-0">
         <span class="font-bold text-sm text-zinc-800 block">${formatRupiah(p.nominalProyek)}</span>
-        <span class="text-[10px] text-zinc-400 block">${p.tanggal}</span>
+        <span class="text-base text-zinc-400 block">${p.tanggal}</span>
       </div>
     `;
     container.appendChild(item);
@@ -201,10 +201,34 @@ function renderDashboardChart(keuanganList) {
       scales: {
         y: {
           beginAtZero: true,
+          afterBuildTicks: function (scale) {
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+              scale.ticks = [
+                { value: 1000000 },
+                { value: 3000000 },
+                { value: 5000000 },
+                { value: 7000000 },
+                { value: 9000000 }
+              ];
+            }
+          },
           ticks: {
             font: { family: 'Inter' },
             callback: function (value) {
-              return 'Rp ' + value.toLocaleString('id-ID');
+              const isMobile = window.innerWidth < 768;
+              if (isMobile) {
+                const allowed = [1000000, 3000000, 5000000, 7000000, 9000000];
+                if (!allowed.includes(value)) return null;
+              }
+              if (value >= 1000000) {
+                const millions = value / 1000000;
+                return (millions % 1 === 0 ? millions : millions.toFixed(1).replace('.', ',')) + ' jt';
+              }
+              if (value >= 1000) {
+                return (value / 1000) + ' rb';
+              }
+              return value;
             }
           }
         },

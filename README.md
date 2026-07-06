@@ -1,6 +1,6 @@
-# Kelola ProjekBareng 📂📈
+# Kelola FPManager 📂📈
 
-Kelola ProjekBareng adalah aplikasi mini-ERP berbasis web yang didesain khusus untuk mengelola operasional usaha kecil atau jasa percetakan secara mandiri tanpa memerlukan server berbayar. Aplikasi ini menggunakan **HTML5/Tailwind CSS/JavaScript Vanilla** di sisi frontend dan **Google Spreadsheet** sebagai basis data melalui perantara **Google Apps Script API**.
+Kelola FPManager adalah aplikasi mini-ERP berbasis web yang didesain khusus untuk mengelola operasional usaha kecil atau jasa percetakan secara mandiri tanpa memerlukan server berbayar. Aplikasi ini menggunakan **HTML5/Tailwind CSS/JavaScript Vanilla** di sisi frontend dan **Google Spreadsheet** sebagai basis data melalui perantara **Google Apps Script API**.
 
 ---
 

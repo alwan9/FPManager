@@ -33,15 +33,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   let isEditMode = false;
   if (proyekId) {
     isEditMode = true;
-    document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>Edit Proyek ${proyekId}</span>`;
-    document.getElementById('formTitle').textContent = `Ubah Rincian Proyek (${proyekId})`;
-    document.title = `Edit Proyek ${proyekId} - FPManager`;
+    document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>Edit Projek ${proyekId}</span>`;
+    document.getElementById('formTitle').textContent = `Ubah Rincian Projek (${proyekId})`;
+    document.title = `Edit Projek ${proyekId} - FPManager`;
     submitBtn.textContent = 'Simpan Perubahan';
     // Ubah sidebar active link ke Data Proyek daripada Tambah Proyek
     const sidebarAddLink = document.getElementById('sidebarAddLink');
     if (sidebarAddLink) {
       sidebarAddLink.className = 'sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100';
-      sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>Tambah Proyek</span>`;
+      sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>Tambah Projek</span>`;
     }
     // Ambil data proyek untuk diisi ke form
     try {
@@ -65,11 +65,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusInput.value = proyek.status;
         catatanInput.value = proyek.catatan || "";
         checkDeadline(proyek.deadline);
+        kalkulasiNominalDanSisa();
       } else {
 
         showToast({
-          title: "Data Proyek",
-          message: "Proyek tidak ditemukan.",
+          title: "Data Projek",
+          message: "Projek tidak ditemukan.",
           type: "warning"
         });
 
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       showToast({
         title: "Error",
-        message: "Gagal mengambil data proyek untuk diedit.",
+        message: "Gagal mengambil data projek untuk diedit.",
         type: "error"
       });
 
@@ -99,6 +100,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sisa = nominal - dp;
     nominalInput.value = formatRupiah(nominal);
     sisaInput.value = formatRupiah(sisa);
+
+    // Update live previews
+    const hargaSatuanPreview = document.getElementById('hargaSatuanPreview');
+    const dpPreview = document.getElementById('dpPreview');
+    if (hargaSatuanPreview) {
+      hargaSatuanPreview.textContent = hargaSatuanInput.value ? formatRupiah(price) : '';
+    }
+    if (dpPreview) {
+      dpPreview.textContent = dpInput.value ? formatRupiah(dp) : '';
+    }
   };
   function formatDate(date) {
     const year = date.getFullYear();
@@ -111,7 +122,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const defaultDate = new Date();
     deadlineInput.value = formatDate(defaultDate);
     checkDeadline(deadlineInput.value);
+
+    // Pre-fill fields from URL query params (useful for Pricelist redirect)
+    const produkParam = urlParams.get('produk');
+    const hargaParam = urlParams.get('harga');
+    if (produkParam) {
+      produkInput.value = decodeURIComponent(produkParam);
+    }
+    if (hargaParam) {
+      hargaSatuanInput.value = parseFloat(hargaParam) || 0;
+    }
   }
+
+  // Initial calculation and preview setup
+  kalkulasiNominalDanSisa();
+
   jumlahInput.addEventListener('input', kalkulasiNominalDanSisa);
   hargaSatuanInput.addEventListener('input', kalkulasiNominalDanSisa);
   dpInput.addEventListener('input', kalkulasiNominalDanSisa);
@@ -203,8 +228,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         showToast({
           title: "Berhasil",
           message: isEditMode
-            ? "Proyek berhasil diperbarui."
-            : "Proyek baru berhasil ditambahkan.",
+            ? "Projek berhasil diperbarui."
+            : "Projek baru berhasil ditambahkan.",
           type: "success"
         });
 
@@ -233,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = isEditMode ? 'Simpan Perubahan' : 'Simpan Proyek';
+      submitBtn.textContent = isEditMode ? 'Simpan Perubahan' : 'Simpan Projek';
     }
   });
 });

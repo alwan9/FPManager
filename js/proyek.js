@@ -155,6 +155,15 @@ async function viewDetail(id) {
     const proyek = list.find(p => p.iDProyek === id);
     currentProyek = proyek;
     if (proyek) {
+      if (document.getElementById('gdriveInputContainer')) {
+        document.getElementById('gdriveInputContainer').classList.add('hidden');
+      }
+      if (document.getElementById('gdriveLink')) {
+        document.getElementById('gdriveLink').value = '';
+      }
+      if (document.getElementById('hasilAI')) {
+        document.getElementById('hasilAI').value = '';
+      }
       document.getElementById('modalId').textContent = proyek.iDProyek;
       document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
       document.getElementById('modalWa').textContent = `+${proyek.nomorWA}`;
@@ -195,8 +204,8 @@ async function viewDetail(id) {
     console.error(error);
 
     showToast({
-      title: "Detail Proyek",
-      message: "Gagal memuat detail proyek.",
+      title: "Detail Projek",
+      message: "Gagal memuat detail projek.",
       type: "error"
     });
   }
@@ -209,13 +218,13 @@ function closeModal() {
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
   console.log("ID yang akan dihapus =", id);
-  if (confirm(`Apakah Anda yakin ingin menghapus proyek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
+  if (confirm(`Apakah Anda yakin ingin menghapus projek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
     try {
       const res = await API.deleteProyek(id);
       if (res.success) {
         showToast({
           title: "Berhasil",
-          message: "Proyek berhasil dihapus.",
+          message: "Projek berhasil dihapus.",
           type: "success"
         });
         loadProyekData(); // Refresh data
@@ -231,22 +240,80 @@ async function hapusProyek(id, name) {
 
       showToast({
         title: "Error",
-        message: "Terjadi kesalahan saat menghapus proyek.",
+        message: "Terjadi kesalahan saat menghapus projek.",
         type: "error"
       });
     }
   }
 }
 async function generateAI(jenis) {
-
   if (!currentProyek) {
-
     showToast({
       title: "AI",
       message: "Data proyek belum dipilih.",
       type: "error"
     });
+    return;
+  }
 
+  const gdriveContainer = document.getElementById('gdriveInputContainer');
+  const gdriveInput = document.getElementById('gdriveLink');
+  const gdriveLink = gdriveInput ? gdriveInput.value.trim() : '';
+
+  // Handle visibility of Google Drive input
+  if (jenis === 'selesai') {
+    if (gdriveContainer && gdriveContainer.classList.contains('hidden')) {
+      gdriveContainer.classList.remove('hidden');
+      gdriveInput.focus();
+      showToast({
+        title: "Link Google Drive",
+        message: "Silakan masukkan link Google Drive hasil desain di atas.",
+        type: "info"
+      });
+      return;
+    }
+
+    // If it's shown but empty for 'selesai'
+    if (!gdriveLink) {
+      gdriveInput.focus();
+      showToast({
+        title: "Link Google Drive",
+        message: "Link Google Drive wajib diisi untuk ucapan selesai.",
+        type: "warning"
+      });
+      return;
+    }
+  } else {
+    // Hide it for other options (followup, penawaran, invoice, testimoni, pelunasan)
+    if (gdriveContainer) {
+      gdriveContainer.classList.add('hidden');
+    }
+  }
+
+  // Local generation for custom types
+  if (['testimoni', 'pelunasan', 'selesai'].includes(jenis)) {
+    let text = '';
+    const formatRp = (num) => formatRupiah(num);
+    const namaKlien = currentProyek.namaPelanggan || 'Kak';
+    const namaProyek = currentProyek.namaProyek || 'Projek Desain';
+    const nominal = formatRp(currentProyek.nominalProyek || 0);
+    const dp = formatRp(currentProyek.dP || 0);
+    const sisa = formatRp(currentProyek.sisaPembayaran || 0);
+
+    if (jenis === 'testimoni') {
+      text = `Halo Kak ${namaKlien}, terima kasih banyak telah mempercayakan pengerjaan projek *${namaProyek}* kepada kami. 😊\n\nJika tidak keberatan, kami ingin meminta sedikit testimoni atau feedback singkat mengenai hasil desain dan pelayanan kami. Pendapat Kakak sangat berarti bagi kami untuk terus berkembang.\n\nTerima kasih banyak atas waktu dan kerja samanya, Kak! 🙏✨`;
+    } else if (jenis === 'pelunasan') {
+      text = `Halo Kak ${namaKlien}, semoga kabarnya baik.\n\nProjek desain *${namaProyek}* saat ini sudah selesai kami kerjakan. Berikut adalah rincian tagihan pembayaran:\n- Total Nominal: ${nominal}\n- Uang Muka (DP): ${dp}\n- Sisa Pelunasan: ${sisa}\n\nMohon untuk melakukan pelunasan sisa pembayaran sebesar *${sisa}*. Setelah pelunasan diterima, kami akan segera mengirimkan file final resolusi tinggi.\n\nTerima kasih banyak atas kerja samanya, Kak! 🙏`;
+    } else if (jenis === 'selesai') {
+      text = `Halo Kak ${namaKlien}, kabar baik!\n\nSeluruh file desain final resolusi tinggi untuk projek *${namaProyek}* telah selesai diunggah.\n\nKakak dapat mengunduh semua file tersebut melalui tautan Google Drive berikut:\n🔗 ${gdriveLink || '[Link Google Drive belum dimasukkan]'}\n\nTerima kasih banyak telah menggunakan jasa kami. Semoga desainnya bermanfaat dan sukses selalu untuk usahanya! Kami tunggu projek kerja sama berikutnya ya Kak! 🚀✨`;
+    }
+
+    document.getElementById("hasilAI").value = text;
+    showToast({
+      title: "AI",
+      message: "Teks berhasil dibuat secara lokal.",
+      type: "success"
+    });
     return;
   }
 
@@ -258,24 +325,22 @@ async function generateAI(jenis) {
 
   const data = {
     ...currentProyek,
-    jenis
+    jenis,
+    gdriveLink
   };
 
   const result = await API.generateAI(data);
 
   if (!result.success) {
-
     showToast({
       title: "AI",
       message: result.message,
       type: "error"
     });
-
     return;
   }
 
   document.getElementById("hasilAI").value = result.text;
-
 }
 
 function copyAIText() {

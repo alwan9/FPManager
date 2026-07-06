@@ -24,6 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (form) {
     form.addEventListener('submit', handleAddTransaksi);
   }
+
+  // Live nominal formatting preview
+  const nominalInput = document.getElementById('nominal');
+  const nominalPreview = document.getElementById('nominalPreview');
+  if (nominalInput && nominalPreview) {
+    nominalInput.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value) || 0;
+      nominalPreview.textContent = e.target.value ? formatRupiah(val) : '';
+    });
+  }
 });
 
 // Load and calculate finance summaries
@@ -168,6 +178,8 @@ async function handleAddTransaksi(e) {
 
       // Reset form kecuali tanggal
       document.getElementById('transaksiForm').reset();
+      const nominalPreview = document.getElementById('nominalPreview');
+      if (nominalPreview) nominalPreview.textContent = '';
       document.getElementById('tanggal').value =
         new Date().toISOString().split('T')[0];
 

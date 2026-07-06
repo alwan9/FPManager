@@ -43,13 +43,13 @@ function renderOverviewCards(proyekList, keuanganList) {
   const totalProyek = proyekList.length;
   let totalOmzet = 0;
   let totalDp = 0;
-  let totalPiutang = 0;
+  let totalHutang = 0;
   let totalPengeluaran = 0;
 
   proyekList.forEach(p => {
     totalOmzet += Number(p.nominal) || 0;
     totalDp += Number(p.dp) || 0;
-    totalPiutang += Number(p.sisa) || 0;
+    totalHutang += Number(p.sisa) || 0;
   });
 
   keuanganList.forEach(k => {
@@ -63,7 +63,7 @@ function renderOverviewCards(proyekList, keuanganList) {
   document.getElementById('recapTotalProyek').textContent = `${totalProyek} Proyek`;
   document.getElementById('recapTotalOmzet').textContent = formatRupiah(totalOmzet);
   document.getElementById('recapTotalDp').textContent = formatRupiah(totalDp);
-  document.getElementById('recapTotalPiutang').textContent = formatRupiah(totalPiutang);
+  document.getElementById('recapTotalPiutang').textContent = formatRupiah(totalHutang);
   document.getElementById('recapTotalPengeluaran').textContent = formatRupiah(totalPengeluaran);
 
   const labaEl = document.getElementById('recapTotalLaba');
@@ -189,10 +189,34 @@ function renderChart(monthlyList) {
       scales: {
         y: {
           beginAtZero: true,
+          afterBuildTicks: function(scale) {
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+              scale.ticks = [
+                { value: 1000000 },
+                { value: 3000000 },
+                { value: 5000000 },
+                { value: 7000000 },
+                { value: 9000000 }
+              ];
+            }
+          },
           ticks: {
             font: { family: 'Inter' },
             callback: function (value) {
-              return 'Rp ' + value.toLocaleString('id-ID');
+              const isMobile = window.innerWidth < 768;
+              if (isMobile) {
+                const allowed = [1000000, 3000000, 5000000, 7000000, 9000000];
+                if (!allowed.includes(value)) return null;
+              }
+              if (value >= 1000000) {
+                const millions = value / 1000000;
+                return (millions % 1 === 0 ? millions : millions.toFixed(1).replace('.', ',')) + ' jt';
+              }
+              if (value >= 1000) {
+                return (value / 1000) + ' rb';
+              }
+              return value;
             }
           }
         },

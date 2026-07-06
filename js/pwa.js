@@ -21,13 +21,16 @@ window.addEventListener('beforeinstallprompt', (e) => {
   // Update UI notify the user they can install the PWA
   const installBtn = document.getElementById('pwaInstallBtn');
   const installBtnMobile = document.getElementById('pwaInstallBtnMobile');
-  
+
   const setupInstallBtn = (btn, isFlex) => {
     if (!btn) return;
+    if (btn.id === 'pwaInstallBtn' && window.innerWidth < 768) {
+      return;
+    }
     btn.classList.remove('hidden');
     if (isFlex) btn.classList.add('flex');
     else btn.classList.add('block');
-    
+
     btn.addEventListener('click', async () => {
       if (installBtn) {
         installBtn.classList.add('hidden');
@@ -66,7 +69,7 @@ function createNotificationPrompt() {
   const prompt = document.createElement('div');
   prompt.id = 'pwa-notification-prompt';
   prompt.className = 'fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
-  
+
   prompt.innerHTML = `
     <div class="flex items-start space-x-3">
       <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
@@ -74,7 +77,7 @@ function createNotificationPrompt() {
       </div>
       <div>
         <h4 class="font-bold text-sm text-zinc-100 font-sans">Aktifkan Notifikasi</h4>
-        <p class="text-xs text-zinc-400 mt-1 font-sans">Dapatkan pengingat deadline proyek langsung di bar notifikasi HP Anda agar tidak ada yang terlewat.</p>
+        <p class="text-xs text-zinc-400 mt-1 font-sans">Dapatkan pengingat deadline projek langsung di bar notifikasi HP Anda agar tidak ada yang terlewat.</p>
       </div>
     </div>
     <div class="flex space-x-2 justify-end">
@@ -84,7 +87,7 @@ function createNotificationPrompt() {
   `;
 
   document.body.appendChild(prompt);
-  
+
   // Animate in
   setTimeout(() => {
     prompt.classList.remove('translate-y-10', 'opacity-0');
@@ -107,7 +110,7 @@ function createNotificationPrompt() {
         if (typeof showToast === 'function') {
           showToast({
             title: 'Notifikasi Aktif',
-            message: 'Anda akan menerima pengingat deadline proyek H-1.',
+            message: 'Anda akan menerima pengingat deadline projek H-1.',
             type: 'success'
           });
         }
@@ -134,12 +137,12 @@ function createNotificationPrompt() {
 function showIOSInstallPrompt() {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  
+
   if (isIOS && !isStandalone && sessionStorage.getItem('pwa_ios_prompt_dismissed') !== 'true') {
     const prompt = document.createElement('div');
     prompt.id = 'pwa-ios-prompt';
     prompt.className = 'fixed bottom-20 left-4 right-4 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
-    
+
     prompt.innerHTML = `
       <div class="flex items-start justify-between">
         <div class="flex items-start space-x-3">
@@ -158,9 +161,9 @@ function showIOSInstallPrompt() {
         2. Gulir ke bawah dan ketuk <strong>Tambah ke Layar Utama (Add to Home Screen)</strong> <i class="fa-regular fa-square-plus text-emerald-400 mx-0.5"></i>.
       </div>
     `;
-    
+
     document.body.appendChild(prompt);
-    
+
     // Animate in
     setTimeout(() => {
       prompt.classList.remove('translate-y-10', 'opacity-0');
@@ -215,7 +218,7 @@ async function checkDeadlines() {
             const notifKey = `notified_${proyek.id || proyek.namaProyek}_${today.getTime()}`;
             if (!localStorage.getItem(notifKey)) {
               showNotification('Deadline H-1: ' + proyek.namaProyek, {
-                body: `Proyek untuk klien ${proyek.namaPelanggan} harus selesai besok!`,
+                body: `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`,
                 icon: './assets/img/icon-192.png'
               });
               localStorage.setItem(notifKey, 'true');
