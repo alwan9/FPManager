@@ -57,6 +57,7 @@ function initTable(data) {
     $('#proyekTable').DataTable().destroy();
   }
   table = $('#proyekTable').DataTable({
+    autoWidth: false,
     data: data,
     columns: [
       { data: 'iDProyek', className: 'hidden md:table-cell' },

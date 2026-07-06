@@ -83,6 +83,7 @@ function initTable(data) {
   }
 
   table = $('#keuanganTable').DataTable({
+    autoWidth: false,
     data: data,
     columns: [
       { data: 'id' },

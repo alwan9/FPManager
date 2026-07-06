@@ -58,9 +58,9 @@
   <!-- Main split container -->
   <div class="flex-1 flex flex-col md:flex-row">
 
-    <!-- Left Side: Gradient Banner (Hidden on mobile) -->
+    <!-- Left Side: Gradient Banner -->
     <div
-      class="hidden md:flex md:w-2/3 bg-gradient-to-br from-indigo-900 via-blue-900 to-zinc-950 text-white p-12 flex-col justify-between relative overflow-hidden">
+      class="flex w-full md:w-2/3 bg-gradient-to-br from-indigo-900 via-blue-900 to-zinc-950 text-white p-8 md:p-12 flex-col justify-between relative overflow-hidden min-h-[360px] md:min-h-screen">
       <!-- Decorative circles / ambient lights -->
       <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
       <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-blue-500 opacity-20 blur-3xl"></div>
@@ -73,11 +73,11 @@
       </div>
 
       <!-- Middle quote / description (SLIDER) -->
-      <div class="z-10 my-auto max-w-lg w-full relative h-48 flex flex-col justify-center">
+      <div class="z-10 my-[10px] md:my-auto py-[10px] md:py-0 max-w-lg w-full relative h-48 flex flex-col justify-center">
         <!-- Slide 1 -->
         <div
           class="login-slide transition-all duration-500 transform translate-x-0 opacity-100 flex flex-col space-y-4 absolute inset-0">
-          <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Kelola Projek Secara
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Kelola Projek Secara
             Terstruktur</h2>
           <p class="text-zinc-300 text-sm lg:text-base leading-relaxed">Pantau tenggat waktu, status pembayaran, dan
             rincian pekerjaan setiap klien dalam satu dasbor terpadu.</p>
@@ -85,7 +85,7 @@
         <!-- Slide 2 -->
         <div
           class="login-slide transition-all duration-500 transform translate-x-8 opacity-0 flex flex-col space-y-4 absolute inset-0 pointer-events-none">
-          <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Notifikasi Deadline
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Notifikasi Deadline
             Langsung di HP</h2>
           <p class="text-zinc-300 text-sm lg:text-base leading-relaxed">Sistem PWA akan mengirimkan pengingat deadline
             projek H-1 langsung ke bar notifikasi dan lockscreen HP Anda.</p>
@@ -93,7 +93,7 @@
         <!-- Slide 3 -->
         <div
           class="login-slide transition-all duration-500 transform translate-x-8 opacity-0 flex flex-col space-y-4 absolute inset-0 pointer-events-none">
-          <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Laporan Keuangan &
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight font-sans">Laporan Keuangan &
             Omzet Otomatis</h2>
           <p class="text-zinc-300 text-sm lg:text-base leading-relaxed">Catat DP, pelunasan, sisa hutang, dan
             pengeluaran operasional secara instan dengan rekapan otomatis.</p>
@@ -117,14 +117,14 @@
       </div>
 
       <!-- Bottom copyright -->
-      <div class="z-10 text-xs text-zinc-400 font-medium">
+      <div class="z-10 text-xs text-zinc-400 font-medium hidden md:block">
         &copy; 2026 FPManager. Created by Alwan.
       </div>
     </div>
 
     <!-- Right Side: Login Form (Visible on all screens) -->
     <div
-      class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-indigo-50 via-blue-50 to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 relative min-h-screen transition-all duration-300">
+      class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-indigo-50 via-blue-50 to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 relative min-h-[calc(100vh-360px)] md:min-h-screen py-12 md:py-6 rounded-t-[30px] md:rounded-none -mt-8 md:mt-0 z-10 transition-all duration-300">
 
       <!-- Dark Mode Toggle -->
       <div class="absolute top-6 right-6 z-50">
@@ -136,11 +136,11 @@
 
       <!-- Glassmorphic Login Container -->
       <div
-        class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl flex flex-col justify-center border text-zinc-800 dark:text-zinc-100 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-lg border-white/20">
+        class="glass-panel w-full max-w-md p-6 md:p-8 rounded-2xl md:shadow-2xl flex flex-col justify-center border-transparent md:border text-zinc-800 dark:text-zinc-100 bg-transparent md:bg-white/60 md:dark:bg-zinc-900/60 md:backdrop-blur-lg md:border-white/20">
 
         <!-- Logo for mobile only -->
         <div class="text-center mb-8">
-          <div class="flex justify-center mb-6 md:hidden">
+          <div class="hidden">
             <div class="bg-white p-3 rounded-2xl lg:shadow-md inline-block"
               style="background-color: #ffffff !important;">
               <img src="./assets/img/logo.png" alt="FPManager Logo" class="h-12 w-auto object-contain">
@@ -148,14 +148,14 @@
           </div>
           <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white font-sans">Login
             Administrator</h1>
-          <p class="text-zinc-500 dark:text-zinc-300 mt-2 text-sm font-sans">Masuk untuk mengelola projek dan laporan
+          <p class="text-zinc-500 dark:text-zinc-200 mt-2 text-sm font-sans">Masuk untuk mengelola projek dan laporan
             keuangan</p>
         </div>
 
         <!-- Login Form -->
         <form id="loginForm" class="space-y-6">
           <div>
-            <label for="password" class="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-2">Password
+            <label for="password" class="block text-sm font-medium text-zinc-600 dark:text-zinc-200 mb-2">Password
               Admin</label>
             <div class="relative rounded-md shadow-sm">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -186,7 +186,7 @@
           </div>
         </form>
 
-        <div class="text-center mt-8 text-xs text-zinc-400 dark:text-zinc-500 md:hidden">
+        <div class="text-center mt-8 text-xs text-zinc-400 dark:text-zinc-300 md:hidden">
           &copy; 2026 Kelola FPManager. All rights reserved.
         </div>
       </div>

@@ -77,10 +77,12 @@ html.dark aside {
 }
 
 /* Modals & Glass Panels */
-html.dark .glass-panel {
-  background: rgba(24, 24, 27, 0.8) !important;
-  /* zinc-900 */
-  border-color: rgba(255, 255, 255, 0.05) !important;
+@media (min-width: 768px) {
+  html.dark .glass-panel {
+    background: rgba(24, 24, 27, 0.8) !important;
+    /* zinc-900 */
+    border-color: rgba(255, 255, 255, 0.05) !important;
+  }
 }
 
 /* DataTables Overrides for Dark Mode */

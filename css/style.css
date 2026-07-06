@@ -44,11 +44,13 @@ body {
 }
 
 /* Glassmorphism Effect */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+@media (min-width: 768px) {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
 }
 
 /* Micro Interaction: Cards */
@@ -346,11 +348,48 @@ table.dataTable.no-footer {
   }
 
   html:not(.dark) aside.fixed .sidebar-link:not(.bg-indigo-600):hover {
-    background-color: #f1f5f9 !important;
+    background-color: transparent !important;
     color: #0f172a !important;
   }
 
   html:not(.dark) aside.fixed #mobileMenuBtn {
     color: #475569 !important;
+  }
+
+  /* Custom Mobile Bottom Navbar - Icon & Text Adjustments */
+  aside.fixed .sidebar-link i {
+    font-size: 1.45rem !important; /* Enlarged icon size */
+    margin-bottom: 3px !important;
+    transition: transform 0.2s ease;
+  }
+
+  aside.fixed .sidebar-link span {
+    font-size: 0.75rem !important; /* text-xs size (12px) */
+    font-weight: 600 !important;
+    letter-spacing: 0.025em;
+  }
+
+  /* Active states styling on mobile - no background, glow on text & icon */
+  aside.fixed .sidebar-link.bg-indigo-600 {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: #818cf8 !important; /* Glowing indigo-400 in dark mode */
+    text-shadow: 0 0 10px rgba(129, 140, 248, 0.6);
+  }
+  
+  aside.fixed .sidebar-link.bg-indigo-600 i {
+    transform: scale(1.1); /* Slight scaling on active icon */
+  }
+
+  html:not(.dark) aside.fixed .sidebar-link.bg-indigo-600 {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: #4f46e5 !important; /* Indigo-600 in light mode */
+    text-shadow: 0 0 8px rgba(79, 70, 229, 0.3);
+  }
+
+  /* Disable hover backgrounds on mobile */
+  aside.fixed .sidebar-link:hover {
+    background-color: transparent !important;
   }
 }
