@@ -149,39 +149,25 @@ const API = {
   // GENERATE AI
   // ===========================
   generateAI: async (data) => {
-
     try {
-
       const body = new URLSearchParams();
-
       body.append("action", "generateAI");
       body.append("token", API.getToken());
       body.append("apiKey", CONFIG.API_KEY);
       body.append("data", JSON.stringify(data));
-
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body
       });
-
       const result = await response.json();
-
       if (handleUnauthorized(result)) return result;
-
       return result;
-
     } catch (error) {
-
       console.error(error);
-
       return {
         success: false,
         message: "Gagal menghubungi AI."
       };
-
     }
   }
 };
-
-
-

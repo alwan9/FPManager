@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v10';
+const CACHE_NAME = 'fpmanager-v21';
 const urlsToCache = [
   './',
   './index.html',
@@ -21,6 +21,22 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+// Clear old cache versions
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
 

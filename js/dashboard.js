@@ -23,6 +23,8 @@ async function loadDashboardData() {
     renderRecentProjects(proyekList);
     // 4. Render Grafik Keuangan Bulanan
     renderDashboardChart(keuanganList);
+    // 5. Inisialisasi Kalender Deadline
+    initDeadlineCalendar(proyekList);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
     Toast.error(
@@ -248,6 +250,120 @@ function formatRupiah(number) {
     currency: 'IDR',
     minimumFractionDigits: 0
   }).format(number);
+}
+
+// Initialize and render deadline calendar (Revision Calendar only)
+let calendarCurrentDate = new Date();
+function initDeadlineCalendar(proyekList) {
+  const prevBtn = document.getElementById('prevMonthBtn');
+  const nextBtn = document.getElementById('nextMonthBtn');
+  if (!prevBtn || !nextBtn) return;
+
+  const renderCalendar = () => {
+    const year = calendarCurrentDate.getFullYear();
+    const month = calendarCurrentDate.getMonth();
+
+    const monthsName = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    document.getElementById('calendarMonthYear').textContent = `${monthsName[month]} ${year}`;
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const prevTotalDays = new Date(year, month, 0).getDate();
+
+    const daysGrid = document.getElementById('calendarDaysGrid');
+    daysGrid.innerHTML = '';
+
+    // Filter project list to only show projects with status 'Revisi'
+    const revisiProjects = proyekList.filter(p => p.status && p.status.toLowerCase() === 'revisi');
+
+    // Create lookup by YYYY-MM-DD
+    const deadlineLookup = {};
+    revisiProjects.forEach(p => {
+      if (p.deadline) {
+        const dateStr = p.deadline;
+        if (!deadlineLookup[dateStr]) {
+          deadlineLookup[dateStr] = [];
+        }
+        deadlineLookup[dateStr].push(p);
+      }
+    });
+
+    // Prev month days
+    for (let i = firstDayIndex; i > 0; i--) {
+      const prevDay = prevTotalDays - i + 1;
+      const cell = document.createElement('div');
+      cell.className = 'p-2 text-zinc-300 text-xs text-center border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/10 dark:bg-zinc-800/10 select-none';
+      cell.textContent = prevDay;
+      daysGrid.appendChild(cell);
+    }
+
+    // Current month days
+    const today = new Date();
+    for (let day = 1; day <= totalDays; day++) {
+      const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const cell = document.createElement('div');
+      
+      const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+      const dayDeadlines = deadlineLookup[dateString] || [];
+      const hasDeadlines = dayDeadlines.length > 0;
+
+      cell.className = `p-2 text-xs text-center border border-zinc-200 dark:border-zinc-800 rounded-xl relative cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 transition-colors flex flex-col items-center justify-between min-h-[54px] ${
+        isToday ? 'bg-red-600 text-white font-bold border-red-600 hover:bg-red-700 hover:text-white' : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
+      }`;
+      
+      const dayNumSpan = document.createElement('span');
+      dayNumSpan.className = 'font-semibold';
+      dayNumSpan.textContent = day;
+      cell.appendChild(dayNumSpan);
+
+      if (hasDeadlines) {
+        const dotContainer = document.createElement('div');
+        dotContainer.className = 'flex space-x-1 justify-center mt-1 w-full overflow-hidden';
+        
+        // Show 1 dot/circle for each revision project
+        dayDeadlines.forEach(() => {
+          const dot = document.createElement('span');
+          // For today, show white dots, otherwise red/rose dots
+          dot.className = `w-1.5 h-1.5 rounded-full shrink-0 ${isToday ? 'bg-white' : 'bg-red-500'}`;
+          dotContainer.appendChild(dot);
+        });
+
+        cell.appendChild(dotContainer);
+      }
+
+      // Clicking any day redirects to proyek.html with status=Revisi parameter
+      cell.addEventListener('click', () => {
+        window.location.href = 'proyek.html?status=Revisi';
+      });
+
+      daysGrid.appendChild(cell);
+    }
+
+    // Next month days trailing
+    const totalCells = firstDayIndex + totalDays;
+    const remainingCells = 42 - totalCells;
+    for (let i = 1; i <= remainingCells; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'p-2 text-zinc-300 text-xs text-center border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/10 dark:bg-zinc-800/10 select-none';
+      cell.textContent = i;
+      daysGrid.appendChild(cell);
+    }
+  };
+
+  prevBtn.onclick = () => {
+    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+    renderCalendar();
+  };
+
+  nextBtn.onclick = () => {
+    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+    renderCalendar();
+  };
+
+  renderCalendar();
 }
 
 

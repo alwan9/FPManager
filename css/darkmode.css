@@ -173,11 +173,18 @@ html.dark .bg-indigo-50 {
 }
 
 html.dark .badge-menunggu {
-  background-color: rgba(217, 119, 6, 0.15) !important;
+  background-color: rgba(37, 99, 235, 0.15) !important;
+  color: #93c5fd !important;
 }
 
 html.dark .badge-dikerjakan {
-  background-color: rgba(37, 99, 235, 0.15) !important;
+  background-color: rgba(217, 119, 6, 0.15) !important;
+  color: #fde68a !important;
+}
+
+html.dark .badge-revisi {
+  background-color: rgba(220, 38, 38, 0.15) !important;
+  color: #fca5a5 !important;
 }
 
 html.dark #globalLoader {
@@ -190,9 +197,11 @@ html.dark .slide-dot.bg-white {
   background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1)) !important;
 }
 
-/* ========================================== */
-/* Light Mode Sidebar Overrides (default view) */
-/* ========================================== */
+/* ======================================================= */
+/* Sidebar Theme Overrides (Desktop & Mobile)             */
+/* ======================================================= */
+
+/* --- LIGHT MODE (Bright Background) --- */
 html:not(.dark) aside,
 html:not(.dark) aside div,
 html:not(.dark) aside nav {
@@ -201,26 +210,78 @@ html:not(.dark) aside nav {
   color: #18181b !important;
 }
 
-html:not(.dark) aside .text-zinc-200 {
-  color: #18181b !important;
+html:not(.dark) aside .sidebar-link:not(.bg-indigo-600) {
+  color: #4b5563 !important; /* gray-600 */
 }
 
-html:not(.dark) .sidebar-link:not(.bg-indigo-600) {
-  color: #52525b !important; /* zinc-600 */
+html:not(.dark) aside .sidebar-link:not(.bg-indigo-600):hover {
+  background-color: #f3f4f6 !important; /* gray-100 */
+  color: #111827 !important; /* gray-900 */
 }
 
-html:not(.dark) .sidebar-link:not(.bg-indigo-600):hover {
-  background-color: #f4f4f5 !important; /* zinc-100 */
-  color: #18181b !important;
-}
-
-html:not(.dark) aside button {
-  border-color: #e4e4e7 !important;
-  color: #52525b !important;
+/* Install Application button in light mode */
+html:not(.dark) #pwaInstallBtn {
+  color: #059669 !important; /* emerald-600 */
   background-color: transparent !important;
 }
 
-html:not(.dark) aside button:hover {
-  background-color: #f4f4f5 !important;
-  color: #18181b !important;
+html:not(.dark) #pwaInstallBtn:hover {
+  background-color: #ecfdf5 !important; /* emerald-50 */
+  color: #047857 !important; /* emerald-700 */
+}
+
+/* Logout button in light mode */
+html:not(.dark) aside button[onclick="Auth.logout()"],
+html:not(.dark) aside button[onclick="Auth.logout()"] i,
+html:not(.dark) aside button[onclick="Auth.logout()"] span {
+  color: #dc2626 !important; /* red-600 */
+  background-color: transparent !important;
+}
+
+html:not(.dark) aside button[onclick="Auth.logout()"]:hover {
+  background-color: #fef2f2 !important; /* red-50 */
+}
+
+html:not(.dark) aside button[onclick="Auth.logout()"]:hover i,
+html:not(.dark) aside button[onclick="Auth.logout()"]:hover span {
+  color: #b91c1c !important; /* red-700 */
+}
+
+
+/* --- DARK MODE (Dark Background) --- */
+html.dark aside,
+html.dark aside div,
+html.dark aside nav {
+  background-color: #18181b !important; /* zinc-900 */
+  border-color: #27272a !important; /* zinc-800 */
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+html.dark aside .sidebar-link:not(.bg-indigo-600) {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+html.dark aside .sidebar-link:not(.bg-indigo-600):hover {
+  background-color: #1f2937 !important; /* gray-800 */
+  color: #f9fafb !important; /* gray-50 */
+}
+
+/* Install Application button in dark mode */
+html.dark #pwaInstallBtn {
+  color: #34d399 !important; /* emerald-400 */
+}
+
+html.dark #pwaInstallBtn:hover {
+  background-color: rgba(6, 78, 59, 0.3) !important;
+  color: #6ee7b7 !important; /* emerald-300 */
+}
+
+/* Logout button in dark mode */
+html.dark aside button[onclick="Auth.logout()"] {
+  color: #f87171 !important; /* red-400 */
+}
+
+html.dark aside button[onclick="Auth.logout()"]:hover {
+  background-color: rgba(127, 29, 29, 0.3) !important;
+  color: #fca5a5 !important; /* red-300 */
 }

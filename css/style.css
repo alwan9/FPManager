@@ -40,7 +40,7 @@ body {
 }
 
 .sidebar-link:hover {
-  transform: tranzincX(4px);
+  transform: translateX(4px);
 }
 
 /* Glassmorphism Effect */
@@ -59,19 +59,25 @@ body {
 }
 
 .hover-card:hover {
-  transform: tranzincY(-2px);
+  transform: translateY(-2px);
   box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05), 0 8px 8px -6px rgba(0, 0, 0, 0.05);
 }
 
+
 /* Status Badges */
 .badge-menunggu {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.badge-dikerjakan {
   background-color: #fef3c7;
   color: #d97706;
 }
 
-.badge-dikerjakan {
-  background-color: #dbeafe;
-  color: #2563eb;
+.badge-revisi {
+  background-color: #fee2e2;
+  color: #dc2626;
 }
 
 .badge-selesai {

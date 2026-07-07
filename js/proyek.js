@@ -16,8 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadProyekData() {
   try {
     const listProyek = await API.getProyek();
+    window.allProyekList = listProyek; // Cache list globally for status updates
+    
+    // Add statusOrder property dynamically
+    listProyek.forEach(p => {
+      p.statusOrder = (p.status && p.status.toLowerCase() === 'dibatalkan') ? 1 : 0;
+    });
+
     updateStatusCounters(listProyek);
     initTable(listProyek);
+
+    // Apply URL status filter if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusFilter = urlParams.get('status');
+    if (statusFilter) {
+      filterStatus(statusFilter);
+      
+      // Auto-focus the filter button
+      const btns = document.querySelectorAll('.status-filter-btn');
+      btns.forEach(btn => {
+        if (btn.getAttribute('onclick')?.includes(statusFilter)) {
+          btn.classList.add('ring-2', 'ring-indigo-500');
+        } else {
+          btn.classList.remove('ring-2', 'ring-indigo-500');
+        }
+      });
+
+      // If filtering by 'Revisi', sort by deadline (column index 7) ascending (closest deadline first)
+      if (statusFilter.toLowerCase() === 'revisi') {
+        table.order([7, 'asc']).draw();
+      }
+    }
   } catch (error) {
     console.error('Gagal memuat data proyek:', error);
 
@@ -34,6 +63,7 @@ function updateStatusCounters(proyekList) {
     all: proyekList.length,
     menunggu: 0,
     dikerjakan: 0,
+    revisi: 0,
     selesai: 0,
     belumpembayaran: 0
   };
@@ -41,12 +71,19 @@ function updateStatusCounters(proyekList) {
     const status = p.status.toLowerCase();
     if (status === 'menunggu') counts.menunggu++;
     else if (status === 'sedang dikerjakan') counts.dikerjakan++;
+    else if (status === 'revisi') counts.revisi++;
     else if (status === 'selesai') counts.selesai++;
     else if (status === 'belum pembayaran') counts.belumpembayaran++;
   });
   document.getElementById('count-all').textContent = counts.all;
   document.getElementById('count-menunggu').textContent = counts.menunggu;
   document.getElementById('count-dikerjakan').textContent = counts.dikerjakan;
+  
+  const countRevisiEl = document.getElementById('count-revisi');
+  if (countRevisiEl) {
+    countRevisiEl.textContent = counts.revisi;
+  }
+  
   document.getElementById('count-selesai').textContent = counts.selesai;
   document.getElementById('count-belumpembayaran').textContent = counts.belumpembayaran;
 }
@@ -89,9 +126,22 @@ function initTable(data) {
       { data: 'deadline' },
       {
         data: 'status',
-        render: function (data) {
-          const badgeClass = 'badge-' + data.toLowerCase().replace(/\s+/g, '');
-          return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${badgeClass}">${data}</span>`;
+        render: function (data, type, row) {
+          if (type === 'display') {
+            const statusOptions = ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
+            const badgeClass = 'badge-' + data.toLowerCase().replace(/\s+/g, '');
+            
+            let selectHtml = `<select onchange="updateProyekStatus('${row.iDProyek}', this.value)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
+            
+            statusOptions.forEach(opt => {
+              const selected = (opt.toLowerCase() === data.toLowerCase()) ? 'selected' : '';
+              selectHtml += `<option value="${opt}" ${selected} class="bg-white text-zinc-800">${opt}</option>`;
+            });
+            
+            selectHtml += `</select>`;
+            return selectHtml;
+          }
+          return data;
         }
       },
       {
@@ -112,8 +162,16 @@ function initTable(data) {
             </div>
           `;
         }
+      },
+      {
+        data: 'statusOrder',
+        visible: false,
+        searchable: false
       }
     ],
+    orderFixed: {
+      pre: [[10, 'asc']]
+    },
     order: [[0, 'desc']], // Urutkan berdasarkan ID proyek terbaru
     language: {
       search: "Cari Proyek:",
@@ -138,7 +196,7 @@ function filterStatus(status) {
     btn.classList.remove('ring-2', 'ring-indigo-500');
   });
   // Tambah ring aktif pada filter saat ini
-  const activeBtn = event.currentTarget;
+  const activeBtn = typeof event !== 'undefined' && event ? event.currentTarget : null;
   if (activeBtn) {
     activeBtn.classList.add('ring-2', 'ring-indigo-500');
   }
@@ -386,6 +444,66 @@ function formatRupiah(number) {
     currency: 'IDR',
     minimumFractionDigits: 0
   }).format(number);
+}
+
+// Update status of project inline from table select
+async function updateProyekStatus(id, newStatus) {
+  try {
+    showToast({
+      title: "Memperbarui",
+      message: "Sedang memperbarui status projek...",
+      type: "info"
+    });
+
+    // Find original project object
+    const list = window.allProyekList || [];
+    const proyek = list.find(p => p.iDProyek === id);
+    if (!proyek) {
+      throw new Error("Projek tidak ditemukan di memori.");
+    }
+
+    // Construct full update payload
+    const payload = {
+      namaProyek: proyek.namaProyek,
+      pelanggan: proyek.namaPelanggan,
+      wa: proyek.nomorWA,
+      produk: proyek.produk || proyek.jenisProduk || '',
+      jumlah: Number(proyek.jumlah) || 1,
+      satuan: proyek.satuan || 'Pcs',
+      hargaSatuan: Number(proyek.hargaSatuan) || 0,
+      nominal: Number(proyek.nominalProyek) || 0,
+      dp: Number(proyek.dP) || 0,
+      sisa: Number(proyek.sisaPembayaran) || 0,
+      deadline: proyek.deadline,
+      status: newStatus,
+      catatan: proyek.catatan || ''
+    };
+
+    const res = await API.updateProyek(id, payload);
+    if (res.success) {
+      showToast({
+        title: "Berhasil",
+        message: "Status projek berhasil diperbarui.",
+        type: "success"
+      });
+      loadProyekData(); // Reload table and counter metrics
+    } else {
+      showToast({
+        title: "Gagal",
+        message: res.message || "Gagal memperbarui status.",
+        type: "error"
+      });
+      loadProyekData(); // Reset table display
+    }
+  } catch (error) {
+    console.error("Error updating status:", error);
+    showToast({
+      title: "Error",
+      message: "Terjadi kesalahan saat memperbarui status.",
+      type: "error"
+    });
+    loadProyekData();
+  }
 }
 
 
