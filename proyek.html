@@ -161,7 +161,7 @@
           <div class="flex gap-3">
 
             <button id="btnBulkDelete" onclick="bulkDeleteProyek()" disabled
-              class="inline-flex items-center px-5 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow transition-all hidden">
+              class="inline-flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow transition-all hidden">
               <i class="fa-solid fa-trash-can mr-2"></i>
               <span>Hapus Terpilih (<span id="selectedCount">0</span>)</span>
             </button>
@@ -259,8 +259,8 @@
   </div>
 
   <!-- Detail Modal -->
-  <div id="detailModal"
-    class="fixed inset-0 bg-[#2563EB] bg-opacity-85 z-50 flex items-center justify-center p-4 hidden">
+  <div id="detailModal" style="background-color: rgba(0, 0, 0, 0.269);"
+    class="fixed inset-0   bg-opacity-85 z-50 flex items-center justify-center p-4 hidden">
     <div
       class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-zinc-100">
 
@@ -400,11 +400,11 @@
                   Invoice
                 </button>
                 <button onclick="generateAI('pelunasan')"
-                  class="bg-rose-600 hover:bg-rose-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                  class="bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 text-xs font-semibold transition">
                   Minta Pelunasan
                 </button>
                 <button onclick="generateAI('selesai')"
-                  class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg p-2 text-xs font-semibold transition">
                   Ucapan Selesai
                 </button>
                 <button onclick="generateAI('testimoni')"

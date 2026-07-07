@@ -9,7 +9,8 @@ const Toast = (() => {
         container.id = "toast-container";
 
         container.className =
-            "fixed top-6 right-6 z-[9999] flex flex-col gap-4";
+            "fixed top-6 right-6 z-[999999] flex flex-col gap-4";
+        container.style.zIndex = "999999";
 
         document.body.appendChild(container);
 

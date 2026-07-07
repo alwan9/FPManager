@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Update Chart.js if exists
       if (window.Chart) {
-        Chart.defaults.color = isDark ? '#d4d4d8' : '#475569';
-        Chart.defaults.borderColor = isDark ? '#3f3f46' : '#e2e8f0';
+        Chart.defaults.color = isDark ? '#d4d4d8' : '#52525b';
+        Chart.defaults.borderColor = isDark ? '#3f3f46' : '#e4e4e7';
         for (let id in Chart.instances) {
           Chart.instances[id].update();
         }
@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set initial Chart colors based on theme if Chart is loaded
   if (window.Chart) {
     const isDark = htmlEl.classList.contains('dark');
-    Chart.defaults.color = isDark ? '#d4d4d8' : '#475569';
-    Chart.defaults.borderColor = isDark ? '#3f3f46' : '#e2e8f0';
+    Chart.defaults.color = isDark ? '#d4d4d8' : '#52525b';
+    Chart.defaults.borderColor = isDark ? '#3f3f46' : '#e4e4e7';
   }
 
   // Active Link Highlight
