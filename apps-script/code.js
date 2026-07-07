@@ -291,7 +291,7 @@ function doPost(e) {
     // =========================
     // DELETE
     // =========================
-    else if (action === "deleteProyek" && id) {
+    else if (action === "deleteProyek") {
 
       requireLogin(e.parameter.token);
       checkRateLimit(e.parameter.token);
@@ -302,23 +302,45 @@ function doPost(e) {
       try {
 
         const sheet = ss.getSheetByName("Proyek");
+        const rawId = e.parameter.id;
+        
+        let idsToDelete = [];
+        if (rawId) {
+          if (rawId.indexOf("[") === 0) {
+            try {
+              idsToDelete = JSON.parse(rawId);
+            } catch (err) {
+              idsToDelete = [rawId];
+            }
+          } else if (rawId.indexOf(",") !== -1) {
+            idsToDelete = rawId.split(",").map(function(item) { return item.trim(); });
+          } else {
+            idsToDelete = [rawId];
+          }
+        }
 
-        const rowIndex = findRow(sheet, id);
-
-        if (rowIndex > 0) {
-
-          sheet.deleteRow(rowIndex);
+        if (idsToDelete.length > 0) {
+          const rows = sheet.getDataRange().getValues();
+          let count = 0;
+          // Hapus baris dari bawah ke atas agar indeks baris tidak bergeser
+          for (let i = rows.length - 1; i >= 1; i--) {
+            const currentId = String(rows[i][0]);
+            if (idsToDelete.indexOf(currentId) !== -1) {
+              sheet.deleteRow(i + 1); // Row Google Sheet adalah 1-indexed (baris 1 adalah header)
+              count++;
+            }
+          }
 
           responseData = {
             success: true,
-            message: "Data berhasil dihapus"
+            message: count + " data berhasil dihapus"
           };
 
         } else {
 
           responseData = {
             success: false,
-            message: "ID tidak ditemukan"
+            message: "ID tidak valid atau kosong"
           };
 
         }
@@ -558,9 +580,12 @@ function getRowsData(sheet) {
   return objects;
 }
 
-// Helper convert "Nama Proyek" ke "namaProyek", khusus Link GDrive ke gdriveLink
+// Helper convert "Nama Proyek" ke "namaProyek", khusus Link GDrive/Link Drive ke gdriveLink
 function toCamelCase(str) {
-  if (str === "Link GDrive") return "gdriveLink";
+  const normalized = (str || "").trim().toLowerCase();
+  if (normalized === "link gdrive" || normalized === "link drive" || normalized === "gdrive link" || normalized === "linkdrive" || normalized === "gdrivelink") {
+    return "gdriveLink";
+  }
   return str
     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();

@@ -117,17 +117,26 @@ function renderRecentProjects(proyekList) {
   const recent = [...proyekList].reverse().slice(0, 5);
   recent.forEach(p => {
     const badgeClass = 'badge-' + p.status.toLowerCase().replace(/\s+/g, '');
+    const gdriveBtn = p.gdriveLink ? `
+      <a href="${p.gdriveLink}" target="_blank" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[10px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
+        <i class="fa-solid fa-folder-open text-indigo-600"></i>
+        <span>Drive</span>
+      </a>
+    ` : '';
     const item = document.createElement('div');
     item.className = 'flex items-center justify-between p-3 border border-zinc-100 rounded-xl bg-zinc-50 hover:bg-zinc-100 transition-colors duration-150';
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
         <span class="font-bold text-sm text-zinc-900 block truncate">${p.namaProyek}</span>
         <span class="text-xs text-zinc-500 block truncate">Klien: ${p.namaPelanggan}</span>
-        <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}">${p.status}</span>
+        <div class="flex items-center mt-1">
+          <span class="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}">${p.status}</span>
+          ${gdriveBtn}
+        </div>
       </div>
       <div class="text-right flex-shrink-0">
         <span class="font-bold text-sm text-zinc-800 block">${formatRupiah(p.nominalProyek)}</span>
-        <span class="text-base text-zinc-400 block">${p.tanggal}</span>
+        <span class="text-[10px] text-zinc-400 block mt-1">${p.tanggal}</span>
       </div>
     `;
     container.appendChild(item);

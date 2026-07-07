@@ -83,7 +83,7 @@ const API = {
       body.append("action", "deleteProyek");
       body.append("token", API.getToken());
       body.append("apiKey", CONFIG.API_KEY);
-      body.append("id", id);
+      body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body

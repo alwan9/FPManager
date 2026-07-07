@@ -42,9 +42,9 @@ async function loadProyekData() {
         }
       });
 
-      // If filtering by 'Revisi', sort by deadline (column index 7) ascending (closest deadline first)
+      // If filtering by 'Revisi', sort by deadline (column index 8) ascending (closest deadline first)
       if (statusFilter.toLowerCase() === 'revisi') {
-        table.order([7, 'asc']).draw();
+        table.order([8, 'asc']).draw();
       }
     }
   } catch (error) {
@@ -97,6 +97,14 @@ function initTable(data) {
     autoWidth: false,
     data: data,
     columns: [
+      {
+        data: null,
+        orderable: false,
+        className: 'text-center w-10',
+        render: function (data) {
+          return `<input type="checkbox" value="${data.iDProyek}" class="proyek-checkbox rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle">`;
+        }
+      },
       { data: 'iDProyek', className: 'hidden md:table-cell' },
       { data: 'tanggal' },
       { data: 'namaProyek' },
@@ -184,9 +192,9 @@ function initTable(data) {
       }
     ],
     orderFixed: {
-      pre: [[11, 'asc']]
+      pre: [[12, 'asc']]
     },
-    order: [[0, 'desc']], // Urutkan berdasarkan ID proyek terbaru
+    order: [[1, 'desc']], // Urutkan berdasarkan ID proyek terbaru (kolom ID sekarang di indeks 1)
     language: {
       search: "Cari Proyek:",
       lengthMenu: "Tampilkan _MENU_ proyek",
@@ -202,6 +210,15 @@ function initTable(data) {
       zeroRecords: "Tidak ada data proyek ditemukan"
     }
   });
+
+  // Reset selectAll checkbox dan update button on draw
+  table.on('draw', function () {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+      selectAllCheckbox.checked = false;
+    }
+    updateBulkDeleteButton();
+  });
 }
 // Filter status by badges
 function filterStatus(status) {
@@ -215,10 +232,10 @@ function filterStatus(status) {
     activeBtn.classList.add('ring-2', 'ring-indigo-500');
   }
   if (status === 'all') {
-    table.column(8).search('').draw();
+    table.column(9).search('').draw();
   } else {
     // Regex exact match agar status tidak saling menyaring
-    table.column(8).search('^' + status + '$', true, false).draw();
+    table.column(9).search('^' + status + '$', true, false).draw();
   }
 }
 // View Project details inside Modal
@@ -530,6 +547,96 @@ async function updateProyekStatus(id, newStatus) {
       type: "error"
     });
     loadProyekData();
+  }
+}
+
+// ===================================
+// BATCH / BULK DELETE IMPLEMENTATION
+// ===================================
+
+// Handle Select/Deselect All Checkbox
+$(document).on('change', '#selectAll', function () {
+  const isChecked = this.checked;
+  $('.proyek-checkbox').prop('checked', isChecked);
+  updateBulkDeleteButton();
+});
+
+// Handle Individual Checkbox
+$(document).on('change', '.proyek-checkbox', function () {
+  const total = $('.proyek-checkbox').length;
+  const checked = $('.proyek-checkbox:checked').length;
+  $('#selectAll').prop('checked', total === checked);
+  updateBulkDeleteButton();
+});
+
+// Update status button batch delete
+function updateBulkDeleteButton() {
+  const checkedBoxes = $('.proyek-checkbox:checked');
+  const count = checkedBoxes.length;
+  const btn = document.getElementById('btnBulkDelete');
+  const countEl = document.getElementById('selectedCount');
+  
+  if (btn && countEl) {
+    countEl.textContent = count;
+    if (count > 0) {
+      btn.classList.remove('hidden');
+      btn.disabled = false;
+    } else {
+      btn.classList.add('hidden');
+      btn.disabled = true;
+    }
+  }
+}
+
+// Action Bulk Delete
+async function bulkDeleteProyek() {
+  const checkedBoxes = $('.proyek-checkbox:checked');
+  const ids = [];
+  checkedBoxes.each(function () {
+    ids.push($(this).val());
+  });
+  
+  if (ids.length === 0) return;
+  
+  if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} projek terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
+    try {
+      const btn = document.getElementById('btnBulkDelete');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>Menghapus...`;
+      }
+      
+      const res = await API.deleteProyek(ids); // Kirim array ID ke API
+      
+      if (res.success) {
+        showToast({
+          title: "Berhasil",
+          message: `${ids.length} projek berhasil dihapus.`,
+          type: "success"
+        });
+        loadProyekData(); // Reload tabel proyek
+      } else {
+        showToast({
+          title: "Gagal",
+          message: res.message,
+          type: "error"
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      showToast({
+        title: "Error",
+        message: "Terjadi kesalahan saat menghapus projek terpilih.",
+        type: "error"
+      });
+    } finally {
+      const btn = document.getElementById('btnBulkDelete');
+      if (btn) {
+        btn.innerHTML = `<i class="fa-solid fa-trash-can mr-2"></i><span>Hapus Terpilih (<span id="selectedCount">0</span>)</span>`;
+        btn.disabled = true;
+        btn.classList.add('hidden');
+      }
+    }
   }
 }
 
