@@ -51,7 +51,7 @@ const Toast = (() => {
 
         toast.innerHTML = `
 
-            <div class="p-5">
+            <div style="z-index: 999;" class="p-5">
 
                 <div class="flex justify-between items-start">
 

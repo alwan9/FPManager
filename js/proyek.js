@@ -302,6 +302,16 @@ async function viewDetail(id) {
       document.getElementById('modalWaBtn').href = waUrl;
       // Show Modal
       document.getElementById('detailModal').classList.remove('hidden');
+
+      // Auto open details tag for AI Assistant on desktop screen sizes
+      const detailsEl = document.querySelector('#detailModal details');
+      if (detailsEl) {
+        if (window.innerWidth >= 768) {
+          detailsEl.setAttribute('open', '');
+        } else {
+          detailsEl.removeAttribute('open');
+        }
+      }
     }
   } catch (error) {
     console.error(error);

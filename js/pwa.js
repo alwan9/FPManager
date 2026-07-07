@@ -22,8 +22,15 @@ window.addEventListener('beforeinstallprompt', (e) => {
   const installBtn = document.getElementById('pwaInstallBtn');
   const installBtnMobile = document.getElementById('pwaInstallBtnMobile');
 
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const isDashboard = currentPath === 'index.html';
+
   const setupInstallBtn = (btn, isFlex) => {
     if (!btn) return;
+    if (btn.id === 'pwaInstallBtnMobile' && !isDashboard) {
+      btn.classList.add('hidden');
+      return;
+    }
     if (btn.id === 'pwaInstallBtn' && window.innerWidth < 768) {
       return;
     }
@@ -135,6 +142,9 @@ function createNotificationPrompt() {
 
 // Function to show iOS install instructions
 function showIOSInstallPrompt() {
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPath !== 'index.html') return;
+
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 

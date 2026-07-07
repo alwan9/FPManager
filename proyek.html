@@ -260,9 +260,9 @@
 
   <!-- Detail Modal -->
   <div id="detailModal" style="background-color: rgba(0, 0, 0, 0.269);"
-    class="fixed inset-0   bg-opacity-85 z-50 flex items-center justify-center p-4 hidden">
+    class="fixed inset-0 bg-opacity-85 z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
     <div
-      class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-zinc-100">
+      class="bg-white rounded-2xl shadow-2xl max-w-lg md:max-w-4xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-100">
 
       <!-- Modal Header -->
       <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center shrink-0">
@@ -277,158 +277,165 @@
 
       <!-- Modal Body (Scrollable) -->
       <div class="overflow-y-auto flex-1">
-        <div class="p-6 space-y-4 text-sm text-zinc-700">
+        <div class="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-zinc-100 bg-white">
+          
+          <!-- Left Column: Details -->
+          <div class="p-6 space-y-4 text-sm text-zinc-700">
 
-          <!-- Status & Deadline Info -->
-          <div class="grid grid-cols-2 gap-4 pb-4 border-b border-zinc-100">
-            <div>
-              <span class="text-xs text-zinc-400 block">Status Projek</span>
-              <span id="modalStatus"
-                class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mt-1">Status</span>
-            </div>
-            <div>
-              <span class="text-xs text-zinc-400 block">Deadline Target</span>
-              <span id="modalDeadline" class="font-semibold text-zinc-800 mt-1 block">Tanggal</span>
-            </div>
-          </div>
-
-          <!-- Customer details -->
-          <div>
-            <span class="text-xs text-zinc-400 block">Pelanggan</span>
-            <span id="modalPelanggan" class="font-bold text-base text-zinc-900 block mt-0.5">Nama Pelanggan</span>
-            <div class="flex items-center space-x-2 mt-1">
-              <i class="fa-brands fa-whatsapp text-green-500"></i>
-              <span id="modalWa" class="text-zinc-600 text-xs">62812345</span>
-            </div>
-          </div>
-
-          <!-- Product Details -->
-          <div class="bg-zinc-50 p-4 rounded-xl space-y-2">
-            <div>
-              <span class="text-xs text-zinc-400 block">Nama Pekerjaan</span>
-              <span id="modalNamaProyek" class="font-semibold text-zinc-800">Nama Brosur</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
+            <!-- Status & Deadline Info -->
+            <div class="grid grid-cols-2 gap-4 pb-4 border-b border-zinc-100">
               <div>
-                <span class="text-xs text-zinc-400 block">Produk</span>
-                <span id="modalProduk" class="font-medium text-xs text-zinc-700">Brosur</span>
+                <span class="text-xs text-zinc-400 block">Status Projek</span>
+                <span id="modalStatus"
+                  class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full mt-1">Status</span>
               </div>
               <div>
-                <span class="text-xs text-zinc-400 block">Jumlah</span>
-                <span id="modalJumlah" class="font-medium text-xs text-zinc-700">500</span>
+                <span class="text-xs text-zinc-400 block">Deadline Target</span>
+                <span id="modalDeadline" class="font-semibold text-zinc-800 mt-1 block">Tanggal</span>
+              </div>
+            </div>
+
+            <!-- Customer details -->
+            <div>
+              <span class="text-xs text-zinc-400 block">Pelanggan</span>
+              <span id="modalPelanggan" class="font-bold text-base text-zinc-900 block mt-0.5">Nama Pelanggan</span>
+              <div class="flex items-center space-x-2 mt-1">
+                <i class="fa-brands fa-whatsapp text-green-500"></i>
+                <span id="modalWa" class="text-zinc-600 text-xs">62812345</span>
+              </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="bg-zinc-50 p-4 rounded-xl space-y-2">
+              <div>
+                <span class="text-xs text-zinc-400 block">Nama Pekerjaan</span>
+                <span id="modalNamaProyek" class="font-semibold text-zinc-800">Nama Brosur</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <span class="text-xs text-zinc-400 block">Produk</span>
+                  <span id="modalProduk" class="font-medium text-xs text-zinc-700">Brosur</span>
+                </div>
+                <div>
+                  <span class="text-xs text-zinc-400 block">Jumlah</span>
+                  <span id="modalJumlah" class="font-medium text-xs text-zinc-700">500</span>
+                </div>
+                <div>
+                  <span class="text-xs text-zinc-400 block">Satuan</span>
+                  <span id="modalSatuan" class="font-medium text-xs text-zinc-700">pcs</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Finance Breakdown -->
+            <div class="grid grid-cols-3 gap-4 py-2">
+              <div>
+                <span class="text-xs text-zinc-400 block">Total Nominal</span>
+                <span id="modalNominal" class="font-bold text-zinc-800 text-sm">Rp0</span>
               </div>
               <div>
-                <span class="text-xs text-zinc-400 block">Satuan</span>
-                <span id="modalSatuan" class="font-medium text-xs text-zinc-700">pcs</span>
+                <span class="text-xs text-zinc-400 block">Uang Muka (DP)</span>
+                <span id="modalDp" class="font-bold text-zinc-800 text-sm">Rp0</span>
+              </div>
+              <div>
+                <span class="text-xs text-zinc-400 block">Sisa / Hutang</span>
+                <span id="modalSisa" class="font-bold text-rose-600 text-sm">Rp0</span>
               </div>
             </div>
-          </div>
 
-          <!-- Finance Breakdown -->
-          <div class="grid grid-cols-3 gap-4 py-2">
+            <!-- Catatan -->
             <div>
-              <span class="text-xs text-zinc-400 block">Total Nominal</span>
-              <span id="modalNominal" class="font-bold text-zinc-800 text-sm">Rp0</span>
+              <span class="text-xs text-zinc-400 block">Catatan / Keterangan</span>
+              <p id="modalCatatan"
+                class="mt-1 bg-zinc-50 p-3 rounded-lg border border-zinc-100 text-xs text-zinc-600 italic">Tidak ada
+                catatan.</p>
             </div>
-            <div>
-              <span class="text-xs text-zinc-400 block">Uang Muka (DP)</span>
-              <span id="modalDp" class="font-bold text-zinc-800 text-sm">Rp0</span>
+
+            <!-- Google Drive Folder Link -->
+            <div id="modalGDriveContainer" class="hidden">
+              <span class="text-xs text-zinc-400 block">Link Google Drive Proyek</span>
+              <a id="modalGDriveLink" target="_blank" href="#"
+                class="mt-1.5 flex items-center justify-between p-3 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-semibold transition text-xs border border-indigo-100">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-folder-open text-base text-indigo-600"></i>
+                  <span>Buka Folder Google Drive Proyek</span>
+                </span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs text-indigo-400"></i>
+              </a>
             </div>
-            <div>
-              <span class="text-xs text-zinc-400 block">Sisa / Hutang</span>
-              <span id="modalSisa" class="font-bold text-rose-600 text-sm">Rp0</span>
-            </div>
+
           </div>
 
-          <!-- Catatan -->
-          <div>
-            <span class="text-xs text-zinc-400 block">Catatan / Keterangan</span>
-            <p id="modalCatatan"
-              class="mt-1 bg-zinc-50 p-3 rounded-lg border border-zinc-100 text-xs text-zinc-600 italic">Tidak ada
-              catatan.</p>
+          <!-- Right Column: AI Assistant & Actions -->
+          <div class="p-6 space-y-4 bg-zinc-50/20 md:bg-white flex flex-col justify-start">
+            <details class="group">
+              <summary
+                class="font-semibold cursor-pointer md:cursor-default list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 md:hover:bg-indigo-50 transition-colors">
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-robot"></i> AI Assistant
+                </span>
+                <span class="transition-transform duration-300 group-open:rotate-180 md:hidden">
+                  <i class="fa-solid fa-chevron-down"></i>
+                </span>
+              </summary>
+
+              <div class="mt-4 pb-2 space-y-4">
+                <!-- Input Google Drive Link -->
+                <div id="gdriveInputContainer" class="hidden">
+                  <label for="gdriveLink"
+                    class="block text-xs font-semibold text-zinc-500 mb-1.5 uppercase tracking-wider">Link Google Drive
+                    Hasil Desain</label>
+                  <input type="url" id="gdriveLink"
+                    class="w-full px-3 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+                    placeholder="https://drive.google.com/drive/folders/.../view?usp=sharing">
+                </div>
+
+                <!-- Button Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <button onclick="generateAI('followup')"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                    Follow Up
+                  </button>
+                  <button onclick="generateAI('penawaran')"
+                    class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                    Penawaran
+                  </button>
+                  <button onclick="generateAI('invoice')"
+                    class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                    Invoice
+                  </button>
+                  <button onclick="generateAI('pelunasan')"
+                    class="bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                    Minta Pelunasan
+                  </button>
+                  <button onclick="generateAI('selesai')"
+                    class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                    Ucapan Selesai
+                  </button>
+                  <button onclick="generateAI('testimoni')"
+                    class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-2 text-xs font-semibold transition">
+                    Minta Testimoni
+                  </button>
+                </div>
+
+                <textarea id="hasilAI"
+                  class="w-full mt-4 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  rows="6" placeholder="Hasil AI akan muncul di sini..."></textarea>
+
+                <div class="flex gap-2 mt-3">
+                  <button onclick="copyAIText()"
+                    class="bg-zinc-700 hover:bg-zinc-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                    <i class="fa-solid fa-copy mr-2"></i> Copy
+                  </button>
+                  <button onclick="sendAIWhatsapp()"
+                    class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
+                    <i class="fa-brands fa-whatsapp mr-2"></i> Kirim WA
+                  </button>
+                </div>
+              </div>
+            </details>
           </div>
 
-          <!-- Google Drive Folder Link -->
-          <div id="modalGDriveContainer" class="hidden">
-            <span class="text-xs text-zinc-400 block">Link Google Drive Proyek</span>
-            <a id="modalGDriveLink" target="_blank" href="#"
-              class="mt-1.5 flex items-center justify-between p-3 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-semibold transition text-xs border border-indigo-100">
-              <span class="flex items-center gap-2">
-                <i class="fa-solid fa-folder-open text-base text-indigo-600"></i>
-                <span>Buka Folder Google Drive Proyek</span>
-              </span>
-              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-indigo-400"></i>
-            </a>
-          </div>
-
-        </div>
-        <div class="border-t border-zinc-100 px-6 py-4 bg-white">
-          <details class="group">
-            <summary
-              class="font-semibold cursor-pointer list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 transition-colors">
-              <span class="flex items-center gap-2">
-                <i class="fa-solid fa-robot"></i> AI Assistant
-              </span>
-              <span class="transition-transform duration-300 group-open:rotate-180">
-                <i class="fa-solid fa-chevron-down"></i>
-              </span>
-            </summary>
-
-            <div class="mt-4 pb-2 space-y-4">
-              <!-- Input Google Drive Link -->
-              <div id="gdriveInputContainer" class="hidden">
-                <label for="gdriveLink"
-                  class="block text-xs font-semibold text-zinc-500 mb-1.5 uppercase tracking-wider">Link Google Drive
-                  Hasil Desain</label>
-                <input type="url" id="gdriveLink"
-                  class="w-full px-3 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                  placeholder="https://drive.google.com/drive/folders/.../view?usp=sharing">
-              </div>
-
-              <!-- Button Grid -->
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <button onclick="generateAI('followup')"
-                  class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-2 text-xs font-semibold transition">
-                  Follow Up
-                </button>
-                <button onclick="generateAI('penawaran')"
-                  class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 text-xs font-semibold transition">
-                  Penawaran
-                </button>
-                <button onclick="generateAI('invoice')"
-                  class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 text-xs font-semibold transition">
-                  Invoice
-                </button>
-                <button onclick="generateAI('pelunasan')"
-                  class="bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 text-xs font-semibold transition">
-                  Minta Pelunasan
-                </button>
-                <button onclick="generateAI('selesai')"
-                  class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg p-2 text-xs font-semibold transition">
-                  Ucapan Selesai
-                </button>
-                <button onclick="generateAI('testimoni')"
-                  class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-2 text-xs font-semibold transition">
-                  Minta Testimoni
-                </button>
-              </div>
-
-              <textarea id="hasilAI"
-                class="w-full mt-4 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                rows="6" placeholder="Hasil AI akan muncul di sini..."></textarea>
-
-              <div class="flex gap-2 mt-3">
-                <button onclick="copyAIText()"
-                  class="bg-zinc-700 hover:bg-zinc-800 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
-                  <i class="fa-solid fa-copy mr-2"></i> Copy
-                </button>
-                <button onclick="sendAIWhatsapp()"
-                  class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm flex-1 flex justify-center items-center">
-                  <i class="fa-brands fa-whatsapp mr-2"></i> Kirim WA
-                </button>
-              </div>
-            </div>
-          </details>
         </div>
       </div>
       <!-- Modal Footer -->
