@@ -38,7 +38,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="manifest" href="manifest.json">
@@ -58,10 +58,9 @@
   <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Sidebar Navigation -->
-        <aside
+    <aside
       class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-zinc-900 text-zinc-100 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50 transition-all duration-300">
-      <div
-        class="hidden md:flex p-4 md:p-5 items-center justify-between border-b border-zinc-800 bg-zinc-900 z-10">
+      <div class="hidden md:flex p-4 md:p-5 items-center justify-between border-b border-zinc-800 bg-zinc-900 z-10">
         <a href="index.html" class="flex items-center space-x-3">
           <img src="./assets/img/logo.png" class="p-4 w-40 md:w-full">
         </a>
@@ -127,8 +126,16 @@
           <span>Form Projek Baru</span>
         </h2>
         <div class="flex items-center space-x-4">
-          <button id="pwaInstallBtnMobile" class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors" title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button> <button id="darkModeToggle" class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode"> <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <button onclick="Auth.logout()" class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout"><i class="fa-solid fa-right-from-bracket text-lg"></i></button> <span class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
-          <span id="apiStatusBadge" class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          <button id="pwaInstallBtnMobile"
+            class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors"
+            title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button> <button id="darkModeToggle"
+            class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode">
+            <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <button onclick="Auth.logout()"
+            class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout"><i
+              class="fa-solid fa-right-from-bracket text-lg"></i></button> <span
+            class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
+          <span id="apiStatusBadge"
+            class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
           <div
@@ -356,8 +363,3 @@
 
 
 </html>
-
-
-
-
-

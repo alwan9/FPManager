@@ -230,6 +230,7 @@
                   <th class="hidden md:table-cell">Hutang (Rp)</th>
                   <th>Deadline</th>
                   <th>Status</th>
+                  <th>Link Drive</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -251,7 +252,7 @@
 
   <!-- Detail Modal -->
   <div id="detailModal"
-    class="fixed inset-0 bg-zinc-950 bg-opacity-85 z-50 flex items-center justify-center p-4 hidden">
+    class="fixed inset-0 bg-[#2563EB] bg-opacity-85 z-50 flex items-center justify-center p-4 hidden">
     <div
       class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-zinc-100">
 
@@ -339,6 +340,19 @@
               catatan.</p>
           </div>
 
+          <!-- Google Drive Folder Link -->
+          <div id="modalGDriveContainer" class="hidden">
+            <span class="text-xs text-zinc-400 block">Link Google Drive Proyek</span>
+            <a id="modalGDriveLink" target="_blank" href="#"
+              class="mt-1.5 flex items-center justify-between p-3 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-semibold transition text-xs border border-indigo-100">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-folder-open text-base text-indigo-600"></i>
+                <span>Buka Folder Google Drive Proyek</span>
+              </span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-indigo-400"></i>
+            </a>
+          </div>
+
         </div>
         <div class="border-t border-zinc-100 px-6 py-4 bg-white">
           <details class="group">
@@ -355,7 +369,9 @@
             <div class="mt-4 pb-2 space-y-4">
               <!-- Input Google Drive Link -->
               <div id="gdriveInputContainer" class="hidden">
-                <label for="gdriveLink" class="block text-xs font-semibold text-zinc-500 mb-1.5 uppercase tracking-wider">Link Google Drive Hasil Desain</label>
+                <label for="gdriveLink"
+                  class="block text-xs font-semibold text-zinc-500 mb-1.5 uppercase tracking-wider">Link Google Drive
+                  Hasil Desain</label>
                 <input type="url" id="gdriveLink"
                   class="w-full px-3 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
                   placeholder="https://drive.google.com/drive/folders/.../view?usp=sharing">
@@ -457,7 +473,8 @@
 
       </div>
 
-      <textarea id="aiResult" rows="8" class="w-full h-8 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 rounded-lg p-3 text-sm"></textarea>
+      <textarea id="aiResult" rows="8"
+        class="w-full h-8 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 rounded-lg p-3 text-sm"></textarea>
 
       <div class="grid grid-cols-2 gap-2 mt-3">
 

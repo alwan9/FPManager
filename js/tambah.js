@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const proyekId = urlParams.get('id');
   let isEditMode = false;
+  let currentGDriveLink = "";
   if (proyekId) {
     isEditMode = true;
     document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>Edit Projek ${proyekId}</span>`;
@@ -64,6 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         deadlineInput.value = proyek.deadline;
         statusInput.value = proyek.status;
         catatanInput.value = proyek.catatan || "";
+        currentGDriveLink = proyek.gdriveLink || "";
         checkDeadline(proyek.deadline);
         kalkulasiNominalDanSisa();
       } else {
@@ -212,7 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       sisa: sisa,
       deadline: deadlineInput.value,
       status: statusInput.value,
-      catatan: catatanInput.value
+      catatan: catatanInput.value,
+      gdriveLink: currentGDriveLink
     };
     try {
       submitBtn.disabled = true;

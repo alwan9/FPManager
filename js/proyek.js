@@ -145,6 +145,20 @@ function initTable(data) {
         }
       },
       {
+        data: 'gdriveLink',
+        render: function (data) {
+          if (data) {
+            return `
+              <a href="${data}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
+                <i class="fa-solid fa-folder-open text-indigo-600"></i>
+                <span>Drive</span>
+              </a>
+            `;
+          }
+          return `<span class="text-zinc-400 text-xs italic">Belum ada</span>`;
+        }
+      },
+      {
         data: null,
         orderable: false,
         render: function (data) {
@@ -170,7 +184,7 @@ function initTable(data) {
       }
     ],
     orderFixed: {
-      pre: [[10, 'asc']]
+      pre: [[11, 'asc']]
     },
     order: [[0, 'desc']], // Urutkan berdasarkan ID proyek terbaru
     language: {
@@ -218,10 +232,23 @@ async function viewDetail(id) {
         document.getElementById('gdriveInputContainer').classList.add('hidden');
       }
       if (document.getElementById('gdriveLink')) {
-        document.getElementById('gdriveLink').value = '';
+        document.getElementById('gdriveLink').value = proyek.gdriveLink || '';
       }
       if (document.getElementById('hasilAI')) {
         document.getElementById('hasilAI').value = '';
+      }
+
+      // Tampilkan link Google Drive jika ada
+      const modalGDriveContainer = document.getElementById('modalGDriveContainer');
+      const modalGDriveLink = document.getElementById('modalGDriveLink');
+      if (modalGDriveContainer && modalGDriveLink) {
+        if (proyek.gdriveLink) {
+          modalGDriveContainer.classList.remove('hidden');
+          modalGDriveLink.href = proyek.gdriveLink;
+        } else {
+          modalGDriveContainer.classList.add('hidden');
+          modalGDriveLink.href = '#';
+        }
       }
       document.getElementById('modalId').textContent = proyek.iDProyek;
       document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
