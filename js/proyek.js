@@ -17,7 +17,7 @@ async function loadProyekData() {
   try {
     const listProyek = await API.getProyek();
     window.allProyekList = listProyek; // Cache list globally for status updates
-    
+
     // Add statusOrder property dynamically
     listProyek.forEach(p => {
       p.statusOrder = (p.status && p.status.toLowerCase() === 'dibatalkan') ? 1 : 0;
@@ -31,7 +31,7 @@ async function loadProyekData() {
     const statusFilter = urlParams.get('status');
     if (statusFilter) {
       filterStatus(statusFilter);
-      
+
       // Auto-focus the filter button
       const btns = document.querySelectorAll('.status-filter-btn');
       btns.forEach(btn => {
@@ -78,12 +78,12 @@ function updateStatusCounters(proyekList) {
   document.getElementById('count-all').textContent = counts.all;
   document.getElementById('count-menunggu').textContent = counts.menunggu;
   document.getElementById('count-dikerjakan').textContent = counts.dikerjakan;
-  
+
   const countRevisiEl = document.getElementById('count-revisi');
   if (countRevisiEl) {
     countRevisiEl.textContent = counts.revisi;
   }
-  
+
   document.getElementById('count-selesai').textContent = counts.selesai;
   document.getElementById('count-belumpembayaran').textContent = counts.belumpembayaran;
 }
@@ -106,7 +106,7 @@ function initTable(data) {
         }
       },
       { data: 'iDProyek', className: 'hidden md:table-cell' },
-      { data: 'tanggal' },
+      { data: 'tanggal', visible: false },
       { data: 'namaProyek' },
       { data: 'namaPelanggan', className: 'hidden md:table-cell' },
       {
@@ -138,14 +138,14 @@ function initTable(data) {
           if (type === 'display') {
             const statusOptions = ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
             const badgeClass = 'badge-' + data.toLowerCase().replace(/\s+/g, '');
-            
+
             let selectHtml = `<select onchange="updateProyekStatus('${row.iDProyek}', this.value)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
-            
+
             statusOptions.forEach(opt => {
               const selected = (opt.toLowerCase() === data.toLowerCase()) ? 'selected' : '';
               selectHtml += `<option value="${opt}" ${selected} class="bg-white text-zinc-800">${opt}</option>`;
             });
-            
+
             selectHtml += `</select>`;
             return selectHtml;
           }
@@ -575,7 +575,7 @@ function updateBulkDeleteButton() {
   const count = checkedBoxes.length;
   const btn = document.getElementById('btnBulkDelete');
   const countEl = document.getElementById('selectedCount');
-  
+
   if (btn && countEl) {
     countEl.textContent = count;
     if (count > 0) {
@@ -595,9 +595,9 @@ async function bulkDeleteProyek() {
   checkedBoxes.each(function () {
     ids.push($(this).val());
   });
-  
+
   if (ids.length === 0) return;
-  
+
   if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} projek terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
     try {
       const btn = document.getElementById('btnBulkDelete');
@@ -605,9 +605,9 @@ async function bulkDeleteProyek() {
         btn.disabled = true;
         btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>Menghapus...`;
       }
-      
+
       const res = await API.deleteProyek(ids); // Kirim array ID ke API
-      
+
       if (res.success) {
         showToast({
           title: "Berhasil",

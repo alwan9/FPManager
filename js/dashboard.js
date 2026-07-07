@@ -314,15 +314,14 @@ function initDeadlineCalendar(proyekList) {
     for (let day = 1; day <= totalDays; day++) {
       const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const cell = document.createElement('div');
-      
+
       const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
       const dayDeadlines = deadlineLookup[dateString] || [];
       const hasDeadlines = dayDeadlines.length > 0;
 
-      cell.className = `p-2 text-xs text-center border border-zinc-200 dark:border-zinc-800 rounded-xl relative cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 transition-colors flex flex-col items-center justify-between min-h-[54px] ${
-        isToday ? 'bg-red-600 text-white font-bold border-red-600 hover:bg-red-700 hover:text-white' : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
-      }`;
-      
+      cell.className = `p-2 text-xs text-center border border-zinc-200 dark:border-zinc-800 rounded-xl relative cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 transition-colors flex flex-col items-center justify-between min-h-[54px] ${isToday ? 'bg-red-600 text-white font-bold border-red-600 hover:bg-red-700 hover:text-white' : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
+        }`;
+
       const dayNumSpan = document.createElement('span');
       dayNumSpan.className = 'font-semibold';
       dayNumSpan.textContent = day;
@@ -331,7 +330,7 @@ function initDeadlineCalendar(proyekList) {
       if (hasDeadlines) {
         const dotContainer = document.createElement('div');
         dotContainer.className = 'flex space-x-1 justify-center mt-1 w-full overflow-hidden';
-        
+
         // Show 1 dot/circle for each revision project
         dayDeadlines.forEach(() => {
           const dot = document.createElement('span');

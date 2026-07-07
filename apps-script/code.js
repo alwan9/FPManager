@@ -7,7 +7,7 @@ const API_KEY = SCRIPT_PROPERTIES.getProperty("API_KEY");
 const TOKEN_EXPIRE_HOURS = 12;
 
 // ID Folder Google Drive Utama untuk pembuatan folder otomatis
-const PARENT_FOLDER_ID = "13a64WPJGPeqty_9vbqUIP-_tj5xKNHgk"; 
+const PARENT_FOLDER_ID = "13a64WPJGPeqty_9vbqUIP-_tj5xKNHgk";
 
 // Fungsi merespon request HTTP GET
 function doGet(e) {
@@ -181,11 +181,16 @@ function doPost(e) {
             // Format Nama Folder: PRJ-xxx - NamaPelanggan - NamaProyek
             const folderName = `${nextId} - ${data.pelanggan} - ${data.namaProyek}`;
             const newFolder = parentFolder.createFolder(folderName);
-            
-            // Bagikan folder secara publik (anyone with link can view) agar link bisa langsung dipakai klien
-            newFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-            
+
+            // Ambil URL folder terlebih dahulu agar tetap tersimpan meskipun pengaturan sharing diblokir kebijakan Google
             folderUrl = newFolder.getUrl();
+
+            try {
+              // Bagikan folder secara publik (anyone with link can view) agar link bisa langsung dipakai klien
+              newFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+            } catch (shareErr) {
+              console.error("Gagal mengatur hak akses sharing folder Google Drive: " + shareErr.toString());
+            }
           }
         } catch (driveErr) {
           console.error("Gagal membuat folder Google Drive: " + driveErr.toString());
@@ -303,7 +308,7 @@ function doPost(e) {
 
         const sheet = ss.getSheetByName("Proyek");
         const rawId = e.parameter.id;
-        
+
         let idsToDelete = [];
         if (rawId) {
           if (rawId.indexOf("[") === 0) {
@@ -313,7 +318,7 @@ function doPost(e) {
               idsToDelete = [rawId];
             }
           } else if (rawId.indexOf(",") !== -1) {
-            idsToDelete = rawId.split(",").map(function(item) { return item.trim(); });
+            idsToDelete = rawId.split(",").map(function (item) { return item.trim(); });
           } else {
             idsToDelete = [rawId];
           }
@@ -781,7 +786,7 @@ function generateAI(data) {
       .getScriptProperties()
       .getProperty("GEMINI_API_KEY");
 
-    const prompt = `
+  const prompt = `
 Anda adalah Customer Service ProjekManager.
 
 Jenis pesan yang diminta:

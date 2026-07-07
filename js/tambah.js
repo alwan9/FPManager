@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const threeDaysBtn = document.getElementById('threeDaysBtn');
   const statusInput = document.getElementById('status');
   const catatanInput = document.getElementById('catatan');
+  const gdriveLinkInput = document.getElementById('gdriveLink');
   const deadlineWarning = document.getElementById('deadlineWarning');
   const submitBtn = document.getElementById('submitBtn');
   // Deteksi mode Edit vs Tambah
@@ -66,6 +67,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusInput.value = proyek.status;
         catatanInput.value = proyek.catatan || "";
         currentGDriveLink = proyek.gdriveLink || "";
+        if (gdriveLinkInput) {
+          gdriveLinkInput.value = proyek.gdriveLink || "";
+        }
         checkDeadline(proyek.deadline);
         kalkulasiNominalDanSisa();
       } else {
@@ -215,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       deadline: deadlineInput.value,
       status: statusInput.value,
       catatan: catatanInput.value,
-      gdriveLink: currentGDriveLink
+      gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink
     };
     try {
       submitBtn.disabled = true;
