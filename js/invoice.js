@@ -173,26 +173,26 @@ const Invoice = {
         img.onload = () => {
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-            
+
             // Ukuran per-tile watermark (lebar x tinggi)
             // Tinggi 120px memberikan jarak atas-bawah yang longgar
             const tileWidth = 180;
             const tileHeight = 120;
-            
+
             canvas.width = tileWidth;
             canvas.height = tileHeight;
-            
+
             // Pertahankan rasio aspek logo
             const imgRatio = img.width / img.height;
             const logoWidth = 95; // Ukuran small
             const logoHeight = logoWidth / imgRatio;
-            
+
             // Posisikan di tengah tile (memberikan ruang kosong di sekelilingnya)
             const x = (tileWidth - logoWidth) / 2;
             const y = (tileHeight - logoHeight) / 2;
-            
+
             ctx.drawImage(img, x, y, logoWidth, logoHeight);
-            
+
             const dataUrl = canvas.toDataURL();
             const style = document.createElement("style");
             style.innerHTML = `
