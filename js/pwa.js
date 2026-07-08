@@ -27,10 +27,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
   const setupInstallBtn = (btn, isFlex) => {
     if (!btn) return;
-    if (btn.id === 'pwaInstallBtnMobile' && !isDashboard) {
-      btn.classList.add('hidden');
-      return;
-    }
     if (btn.id === 'pwaInstallBtn' && window.innerWidth < 768) {
       return;
     }

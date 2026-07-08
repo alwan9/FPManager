@@ -62,6 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
       link.classList.add('text-zinc-400', 'hover:bg-zinc-800', 'hover:text-zinc-100');
     }
   });
+
+  // Profile Dropdown Toggle
+  const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+  const profileDropdown = document.getElementById('profileDropdown');
+  if (profileDropdownBtn && profileDropdown) {
+    profileDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => {
+      profileDropdown.classList.add('hidden');
+    });
+  }
 });
 
 

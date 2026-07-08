@@ -139,7 +139,7 @@
           <span class="text-[10px] md:text-sm font-medium">Layanan</span>
         </a>
         <a href="pengaturan.html"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          class="sidebar-link hidden md:flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-gear text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Pengaturan</span>
         </a>
@@ -182,9 +182,20 @@
             class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
-          <div
-            class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow">
-            A
+          <div class="relative">
+            <button id="profileDropdownBtn" class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow hover:bg-zinc-300 transition-colors focus:outline-none" title="Menu Profil">
+              A
+            </button>
+            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              <a href="pengaturan.html" class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
+                <span>Pengaturan</span>
+              </a>
+              <button onclick="Auth.logout()" class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
+                <i class="fa-solid fa-right-from-bracket w-4"></i>
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
