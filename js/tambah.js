@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
   // Hitung Nominal Proyek & Sisa secara Dinamis
-  const kalkulasiNominalDanSisa = () => {
+  function kalkulasiNominalDanSisa() {
     const qty = parseFloat(jumlahInput.value) || 0;
     const price = parseFloat(hargaSatuanInput.value) || 0;
     const dp = parseFloat(dpInput.value) || 0;

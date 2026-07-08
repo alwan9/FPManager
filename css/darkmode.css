@@ -134,12 +134,12 @@ html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
   border-color: #4f46e5 !important;
 }
 
-/* Inputs and Forms */
 html.dark input[type="text"],
 html.dark input[type="number"],
 html.dark input[type="date"],
 html.dark input[type="password"],
 html.dark input[type="tel"],
+html.dark input[type="url"],
 html.dark select,
 html.dark textarea {
   background-color: #18181b !important;
@@ -284,4 +284,53 @@ html.dark aside button[onclick="Auth.logout()"] {
 html.dark aside button[onclick="Auth.logout()"]:hover {
   background-color: rgba(127, 29, 29, 0.3) !important;
   color: #fca5a5 !important; /* red-300 */
+}
+
+/* Secondary/Cancel Button Dark Mode Override */
+html.dark .btn-secondary {
+  background-color: #3f3f46 !important; /* zinc-700 */
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+html.dark .btn-secondary:hover {
+  background-color: #52525b !important; /* zinc-600 */
+}
+
+/* Nested bg-zinc-50 blocks inside Detail Modal should be darker for contrast */
+html.dark #detailModal .bg-zinc-50 {
+  background-color: #18181b !important; /* zinc-900 */
+}
+
+/* Divide borders in Detail Modal */
+html.dark .md\:divide-zinc-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #3f3f46 !important; /* zinc-700 */
+}
+
+/* Google Drive Link hover & border in dark mode */
+html.dark .hover\:bg-indigo-100:hover,
+html.dark .md\:hover\:bg-indigo-50:hover {
+  background-color: rgba(79, 70, 229, 0.25) !important;
+}
+
+html.dark .border-indigo-100 {
+  border-color: rgba(79, 70, 229, 0.3) !important;
+}
+
+/* Modal Header Dark Mode Override */
+html.dark #detailModal .bg-indigo-600 {
+  background-color: #18181b !important; /* zinc-900 */
+  border-bottom: 1px solid #27272a !important; /* zinc-800 */
+}
+
+html.dark #detailModal .bg-indigo-600 button {
+  color: #a1a1aa !important; /* zinc-400 */
+}
+
+html.dark #detailModal .bg-indigo-600 button:hover {
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+/* Modal Title Icon Dark Mode Override */
+html.dark #detailModal .bg-indigo-600 h4 i {
+  color: #818cf8 !important; /* indigo-400 */
 }

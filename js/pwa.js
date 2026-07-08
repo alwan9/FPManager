@@ -60,6 +60,40 @@ window.addEventListener('beforeinstallprompt', (e) => {
   setupInstallBtn(installBtnMobile, false);
 });
 
+// Detect successful PWA installation
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  console.log('FPManager PWA was installed successfully');
+
+  // Request notification permission and show welcome notification
+  if ('Notification' in window) {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          showNotification('Selamat Bergabung di FPManager! 🎉', {
+            body: 'Terima kasih telah menginstal aplikasi kami. Nikmati kemudahan melacak deadline, status projek, & laporan keuangan secara offline.',
+            icon: './assets/img/icon-192.png'
+          });
+        }
+      });
+    } else if (Notification.permission === 'granted') {
+      showNotification('Selamat Bergabung di FPManager! 🎉', {
+        body: 'Terima kasih telah menginstal aplikasi kami. Nikmati kemudahan melacak deadline, status projek, & laporan keuangan secara offline.',
+        icon: './assets/img/icon-192.png'
+      });
+    }
+  }
+
+  // Show Toast Success
+  if (typeof showToast === 'function') {
+    showToast({
+      title: 'Selamat Bergabung! 🎉',
+      message: 'Aplikasi FPManager berhasil terinstal di layar utama Anda.',
+      type: 'success'
+    });
+  }
+});
+
 // Check for insecure context
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const isSecure = window.location.protocol === 'https:' || isLocalhost;
@@ -224,14 +258,18 @@ async function checkDeadlines() {
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
           if (diffDays === 1) { // H-1
-            // Check if we already notified today to prevent spam
-            const notifKey = `notified_${proyek.id || proyek.namaProyek}_${today.getTime()}`;
-            if (!localStorage.getItem(notifKey)) {
+            // Check if we already notified within the last 5 hours to prevent spam
+            const notifKey = `notified_time_${proyek.iDProyek || proyek.id || proyek.namaProyek}`;
+            const lastNotified = localStorage.getItem(notifKey);
+            const now = Date.now();
+            const intervalTime = CONFIG.REMINDER_INTERVAL;
+
+            if (!lastNotified || (now - parseInt(lastNotified)) >= intervalTime) {
               showNotification('Deadline H-1: ' + proyek.namaProyek, {
                 body: `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`,
                 icon: './assets/img/icon-192.png'
               });
-              localStorage.setItem(notifKey, 'true');
+              localStorage.setItem(notifKey, now.toString());
             }
           }
         });
@@ -254,7 +292,5 @@ function showNotification(title, options) {
 
 // Run check 5 seconds after load to not block UI rendering
 setTimeout(checkDeadlines, 5000);
-// Run check periodically (every 1 hour)
-setInterval(checkDeadlines, 60 * 60 * 1000);
-
-
+// Run check periodically (every 30 minutes)
+setInterval(checkDeadlines, 30 * 60 * 1000);

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Keuangan & Statistik - FPManager</title>
+  <title>Pengaturan - Kelola FPManager</title>
   <!-- meta infoemasi -->
   <meta name="title" content="FPM - Freelance Project Manager - by Alwan">
   <meta name="description"
@@ -32,57 +32,17 @@
   <meta property="og:site_name" content="FPManager">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link class="favicon" rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/favicon.png">
   <!-- Tailwind CSS v2 CDN -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- SheetJS (Excel Export) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- Chart.js (Optional here if we display mini charts) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/darkmode.css">
-
-  <style>
-    /* Styling khusus cetak (Print-friendly CSS) */
-    @media print {
-      body {
-        background-color: #fff;
-        color: #000;
-        font-size: 12px;
-      }
-
-      aside,
-      header,
-
-      button,
-      a {
-        display: none !important;
-      }
-
-      main {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-      }
-
-      .print-container {
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-      }
-
-      .grid {
-        display: grid !important;
-        grid-template-cols: repeat(3, 1fr) !important;
-      }
-    }
-  </style>
   <link rel="manifest" href="manifest.json">
-
+</head>
 
 <body class="bg-zinc-50 text-zinc-800">
   <!-- Global Loader -->
@@ -147,7 +107,7 @@
         <button id="pwaInstallBtn"
           class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
           <i class="fa-solid fa-download w-5"></i>
-          <span>Install Aplikasi</span>
+          <span>Install PWA</span>
         </button>
         <div class="hidden md:block pt-4 border-t border-zinc-800 mt-4">
           <button onclick="Auth.logout()"
@@ -164,10 +124,10 @@
 
       <!-- Top navbar header -->
       <header
-        class="bg-white    border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm ">
+        class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
         <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
-          <i class="fa-solid fa-file-invoice-dollar text-indigo-600"></i>
-          <span>Laporan Bisnis & Ekspor</span>
+          <i class="fa-solid fa-gear text-indigo-600"></i>
+          <span>Pengaturan Sistem</span>
         </h2>
         <div class="flex items-center space-x-4">
           <button id="pwaInstallBtnMobile"
@@ -190,125 +150,115 @@
       </header>
 
       <!-- Page Content -->
-      <section class="flex-grow p-6 md:p-8 print-container">
+      <section class="flex-grow p-6 md:p-8 space-y-6">
 
-        <!-- Welcome header & Actions -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 no-print">
-          <div>
-            <h3 class="text-2xl font-extrabold text-zinc-900 tracking-tight">Laporan Keuangan</h3>
-            <p class="text-zinc-500 text-sm">Rekap projek, pendapatan kotor (omzet), hutang, pengeluaran, dan laba
-              rugi.</p>
+        <div>
+          <h3 class="text-2xl font-extrabold text-zinc-900 tracking-tight">Pengaturan Aplikasi</h3>
+          <p class="text-zinc-500 text-sm">Konfigurasi integrasi database Google Sheets, WhatsApp template, dan setelan PWA.</p>
+        </div>
+
+        <form id="settingsForm" class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+
+          <!-- Left Column -->
+          <div class="space-y-6">
+
+            <!-- Card 2: WhatsApp Template -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i>
+                <span>Template WhatsApp Follow-Up</span>
+              </h4>
+              <p class="text-xs text-zinc-500">Pesan default yang akan dikirim saat Anda menekan tombol "Hubungi WhatsApp" pada detail projek.</p>
+              
+              <div>
+                <label for="waTemplate" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Template Pesan</label>
+                <textarea id="waTemplate" required rows="4"
+                  class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+                  placeholder="Contoh: Halo kak, bagaimana perkembangan desainnya?"></textarea>
+              </div>
+            </div>
+
           </div>
-          <div class="flex space-x-3">
-            <button onclick="exportToExcel()"
-              class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl text-xs shadow-md transition-all">
-              <i class="fa-solid fa-file-excel mr-2"></i> Ekspor Excel
+
+          <!-- Right Column -->
+          <div class="space-y-6">
+
+            <!-- Card 3: PWA & Notifications Settings -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-bell text-rose-500"></i>
+                <span>Notifikasi & Pengingat PWA</span>
+              </h4>
+              <p class="text-xs text-zinc-500">Sesuaikan interval pengecekan dan pengiriman notifikasi pengingat deadline projek H-1.</p>
+              
+              <div class="space-y-4">
+                <div>
+                  <label for="reminderInterval" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Interval Pengulangan Notifikasi</label>
+                  <select id="reminderInterval"
+                    class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                    <option value="3600000">Setiap 1 Jam</option>
+                    <option value="10800000">Setiap 3 Jam</option>
+                    <option value="18000000" selected>Setiap 5 Jam (Direkomendasikan)</option>
+                    <option value="43200000">Setiap 12 Jam</option>
+                    <option value="86400000">Setiap 24 Jam</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="pt-2 flex flex-wrap gap-2">
+                <button type="button" id="btnTestNotif"
+                  class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-100 transition flex items-center gap-2">
+                  <i class="fa-solid fa-message"></i>
+                  <span>Kirim Test Notifikasi</span>
+                </button>
+                <button type="button" id="btnReqNotif"
+                  class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-xl border border-zinc-200 transition flex items-center gap-2">
+                  <i class="fa-solid fa-unlock"></i>
+                  <span>Minta Izin Notifikasi</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 4: Mock Mode Offline -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-toggle-on text-indigo-600"></i>
+                <span>Simulasi Mode Mock (Offline)</span>
+              </h4>
+              <p class="text-xs text-zinc-500">Mengaktifkan mode simulasi data tanpa membutuhkan database Google Sheets. Sangat membantu jika server lambat atau tidak terhubung internet.</p>
+              
+              <div class="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100">
+                <div class="pr-2">
+                  <span class="font-bold text-sm text-zinc-800 block">Aktifkan Mode Mock Offline</span>
+                  <span class="text-xs text-zinc-500">Gunakan penyimpanan lokal (LocalStorage) sebagai database simulasi.</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="mockMode" class="sr-only peer">
+                  <div class="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom bar for Save -->
+          <div class="col-span-1 lg:col-span-2 pt-4 flex justify-end gap-3 border-t border-zinc-200">
+            <button type="button" onclick="resetDefaults()"
+              class="px-5 py-2.5 border border-zinc-300 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition btn-secondary">
+              Kembali ke Default
             </button>
-            <button onclick="window.print()"
-              class="inline-flex items-center justify-center px-4 py-2 bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-semibold rounded-xl text-xs shadow-md transition-all">
-              <i class="fa-solid fa-print mr-2"></i> Cetak Laporan / PDF
+            <button type="submit"
+              class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0">
+              Simpan Pengaturan
             </button>
           </div>
-        </div>
 
-        <!-- Print-only Title Header -->
-        <div class="hidden print:block text-center border-b-2 border-zinc-800 pb-4 mb-6">
-          <h1 class="text-2xl font-bold">LAPORAN KEUANGAN KELOLA PROJEK MANAGER</h1>
-          <p class="text-xs text-zinc-500 mt-1">Dicetak pada tanggal: <span id="printDate">28-06-2026</span></p>
-        </div>
-
-        <!-- Comprehensive Recap Cards (accrual and cash metrics) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-          <!-- Total Proyek & Omzet -->
-          <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Kinerja
-              Projek</span>
-            <div class="flex justify-between items-center gap-2">
-              <div class="min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Total Projek</span>
-                <span id="recapTotalProyek"
-                  class="text-base md:text-xl font-extrabold text-zinc-950 block truncate">-</span>
-              </div>
-              <div class="text-right min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Total Omzet</span>
-                <span id="recapTotalOmzet"
-                  class="text-base md:text-xl font-extrabold text-indigo-600 block truncate">Rp0</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Total DP & Piutang -->
-          <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Hutang &
-              DP</span>
-            <div class="flex justify-between items-center gap-2">
-              <div class="min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">DP Diterima</span>
-                <span id="recapTotalDp"
-                  class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
-              </div>
-              <div class="text-right min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Sisa Hutang</span>
-                <span id="recapTotalPiutang"
-                  class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pengeluaran & Laba Rugi -->
-          <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Hasil
-              Finansial</span>
-            <div class="flex justify-between items-center gap-2">
-              <div class="min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Pengeluaran</span>
-                <span id="recapTotalPengeluaran"
-                  class="text-base md:text-xl font-extrabold text-rose-600 block truncate">Rp0</span>
-              </div>
-              <div class="text-right min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Laba Bersih</span>
-                <span id="recapTotalLaba"
-                  class="text-base md:text-xl font-extrabold text-emerald-600 block truncate">Rp0</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Monthly breakdown table & Chart -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          <!-- Monthly chart card -->
-          <div class="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm">
-            <h4 class="font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-4 text-base flex items-center">
-              <i class="fa-solid fa-chart-bar text-indigo-600 mr-2"></i> Grafik Arus Keuangan Bulanan
-            </h4>
-            <div class="relative w-full h-80">
-              <canvas id="laporanChart"></canvas>
-            </div>
-          </div>
-
-          <!-- Monthly summary list table -->
-          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm">
-            <h4 class="font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-4 text-base flex items-center">
-              <i class="fa-solid fa-list-ol text-indigo-600 mr-2"></i> Rekap Bulanan
-            </h4>
-
-            <div class="space-y-4" id="monthlySummaryContainer">
-              <!-- Populated by JS -->
-              <div class="text-center py-8 text-zinc-400 text-sm">
-                Memproses data...
-              </div>
-            </div>
-          </div>
-
-        </div>
+        </form>
 
       </section>
 
       <!-- Footer -->
-      <footer class="bg-white border-t border-zinc-200 py-4 px-6 text-center text-xs text-zinc-500 mt-auto no-print">
+      <footer class="bg-white border-t border-zinc-200 py-4 px-6 text-center text-xs text-zinc-500 mt-auto">
         &copy; 2026 Freelance Projek Manager. Created by Alwan.
       </footer>
     </main>
@@ -319,23 +269,10 @@
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
-  <!-- Load Local Page Script -->
-  <script src="js/laporan.js"></script>
-
-  <script>
-    // Mobile responsive menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const navMenu = document.getElementById('navMenu');
-
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener('click', () => {
-        navMenu.classList.toggle('hidden');
-        navMenu.classList.toggle('flex');
-      });
-    }
-  </script>
+  <!-- Load settings handler script -->
+  <script src="js/pengaturan.js"></script>
   <script src="js/pwa.js"></script>
   <script src="js/theme.js"></script>
-
+</body>
 
 </html>
