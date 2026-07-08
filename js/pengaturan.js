@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set API status badge
   updateApiStatusBadge();
 
+  // Render current logged-in device info
+  renderDeviceInfo();
+
   // Get DOM elements
   const form = document.getElementById('settingsForm');
   const apiUrlInput = document.getElementById('apiUrl');
@@ -188,3 +191,63 @@ function resetDefaults() {
     }, 1200);
   }
 }
+
+// Render current device and login time information
+function renderDeviceInfo() {
+  const ua = navigator.userAgent;
+  let os = "Unknown OS";
+  let browser = "Unknown Browser";
+
+  // OS detection
+  if (ua.indexOf("Win") !== -1) os = "Windows";
+  else if (ua.indexOf("Mac") !== -1) os = "macOS";
+  else if (ua.indexOf("X11") !== -1) os = "UNIX";
+  else if (ua.indexOf("Linux") !== -1) os = "Linux";
+  else if (/Android/.test(ua)) os = "Android";
+  else if (/iPhone|iPad|iPod/.test(ua)) os = "iOS";
+
+  // Browser detection
+  if (ua.indexOf("Chrome") !== -1 && ua.indexOf("Chromium") === -1) {
+    if (ua.indexOf("Edg") !== -1) browser = "Microsoft Edge";
+    else if (ua.indexOf("OPR") !== -1 || ua.indexOf("Opera") !== -1) browser = "Opera";
+    else browser = "Google Chrome";
+  } else if (ua.indexOf("Safari") !== -1 && ua.indexOf("Chrome") === -1) {
+    browser = "Safari";
+  } else if (ua.indexOf("Firefox") !== -1) {
+    browser = "Mozilla Firefox";
+  } else if (ua.indexOf("MSIE") !== -1 || !!document.documentMode === true) {
+    browser = "Internet Explorer";
+  }
+
+  // Get login time from sessionStorage (set it if not found)
+  let loginTime = sessionStorage.getItem("login_time");
+  if (!loginTime) {
+    loginTime = new Date().toISOString();
+    sessionStorage.setItem("login_time", loginTime);
+  }
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const formattedTime = new Date(loginTime).toLocaleString(isEn ? 'en-US' : 'id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
+
+  // Set UI elements if they exist
+  const osEl = document.getElementById('deviceOS');
+  const browserEl = document.getElementById('deviceBrowser');
+  const timeEl = document.getElementById('deviceLoginTime');
+  const ipEl = document.getElementById('deviceIP');
+
+  if (osEl) osEl.textContent = os;
+  if (browserEl) browserEl.textContent = browser;
+  if (timeEl) timeEl.textContent = formattedTime;
+
+  // Connection/IP Address estimation
+  if (ipEl) {
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+      ipEl.textContent = '127.0.0.1 (Localhost)';
+    } else {
+      ipEl.textContent = 'Online (Public Client)';
+    }
+  }
+}
+

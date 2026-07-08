@@ -205,6 +205,54 @@
               </div>
             </div>
 
+            <!-- Card 4: Mock Mode Offline -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-toggle-on text-indigo-600"></i>
+                <span data-i18n="settings-card-mock">Simulasi Mode Mock (Offline)</span>
+              </h4>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-mock-desc">Mengaktifkan mode simulasi data tanpa membutuhkan database Google Sheets. Sangat membantu jika server lambat atau tidak terhubung internet.</p>
+              
+              <div class="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100">
+                <div class="pr-2">
+                  <span class="font-bold text-sm text-zinc-800 block" data-i18n="settings-mock-label">Aktifkan Mode Mock Offline</span>
+                  <span class="text-xs text-zinc-500" data-i18n="settings-mock-sublabel">Gunakan penyimpanan lokal (LocalStorage) sebagai database simulasi.</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="mockMode" class="sr-only peer">
+                  <div class="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Card 5: Device Information -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-laptop-code text-indigo-600"></i>
+                <span data-i18n="settings-card-device">Informasi Perangkat</span>
+              </h4>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-device-desc">Detail perangkat dan browser yang saat ini Anda gunakan untuk mengakses sistem.</p>
+              
+              <div class="space-y-3 p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 text-xs">
+                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800">
+                  <span class="text-zinc-500 font-medium" data-i18n="settings-device-os">Sistem Operasi</span>
+                  <span id="deviceOS" class="font-semibold text-zinc-800 dark:text-zinc-200">-</span>
+                </div>
+                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800">
+                  <span class="text-zinc-500 font-medium" data-i18n="settings-device-browser">Browser</span>
+                  <span id="deviceBrowser" class="font-semibold text-zinc-800 dark:text-zinc-200">-</span>
+                </div>
+                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800">
+                  <span class="text-zinc-500 font-medium" data-i18n="settings-device-ip">Koneksi / IP</span>
+                  <span id="deviceIP" class="font-semibold text-zinc-800 dark:text-zinc-200">127.0.0.1 (Localhost)</span>
+                </div>
+                <div class="flex justify-between items-center py-1.5">
+                  <span class="text-zinc-500 font-medium" data-i18n="settings-device-time">Waktu Login</span>
+                  <span id="deviceLoginTime" class="font-semibold text-zinc-800 dark:text-zinc-200">-</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- Right Column -->
@@ -289,26 +337,6 @@
                   <i class="fa-solid fa-unlock"></i>
                   <span data-i18n="settings-btn-req-notif">Minta Izin Notifikasi</span>
                 </button>
-              </div>
-            </div>
-
-            <!-- Card 4: Mock Mode Offline -->
-            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
-              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
-                <i class="fa-solid fa-toggle-on text-indigo-600"></i>
-                <span data-i18n="settings-card-mock">Simulasi Mode Mock (Offline)</span>
-              </h4>
-              <p class="text-xs text-zinc-500" data-i18n="settings-card-mock-desc">Mengaktifkan mode simulasi data tanpa membutuhkan database Google Sheets. Sangat membantu jika server lambat atau tidak terhubung internet.</p>
-              
-              <div class="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100">
-                <div class="pr-2">
-                  <span class="font-bold text-sm text-zinc-800 block" data-i18n="settings-mock-label">Aktifkan Mode Mock Offline</span>
-                  <span class="text-xs text-zinc-500" data-i18n="settings-mock-sublabel">Gunakan penyimpanan lokal (LocalStorage) sebagai database simulasi.</span>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="mockMode" class="sr-only peer">
-                  <div class="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-indigo-600"></div>
-                </label>
               </div>
             </div>
 

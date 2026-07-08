@@ -8,6 +8,21 @@ const handleUnauthorized = (result) => {
   return false;
 };
 
+// Cache object for API calls (expires in 15 seconds)
+const APICache = {
+  proyek: null,
+  proyekTime: 0,
+  keuangan: null,
+  keuanganTime: 0,
+  
+  clear: () => {
+    APICache.proyek = null;
+    APICache.proyekTime = 0;
+    APICache.keuangan = null;
+    APICache.keuanganTime = 0;
+  }
+};
+
 // Wrapper API Helper
 const API = {
   // Ambil token login
@@ -83,6 +98,11 @@ const API = {
       return JSON.parse(mockData);
     }
 
+    const now = Date.now();
+    if (APICache.proyek && (now - APICache.proyekTime < 15000)) {
+      return APICache.proyek;
+    }
+
     try {
       const response = await fetch(
         `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
@@ -93,7 +113,9 @@ const API = {
         console.error("API ERROR :", result.message);
         return [];
       }
-      console.table(result.data);
+      
+      APICache.proyek = result.data;
+      APICache.proyekTime = Date.now();
       return result.data;
     } catch (error) {
       console.error("FETCH ERROR :", error);
@@ -103,6 +125,7 @@ const API = {
 
   // Tambah Proyek Baru
   addProyek: async (proyekData) => {
+    APICache.clear();
     if (CONFIG.MOCK_MODE) {
       const list = await API.getProyek();
       const nextId = "PRJ-" + String(list.length + 1).padStart(3, "0");
@@ -153,6 +176,7 @@ const API = {
 
   // Edit Proyek
   updateProyek: async (id, proyekData) => {
+    APICache.clear();
     if (CONFIG.MOCK_MODE) {
       const list = await API.getProyek();
       const idx = list.findIndex(p => p.iDProyek === id);
@@ -203,6 +227,7 @@ const API = {
 
   // Hapus Proyek
   deleteProyek: async (id) => {
+    APICache.clear();
     if (CONFIG.MOCK_MODE) {
       let list = await API.getProyek();
       const targetIds = Array.isArray(id) ? id : [id];
@@ -252,6 +277,11 @@ const API = {
       return JSON.parse(mockData);
     }
 
+    const now = Date.now();
+    if (APICache.keuangan && (now - APICache.keuanganTime < 15000)) {
+      return APICache.keuangan;
+    }
+
     try {
       const response = await fetch(
         `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
@@ -265,6 +295,9 @@ const API = {
         console.error("API ERROR :", result.message);
         return [];
       }
+      
+      APICache.keuangan = result.data;
+      APICache.keuanganTime = Date.now();
       return result.data;
     } catch (error) {
       console.error("FETCH ERROR :", error);
@@ -274,6 +307,7 @@ const API = {
 
   // Tambah Transaksi Keuangan
   addKeuangan: async (transaksiData) => {
+    APICache.clear();
     if (CONFIG.MOCK_MODE) {
       const list = await API.getKeuangan();
       const nextId = "KAS-" + String(list.length + 1).padStart(3, "0");

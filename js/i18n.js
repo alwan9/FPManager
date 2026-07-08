@@ -59,6 +59,12 @@ const TRANSLATIONS = {
     "settings-opt-fast": "Cepat (2 Detik)",
     "settings-opt-normal": "Sedang / Standar (4 Detik)",
     "settings-opt-slow": "Lama (8 Detik)",
+    "settings-card-device": "Informasi Perangkat",
+    "settings-card-device-desc": "Detail perangkat dan browser yang saat ini Anda gunakan untuk mengakses sistem.",
+    "settings-device-os": "Sistem Operasi",
+    "settings-device-browser": "Browser",
+    "settings-device-ip": "Koneksi / IP",
+    "settings-device-time": "Waktu Login",
     // Dashboard Page (index.html)
     "dash-title": "Dashboard Keuangan & Projek",
     "dash-desc": "Ringkasan data projek aktif, deadline terdekat, dan performa omzet Anda secara real-time.",
@@ -346,6 +352,12 @@ const TRANSLATIONS = {
     "settings-opt-fast": "Fast (2 Seconds)",
     "settings-opt-normal": "Normal (4 Seconds)",
     "settings-opt-slow": "Slow (8 Seconds)",
+    "settings-card-device": "Device Information",
+    "settings-card-device-desc": "Details of the device and browser currently used to access the system.",
+    "settings-device-os": "Operating System",
+    "settings-device-browser": "Browser",
+    "settings-device-ip": "Connection / IP",
+    "settings-device-time": "Login Time",
     
 
     // Dashboard Page (index.html)
