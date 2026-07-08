@@ -132,7 +132,7 @@
 
                         <p>
 
-                            <b>Tanggal :</b>
+                            <b data-i18n="inv-date">Tanggal :</b>
 
                             <span id="previewTanggal">-</span>
 
@@ -160,7 +160,7 @@
 
                     <div>
 
-                        <h3 class="font-bold text-lg mb-2">
+                        <h3 class="font-bold text-lg mb-2" data-i18n="inv-to">
 
                             Kepada
 
@@ -176,7 +176,7 @@
 
                         <p>
 
-                            <b>Status :</b>
+                            <b data-i18n="inv-status">Status :</b>
 
                             <span id="previewStatus" class="bg-yellow-500 text-white px-4 py-1 rounded-full">
 
@@ -186,7 +186,7 @@
 
                         <p class="mt-2">
 
-                            <b>Deadline :</b>
+                            <b data-i18n="inv-deadline">Deadline :</b>
 
                             <span id="previewDeadline"></span>
 
@@ -204,25 +204,25 @@
 
                         <tr>
 
-                            <th class="p-3">
+                            <th class="p-3" data-i18n="inv-product">
 
                                 Produk
 
                             </th>
 
-                            <th>
+                            <th data-i18n="inv-qty">
 
                                 Jumlah
 
                             </th>
 
-                            <th>
+                            <th data-i18n="inv-price">
 
                                 Harga
 
                             </th>
 
-                            <th>
+                            <th data-i18n="inv-total">
 
                                 Total
 
@@ -258,7 +258,7 @@
 
                         <tr>
 
-                            <td>Total</td>
+                            <td data-i18n="inv-total">Total</td>
 
                             <td class="text-right font-bold" id="previewTotal"></td>
 
@@ -266,7 +266,7 @@
 
                         <tr>
 
-                            <td>DP</td>
+                            <td data-i18n="inv-dp">DP</td>
 
                             <td class="text-right" id="previewDP"></td>
 
@@ -274,7 +274,7 @@
 
                         <tr>
 
-                            <td>Sisa Pembayaran</td>
+                            <td data-i18n="inv-balance">Sisa Pembayaran</td>
 
                             <td class="text-right text-red-600 font-bold" id="previewSisa"></td>
 
@@ -288,7 +288,7 @@
 
                 <div class="mt-8">
 
-                    <h3 class="font-bold mb-2">
+                    <h3 class="font-bold mb-2" data-i18n="inv-notes">
 
                         Catatan
 
@@ -313,29 +313,29 @@
 
         <div class="grid md:grid-cols-3 gap-5 mt-8 no-print ">
 
-            <button id="btnPDF" class="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold">
+            <button id="btnPDF" class="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
 
                 <i class="fa fa-file-pdf mr-2"></i>
 
-                Download PDF
+                <span data-i18n="inv-btn-pdf">Download PDF</span>
 
             </button>
 
             <button onclick="window.print()"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-lg font-semibold">
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
 
                 <i class="fa fa-print mr-2"></i>
 
-                Print
+                <span data-i18n="inv-btn-print">Print</span>
 
             </button>
 
             <button onclick="history.back()"
-                class="bg-zinc-700 hover:bg-zinc-800 text-white px-6 py-4 rounded-lg font-semibold">
+                class="bg-zinc-700 hover:bg-zinc-800 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
 
                 <i class="fa fa-arrow-left mr-2"></i>
 
-                Kembali
+                <span data-i18n="inv-btn-back">Kembali</span>
 
             </button>
 
@@ -350,6 +350,7 @@
     <!-- Global JS -->
     <script src="js/toast.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
 

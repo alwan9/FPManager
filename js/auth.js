@@ -16,9 +16,10 @@ const Auth = {
       return result;
     } catch (err) {
       console.error(err);
+      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
       return {
         success: false,
-        message: "Tidak dapat terhubung ke server."
+        message: isEn ? "Cannot connect to the server." : "Tidak dapat terhubung ke server."
       };
     }
   },

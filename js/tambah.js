@@ -1,10 +1,49 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = 'Live API (Google sheets)';
+      apiStatusBadge.textContent = isEn ? 'Live API (Google Sheets)' : 'Live API (Google sheets)';
       apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+    }
+  }
+
+  // Localize Dropdowns
+  if (isEn) {
+    const statusSelect = document.getElementById('status');
+    if (statusSelect) {
+      const statusMap = {
+        'Menunggu': 'Waiting',
+        'Sedang Dikerjakan': 'In Progress',
+        'Revisi': 'Revision',
+        'Selesai': 'Completed',
+        'Belum Pembayaran': 'Unpaid',
+        'Dibatalkan': 'Cancelled'
+      };
+      Array.from(statusSelect.options).forEach(opt => {
+        if (statusMap[opt.value]) {
+          opt.textContent = statusMap[opt.value];
+        }
+      });
+    }
+
+    const satuanSelect = document.getElementById('satuan');
+    if (satuanSelect) {
+      const satuanMap = {
+        'pcs': 'pcs',
+        'lembar': 'sheet',
+        'meter': 'meter',
+        'dus': 'box',
+        'paket': 'package',
+        'rim': 'ream',
+        'buku': 'book'
+      };
+      Array.from(satuanSelect.options).forEach(opt => {
+        if (satuanMap[opt.value]) {
+          opt.textContent = satuanMap[opt.value];
+        }
+      });
     }
   }
   // Ambil element form
@@ -35,15 +74,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentGDriveLink = "";
   if (proyekId) {
     isEditMode = true;
-    document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>Edit Projek ${proyekId}</span>`;
-    document.getElementById('formTitle').textContent = `Ubah Rincian Projek (${proyekId})`;
-    document.title = `Edit Projek ${proyekId} - FPManager`;
-    submitBtn.textContent = 'Simpan Perubahan';
+    document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>${isEn ? 'Edit Project' : 'Edit Projek'} ${proyekId}</span>`;
+    document.getElementById('formTitle').textContent = isEn ? `Modify Project Details (${proyekId})` : `Ubah Rincian Projek (${proyekId})`;
+    document.title = isEn ? `Edit Project ${proyekId} - FPManager` : `Edit Projek ${proyekId} - FPManager`;
+    submitBtn.textContent = isEn ? 'Save Changes' : 'Simpan Perubahan';
     // Ubah sidebar active link ke Data Proyek daripada Tambah Proyek
     const sidebarAddLink = document.getElementById('sidebarAddLink');
     if (sidebarAddLink) {
       sidebarAddLink.className = 'sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100';
-      sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>Tambah Projek</span>`;
+      sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>${isEn ? 'Add Project' : 'Tambah Projek'}</span>`;
     }
     // Ambil data proyek untuk diisi ke form
     try {
@@ -75,8 +114,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
 
         showToast({
-          title: "Data Projek",
-          message: "Projek tidak ditemukan.",
+          title: isEn ? "Project Data" : "Data Projek",
+          message: isEn ? "Project not found." : "Projek tidak ditemukan.",
           type: "warning"
         });
 
@@ -91,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       showToast({
         title: "Error",
-        message: "Gagal mengambil data projek untuk diedit.",
+        message: isEn ? "Failed to retrieve project details for editing." : "Gagal mengambil data projek untuk diedit.",
         type: "error"
       });
 
@@ -223,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     try {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Menyimpan...';
+      submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
       let result;
       if (isEditMode) {
         result = await API.updateProyek(proyekId, payload);
@@ -233,10 +272,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (result.success) {
 
         showToast({
-          title: "Berhasil",
+          title: isEn ? "Success" : "Berhasil",
           message: isEditMode
-            ? "Projek berhasil diperbarui."
-            : "Projek baru berhasil ditambahkan.",
+            ? (isEn ? "Project updated successfully." : "Projek berhasil diperbarui.")
+            : (isEn ? "New project added successfully." : "Projek baru berhasil ditambahkan."),
           type: "success"
         });
 
@@ -247,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
 
         showToast({
-          title: "Gagal",
+          title: isEn ? "Failed" : "Gagal",
           message: result.message,
           type: "error"
         });
@@ -259,13 +298,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       showToast({
         title: "Error",
-        message: "Terjadi kesalahan saat menyimpan data.",
+        message: isEn ? "An error occurred while saving project data." : "Terjadi kesalahan saat menyimpan data.",
         type: "error"
       });
 
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = isEditMode ? 'Simpan Perubahan' : 'Simpan Projek';
+      submitBtn.textContent = isEditMode 
+        ? (isEn ? 'Save Changes' : 'Simpan Perubahan') 
+        : (isEn ? 'Save Project' : 'Simpan Projek');
     }
   });
 });

@@ -1,11 +1,12 @@
 let table; // Global table instance
 
 document.addEventListener('DOMContentLoaded', () => {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
     if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = 'Live API (Google sheets)';
+      apiStatusBadge.textContent = isEn ? 'Live API (Google Sheets)' : 'Live API (Google sheets)';
       apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
     }
   }
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load and calculate finance summaries
 async function loadKeuanganData() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
     const listMutasi = await API.getKeuangan();
 
@@ -45,7 +47,7 @@ async function loadKeuanganData() {
     initTable(listMutasi);
   } catch (error) {
     console.error('Gagal memuat mutasi kas:', error);
-    alert('Terjadi kesalahan saat mengambil riwayat keuangan.');
+    alert(isEn ? 'An error occurred while fetching financial records.' : 'Terjadi kesalahan saat mengambil riwayat keuangan.');
   }
 }
 // Compute total income, expenses, and current cash balance
@@ -78,9 +80,38 @@ function calculateSummary(mutasiList) {
 
 // Initialize DataTable for mutation ledger
 function initTable(data) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   if ($.fn.DataTable.isDataTable('#keuanganTable')) {
     $('#keuanganTable').DataTable().destroy();
   }
+
+  const dtLang = isEn ? {
+    search: "Search Transactions:",
+    lengthMenu: "Show _MENU_ entries",
+    info: "Showing _START_ to _END_ of _TOTAL_ transactions",
+    infoEmpty: "Showing 0 to 0 of 0 transactions",
+    infoFiltered: "(filtered from _MAX_ total records)",
+    paginate: {
+      first: "First",
+      last: "Last",
+      next: "Next",
+      previous: "Previous"
+    },
+    zeroRecords: "No matching transactions found"
+  } : {
+    search: "Cari Transaksi:",
+    lengthMenu: "Tampilkan _MENU_ baris",
+    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ transaksi",
+    infoEmpty: "Menampilkan 0 sampai 0 dari 0 transaksi",
+    infoFiltered: "(disaring dari _MAX_ total data)",
+    paginate: {
+      first: "Pertama",
+      last: "Terakhir",
+      next: "Lanjut",
+      previous: "Sebelum"
+    },
+    zeroRecords: "Tidak ada riwayat transaksi"
+  };
 
   table = $('#keuanganTable').DataTable({
     autoWidth: false,
@@ -92,9 +123,11 @@ function initTable(data) {
         data: 'jenis',
         render: function (data) {
           if (data === 'Pemasukan') {
-            return `<span class="inline-flex items-center text-xs font-semibold text-emerald-600"><i class="fa-solid fa-arrow-turn-down mr-1"></i> Pemasukan</span>`;
+            const labelText = isEn ? 'Income' : 'Pemasukan';
+            return `<span class="inline-flex items-center text-xs font-semibold text-emerald-600"><i class="fa-solid fa-arrow-turn-down mr-1"></i> ${labelText}</span>`;
           }
-          return `<span class="inline-flex items-center text-xs font-semibold text-rose-600"><i class="fa-solid fa-arrow-turn-up mr-1"></i> Pengeluaran</span>`;
+          const labelText = isEn ? 'Expense' : 'Pengeluaran';
+          return `<span class="inline-flex items-center text-xs font-semibold text-rose-600"><i class="fa-solid fa-arrow-turn-up mr-1"></i> ${labelText}</span>`;
         }
       },
       { data: 'keterangan' },
@@ -110,20 +143,7 @@ function initTable(data) {
       }
     ],
     order: [[0, 'desc']], // Urutkan transaksi terbaru
-    language: {
-      search: "Cari Transaksi:",
-      lengthMenu: "Tampilkan _MENU_ baris",
-      info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ transaksi",
-      infoEmpty: "Menampilkan 0 sampai 0 dari 0 transaksi",
-      infoFiltered: "(disaring dari _MAX_ total data)",
-      paginate: {
-        first: "Pertama",
-        last: "Terakhir",
-        next: "Lanjut",
-        previous: "Sebelum"
-      },
-      zeroRecords: "Tidak ada riwayat transaksi"
-    }
+    language: dtLang
   });
 }
 
@@ -136,6 +156,7 @@ function sanitize(text) {
 // Add transaction callback
 async function handleAddTransaksi(e) {
   e.preventDefault();
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const submitBtn = document.getElementById('submitBtn');
   if (submitBtn.disabled) return;
   const tanggal = document.getElementById('tanggal').value;
@@ -151,31 +172,31 @@ async function handleAddTransaksi(e) {
   };
 
   if (!payload.tanggal) {
-    alert("Tanggal wajib diisi!");
+    alert(isEn ? "Date is required!" : "Tanggal wajib diisi!");
     return;
   }
 
   if (!payload.jenis) {
-    alert("Jenis transaksi wajib dipilih!");
+    alert(isEn ? "Transaction type is required!" : "Jenis transaksi wajib dipilih!");
     return;
   }
 
   if (!payload.keterangan) {
-    alert("Keterangan wajib diisi!");
+    alert(isEn ? "Description is required!" : "Keterangan wajib diisi!");
     return;
   }
 
   if (!Number.isFinite(payload.nominal) || payload.nominal <= 0) {
-    alert("Nominal harus lebih dari 0!");
+    alert(isEn ? "Amount must be greater than 0!" : "Nominal harus lebih dari 0!");
     return;
   }
   try {
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Menyimpan...';
+    submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
 
     const res = await API.addKeuangan(payload);
     if (res.success) {
-      alert('Transaksi berhasil dicatat!');
+      alert(isEn ? 'Transaction recorded successfully!' : 'Transaksi berhasil dicatat!');
 
       // Reset form kecuali tanggal
       document.getElementById('transaksiForm').reset();
@@ -187,14 +208,14 @@ async function handleAddTransaksi(e) {
       // Muat ulang data
       await loadKeuanganData();
     } else {
-      alert('Gagal menyimpan transaksi: ' + res.message);
+      alert((isEn ? 'Failed to save transaction: ' : 'Gagal menyimpan transaksi: ') + res.message);
     }
   } catch (error) {
     console.error(error);
-    alert('Terjadi kesalahan saat menyimpan transaksi.');
+    alert(isEn ? 'An error occurred while saving transaction.' : 'Terjadi kesalahan saat menyimpan transaksi.');
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Simpan Transaksi';
+    submitBtn.textContent = isEn ? 'Save Transaction' : 'Simpan Transaksi';
   }
 }
 

@@ -1,22 +1,36 @@
 const Toast = (() => {
 
-    let container = document.getElementById("toast-container");
-
-    if (!container) {
-
-        container = document.createElement("div");
-
-        container.id = "toast-container";
-
-        container.className =
-            "fixed top-6 right-6 z-[999999] flex flex-col gap-4";
-        container.style.zIndex = "999999";
-
-        document.body.appendChild(container);
-
-    }
-
     function show(title, message, type = "success") {
+
+        let container = document.getElementById("toast-container");
+
+        if (!container) {
+
+            container = document.createElement("div");
+
+            container.id = "toast-container";
+            container.style.zIndex = "999999";
+
+            document.body.appendChild(container);
+
+        }
+
+        const pos = (typeof CONFIG !== 'undefined' && CONFIG.TOAST_POSITION) ? CONFIG.TOAST_POSITION : 'top-right';
+        let posClasses = "fixed z-[999999] flex flex-col gap-4";
+        if (pos === 'top-left') {
+            posClasses += " top-6 left-6";
+        } else if (pos === 'bottom-right') {
+            posClasses += " bottom-6 right-6";
+        } else if (pos === 'bottom-left') {
+            posClasses += " bottom-6 left-6";
+        } else if (pos === 'top-center') {
+            posClasses += " top-6 left-1/2 -tranzinc-x-1/2";
+        } else {
+            posClasses += " top-6 right-6";
+        }
+        container.className = posClasses;
+
+        const duration = (typeof CONFIG !== 'undefined' && CONFIG.TOAST_DURATION) ? CONFIG.TOAST_DURATION : 4000;
 
         const colors = {
 
@@ -100,7 +114,7 @@ const Toast = (() => {
                     style="
                         background:${c.bg};
                         width:100%;
-                        transition:width 4s linear;
+                        transition:width ${duration}ms linear;
                     ">
                 </div>
 
@@ -137,7 +151,7 @@ const Toast = (() => {
         toast.querySelector(".close")
             .onclick = removeToast;
 
-        setTimeout(removeToast, 4000);
+        setTimeout(removeToast, duration);
 
     }
 

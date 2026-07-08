@@ -13,15 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const waTemplateInput = document.getElementById('waTemplate');
   const reminderIntervalSelect = document.getElementById('reminderInterval');
   const mockModeCheckbox = document.getElementById('mockMode');
+  const notifStyleSelect = document.getElementById('notifStyle');
+  const notifVibrateCheckbox = document.getElementById('notifVibrate');
+  const notifSilentCheckbox = document.getElementById('notifSilent');
+  const toastPositionSelect = document.getElementById('toastPosition');
+  const toastDurationSelect = document.getElementById('toastDuration');
+  const appLanguageSelect = document.getElementById('appLanguage');
 
   const btnTestNotif = document.getElementById('btnTestNotif');
   const btnReqNotif = document.getElementById('btnReqNotif');
 
   // Load saved configurations to inputs
-  if (apiUrlInput) apiUrlInput.value = CONFIG.API_URL;
-  if (waTemplateInput) waTemplateInput.value = CONFIG.WA_TEMPLATE;
-  if (reminderIntervalSelect) reminderIntervalSelect.value = CONFIG.REMINDER_INTERVAL.toString();
-  if (mockModeCheckbox) mockModeCheckbox.checked = CONFIG.MOCK_MODE;
+  if (apiUrlInput) apiUrlInput.value = CONFIG.API_URL || '';
+  if (waTemplateInput) waTemplateInput.value = CONFIG.WA_TEMPLATE || '';
+  if (reminderIntervalSelect) reminderIntervalSelect.value = (CONFIG.REMINDER_INTERVAL || 18000000).toString();
+  if (mockModeCheckbox) mockModeCheckbox.checked = !!CONFIG.MOCK_MODE;
+  if (notifStyleSelect) notifStyleSelect.value = CONFIG.NOTIF_STYLE || 'casual';
+  if (notifVibrateCheckbox) notifVibrateCheckbox.checked = CONFIG.NOTIF_VIBRATE !== false;
+  if (notifSilentCheckbox) notifSilentCheckbox.checked = !!CONFIG.NOTIF_SILENT;
+  if (toastPositionSelect) toastPositionSelect.value = CONFIG.TOAST_POSITION || 'top-right';
+  if (toastDurationSelect) toastDurationSelect.value = (CONFIG.TOAST_DURATION || 4000).toString();
+  if (appLanguageSelect) appLanguageSelect.value = CONFIG.LANG || 'id';
 
   // Handle Form Submission
   form.addEventListener('submit', (e) => {
@@ -34,14 +46,35 @@ document.addEventListener('DOMContentLoaded', () => {
       CONFIG.WA_TEMPLATE = waTemplateInput.value.trim();
       CONFIG.REMINDER_INTERVAL = parseInt(reminderIntervalSelect.value);
       CONFIG.MOCK_MODE = mockModeCheckbox.checked;
+      if (notifStyleSelect) CONFIG.NOTIF_STYLE = notifStyleSelect.value;
+      if (notifVibrateCheckbox) CONFIG.NOTIF_VIBRATE = notifVibrateCheckbox.checked;
+      if (notifSilentCheckbox) CONFIG.NOTIF_SILENT = notifSilentCheckbox.checked;
+      if (toastPositionSelect) CONFIG.TOAST_POSITION = toastPositionSelect.value;
+      if (toastDurationSelect) CONFIG.TOAST_DURATION = parseInt(toastDurationSelect.value);
+
+      let langChanged = false;
+      if (appLanguageSelect) {
+        const oldLang = CONFIG.LANG;
+        const newLang = appLanguageSelect.value;
+        if (oldLang !== newLang) {
+          CONFIG.LANG = newLang;
+          langChanged = true;
+        }
+      }
 
       updateApiStatusBadge();
 
       showToast({
-        title: "Pengaturan Disimpan",
-        message: "Semua setelan aplikasi berhasil disimpan.",
+        title: CONFIG.LANG === 'en' ? "Settings Saved" : "Pengaturan Disimpan",
+        message: CONFIG.LANG === 'en' ? "All application settings have been successfully saved." : "Semua setelan aplikasi berhasil disimpan.",
         type: "success"
       });
+
+      if (langChanged) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
     } catch (err) {
       console.error(err);
       showToast({
@@ -137,6 +170,12 @@ function resetDefaults() {
     localStorage.removeItem('cfg_wa_template');
     localStorage.removeItem('cfg_reminder_interval');
     localStorage.removeItem('cfg_mock_mode');
+    localStorage.removeItem('cfg_notif_style');
+    localStorage.removeItem('cfg_notif_vibrate');
+    localStorage.removeItem('cfg_notif_silent');
+    localStorage.removeItem('cfg_toast_position');
+    localStorage.removeItem('cfg_toast_duration');
+    localStorage.removeItem('cfg_lang');
     
     showToast({
       title: "Setelan Direset",

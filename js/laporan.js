@@ -11,10 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Set tanggal cetak
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const printDateEl = document.getElementById('printDate');
   if (printDateEl) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    printDateEl.textContent = new Date().toLocaleDateString('id-ID', options);
+    const localeCode = isEn ? 'en-US' : 'id-ID';
+    printDateEl.textContent = new Date().toLocaleDateString(localeCode, options);
   }
 
   // Load Laporan Data
@@ -23,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load all project and financial data and compile reports
 async function loadLaporanData() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
     const proyekList = await API.getProyek();
     const keuanganList = await API.getKeuangan();
@@ -34,12 +37,13 @@ async function loadLaporanData() {
 
   } catch (error) {
     console.error('Error loading laporan data:', error);
-    alert('Terjadi kesalahan saat memproses laporan keuangan.');
+    alert(isEn ? 'An error occurred while compiling financial report.' : 'Terjadi kesalahan saat memproses laporan keuangan.');
   }
 }
 
 // Populate the top summary cards
 function renderOverviewCards(proyekList, keuanganList) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const totalProyek = proyekList.length;
   let totalOmzet = 0;
   let totalDp = 0;
@@ -60,7 +64,8 @@ function renderOverviewCards(proyekList, keuanganList) {
 
   const estimasiLaba = totalOmzet - totalPengeluaran;
 
-  document.getElementById('recapTotalProyek').textContent = `${totalProyek} Proyek`;
+  const projSuffix = isEn ? 'Projects' : 'Proyek';
+  document.getElementById('recapTotalProyek').textContent = `${totalProyek} ${projSuffix}`;
   document.getElementById('recapTotalOmzet').textContent = formatRupiah(totalOmzet);
   document.getElementById('recapTotalDp').textContent = formatRupiah(totalDp);
   document.getElementById('recapTotalPiutang').textContent = formatRupiah(totalHutang);
@@ -77,12 +82,14 @@ function renderOverviewCards(proyekList, keuanganList) {
 
 // Helper to group transactions by Month-Year
 function compileMonthlyData(keuanganList) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const langCode = isEn ? 'en-US' : 'id-ID';
   const monthlyData = {};
 
   keuanganList.forEach(k => {
     if (!k.tanggal) return;
     const date = new Date(k.tanggal);
-    const monthName = date.toLocaleString('id-ID', { month: 'short' });
+    const monthName = date.toLocaleString(langCode, { month: 'short' });
     const year = date.getFullYear();
     const key = `${monthName} ${year}`;
 
@@ -111,9 +118,10 @@ function compileMonthlyData(keuanganList) {
 function renderMonthlySummaryList(monthlyList) {
   const container = document.getElementById('monthlySummaryContainer');
   container.innerHTML = '';
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
   if (monthlyList.length === 0) {
-    container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">Belum ada mutasi keuangan tercatat.</div>`;
+    container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">${isEn ? 'No financial history recorded.' : 'Belum ada mutasi keuangan tercatat.'}</div>`;
     return;
   }
 
@@ -132,8 +140,8 @@ function renderMonthlySummaryList(monthlyList) {
         </span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-xs text-zinc-500">
-        <div>Masuk: <span class="text-emerald-600 font-medium">${formatRupiah(item.pemasukan)}</span></div>
-        <div class="text-right">Keluar: <span class="text-rose-600 font-medium">${formatRupiah(item.pengeluaran)}</span></div>
+        <div>${isEn ? 'In' : 'Masuk'}: <span class="text-emerald-600 font-medium">${formatRupiah(item.pemasukan)}</span></div>
+        <div class="text-right">${isEn ? 'Out' : 'Keluar'}: <span class="text-rose-600 font-medium">${formatRupiah(item.pengeluaran)}</span></div>
       </div>
     `;
     container.appendChild(itemEl);
@@ -143,6 +151,7 @@ function renderMonthlySummaryList(monthlyList) {
 // Render chart using Chart.js
 function renderChart(monthlyList) {
   const ctx = document.getElementById('laporanChart').getContext('2d');
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
   if (chartInstance) {
     chartInstance.destroy();
@@ -158,7 +167,7 @@ function renderChart(monthlyList) {
       labels: labels,
       datasets: [
         {
-          label: 'Pemasukan (Rp)',
+          label: isEn ? 'Income (Rp)' : 'Pemasukan (Rp)',
           data: pemasukanData,
           backgroundColor: 'rgba(16, 185, 129, 0.85)', // Emerald
           borderColor: 'rgb(16, 185, 129)',
@@ -166,7 +175,7 @@ function renderChart(monthlyList) {
           borderRadius: 6
         },
         {
-          label: 'Pengeluaran (Rp)',
+          label: isEn ? 'Expense (Rp)' : 'Pengeluaran (Rp)',
           data: pengeluaranData,
           backgroundColor: 'rgba(239, 68, 68, 0.85)', // Rose
           borderColor: 'rgb(239, 68, 68)',
@@ -189,7 +198,7 @@ function renderChart(monthlyList) {
       scales: {
         y: {
           beginAtZero: true,
-          afterBuildTicks: function(scale) {
+          afterBuildTicks: function (scale) {
             const isMobile = window.innerWidth < 768;
             if (isMobile) {
               scale.ticks = [
@@ -211,10 +220,12 @@ function renderChart(monthlyList) {
               }
               if (value >= 1000000) {
                 const millions = value / 1000000;
-                return (millions % 1 === 0 ? millions : millions.toFixed(1).replace('.', ',')) + ' jt';
+                const millionsSuffix = isEn ? 'M' : ' jt';
+                return (millions % 1 === 0 ? millions : millions.toFixed(1).replace('.', ',')) + millionsSuffix;
               }
               if (value >= 1000) {
-                return (value / 1000) + ' rb';
+                const thousandsSuffix = isEn ? 'K' : ' rb';
+                return (value / 1000) + thousandsSuffix;
               }
               return value;
             }
@@ -278,7 +289,8 @@ async function exportToExcel() {
 
   } catch (error) {
     console.error(error);
-    alert('Terjadi kesalahan saat mengekspor data ke Excel');
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+    alert(isEn ? 'An error occurred while exporting data to Excel.' : 'Terjadi kesalahan saat mengekspor data ke Excel');
   }
 }
 

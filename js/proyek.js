@@ -125,10 +125,11 @@ function initTable(data) {
         data: 'sisaPembayaran',
         className: 'hidden md:table-cell',
         render: function (data) {
+          const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
           if (data > 0) {
             return `<span class="text-rose-600 font-semibold">${formatRupiah(data)}</span>`;
           }
-          return `<span class="text-green-600 font-semibold">Lunas</span>`;
+          return `<span class="text-green-600 font-semibold">${isEn ? 'Paid' : 'Lunas'}</span>`;
         }
       },
       { data: 'deadline' },
@@ -136,14 +137,30 @@ function initTable(data) {
         data: 'status',
         render: function (data, type, row) {
           if (type === 'display') {
+            const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
             const statusOptions = ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
+            const statusLabels = isEn ? {
+              'Menunggu': 'Waiting',
+              'Sedang Dikerjakan': 'In Progress',
+              'Revisi': 'Revision',
+              'Selesai': 'Completed',
+              'Belum Pembayaran': 'Unpaid',
+              'Dibatalkan': 'Cancelled'
+            } : {
+              'Menunggu': 'Menunggu',
+              'Sedang Dikerjakan': 'Sedang Dikerjakan',
+              'Revisi': 'Revisi',
+              'Selesai': 'Selesai',
+              'Belum Pembayaran': 'Belum Pembayaran',
+              'Dibatalkan': 'Dibatalkan'
+            };
             const badgeClass = 'badge-' + data.toLowerCase().replace(/\s+/g, '');
 
             let selectHtml = `<select onchange="updateProyekStatus('${row.iDProyek}', this.value)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
 
             statusOptions.forEach(opt => {
               const selected = (opt.toLowerCase() === data.toLowerCase()) ? 'selected' : '';
-              selectHtml += `<option value="${opt}" ${selected} class="bg-white text-zinc-800">${opt}</option>`;
+              selectHtml += `<option value="${opt}" ${selected} class="bg-white text-zinc-800">${statusLabels[opt] || opt}</option>`;
             });
 
             selectHtml += `</select>`;
@@ -155,6 +172,7 @@ function initTable(data) {
       {
         data: 'gdriveLink',
         render: function (data) {
+          const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
           if (data) {
             return `
               <a href="${data}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
@@ -163,7 +181,7 @@ function initTable(data) {
               </a>
             `;
           }
-          return `<span class="text-zinc-400 text-xs italic">Belum ada</span>`;
+          return `<span class="text-zinc-400 text-xs italic">${isEn ? 'None' : 'Belum ada'}</span>`;
         }
       },
       {
@@ -195,7 +213,20 @@ function initTable(data) {
       pre: [[12, 'asc']]
     },
     order: [[1, 'desc']], // Urutkan berdasarkan ID proyek terbaru (kolom ID sekarang di indeks 1)
-    language: {
+    language: (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en') ? {
+      search: "Search Project:",
+      lengthMenu: "Show _MENU_ projects",
+      info: "Showing _START_ to _END_ of _TOTAL_ projects",
+      infoEmpty: "Showing 0 to 0 of 0 projects",
+      infoFiltered: "(filtered from _MAX_ total projects)",
+      paginate: {
+        first: "First",
+        last: "Last",
+        next: "Next",
+        previous: "Previous"
+      },
+      zeroRecords: "No projects found"
+    } : {
       search: "Cari Proyek:",
       lengthMenu: "Tampilkan _MENU_ proyek",
       info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ proyek",
@@ -273,15 +304,33 @@ async function viewDetail(id) {
       document.getElementById('modalNamaProyek').textContent = proyek.namaProyek;
       document.getElementById('modalProduk').textContent = proyek.produk || proyek.jenisProduk || '-';
       document.getElementById('modalJumlah').textContent = proyek.jumlah;
-      document.getElementById('modalSatuan').textContent = proyek.satuan;
+      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+      const satuanMap = {
+        'pcs': 'pcs',
+        'lembar': 'sheet',
+        'meter': 'meter',
+        'dus': 'box',
+        'paket': 'package',
+        'rim': 'ream',
+        'buku': 'book'
+      };
+      document.getElementById('modalSatuan').textContent = isEn ? (satuanMap[proyek.satuan] || proyek.satuan) : proyek.satuan;
       document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
       document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
       document.getElementById('modalSisa').textContent = formatRupiah(proyek.sisaPembayaran);
       document.getElementById('modalDeadline').textContent = proyek.deadline;
-      document.getElementById('modalCatatan').textContent = proyek.catatan || 'Tidak ada catatan.';
+      document.getElementById('modalCatatan').textContent = proyek.catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
       // Style badge status
       const statusBadge = document.getElementById('modalStatus');
-      statusBadge.textContent = proyek.status;
+      const statusMap = {
+        'Menunggu': 'Waiting',
+        'Sedang Dikerjakan': 'In Progress',
+        'Revisi': 'Revision',
+        'Selesai': 'Completed',
+        'Belum Pembayaran': 'Unpaid',
+        'Dibatalkan': 'Cancelled'
+      };
+      statusBadge.textContent = isEn ? (statusMap[proyek.status] || proyek.status) : proyek.status;
       statusBadge.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full badge-${proyek.status.toLowerCase().replace(/\s+/g, '')}`;
       // Edit Button
       document.getElementById('modalEditBtn').onclick = () => {
@@ -315,10 +364,10 @@ async function viewDetail(id) {
     }
   } catch (error) {
     console.error(error);
-
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
     showToast({
-      title: "Detail Projek",
-      message: "Gagal memuat detail projek.",
+      title: isEn ? "Project Detail" : "Detail Projek",
+      message: isEn ? "Failed to load project details." : "Gagal memuat detail projek.",
       type: "error"
     });
   }
@@ -330,20 +379,24 @@ function closeModal() {
 }
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   console.log("ID yang akan dihapus =", id);
-  if (confirm(`Apakah Anda yakin ingin menghapus projek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
+  const confirmMsg = isEn 
+    ? `Are you sure you want to delete project "${id} - ${name}"? This action cannot be undone.` 
+    : `Apakah Anda yakin ingin menghapus projek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`;
+  if (confirm(confirmMsg)) {
     try {
       const res = await API.deleteProyek(id);
       if (res.success) {
         showToast({
-          title: "Berhasil",
-          message: "Projek berhasil dihapus.",
+          title: isEn ? "Success" : "Berhasil",
+          message: isEn ? "Project deleted successfully." : "Projek berhasil dihapus.",
           type: "success"
         });
         loadProyekData(); // Refresh data
       } else {
         showToast({
-          title: "Gagal",
+          title: isEn ? "Failed" : "Gagal",
           message: res.message,
           type: "error"
         });
@@ -353,17 +406,18 @@ async function hapusProyek(id, name) {
 
       showToast({
         title: "Error",
-        message: "Terjadi kesalahan saat menghapus projek.",
+        message: isEn ? "An error occurred while deleting project." : "Terjadi kesalahan saat menghapus projek.",
         type: "error"
       });
     }
   }
 }
 async function generateAI(jenis) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   if (!currentProyek) {
     showToast({
       title: "AI",
-      message: "Data proyek belum dipilih.",
+      message: isEn ? "Project data not selected." : "Data proyek belum dipilih.",
       type: "error"
     });
     return;
@@ -379,8 +433,8 @@ async function generateAI(jenis) {
       gdriveContainer.classList.remove('hidden');
       gdriveInput.focus();
       showToast({
-        title: "Link Google Drive",
-        message: "Silakan masukkan link Google Drive hasil desain di atas.",
+        title: isEn ? "Google Drive Link" : "Link Google Drive",
+        message: isEn ? "Please enter the Google Drive link for the design files above." : "Silakan masukkan link Google Drive hasil desain di atas.",
         type: "info"
       });
       return;
@@ -390,8 +444,8 @@ async function generateAI(jenis) {
     if (!gdriveLink) {
       gdriveInput.focus();
       showToast({
-        title: "Link Google Drive",
-        message: "Link Google Drive wajib diisi untuk ucapan selesai.",
+        title: isEn ? "Google Drive Link" : "Link Google Drive",
+        message: isEn ? "Google Drive link is required for completion message." : "Link Google Drive wajib diisi untuk ucapan selesai.",
         type: "warning"
       });
       return;
@@ -407,24 +461,30 @@ async function generateAI(jenis) {
   if (['testimoni', 'pelunasan', 'selesai'].includes(jenis)) {
     let text = '';
     const formatRp = (num) => formatRupiah(num);
-    const namaKlien = currentProyek.namaPelanggan || 'Kak';
-    const namaProyek = currentProyek.namaProyek || 'Projek Desain';
+    const namaKlien = currentProyek.namaPelanggan || (isEn ? 'Client' : 'Kak');
+    const namaProyek = currentProyek.namaProyek || (isEn ? 'Design Project' : 'Projek Desain');
     const nominal = formatRp(currentProyek.nominalProyek || 0);
     const dp = formatRp(currentProyek.dP || 0);
     const sisa = formatRp(currentProyek.sisaPembayaran || 0);
 
     if (jenis === 'testimoni') {
-      text = `Halo Kak ${namaKlien}, terima kasih banyak telah mempercayakan pengerjaan projek *${namaProyek}* kepada kami. 😊\n\nJika tidak keberatan, kami ingin meminta sedikit testimoni atau feedback singkat mengenai hasil desain dan pelayanan kami. Pendapat Kakak sangat berarti bagi kami untuk terus berkembang.\n\nTerima kasih banyak atas waktu dan kerja samanya, Kak! 🙏✨`;
+      text = isEn 
+        ? `Hello ${namaKlien}, thank you very much for trusting us with the project *${namaProyek}*. 😊\n\nIf you don't mind, we would like to request a quick testimonial or feedback about our design work and service. Your feedback is highly valuable to help us improve.\n\nThank you very much for your time and cooperation! 🙏✨`
+        : `Halo Kak ${namaKlien}, terima kasih banyak telah mempercayakan pengerjaan projek *${namaProyek}* kepada kami. 😊\n\nJika tidak keberatan, kami ingin meminta sedikit testimoni atau feedback singkat mengenai hasil desain dan pelayanan kami. Pendapat Kakak sangat berarti bagi kami untuk terus berkembang.\n\nTerima kasih banyak atas waktu dan kerja samanya, Kak! 🙏✨`;
     } else if (jenis === 'pelunasan') {
-      text = `Halo Kak ${namaKlien}, semoga kabarnya baik.\n\nProjek desain *${namaProyek}* saat ini sudah selesai kami kerjakan. Berikut adalah rincian tagihan pembayaran:\n- Total Nominal: ${nominal}\n- Uang Muka (DP): ${dp}\n- Sisa Pelunasan: ${sisa}\n\nMohon untuk melakukan pelunasan sisa pembayaran sebesar *${sisa}*. Setelah pelunasan diterima, kami akan segera mengirimkan file final resolusi tinggi.\n\nTerima kasih banyak atas kerja samanya, Kak! 🙏`;
+      text = isEn
+        ? `Hello ${namaKlien}, hope you are doing well.\n\nThe design project *${namaProyek}* has been completed. Here is the payment invoice summary:\n- Total Amount: ${nominal}\n- Down Payment (DP): ${dp}\n- Remaining Balance: ${sisa}\n\nPlease proceed with the remaining payment of *${sisa}*. Once the payment is received, we will send over the final high-resolution files.\n\nThank you very much for your cooperation! 🙏`
+        : `Halo Kak ${namaKlien}, semoga kabarnya baik.\n\nProjek desain *${namaProyek}* saat ini sudah selesai kami kerjakan. Berikut adalah rincian tagihan pembayaran:\n- Total Nominal: ${nominal}\n- Uang Muka (DP): ${dp}\n- Sisa Pelunasan: ${sisa}\n\nMohon untuk melakukan pelunasan sisa pembayaran sebesar *${sisa}*. Setelah pelunasan diterima, kami akan segera mengirimkan file final resolusi tinggi.\n\nTerima kasih banyak atas kerja samanya, Kak! 🙏`;
     } else if (jenis === 'selesai') {
-      text = `Halo Kak ${namaKlien}, kabar baik!\n\nSeluruh file desain final resolusi tinggi untuk projek *${namaProyek}* telah selesai diunggah.\n\nKakak dapat mengunduh semua file tersebut melalui tautan Google Drive berikut:\n🔗 ${gdriveLink || '[Link Google Drive belum dimasukkan]'}\n\nTerima kasih banyak telah menggunakan jasa kami. Semoga desainnya bermanfaat dan sukses selalu untuk usahanya! Kami tunggu projek kerja sama berikutnya ya Kak! 🚀✨`;
+      text = isEn
+        ? `Hello ${namaKlien}, great news!\n\nAll final high-resolution design files for the project *${namaProyek}* have been uploaded.\n\nYou can download all the files using the following Google Drive link:\n🔗 ${gdriveLink || '[Google Drive link not entered yet]'}\n\nThank you very much for using our services. Hope the design is helpful and best of luck for your business! Looking forward to working with you again! 🚀✨`
+        : `Halo Kak ${namaKlien}, kabar baik!\n\nSeluruh file desain final resolusi tinggi untuk projek *${namaProyek}* telah selesai diunggah.\n\nKakak dapat mengunduh semua file tersebut melalui tautan Google Drive berikut:\n🔗 ${gdriveLink || '[Link Google Drive belum dimasukkan]'}\n\nTerima kasih banyak telah menggunakan jasa kami. Semoga desainnya bermanfaat dan sukses selalu untuk usahanya! Kami tunggu projek kerja sama berikutnya ya Kak! 🚀✨`;
     }
 
     document.getElementById("hasilAI").value = text;
     showToast({
       title: "AI",
-      message: "Teks berhasil dibuat secara lokal.",
+      message: isEn ? "Text generated locally." : "Teks berhasil dibuat secara lokal.",
       type: "success"
     });
     return;
@@ -432,7 +492,7 @@ async function generateAI(jenis) {
 
   showToast({
     title: "AI",
-    message: "Sedang membuat teks...",
+    message: isEn ? "Generating text..." : "Sedang membuat teks...",
     type: "info"
   });
 
@@ -457,20 +517,22 @@ async function generateAI(jenis) {
 }
 
 function copyAIText() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const text = document.getElementById("hasilAI").value;
   navigator.clipboard.writeText(text);
   showToast({
     title: "AI",
-    message: "Teks berhasil disalin.",
+    message: isEn ? "Text copied to clipboard." : "Teks berhasil disalin.",
     type: "success"
   });
 }
 
 function sendAIWhatsapp() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   if (!currentProyek || !currentProyek.nomorWA) {
     showToast({
       title: "Error",
-      message: "Data proyek atau nomor WhatsApp tidak tersedia.",
+      message: isEn ? "Project data or WhatsApp number is not available." : "Data proyek atau nomor WhatsApp tidak tersedia.",
       type: "error"
     });
     return;
@@ -479,8 +541,8 @@ function sendAIWhatsapp() {
   const text = document.getElementById("hasilAI").value;
   if (!text.trim()) {
     showToast({
-      title: "Warning",
-      message: "Teks AI masih kosong. Silakan generate terlebih dahulu.",
+      title: isEn ? "Warning" : "Peringatan",
+      message: isEn ? "AI text is empty. Please generate first." : "Teks AI masih kosong. Silakan generate terlebih dahulu.",
       type: "warning"
     });
     return;

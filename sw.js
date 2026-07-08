@@ -1,10 +1,11 @@
-const CACHE_NAME = 'fpmanager-v21';
+const CACHE_NAME = 'fpmanager-v36';
 const urlsToCache = [
   './',
   './index.html',
   './css/style.css',
   './css/darkmode.css',
   './js/config.js',
+  './js/i18n.js',
   './js/api.js',
   './js/pwa.js',
   './js/auth.js',
@@ -21,6 +22,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -36,7 +38,7 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 

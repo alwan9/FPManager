@@ -71,49 +71,49 @@
         <a href="index.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Home</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-home">Home</span>
         </a>
         <a href="proyek.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-list-check text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Projek</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-proyek">Projek</span>
         </a>
         <a href="tambah-proyek.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-circle-plus text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Tambah</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
         </a>
         <a href="keuangan.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-wallet text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Keuangan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-keuangan">Keuangan</span>
         </a>
         <a href="laporan.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Laporan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
         </a>
         <a href="layanan.html"
           class="sidebar-link hidden md:flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Layanan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-layanan">Layanan</span>
         </a>
         <a href="pengaturan.html"
           class="sidebar-link hidden md:flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-gear text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Pengaturan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
         </a>
 
         <button id="pwaInstallBtn"
           class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
           <i class="fa-solid fa-download w-5"></i>
-          <span>Install PWA</span>
+          <span data-i18n="nav-install">Install PWA</span>
         </button>
         <div class="hidden md:block pt-4 border-t border-zinc-800 mt-4">
           <button onclick="Auth.logout()"
             class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left">
             <i class="fa-solid fa-right-from-bracket w-5"></i>
-            <span>Logout</span>
+            <span data-i18n="nav-logout">Logout</span>
           </button>
         </div>
       </nav>
@@ -127,16 +127,14 @@
         class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
         <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
           <i class="fa-solid fa-gear text-indigo-600"></i>
-          <span>Pengaturan Sistem</span>
+          <span data-i18n="settings-header">Pengaturan Sistem</span>
         </h2>
         <div class="flex items-center space-x-4">
           <button id="pwaInstallBtnMobile"
             class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors"
             title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button> <button id="darkModeToggle"
             class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode">
-            <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <button onclick="Auth.logout()"
-            class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout"><i
-              class="fa-solid fa-right-from-bracket text-lg"></i></button> <span
+            <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i> </button> <span
             class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
           <span id="apiStatusBadge"
             class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -149,11 +147,11 @@
             <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
               <a href="pengaturan.html" class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
-                <span>Pengaturan</span>
+                <span data-i18n="nav-pengaturan">Pengaturan</span>
               </a>
               <button onclick="Auth.logout()" class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
                 <i class="fa-solid fa-right-from-bracket w-4"></i>
-                <span>Logout</span>
+                <span data-i18n="nav-logout">Logout</span>
               </button>
             </div>
           </div>
@@ -164,8 +162,8 @@
       <section class="flex-grow p-6 md:p-8 space-y-6">
 
         <div>
-          <h3 class="text-2xl font-extrabold text-zinc-900 tracking-tight">Pengaturan Aplikasi</h3>
-          <p class="text-zinc-500 text-sm">Konfigurasi integrasi database Google Sheets, WhatsApp template, dan setelan PWA.</p>
+          <h3 class="text-2xl font-extrabold text-zinc-900 tracking-tight" data-i18n="settings-title">Pengaturan Aplikasi</h3>
+          <p class="text-zinc-500 text-sm" data-i18n="settings-desc">Konfigurasi integrasi database Google Sheets, WhatsApp template, dan setelan PWA.</p>
         </div>
 
         <form id="settingsForm" class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
@@ -173,16 +171,34 @@
           <!-- Left Column -->
           <div class="space-y-6">
 
+            <!-- Card 1: Language Settings -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-language text-indigo-600 text-lg"></i>
+                <span data-i18n="settings-card-lang">Pengaturan Bahasa / Language Settings</span>
+              </h4>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-lang-desc">Pilih bahasa pengantar antarmuka aplikasi.</p>
+              
+              <div>
+                <label for="appLanguage" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-lang-label">Bahasa / Language</label>
+                <select id="appLanguage"
+                  class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                  <option value="id">Bahasa Indonesia</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+            </div>
+
             <!-- Card 2: WhatsApp Template -->
             <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
               <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
                 <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i>
-                <span>Template WhatsApp Follow-Up</span>
+                <span data-i18n="settings-card-wa">Template WhatsApp Follow-Up</span>
               </h4>
-              <p class="text-xs text-zinc-500">Pesan default yang akan dikirim saat Anda menekan tombol "Hubungi WhatsApp" pada detail projek.</p>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-wa-desc">Pesan default yang akan dikirim saat Anda menekan tombol "Hubungi WhatsApp" pada detail projek.</p>
               
               <div>
-                <label for="waTemplate" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Template Pesan</label>
+                <label for="waTemplate" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-wa-label">Template Pesan</label>
                 <textarea id="waTemplate" required rows="4"
                   class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
                   placeholder="Contoh: Halo kak, bagaimana perkembangan desainnya?"></textarea>
@@ -198,20 +214,66 @@
             <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
               <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
                 <i class="fa-solid fa-bell text-rose-500"></i>
-                <span>Notifikasi & Pengingat PWA</span>
+                <span data-i18n="settings-card-notif">Notifikasi & Pengingat PWA</span>
               </h4>
-              <p class="text-xs text-zinc-500">Sesuaikan interval pengecekan dan pengiriman notifikasi pengingat deadline projek H-1.</p>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-notif-desc">Sesuaikan interval pengecekan dan pengiriman notifikasi pengingat deadline projek H-1.</p>
               
               <div class="space-y-4">
                 <div>
-                  <label for="reminderInterval" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Interval Pengulangan Notifikasi</label>
+                  <label for="reminderInterval" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-interval-label">Interval Pengulangan Notifikasi</label>
                   <select id="reminderInterval"
                     class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
-                    <option value="3600000">Setiap 1 Jam</option>
-                    <option value="10800000">Setiap 3 Jam</option>
-                    <option value="18000000" selected>Setiap 5 Jam (Direkomendasikan)</option>
-                    <option value="43200000">Setiap 12 Jam</option>
-                    <option value="86400000">Setiap 24 Jam</option>
+                    <option value="3600000" data-i18n="settings-opt-1h">Setiap 1 Jam</option>
+                    <option value="10800000" data-i18n="settings-opt-3h">Setiap 3 Jam</option>
+                    <option value="18000000" selected data-i18n="settings-opt-5h">Setiap 5 Jam (Direkomendasikan)</option>
+                    <option value="43200000" data-i18n="settings-opt-12h">Setiap 12 Jam</option>
+                    <option value="86400000" data-i18n="settings-opt-24h">Setiap 24 Jam</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="notifStyle" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-style-label">Gaya Tampilan Notifikasi</label>
+                  <select id="notifStyle"
+                    class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                    <option value="casual" data-i18n="settings-opt-casual">Kasual (Standar)</option>
+                    <option value="formal" data-i18n="settings-opt-formal">Formal</option>
+                    <option value="singkat" data-i18n="settings-opt-short">Singkat / Minimalis</option>
+                  </select>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 pt-1">
+                  <label class="inline-flex items-center space-x-2 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer">
+                    <input type="checkbox" id="notifVibrate" class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer">
+                    <span data-i18n="settings-vibrate">Aktifkan Getaran (Vibrate)</span>
+                  </label>
+                  <label class="inline-flex items-center space-x-2 text-sm text-zinc-600 dark:text-zinc-400 cursor-pointer">
+                    <input type="checkbox" id="notifSilent" class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer">
+                    <span data-i18n="settings-silent">Mode Senyap (Silent)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- In-App Alert / Toast Options -->
+              <div class="border-t border-zinc-100 dark:border-zinc-800 pt-4 space-y-4">
+                <h5 class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider" data-i18n="settings-toast-sec">Alert / Toast Dalam Aplikasi</h5>
+                
+                <div>
+                  <label for="toastPosition" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-toast-pos">Posisi Tampilan Alert</label>
+                  <select id="toastPosition"
+                    class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                    <option value="top-right" data-i18n="settings-opt-tr">Kanan Atas</option>
+                    <option value="top-left" data-i18n="settings-opt-tl">Kiri Atas</option>
+                    <option value="bottom-right" data-i18n="settings-opt-br">Kanan Bawah</option>
+                    <option value="bottom-left" data-i18n="settings-opt-bl">Kiri Bawah</option>
+                    <option value="top-center" data-i18n="settings-opt-tc">Tengah Atas</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="toastDuration" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-toast-dur">Durasi Tampil Alert</label>
+                  <select id="toastDuration"
+                    class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                    <option value="2000" data-i18n="settings-opt-fast">Cepat (2 Detik)</option>
+                    <option value="4000" selected data-i18n="settings-opt-normal">Sedang / Standar (4 Detik)</option>
+                    <option value="8000" data-i18n="settings-opt-slow">Lama (8 Detik)</option>
                   </select>
                 </div>
               </div>
@@ -220,12 +282,12 @@
                 <button type="button" id="btnTestNotif"
                   class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-100 transition flex items-center gap-2">
                   <i class="fa-solid fa-message"></i>
-                  <span>Kirim Test Notifikasi</span>
+                  <span data-i18n="settings-btn-test-notif">Kirim Test Notifikasi</span>
                 </button>
                 <button type="button" id="btnReqNotif"
                   class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-xl border border-zinc-200 transition flex items-center gap-2">
                   <i class="fa-solid fa-unlock"></i>
-                  <span>Minta Izin Notifikasi</span>
+                  <span data-i18n="settings-btn-req-notif">Minta Izin Notifikasi</span>
                 </button>
               </div>
             </div>
@@ -234,14 +296,14 @@
             <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
               <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
                 <i class="fa-solid fa-toggle-on text-indigo-600"></i>
-                <span>Simulasi Mode Mock (Offline)</span>
+                <span data-i18n="settings-card-mock">Simulasi Mode Mock (Offline)</span>
               </h4>
-              <p class="text-xs text-zinc-500">Mengaktifkan mode simulasi data tanpa membutuhkan database Google Sheets. Sangat membantu jika server lambat atau tidak terhubung internet.</p>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-mock-desc">Mengaktifkan mode simulasi data tanpa membutuhkan database Google Sheets. Sangat membantu jika server lambat atau tidak terhubung internet.</p>
               
               <div class="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100">
                 <div class="pr-2">
-                  <span class="font-bold text-sm text-zinc-800 block">Aktifkan Mode Mock Offline</span>
-                  <span class="text-xs text-zinc-500">Gunakan penyimpanan lokal (LocalStorage) sebagai database simulasi.</span>
+                  <span class="font-bold text-sm text-zinc-800 block" data-i18n="settings-mock-label">Aktifkan Mode Mock Offline</span>
+                  <span class="text-xs text-zinc-500" data-i18n="settings-mock-sublabel">Gunakan penyimpanan lokal (LocalStorage) sebagai database simulasi.</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="mockMode" class="sr-only peer">
@@ -256,11 +318,11 @@
           <div class="col-span-1 lg:col-span-2 pt-4 flex justify-end gap-3 border-t border-zinc-200">
             <button type="button" onclick="resetDefaults()"
               class="px-5 py-2.5 border border-zinc-300 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition btn-secondary">
-              Kembali ke Default
+              <span data-i18n="settings-btn-reset">Kembali ke Default</span>
             </button>
             <button type="submit"
               class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0">
-              Simpan Pengaturan
+              <span data-i18n="settings-btn-save">Simpan Pengaturan</span>
             </button>
           </div>
 
@@ -278,6 +340,7 @@
   <!-- Load Global Scripts -->
   <script src="js/toast.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <!-- Load settings handler script -->

@@ -1,0 +1,648 @@
+const TRANSLATIONS = {
+  id: {
+    // Sidebar Navigation
+    "nav-home": "Home",
+    "nav-proyek": "Projek",
+    "nav-tambah": "Tambah",
+    "nav-keuangan": "Keuangan",
+    "nav-laporan": "Laporan",
+    "nav-layanan": "Layanan",
+    "nav-pengaturan": "Pengaturan",
+    "nav-logout": "Logout",
+    "nav-install": "Install Aplikasi",
+
+    // Global Header
+    "api-status": "Status API:",
+    "api-mock": "Mock Mode (Offline)",
+    "api-live": "Live API (Google sheets)",
+
+    // Settings Page (pengaturan.html)
+    "settings-header": "Pengaturan Sistem",
+    "settings-title": "Pengaturan Aplikasi",
+    "settings-desc": "Konfigurasi integrasi database Google Sheets, WhatsApp template, dan setelan PWA.",
+    "settings-card-lang": "Pengaturan Bahasa / Language Settings",
+    "settings-card-lang-desc": "Pilih bahasa pengantar antarmuka aplikasi.",
+    "settings-lang-label": "Bahasa / Language",
+    "settings-card-wa": "Template WhatsApp Follow-Up",
+    "settings-card-wa-desc": "Pesan default yang akan dikirim saat Anda menekan tombol \"Hubungi WhatsApp\" pada detail projek.",
+    "settings-wa-label": "Template Pesan",
+    "settings-card-notif": "Notifikasi & Pengingat PWA",
+    "settings-card-notif-desc": "Sesuaikan interval pengecekan dan pengiriman notifikasi pengingat deadline projek H-1.",
+    "settings-interval-label": "Interval Pengulangan Notifikasi",
+    "settings-style-label": "Gaya Tampilan Notifikasi",
+    "settings-btn-test-notif": "Kirim Test Notifikasi",
+    "settings-btn-req-notif": "Minta Izin Notifikasi",
+    "settings-toast-sec": "Alert / Toast Dalam Aplikasi",
+    "settings-toast-pos": "Posisi Tampilan Alert",
+    "settings-toast-dur": "Durasi Tampil Alert",
+    "settings-card-mock": "Simulasi Mode Mock (Offline)",
+    "settings-card-mock-desc": "Mengaktifkan mode simulasi data tanpa membutuhkan database Google Sheets. Sangat membantu jika server lambat atau tidak terhubung internet.",
+    "settings-mock-label": "Aktifkan Mode Mock Offline",
+    "settings-mock-sublabel": "Gunakan penyimpanan lokal (LocalStorage) sebagai database simulasi.",
+    "settings-btn-reset": "Kembali ke Default",
+    "settings-btn-save": "Simpan Pengaturan",
+    "settings-vibrate": "Aktifkan Getaran (Vibrate)",
+    "settings-silent": "Mode Senyap (Silent)",
+    "settings-opt-1h": "Setiap 1 Jam",
+    "settings-opt-3h": "Setiap 3 Jam",
+    "settings-opt-5h": "Setiap 5 Jam (Direkomendasikan)",
+    "settings-opt-12h": "Setiap 12 Jam",
+    "settings-opt-24h": "Setiap 24 Jam",
+    "settings-opt-casual": "Kasual (Standar)",
+    "settings-opt-formal": "Formal",
+    "settings-opt-short": "Singkat / Minimalis",
+    "settings-opt-tr": "Kanan Atas",
+    "settings-opt-tl": "Kiri Atas",
+    "settings-opt-br": "Kanan Bawah",
+    "settings-opt-bl": "Kiri Bawah",
+    "settings-opt-tc": "Tengah Atas",
+    "settings-opt-fast": "Cepat (2 Detik)",
+    "settings-opt-normal": "Sedang / Standar (4 Detik)",
+    "settings-opt-slow": "Lama (8 Detik)",
+    // Dashboard Page (index.html)
+    "dash-title": "Dashboard Keuangan & Projek",
+    "dash-desc": "Ringkasan data projek aktif, deadline terdekat, dan performa omzet Anda secara real-time.",
+    "dash-stat-title": "Ringkasan Statistik",
+    "dash-income": "Pendapatan",
+    "dash-active": "Projek Aktif",
+    "dash-unpaid": "Belum Pembayaran",
+    "dash-done": "Projek Selesai",
+    "dash-unpaid-desc": "Sisa tagihan klien",
+    "dash-done-desc": "Telah rampung dikerjakan",
+    "dash-recent-act": "Aktivitas Projek Terbaru",
+    "dash-deadline-title": "Kalender Deadline Revisi",
+    "dash-quick-add": "Tambah Projek",
+    "dash-welcome": "Selamat Datang Admin! 👋",
+    "dash-total-projects": "Total Projek",
+    "dash-expense": "Pengeluaran",
+    "dash-profit": "Laba Bersih",
+    "dash-chart-title": "Grafik Arus Keuangan Bulanan",
+    "dash-report-detail": "Detail Laporan",
+    "dash-recent-projects": "Projek Terbaru",
+    "dash-view-all": "Semua",
+
+    // Financial Cashflow (keuangan.html)
+    "fin-header": "Arus Kas & Keuangan",
+    "fin-title": "Kas & Keuangan",
+    "fin-desc": "Catat pengeluaran operasional dan pantau seluruh pendapatan secara real-time.",
+    "fin-total-income": "Total Pendapatan",
+    "fin-total-expense": "Total Pengeluaran",
+    "fin-net-profit": "Saldo / Profit Bersih",
+    "fin-form-title": "Catat Transaksi Baru",
+    "fin-label-date": "Tanggal Transaksi",
+    "fin-label-type": "Jenis Transaksi",
+    "fin-opt-income": "Pemasukan (Kas Masuk)",
+    "fin-opt-expense": "Pengeluaran (Kas Keluar)",
+    "fin-label-desc": "Keterangan Transaksi",
+    "fin-label-amount": "Nominal (Rp)",
+    "fin-btn-save": "Simpan Transaksi",
+    "fin-table-title": "Riwayat Mutasi Keuangan",
+    "fin-th-date": "Tanggal",
+    "fin-th-type": "Jenis",
+    "fin-th-desc": "Keterangan",
+    "fin-th-amount": "Nominal (Rp)",
+    
+    // Calendar days
+    "day-sun": "Min",
+    "day-mon": "Sen",
+    "day-tue": "Sel",
+    "day-wed": "Rab",
+    "day-thu": "Kam",
+    "day-fri": "Jum",
+    "day-sat": "Sab",
+    
+    // Invoice Page (invoice.html)
+    "inv-date": "Tanggal :",
+    "inv-to": "Kepada",
+    "inv-status": "Status :",
+    "inv-deadline": "Deadline :",
+    "inv-product": "Produk",
+    "inv-qty": "Jumlah",
+    "inv-price": "Harga",
+    "inv-total": "Total",
+    "inv-dp": "DP",
+    "inv-balance": "Sisa Pembayaran",
+    "inv-notes": "Catatan",
+    "inv-btn-pdf": "Download PDF",
+    "inv-btn-print": "Print",
+    "inv-btn-back": "Kembali",
+    
+    // Project Page (proyek.html)
+    "proj-header": "Manajemen Data Projek",
+    "proj-title": "Daftar Projek",
+    "proj-desc": "Kelola status, pembayaran, dan tenggat waktu projek secara langsung.",
+    "proj-btn-delete": "Hapus Terpilih",
+    "proj-btn-excel": "Export Excel",
+    "proj-btn-new": "Tambah Projek Baru",
+    "proj-badge-all": "Semua",
+    "proj-badge-wait": "Menunggu",
+    "proj-badge-progress": "Dikerjakan",
+    "proj-badge-revision": "Revisi",
+    "proj-badge-done": "Selesai",
+    "proj-badge-unpaid": "Belum Bayar",
+    
+    // Table Columns
+    "tbl-th-id": "ID",
+    "tbl-th-date": "Tanggal",
+    "tbl-th-name": "Nama Projek",
+    "tbl-th-client": "Pelanggan",
+    "tbl-th-wa": "WhatsApp",
+    "tbl-th-total": "Total (Rp)",
+    "tbl-th-debt": "Hutang (Rp)",
+    "tbl-th-deadline": "Deadline",
+    "tbl-th-status": "Status",
+    "tbl-th-drive": "Link Drive",
+    "tbl-th-action": "Aksi",
+
+    // Project Detail Modal (detailModal)
+    "dt-title": "Detail Projek",
+    "dt-status": "Status Projek",
+    "dt-deadline": "Deadline Target",
+    "dt-client": "Pelanggan",
+    "dt-work": "Nama Pekerjaan",
+    "dt-product": "Produk",
+    "dt-qty": "Jumlah",
+    "dt-unit": "Satuan",
+    "dt-total": "Total Nominal",
+    "dt-dp": "Uang Muka (DP)",
+    "dt-debt": "Sisa / Hutang",
+    "dt-notes": "Catatan / Keterangan",
+    "dt-gdrive": "Link Google Drive Proyek",
+    "dt-btn-gdrive": "Buka Folder Google Drive Proyek",
+    "dt-ai-title": "AI Assistant",
+    "dt-gdrive-input": "Link Google Drive Hasil Desain",
+    "dt-ai-followup": "Follow Up",
+    "dt-ai-offer": "Penawaran",
+    "dt-ai-invoice": "Invoice",
+    "dt-ai-payment": "Minta Pelunasan",
+    "dt-ai-done": "Ucapan Selesai",
+    "dt-ai-testimonial": "Minta Testimoni",
+    "dt-ai-placeholder": "Hasil AI akan muncul di sini...",
+    "dt-ai-copy": "Copy",
+    "dt-ai-send-wa": "Kirim WA",
+    "dt-btn-wa": "Hubungi WhatsApp",
+    "dt-btn-invoice": "Invoice",
+    "dt-btn-edit": "Edit",
+    "dt-btn-delete": "Hapus",
+    
+    // Add/Edit Project (tambah-proyek.html)
+    "add-title-new": "Form Projek Baru",
+    "add-title-edit": "Form Edit Projek",
+    "add-back": "Kembali ke Daftar Projek",
+    "add-card-title": "Detail Informasi Projek",
+    "add-label-name": "Nama Pekerjaan / Projek*",
+    "add-label-client": "Nama Pelanggan*",
+    "add-label-wa": "Nomor WhatsApp*",
+    "add-label-wa-sub": "Gunakan kode negara (62) tanpa karakter + atau spasi.",
+    "add-label-prod": "Jenis Produk*",
+    "add-label-qty": "Jumlah / Qty*",
+    "add-label-unit": "Satuan*",
+    "add-label-price": "Harga per Satuan (Rp)*",
+    "add-label-total": "Total Nominal Projek (Rp)",
+    "add-label-dp": "Uang Muka / DP (Rp)*",
+    "add-label-debt": "Sisa Pembayaran (Rp)",
+    "add-label-deadline": "Deadline / Target Selesai*",
+    "add-label-status": "Status Projek*",
+    "add-label-gdrive": "Link Google Drive (Opsional)",
+    "add-label-notes": "Catatan Tambahan / Spesifikasi (Opsional)",
+    "add-btn-cancel": "Batal",
+    "add-btn-save": "Simpan Projek",
+    
+    // Services Page (layanan.html)
+    "lay-title": "Layanan & Pricelist Jasa",
+    "lay-banner-title": "Katalog Jasa Desain 🎨",
+    "lay-banner-desc": "Gunakan katalog harga ini untuk membuat penawaran atau langsung mendaftarkan projek baru.",
+    "lay-banner-btn": "Hitung Estimasi",
+    "lay-cat-social": "Desain Media Sosial & Digital",
+    "lay-cat-print": "Desain Cetak & Promosi Fisik",
+    "lay-cat-brand": "Branding & Identitas Visual",
+    "lay-cat-uiux": "Desain UI/UX & Website",
+    "lay-btn-select": "Pilih",
+    "lay-calc-title": "Kalkulator Estimasi Biaya Desain",
+    "lay-calc-desc": "Pilih beberapa jenis jasa sekaligus, tentukan kuantitas, dan hitung estimasi total secara instan.",
+    "lay-select-service": "Pilih Layanan",
+    "lay-qty": "Jumlah (Qty)",
+    "lay-btn-add": "Tambah",
+    "lay-th-name": "Nama Layanan",
+    "lay-th-price": "Harga",
+    "lay-th-qty": "Qty",
+    "lay-th-subtotal": "Subtotal",
+    "lay-th-action": "Aksi",
+    "lay-est-summary": "Ringkasan Estimasi",
+    "lay-unique-types": "Jumlah Jenis Jasa:",
+    "lay-total-qty": "Total Kuantitas:",
+    "lay-total-est": "Total Estimasi Harga",
+    "lay-btn-create": "Buat Projek Baru dari Sini",
+    "lay-btn-reset": "Kosongkan Estimasi",
+    
+    // Catalog Item Details
+    "lay-item1-name": "Feed Instagram Single",
+    "lay-item1-desc": "Desain postingan feed 1:1, pengerjaan 1-2 hari.",
+    "lay-item2-name": "Feed Instagram Carousel",
+    "lay-item2-desc": "Hingga 5 slide materi konten edukasi/promosi.",
+    "lay-item3-name": "Instagram Story",
+    "lay-item3-desc": "Layout 9:16 portrait, dinamis, materi promosi kilat.",
+    "lay-item4-name": "Banner YouTube / Web",
+    "lay-item4-desc": "Desain header banner responsif resolusi tinggi.",
+    "lay-item5-name": "Banner / Spanduk",
+    "lay-item5-desc": "Desain spanduk MMT/baliho berbagai ukuran custom.",
+    "lay-item6-name": "Brosur Lipat A5",
+    "lay-item6-desc": "Desain bolak-balik (2 halaman), layout teks rapi.",
+    "lay-item7-name": "Desain Poster",
+    "lay-item7-desc": "Ukuran A3/A4 untuk promosi event atau produk baru.",
+    "lay-item8-name": "Kartu Nama Bisnis",
+    "lay-item8-desc": "Double side layout profesional minimalis premium.",
+    "lay-item9-name": "Desain Logo Standar",
+    "lay-item9-desc": "Logo vektor profesional, 2 opsi konsep, revisi 3x.",
+    "lay-item10-name": "Logo Premium + Mascot",
+    "lay-item10-desc": "Desain logo detail tinggi dengan maskot ilustrasi khusus.",
+    "lay-item11-name": "Brand Guidelines Lengkap",
+    "lay-item11-desc": "Panduan warna, tipografi, logo rules, mockups PDF.",
+    "lay-item12-name": "Desain Kemasan / Label",
+    "lay-item12-desc": "Layout kemasan (packaging box/bottle label) 3D mockup.",
+    "lay-item13-name": "UI Landing Page Figma",
+    "lay-item13-desc": "Desain mockup landing page modern di Figma (1 Halaman).",
+    "lay-item14-name": "Landing Page Website",
+    "lay-item14-desc": "Pengembangan website responsif statis (HTML/CSS/JS).",
+    
+    // Reports Page (laporan.html)
+    "rep-header": "Laporan Bisnis & Ekspor",
+    "rep-title": "Laporan Keuangan",
+    "rep-desc": "Rekap projek, pendapatan kotor (omzet), hutang, pengeluaran, dan laba rugi.",
+    "rep-btn-excel": "Ekspor Excel",
+    "rep-btn-print": "Cetak Laporan / PDF",
+    "rep-print-title": "LAPORAN KEUANGAN KELOLA PROJEK MANAGER",
+    "rep-print-date-prefix": "Dicetak pada tanggal:",
+    "rep-card1-title": "Kinerja Projek",
+    "rep-card1-sub1": "Total Projek",
+    "rep-card1-sub2": "Total Omzet",
+    "rep-card2-title": "Hutang & DP",
+    "rep-card2-sub1": "DP Diterima",
+    "rep-card2-sub2": "Sisa Hutang",
+    "rep-card3-title": "Hasil Finansial",
+    "rep-card3-sub1": "Pengeluaran",
+    "rep-card3-sub2": "Laba Bersih",
+    "rep-chart-title": "Grafik Arus Keuangan Bulanan",
+    "rep-table-title": "Rekap Bulanan",
+    "rep-loading": "Memproses data..."
+  },
+  en: {
+    // Sidebar Navigation
+    "nav-home": "Home",
+    "nav-proyek": "Projects",
+    "nav-tambah": "Add New",
+    "nav-keuangan": "Finance",
+    "nav-laporan": "Reports",
+    "nav-layanan": "Services",
+    "nav-pengaturan": "Settings",
+    "nav-logout": "Logout",
+    "nav-install": "Install App",
+
+    // Global Header
+    "api-status": "API Status:",
+    "api-mock": "Mock Mode (Offline)",
+    "api-live": "Live API (Google Sheets)",
+    
+    // Settings Page (pengaturan.html)
+    "settings-header": "System Settings",
+    "settings-title": "Application Settings",
+    "settings-desc": "Configure Google Sheets database integration, WhatsApp templates, and PWA settings.",
+    "settings-card-lang": "Language Settings / Pengaturan Bahasa",
+    "settings-card-lang-desc": "Choose the interface language of the application.",
+    "settings-lang-label": "Language / Bahasa",
+    "settings-card-wa": "WhatsApp Follow-Up Template",
+    "settings-card-wa-desc": "Default message sent when you press the \"Contact WhatsApp\" button in project details.",
+    "settings-wa-label": "Message Template",
+    "settings-card-notif": "PWA Notifications & Reminders",
+    "settings-card-notif-desc": "Adjust check intervals and deadline H-1 notification reminder delivery.",
+    "settings-interval-label": "Notification Repeat Interval",
+    "settings-style-label": "Notification Display Style",
+    "settings-btn-test-notif": "Send Test Notification",
+    "settings-btn-req-notif": "Request Notification Permission",
+    "settings-toast-sec": "In-App Alerts / Toasts",
+    "settings-toast-pos": "Alert Display Position",
+    "settings-toast-dur": "Alert Display Duration",
+    "settings-card-mock": "Mock Mode Offline Simulation",
+    "settings-card-mock-desc": "Enable data simulation mode without requiring a Google Sheets database. Helpful if server is slow or offline.",
+    "settings-mock-label": "Enable Mock Offline Mode",
+    "settings-mock-sublabel": "Use browser storage (LocalStorage) as a database simulation.",
+    "settings-btn-reset": "Reset to Default",
+    "settings-btn-save": "Save Settings",
+    "settings-vibrate": "Enable Vibration (Vibrate)",
+    "settings-silent": "Silent Mode (Silent)",
+    "settings-opt-1h": "Every 1 Hour",
+    "settings-opt-3h": "Every 3 Hours",
+    "settings-opt-5h": "Every 5 Hours (Recommended)",
+    "settings-opt-12h": "Every 12 Hours",
+    "settings-opt-24h": "Every 24 Hours",
+    "settings-opt-casual": "Casual (Default)",
+    "settings-opt-formal": "Formal",
+    "settings-opt-short": "Short / Minimalist",
+    "settings-opt-tr": "Top Right",
+    "settings-opt-tl": "Top Left",
+    "settings-opt-br": "Bottom Right",
+    "settings-opt-bl": "Bottom Left",
+    "settings-opt-tc": "Top Center",
+    "settings-opt-fast": "Fast (2 Seconds)",
+    "settings-opt-normal": "Normal (4 Seconds)",
+    "settings-opt-slow": "Slow (8 Seconds)",
+    
+
+    // Dashboard Page (index.html)
+    "dash-title": "Finance & Project Dashboard",
+    "dash-desc": "Real-time summary of active projects, upcoming deadlines, and sales performance.",
+    "dash-stat-title": "Statistics Summary",
+    "dash-income": "Income",
+    "dash-active": "Active Projects",
+    "dash-unpaid": "Unpaid Balance",
+    "dash-done": "Completed Projects",
+    "dash-unpaid-desc": "Remaining client bills",
+    "dash-done-desc": "Successfully completed",
+    "dash-recent-act": "Recent Project Activity",
+    "dash-deadline-title": "Revision Deadline Calendar",
+    "dash-quick-add": "Add Project",
+    "dash-welcome": "Welcome Admin! 👋",
+    "dash-total-projects": "Total Projects",
+    "dash-expense": "Expenses",
+    "dash-profit": "Net Profit",
+    "dash-chart-title": "Monthly Finance Flow Graph",
+    "dash-report-detail": "Report Details",
+    "dash-recent-projects": "Recent Projects",
+    "dash-view-all": "All",
+
+    // Financial Cashflow (keuangan.html)
+    "fin-header": "Cashflow & Finance",
+    "fin-title": "Cash & Finance",
+    "fin-desc": "Record operational expenses and track all revenues in real-time.",
+    "fin-total-income": "Total Income",
+    "fin-total-expense": "Total Expenses",
+    "fin-net-profit": "Balance / Net Profit",
+    "fin-form-title": "Record New Transaction",
+    "fin-label-date": "Transaction Date",
+    "fin-label-type": "Transaction Type",
+    "fin-opt-income": "Income (Cash In)",
+    "fin-opt-expense": "Expense (Cash Out)",
+    "fin-label-desc": "Transaction Description",
+    "fin-label-amount": "Amount (Rp)",
+    "fin-btn-save": "Save Transaction",
+    "fin-table-title": "Financial Transaction History",
+    "fin-th-date": "Date",
+    "fin-th-type": "Type",
+    "fin-th-desc": "Description",
+    "fin-th-amount": "Amount (Rp)",
+    
+    "day-sun": "Sun",
+    "day-mon": "Mon",
+    "day-tue": "Tue",
+    "day-wed": "Wed",
+    "day-thu": "Thu",
+    "day-fri": "Fri",
+    "day-sat": "Sat",
+    
+    // Invoice Page (invoice.html)
+    "inv-date": "Date :",
+    "inv-to": "To",
+    "inv-status": "Status :",
+    "inv-deadline": "Deadline :",
+    "inv-product": "Product",
+    "inv-qty": "Qty",
+    "inv-price": "Price",
+    "inv-total": "Total",
+    "inv-dp": "DP",
+    "inv-balance": "Remaining Balance",
+    "inv-notes": "Notes",
+    "inv-btn-pdf": "Download PDF",
+    "inv-btn-print": "Print",
+    "inv-btn-back": "Back",
+    
+    // Project Page (proyek.html)
+    "proj-header": "Project Data Management",
+    "proj-title": "Project List",
+    "proj-desc": "Directly manage project status, payments, and deadlines.",
+    "proj-btn-delete": "Delete Selected",
+    "proj-btn-excel": "Export Excel",
+    "proj-btn-new": "Add New Project",
+    "proj-badge-all": "All",
+    "proj-badge-wait": "Waiting",
+    "proj-badge-progress": "In Progress",
+    "proj-badge-revision": "Revision",
+    "proj-badge-done": "Completed",
+    "proj-badge-unpaid": "Unpaid",
+
+    // Table Columns
+    "tbl-th-id": "ID",
+    "tbl-th-date": "Date",
+    "tbl-th-name": "Project Name",
+    "tbl-th-client": "Customer",
+    "tbl-th-wa": "WhatsApp",
+    "tbl-th-total": "Total (Rp)",
+    "tbl-th-debt": "Balance (Rp)",
+    "tbl-th-deadline": "Deadline",
+    "tbl-th-status": "Status",
+    "tbl-th-drive": "Drive Link",
+    "tbl-th-action": "Action",
+
+    // Project Detail Modal (detailModal)
+    "dt-title": "Project Details",
+    "dt-status": "Project Status",
+    "dt-deadline": "Target Deadline",
+    "dt-client": "Customer",
+    "dt-work": "Job / Project Name",
+    "dt-product": "Product",
+    "dt-qty": "Quantity",
+    "dt-unit": "Unit",
+    "dt-total": "Total Amount",
+    "dt-dp": "Down Payment (DP)",
+    "dt-debt": "Remaining Balance",
+    "dt-notes": "Notes / Specifications",
+    "dt-gdrive": "Project Google Drive Link",
+    "dt-btn-gdrive": "Open Project Google Drive Folder",
+    "dt-ai-title": "AI Assistant",
+    "dt-gdrive-input": "Google Drive Link for Final Designs",
+    "dt-ai-followup": "Follow Up",
+    "dt-ai-offer": "Offer / Quote",
+    "dt-ai-invoice": "Invoice",
+    "dt-ai-payment": "Request Balance Payment",
+    "dt-ai-done": "Completion Greeting",
+    "dt-ai-testimonial": "Request Testimonial",
+    "dt-ai-placeholder": "AI results will appear here...",
+    "dt-ai-copy": "Copy",
+    "dt-ai-send-wa": "Send WA",
+    "dt-btn-wa": "Contact WhatsApp",
+    "dt-btn-invoice": "Invoice",
+    "dt-btn-edit": "Edit",
+    "dt-btn-delete": "Delete",
+    
+    // Add/Edit Project (tambah-proyek.html)
+    "add-title-new": "Add New Project",
+    "add-title-edit": "Edit Project Form",
+    "add-back": "Back to Project List",
+    "add-card-title": "Project Information Details",
+    "add-label-name": "Project / Work Name*",
+    "add-label-client": "Customer Name*",
+    "add-label-wa": "WhatsApp Number*",
+    "add-label-wa-sub": "Use country code (62) without + or spaces.",
+    "add-label-prod": "Product Type*",
+    "add-label-qty": "Quantity / Qty*",
+    "add-label-unit": "Unit*",
+    "add-label-price": "Price per Unit (Rp)*",
+    "add-label-total": "Total Project Amount (Rp)",
+    "add-label-dp": "Down Payment / DP (Rp)*",
+    "add-label-debt": "Remaining Balance (Rp)",
+    "add-label-deadline": "Deadline / Target Date*",
+    "add-label-status": "Project Status*",
+    "add-label-gdrive": "Google Drive Link (Optional)",
+    "add-label-notes": "Additional Notes / Specifications (Optional)",
+    "add-btn-cancel": "Cancel",
+    "add-btn-save": "Save Project",
+    
+    // Services Page (layanan.html)
+    "lay-title": "Services & Pricelist",
+    "lay-banner-title": "Design Catalog 🎨",
+    "lay-banner-desc": "Use this pricing catalog to generate quotes or directly register a new project.",
+    "lay-banner-btn": "Calculate Estimate",
+    "lay-cat-social": "Social Media & Digital Design",
+    "lay-cat-print": "Print & Physical Promotion Design",
+    "lay-cat-brand": "Branding & Visual Identity",
+    "lay-cat-uiux": "UI/UX & Website Design",
+    "lay-btn-select": "Select",
+    "lay-calc-title": "Cost Estimator Calculator",
+    "lay-calc-desc": "Select multiple services at once, set quantities, and get an instant total estimate.",
+    "lay-select-service": "Select Service",
+    "lay-qty": "Quantity (Qty)",
+    "lay-btn-add": "Add",
+    "lay-th-name": "Service Name",
+    "lay-th-price": "Price",
+    "lay-th-qty": "Qty",
+    "lay-th-subtotal": "Subtotal",
+    "lay-th-action": "Action",
+    "lay-est-summary": "Estimation Summary",
+    "lay-unique-types": "Number of Service Types:",
+    "lay-total-qty": "Total Quantity:",
+    "lay-total-est": "Total Estimated Cost",
+    "lay-btn-create": "Create New Project From Here",
+    "lay-btn-reset": "Clear Estimation",
+    
+    // Catalog Item Details
+    "lay-item1-name": "Single Instagram Feed",
+    "lay-item1-desc": "Post layout 1:1, 1-2 days delivery.",
+    "lay-item2-name": "Carousel Instagram Feed",
+    "lay-item2-desc": "Up to 5 slides of educational/promo content.",
+    "lay-item3-name": "Instagram Story",
+    "lay-item3-desc": "9:16 portrait layout, dynamic, quick promo.",
+    "lay-item4-name": "YouTube / Web Banner",
+    "lay-item4-desc": "High-resolution responsive header banner.",
+    "lay-item5-name": "Banner / Billboard",
+    "lay-item5-desc": "MMT banner/billboard design, custom sizes.",
+    "lay-item6-name": "Folded A5 Brochure",
+    "lay-item6-desc": "Double-sided (2 pages), clean text layout.",
+    "lay-item7-name": "Poster Design",
+    "lay-item7-desc": "A3/A4 size for event or product promotion.",
+    "lay-item8-name": "Business Card",
+    "lay-item8-desc": "Double-sided professional minimalist layout.",
+    "lay-item9-name": "Standard Logo Design",
+    "lay-item9-desc": "Professional vector logo, 2 concept options, 3x revisions.",
+    "lay-item10-name": "Premium Logo + Mascot",
+    "lay-item10-desc": "High detail logo design with custom mascot illustration.",
+    "lay-item11-name": "Complete Brand Guidelines",
+    "lay-item11-desc": "Color guides, typography, logo rules, PDF mockups.",
+    "lay-item12-name": "Packaging / Label Design",
+    "lay-item12-desc": "Packaging layout (box/bottle label) 3D mockup.",
+    "lay-item13-name": "Figma Landing Page UI",
+    "lay-item13-desc": "Modern landing page mockup design in Figma (1 Page).",
+    "lay-item14-name": "Website Landing Page",
+    "lay-item14-desc": "Static responsive website development (HTML/CSS/JS).",
+    
+    // Reports Page (laporan.html)
+    "rep-header": "Business & Export Reports",
+    "rep-title": "Financial Report",
+    "rep-desc": "Recap of projects, gross income (revenue), debts, expenses, and net profit.",
+    "rep-btn-excel": "Export Excel",
+    "rep-btn-print": "Print Report / PDF",
+    "rep-print-title": "FINANCIAL REPORT FREELANCE PROJECT MANAGER",
+    "rep-print-date-prefix": "Printed on:",
+    "rep-card1-title": "Project Performance",
+    "rep-card1-sub1": "Total Projects",
+    "rep-card1-sub2": "Total Revenue",
+    "rep-card2-title": "Debts & Down Payment",
+    "rep-card2-sub1": "DP Received",
+    "rep-card2-sub2": "Remaining Debt",
+    "rep-card3-title": "Financial Results",
+    "rep-card3-sub1": "Expenses",
+    "rep-card3-sub2": "Net Profit",
+    "rep-chart-title": "Monthly Cashflow Chart",
+    "rep-table-title": "Monthly Summary",
+    "rep-loading": "Processing data..."
+  }
+};
+
+const i18n = {
+  get lang() {
+    return localStorage.getItem('cfg_lang') || 'id';
+  },
+  set lang(val) {
+    localStorage.setItem('cfg_lang', val);
+  },
+  translatePage() {
+    const currentLang = this.lang;
+    const dict = TRANSLATIONS[currentLang];
+    if (!dict) return;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key]) {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          if (el.hasAttribute('placeholder')) {
+            el.setAttribute('placeholder', dict[key]);
+          } else {
+            el.value = dict[key];
+          }
+        } else {
+          // If it has children elements (like icons <i>), check if there is a span inside to translate
+          const span = el.querySelector('span');
+          if (span) {
+            span.textContent = dict[key];
+          } else {
+            // Check if there is text directly in the element (excluding child tags)
+            // Or just check if there is no html children:
+            if (el.children.length === 0) {
+              el.textContent = dict[key];
+            } else {
+              // Iterate child nodes and replace the text nodes
+              Array.from(el.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+                  node.nodeValue = dict[key];
+                }
+              });
+            }
+          }
+        }
+      }
+    });
+
+    // Also update document title if translation keys map to title
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    if (currentPath === 'pengaturan.html') {
+      document.title = currentLang === 'en' ? 'Settings - FPManager' : 'Pengaturan - Kelola FPManager';
+    } else if (currentPath === 'index.html') {
+      document.title = currentLang === 'en' ? 'Dashboard - FPManager' : 'Dashboard Utama - Kelola FPManager';
+    } else if (currentPath === 'proyek.html') {
+      document.title = currentLang === 'en' ? 'Project List - FPManager' : 'Data Projek - Kelola FPManager';
+    } else if (currentPath === 'tambah-proyek.html') {
+      document.title = currentLang === 'en' ? 'Manage Project - FPManager' : 'Kelola Projek - Kelola FPManager';
+    } else if (currentPath === 'layanan.html') {
+      document.title = currentLang === 'en' ? 'Services & Pricelist - FPManager' : 'Layanan & Pricelist Jasa - FPManager';
+    } else if (currentPath === 'laporan.html') {
+      document.title = currentLang === 'en' ? 'Financial Reports - FPManager' : 'Laporan Keuangan & Statistik - FPManager';
+    } else if (currentPath === 'invoice.html') {
+      document.title = currentLang === 'en' ? 'Invoice Preview - FPManager' : 'Preview Invoice - FPManager';
+    }
+  }
+};
+
+// Auto-run translation on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => i18n.translatePage());
+} else {
+  i18n.translatePage();
+}

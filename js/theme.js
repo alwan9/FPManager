@@ -4,15 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleIcon = document.getElementById('darkModeIcon');
   const htmlEl = document.documentElement;
 
-  // Check saved theme or system preference
+  // Check saved theme (default to light mode initially)
   const savedTheme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+  if (savedTheme === 'dark') {
     htmlEl.classList.add('dark');
     if (toggleIcon) {
       toggleIcon.classList.remove('fa-moon');
       toggleIcon.classList.add('fa-sun');
+    }
+  } else {
+    htmlEl.classList.remove('dark');
+    if (toggleIcon) {
+      toggleIcon.classList.remove('fa-sun');
+      toggleIcon.classList.add('fa-moon');
     }
   }
 

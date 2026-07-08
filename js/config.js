@@ -32,6 +32,49 @@ const CONFIG = {
   },
   set REMINDER_INTERVAL(val) {
     localStorage.setItem('cfg_reminder_interval', val);
+  },
+
+  get NOTIF_SILENT() {
+    return localStorage.getItem('cfg_notif_silent') === 'true';
+  },
+  set NOTIF_SILENT(val) {
+    localStorage.setItem('cfg_notif_silent', val);
+  },
+
+  get NOTIF_VIBRATE() {
+    const val = localStorage.getItem('cfg_notif_vibrate');
+    return val === null ? true : val === 'true';
+  },
+  set NOTIF_VIBRATE(val) {
+    localStorage.setItem('cfg_notif_vibrate', val);
+  },
+
+  get NOTIF_STYLE() {
+    return localStorage.getItem('cfg_notif_style') || 'casual';
+  },
+  set NOTIF_STYLE(val) {
+    localStorage.setItem('cfg_notif_style', val);
+  },
+
+  get TOAST_POSITION() {
+    return localStorage.getItem('cfg_toast_position') || 'top-right';
+  },
+  set TOAST_POSITION(val) {
+    localStorage.setItem('cfg_toast_position', val);
+  },
+
+  get TOAST_DURATION() {
+    return parseInt(localStorage.getItem('cfg_toast_duration')) || 4000;
+  },
+  set TOAST_DURATION(val) {
+    localStorage.setItem('cfg_toast_duration', val);
+  },
+
+  get LANG() {
+    return localStorage.getItem('cfg_lang') || 'id';
+  },
+  set LANG(val) {
+    localStorage.setItem('cfg_lang', val);
   }
 };
 

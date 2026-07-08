@@ -261,8 +261,20 @@ async function checkDeadlines() {
             const intervalTime = CONFIG.REMINDER_INTERVAL;
 
             if (!lastNotified || (now - parseInt(lastNotified)) >= intervalTime) {
-              showNotification('Deadline H-1: ' + proyek.namaProyek, {
-                body: `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`,
+              let title = 'Deadline H-1: ' + proyek.namaProyek;
+              let body = `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`;
+              
+              const notifStyle = CONFIG.NOTIF_STYLE || 'casual';
+              if (notifStyle === 'singkat') {
+                title = 'Deadline H-1: ' + proyek.namaProyek;
+                body = 'Sisa 1 hari lagi!';
+              } else if (notifStyle === 'formal') {
+                title = 'Pemberitahuan Tenggat Waktu: ' + proyek.namaProyek;
+                body = `Mengingatkan bahwa proyek atas nama ${proyek.namaPelanggan} memiliki batas waktu penyelesaian besok.`;
+              }
+
+              showNotification(title, {
+                body: body,
                 icon: './assets/img/icon-192.png'
               });
               localStorage.setItem(notifKey, now.toString());
@@ -277,12 +289,29 @@ async function checkDeadlines() {
 }
 
 function showNotification(title, options) {
+  const finalOptions = {
+    badge: './assets/img/favicon.png',
+    ...options
+  };
+
+  // Set vibrate if enabled
+  if (CONFIG.NOTIF_VIBRATE) {
+    finalOptions.vibrate = [200, 100, 200];
+  } else {
+    finalOptions.vibrate = [];
+  }
+
+  // Set silent if enabled
+  if (CONFIG.NOTIF_SILENT) {
+    finalOptions.silent = true;
+  }
+
   if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
     navigator.serviceWorker.ready.then(registration => {
-      registration.showNotification(title, options);
+      registration.showNotification(title, finalOptions);
     });
   } else {
-    new Notification(title, options);
+    new Notification(title, finalOptions);
   }
 }
 

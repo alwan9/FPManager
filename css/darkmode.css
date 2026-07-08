@@ -334,3 +334,24 @@ html.dark #detailModal .bg-indigo-600 button:hover {
 html.dark #detailModal .bg-indigo-600 h4 i {
   color: #818cf8 !important; /* indigo-400 */
 }
+
+/* Settings Page Notification Buttons Dark Mode Override */
+html.dark #btnReqNotif {
+  background-color: #27272a !important; /* zinc-800 */
+  color: #f4f4f5 !important; /* zinc-100 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+}
+
+html.dark #btnReqNotif:hover {
+  background-color: #3f3f46 !important; /* zinc-700 */
+}
+
+html.dark #btnTestNotif {
+  background-color: rgba(244, 63, 94, 0.15) !important; /* rose-500/15% */
+  color: #fb7185 !important; /* rose-400 */
+  border-color: rgba(244, 63, 94, 0.3) !important; /* rose-500/30% */
+}
+
+html.dark #btnTestNotif:hover {
+  background-color: rgba(244, 63, 94, 0.25) !important; /* rose-500/25% */
+}

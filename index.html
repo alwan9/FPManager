@@ -79,49 +79,49 @@
         <a href="index.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Home</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-home">Home</span>
         </a>
         <a href="proyek.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-list-check text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Projek</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-proyek">Projek</span>
         </a>
         <a href="tambah-proyek.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-circle-plus text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Tambah</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
         </a>
         <a href="keuangan.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-wallet text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Keuangan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-keuangan">Keuangan</span>
         </a>
         <a href="laporan.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Laporan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
         </a>
         <a href="layanan.html"
           class="sidebar-link hidden md:flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Layanan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-layanan">Layanan</span>
         </a>
         <a href="pengaturan.html"
           class="sidebar-link hidden md:flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-gear text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium">Pengaturan</span>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
         </a>
 
         <button id="pwaInstallBtn"
           class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
           <i class="fa-solid fa-download w-5"></i>
-          <span>Install Aplikasi</span>
+          <span data-i18n="nav-install">Install Aplikasi</span>
         </button>
         <div class="hidden md:block pt-4 border-t border-zinc-800 mt-4">
           <button onclick="Auth.logout()"
             class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left">
             <i class="fa-solid fa-right-from-bracket w-5"></i>
-            <span>Logout</span>
+            <span data-i18n="nav-logout">Logout</span>
           </button>
         </div>
       </nav>
@@ -135,7 +135,7 @@
         class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
         <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
           <i class="fa-solid fa-chart-line text-indigo-600"></i>
-          <span>Dashboard Usaha</span>
+          <span data-i18n="dash-title">Dashboard Usaha</span>
         </h2>
         <div class="flex items-center space-x-4">
           <button id="pwaInstallBtnMobile"
@@ -147,27 +147,28 @@
             title="Toggle Dark Mode">
             <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i>
           </button>
-          <button onclick="Auth.logout()"
-            class="md:hidden text-red-500 hover:text-red-700 focus:outline-none transition-colors" title="Logout">
-            <i class="fa-solid fa-right-from-bracket text-lg"></i>
-          </button>
           <span class="text-sm text-zinc-500 hidden sm:inline-block">Status API:</span>
           <span id="apiStatusBadge"
             class="hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
             Mock Mode (Offline)
           </span>
           <div class="relative">
-            <button id="profileDropdownBtn" class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow hover:bg-zinc-300 transition-colors focus:outline-none" title="Menu Profil">
+            <button id="profileDropdownBtn"
+              class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow hover:bg-zinc-300 transition-colors focus:outline-none"
+              title="Menu Profil">
               A
             </button>
-            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
-              <a href="pengaturan.html" class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+            <div id="profileDropdown"
+              class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              <a href="pengaturan.html"
+                class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
-                <span>Pengaturan</span>
+                <span data-i18n="nav-pengaturan">Pengaturan</span>
               </a>
-              <button onclick="Auth.logout()" class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
+              <button onclick="Auth.logout()"
+                class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
                 <i class="fa-solid fa-right-from-bracket w-4"></i>
-                <span>Logout</span>
+                <span data-i18n="nav-logout">Logout</span>
               </button>
             </div>
           </div>
@@ -181,13 +182,14 @@
         <div
           class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
           <div>
-            <h3 class="text-xl md:text-2xl font-bold tracking-tight">Selamat Datang Admin! 👋</h3>
-            <p class="text-indigo-100 text-xs md:text-sm mt-1">Berikut adalah ringkasan performa dan laporan usaha
+            <h3 class="text-xl md:text-2xl font-bold tracking-tight" data-i18n="dash-welcome">Selamat Datang Admin! 👋</h3>
+            <p class="text-indigo-100 text-xs md:text-sm mt-1" data-i18n="dash-desc">Berikut adalah ringkasan performa dan laporan usaha
               FPManager hari ini.</p>
           </div>
           <a href="tambah-proyek.html"
             class="inline-flex items-center justify-center px-4 py-2.5 bg-white text-indigo-700 font-semibold rounded-xl text-sm shadow hover:bg-zinc-100 transition-colors">
-            <i class="fa-solid fa-circle-plus mr-2 text-indigo-600"></i> Tambah Projek
+            <i class="fa-solid fa-circle-plus mr-2 text-indigo-600"></i>
+            <span data-i18n="dash-quick-add">Tambah Projek</span>
           </a>
         </div>
 
@@ -210,7 +212,7 @@
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
               <span
-                class="text-[10px] md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Total
+                class="text-[10px] md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate" data-i18n="dash-total-projects">Total
                 Projek</span>
               <span id="statTotalProyek"
                 class="text-base sm:text-lg md:text-2xl font-extrabold text-zinc-900 mt-1 block truncate">-</span>
@@ -225,7 +227,7 @@
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
               <span
-                class="text-[10px] md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Pendapatan</span>
+                class="text-[10px] md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate" data-i18n="dash-income">Pendapatan</span>
               <span id="statPendapatan"
                 class="text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate">Rp0</span>
             </div>
@@ -239,7 +241,7 @@
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
               <span
-                class="text-[10px] md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Pengeluaran</span>
+                class="text-[10px] md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate" data-i18n="dash-expense">Pengeluaran</span>
               <span id="statPengeluaran"
                 class="text-base sm:text-lg font-extrabold text-rose-600 mt-1 block truncate">Rp0</span>
             </div>
@@ -253,7 +255,7 @@
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
               <span
-                class="text-base md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Laba
+                class="text-base md:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate" data-i18n="dash-profit">Laba
                 Bersih</span>
               <span id="statKeuntungan"
                 class="text-base sm:text-lg font-extrabold text-indigo-600 mt-1 block truncate">Rp0</span>
@@ -273,11 +275,13 @@
             class="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col justify-between">
             <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
               <h4 class="font-bold text-zinc-800 text-sm flex items-center">
-                <i class="fa-solid fa-chart-simple text-indigo-600 mr-2"></i> Grafik Arus Keuangan Bulanan
+                <i class="fa-solid fa-chart-simple text-indigo-600 mr-2"></i>
+                <span data-i18n="dash-chart-title">Grafik Arus Keuangan Bulanan</span>
               </h4>
               <a href="laporan.html"
                 class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-                Detail Laporan <i class="fa-solid fa-chevron-right ml-0.5 text-[9px]"></i>
+                <span data-i18n="dash-report-detail">Detail Laporan</span>
+                <i class="fa-solid fa-chevron-right ml-0.5 text-[9px]"></i>
               </a>
             </div>
             <div class="relative w-full h-72">
@@ -290,11 +294,13 @@
             <div>
               <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
                 <h4 class="font-bold text-zinc-800 text-sm flex items-center">
-                  <i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i> Projek Terbaru
+                  <i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i>
+                  <span data-i18n="dash-recent-projects">Projek Terbaru</span>
                 </h4>
                 <a href="proyek.html"
                   class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-                  Semua <i class="fa-solid fa-chevron-right ml-0.5 text-[9px]"></i>
+                  <span data-i18n="dash-view-all">Semua</span>
+                  <i class="fa-solid fa-chevron-right ml-0.5 text-[9px]"></i>
                 </a>
               </div>
 
@@ -314,7 +320,8 @@
         <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col">
           <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
             <h4 class="font-bold text-zinc-800 text-sm flex items-center">
-              <i class="fa-solid fa-calendar-days text-rose-600 mr-2"></i> Kalender Deadline Revisi
+              <i class="fa-solid fa-calendar-days text-rose-600 mr-2"></i>
+              <span data-i18n="dash-deadline-title">Kalender Deadline Revisi</span>
             </h4>
             <div class="flex items-center space-x-2">
               <button id="prevMonthBtn" class="p-1.5 hover:bg-zinc-100 rounded-lg text-zinc-600 transition-colors">
@@ -328,13 +335,13 @@
           </div>
           <!-- Calendar Grid Headers -->
           <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-zinc-500 mb-2">
-            <div>Min</div>
-            <div>Sen</div>
-            <div>Sel</div>
-            <div>Rab</div>
-            <div>Kam</div>
-            <div>Jum</div>
-            <div>Sab</div>
+            <div data-i18n="day-sun">Min</div>
+            <div data-i18n="day-mon">Sen</div>
+            <div data-i18n="day-tue">Sel</div>
+            <div data-i18n="day-wed">Rab</div>
+            <div data-i18n="day-thu">Kam</div>
+            <div data-i18n="day-fri">Jum</div>
+            <div data-i18n="day-sat">Sab</div>
           </div>
           <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5 grow">
             <!-- Rendered dynamically by JS -->
@@ -353,6 +360,7 @@
   <!-- Load Global Scripts -->
   <script src="js/toast.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/dashboard.js"></script>

@@ -2,6 +2,7 @@ const Invoice = {
     proyek: [],
     async init() {
         this.generateWatermark();
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         try {
             this.proyek = await API.getProyek();
             console.log("DATA PROYEK =", this.proyek);
@@ -10,8 +11,8 @@ const Invoice = {
             if (!id) {
 
                 Toast.warning(
-                    "Invoice Tidak Ditemukan",
-                    "ID proyek tidak ditemukan."
+                    isEn ? "Invoice Not Found" : "Invoice Tidak Ditemukan",
+                    isEn ? "Project ID not found." : "ID proyek tidak ditemukan."
                 );
 
                 return;
@@ -28,13 +29,14 @@ const Invoice = {
             console.error(err);
 
             Toast.error(
-                "Gagal Memuat Invoice",
-                err.message || "Terjadi kesalahan saat mengambil data invoice."
+                isEn ? "Failed to Load Invoice" : "Gagal Memuat Invoice",
+                err.message || (isEn ? "An error occurred while fetching invoice details." : "Terjadi kesalahan saat mengambil data invoice.")
             );
 
         }
     },
     loadInvoice(id) {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         console.log("Mencari ID :", id);
         const data = this.proyek.find(
             p => String(p.iDProyek).trim() === String(id).trim()
@@ -43,8 +45,8 @@ const Invoice = {
         if (!data) {
 
             Toast.warning(
-                "Data Tidak Ditemukan",
-                "Proyek yang dipilih tidak tersedia atau sudah dihapus."
+                isEn ? "Data Not Found" : "Data Tidak Ditemukan",
+                isEn ? "Selected project is unavailable or has been deleted." : "Proyek yang dipilih tidak tersedia atau sudah dihapus."
             );
 
             return;
@@ -55,8 +57,9 @@ const Invoice = {
         // ==========================
         document.getElementById("previewInvoiceNo").innerText =
             data.iDProyek;
+        const dateLocale = isEn ? "en-US" : "id-ID";
         document.getElementById("previewTanggal").innerText =
-            new Date().toLocaleDateString("id-ID");
+            new Date().toLocaleDateString(dateLocale);
         // ==========================
         // CUSTOMER
         // ==========================
@@ -87,8 +90,23 @@ const Invoice = {
         // ==========================
         // STATUS
         // ==========================
+        const statusMap = isEn ? {
+            'Menunggu': 'Waiting',
+            'Sedang Dikerjakan': 'In Progress',
+            'Revisi': 'Revision',
+            'Selesai': 'Completed',
+            'Belum Pembayaran': 'Unpaid',
+            'Dibatalkan': 'Cancelled'
+        } : {
+            'Menunggu': 'Menunggu',
+            'Sedang Dikerjakan': 'Sedang Dikerjakan',
+            'Revisi': 'Revisi',
+            'Selesai': 'Selesai',
+            'Belum Pembayaran': 'Belum Pembayaran',
+            'Dibatalkan': 'Dibatalkan'
+        };
         const status = document.getElementById("previewStatus");
-        status.innerText = data.status;
+        status.innerText = statusMap[data.status] || data.status;
         status.className =
             "px-4 py-1 rounded-full text-white";
         switch (data.status) {
