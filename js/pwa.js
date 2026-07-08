@@ -108,7 +108,7 @@ function createNotificationPrompt() {
   prompt.className = 'fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
 
   prompt.innerHTML = `
-    <div class="flex items-start space-x-3">
+    <div style="z-index: 99999;" class="flex items-start space-x-3">
       <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
         <i class="fa-solid fa-bell text-lg"></i>
       </div>
@@ -263,7 +263,7 @@ async function checkDeadlines() {
             if (!lastNotified || (now - parseInt(lastNotified)) >= intervalTime) {
               let title = 'Deadline H-1: ' + proyek.namaProyek;
               let body = `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`;
-              
+
               const notifStyle = CONFIG.NOTIF_STYLE || 'casual';
               if (notifStyle === 'singkat') {
                 title = 'Deadline H-1: ' + proyek.namaProyek;
