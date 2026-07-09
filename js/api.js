@@ -30,8 +30,10 @@ const API = {
     return sessionStorage.getItem("token") || "mock-token";
   },
   
-  // Ambil semua data proyek
-  getProyek: async () => {
+  // Ambil semua data proyek (mendukung pagination dan pencarian)
+  getProyek: async (params = {}) => {
+    const { page = 0, limit = 0, search = "" } = params;
+
     if (CONFIG.MOCK_MODE) {
       let mockData = localStorage.getItem('mock_proyek');
       if (!mockData) {
@@ -95,18 +97,40 @@ const API = {
         localStorage.setItem('mock_proyek', JSON.stringify(defaultMock));
         mockData = JSON.stringify(defaultMock);
       }
-      return JSON.parse(mockData);
+
+      let list = JSON.parse(mockData);
+
+      if (search) {
+        const query = search.toLowerCase();
+        list = list.filter(p => {
+          return (p.namaProyek && String(p.namaProyek).toLowerCase().indexOf(query) !== -1) ||
+                 (p.namaPelanggan && String(p.namaPelanggan).toLowerCase().indexOf(query) !== -1) ||
+                 (p.iDProyek && String(p.iDProyek).toLowerCase().indexOf(query) !== -1) ||
+                 (p.produk && String(p.produk).toLowerCase().indexOf(query) !== -1) ||
+                 (p.status && String(p.status).toLowerCase().indexOf(query) !== -1);
+        });
+      }
+
+      if (limit > 0 && page > 0) {
+        const startIndex = (page - 1) * limit;
+        list = list.slice(startIndex, startIndex + limit);
+      }
+
+      return list;
     }
 
     const now = Date.now();
-    if (APICache.proyek && (now - APICache.proyekTime < 15000)) {
+    if (!page && !limit && !search && APICache.proyek && (now - APICache.proyekTime < 15000)) {
       return APICache.proyek;
     }
 
     try {
-      const response = await fetch(
-        `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
-      );
+      let url = `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`;
+      if (page) url += `&page=${page}`;
+      if (limit) url += `&limit=${limit}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+
+      const response = await fetch(url);
       const result = await response.json();
       if (handleUnauthorized(result)) return [];
       if (!result.success) {
@@ -114,8 +138,10 @@ const API = {
         return [];
       }
       
-      APICache.proyek = result.data;
-      APICache.proyekTime = Date.now();
+      if (!page && !limit && !search) {
+        APICache.proyek = result.data;
+        APICache.proyekTime = Date.now();
+      }
       return result.data;
     } catch (error) {
       console.error("FETCH ERROR :", error);
