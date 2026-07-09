@@ -13,18 +13,22 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load all project and financial data for dashboard cards and charts
 async function loadDashboardData() {
   try {
-    const proyekList = await API.getProyek();
-    const keuanganList = await API.getKeuangan();
-    // 1. Hitung Statistik Ringkasan
-    renderSummaryStats(proyekList, keuanganList);
+    // Single consolidated fetch to drastically reduce dashboard loading latency
+    const dashboardData = await API.getDashboard();
+    if (!dashboardData) return;
+
+    // 1. Tampilkan Statistik Ringkasan
+    if (dashboardData.stats) {
+      renderSummaryStats(dashboardData.stats);
+    }
     // 2. Tampilkan Alert Deadline Terdekat
-    renderDeadlineAlerts(proyekList);
+    renderDeadlineAlerts(dashboardData.deadlineAlerts);
     // 3. Tampilkan Proyek Terbaru (Top 5)
-    renderRecentProjects(proyekList);
+    renderRecentProjects(dashboardData.recentProjects);
     // 4. Render Grafik Keuangan Bulanan
-    renderDashboardChart(keuanganList);
+    renderDashboardChart(dashboardData.chartData);
     // 5. Inisialisasi Kalender Deadline
-    initDeadlineCalendar(proyekList);
+    initDeadlineCalendar(dashboardData.revisiProjects);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
     const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -34,20 +38,13 @@ async function loadDashboardData() {
     );
   }
 }
-// Calculate and render statistic card counters
-function renderSummaryStats(proyekList, keuanganList) {
-  const totalProyek = proyekList.length;
-  let totalPemasukan = 0;
-  let totalPengeluaran = 0;
-  keuanganList.forEach(k => {
-    const nominal = Number(k.nominal) || 0;
-    if (k.jenis === 'Pemasukan') {
-      totalPemasukan += nominal;
-    } else if (k.jenis === 'Pengeluaran') {
-      totalPengeluaran += nominal;
-    }
-  });
-  const labaBersih = totalPemasukan - totalPengeluaran;
+// Render statistic card counters from pre-calculated stats
+function renderSummaryStats(stats) {
+  const totalProyek = stats.totalProyek || 0;
+  const totalPemasukan = stats.totalPemasukan || 0;
+  const totalPengeluaran = stats.totalPengeluaran || 0;
+  const labaBersih = stats.labaBersih !== undefined ? stats.labaBersih : (totalPemasukan - totalPengeluaran);
+
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const projSuffix = isEn ? 'Projects' : 'Proyek';
   document.getElementById('statTotalProyek').textContent = `${totalProyek} ${projSuffix}`;
@@ -62,68 +59,50 @@ function renderSummaryStats(proyekList, keuanganList) {
   }
 }
 // Identify and render alerts for projects with deadline <= 3 days
-function renderDeadlineAlerts(proyekList) {
+function renderDeadlineAlerts(deadlineAlerts) {
   const container = document.getElementById('deadlineAlertContainer');
   const list = document.getElementById('deadlineList');
   list.innerHTML = '';
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  let alertCount = 0;
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  proyekList.forEach(proyek => {
-    // Abaikan proyek yang sudah selesai/diambil/dibatalkan
-    const statusLower = proyek.status.toLowerCase();
-    if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
-      return;
-    }
-    if (!proyek.deadline) return;
-    const deadlineDate = new Date(proyek.deadline);
-    deadlineDate.setHours(0, 0, 0, 0);
-    const diffTime = deadlineDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    // Jika deadline mepet (<= 3 hari)
-    if (diffDays >= 0 && diffDays <= 3) {
-      alertCount++;
-      let dayText = '';
-      if (diffDays === 0) dayText = isEn ? 'TODAY!' : 'HARI INI!';
-      else if (diffDays === 1) dayText = isEn ? 'TOMORROW!' : 'BESOK!';
-      else dayText = isEn ? `${diffDays} days left` : `${diffDays} hari lagi`;
-      const alertCard = document.createElement('div');
-      alertCard.className = 'flex items-center justify-between p-3.5 bg-red-50 border border-red-200 rounded-xl text-zinc-800 shadow-sm';
-      alertCard.innerHTML = `
-        <div class="min-w-0 flex-1 pr-2">
-          <span class="font-bold text-xs text-red-600 block tracking-wider uppercase mb-0.5">${dayText}</span>
-          <span class="font-semibold text-sm text-zinc-900 block truncate">${proyek.namaProyek}</span>
-          <span class="text-xs text-zinc-500 truncate block">${isEn ? 'Customer' : 'Pelanggan'}: ${proyek.namaPelanggan}</span>
-        </div>
-        <a href="proyek.html" class="flex-shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
-          ${isEn ? 'Check' : 'Cek'}
-        </a>
-      `;
-      list.appendChild(alertCard);
-    }
-  });
-  if (alertCount > 0) {
-    container.classList.remove('hidden');
-    const headerTitle = container.querySelector('h4');
-    if (headerTitle) {
-      headerTitle.innerHTML = `<i class="fa-solid fa-bell text-rose-500 mr-1.5 animate-bounce"></i> ${isEn ? 'Upcoming Deadlines' : 'Pengingat Deadline Mendatang'} (${isEn ? '≤ 3 Days' : '≤ 3 Hari'})`;
-    }
-  } else {
+  if (!deadlineAlerts || deadlineAlerts.length === 0) {
     container.classList.add('hidden');
+    return;
+  }
+  deadlineAlerts.forEach(alert => {
+    let dayText = '';
+    const diffDays = alert.diffDays;
+    if (diffDays === 0) dayText = isEn ? 'TODAY!' : 'HARI INI!';
+    else if (diffDays === 1) dayText = isEn ? 'TOMORROW!' : 'BESOK!';
+    else dayText = isEn ? `${diffDays} days left` : `${diffDays} hari lagi`;
+    const alertCard = document.createElement('div');
+    alertCard.className = 'flex items-center justify-between p-3.5 bg-red-50 border border-red-200 rounded-xl text-zinc-800 shadow-sm';
+    alertCard.innerHTML = `
+      <div class="min-w-0 flex-1 pr-2">
+        <span class="font-bold text-xs text-red-600 block tracking-wider uppercase mb-0.5">${dayText}</span>
+        <span class="font-semibold text-sm text-zinc-900 block truncate">${alert.namaProyek}</span>
+        <span class="text-xs text-zinc-500 truncate block">${isEn ? 'Customer' : 'Pelanggan'}: ${alert.namaPelanggan}</span>
+      </div>
+      <a href="proyek.html" class="flex-shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
+        ${isEn ? 'Check' : 'Cek'}
+      </a>
+    `;
+    list.appendChild(alertCard);
+  });
+  container.classList.remove('hidden');
+  const headerTitle = container.querySelector('h4');
+  if (headerTitle) {
+    headerTitle.innerHTML = `<i class="fa-solid fa-bell text-rose-500 mr-1.5 animate-bounce"></i> ${isEn ? 'Upcoming Deadlines' : 'Pengingat Deadline Mendatang'} (${isEn ? '≤ 3 Days' : '≤ 3 Hari'})`;
   }
 }
 // Render the 5 most recent projects in lists
-function renderRecentProjects(proyekList) {
+function renderRecentProjects(recent) {
   const container = document.getElementById('recentProyekList');
   container.innerHTML = '';
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (proyekList.length === 0) {
+  if (!recent || recent.length === 0) {
     container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">${isEn ? 'No projects registered yet.' : 'Belum ada projek terdaftar.'}</div>`;
     return;
   }
-  // Ambil maksimal 5 proyek terakhir (mengacu dari belakang array)
-  const recent = [...proyekList].reverse().slice(0, 5);
   recent.forEach(p => {
     const statusMap = isEn ? {
       'Menunggu': 'Waiting',
@@ -168,39 +147,12 @@ function renderRecentProjects(proyekList) {
   });
 }
 // Compile monthly finance data and render double-bar Chart
-function renderDashboardChart(keuanganList) {
+function renderDashboardChart(chartData) {
   const ctx = document.getElementById('dashboardChart').getContext('2d');
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const langCode = isEn ? 'en-US' : 'id-ID';
-  const monthlyData = {};
-  keuanganList.forEach(k => {
-    if (!k.tanggal) return;
-    const date = new Date(k.tanggal);
-    const monthName = date.toLocaleString(langCode, { month: 'short' });
-    const year = date.getFullYear();
-    const key = `${monthName} ${year}`;
-    if (!monthlyData[key]) {
-      monthlyData[key] = {
-        monthLabel: key,
-        sortKey: date.getFullYear() * 100 + (date.getMonth() + 1),
-        pemasukan: 0,
-        pengeluaran: 0
-      };
-    }
-    const nominal = Number(k.nominal) || 0;
-    if (k.jenis === 'Pemasukan') {
-      monthlyData[key].pemasukan += nominal;
-    } else if (k.jenis === 'Pengeluaran') {
-      monthlyData[key].pengeluaran += nominal;
-    }
-  });
-  // Urutkan dan ambil maksimal 6 bulan terakhir
-  const sortedMonths = Object.values(monthlyData)
-    .sort((a, b) => a.sortKey - b.sortKey)
-    .slice(-6);
-  const labels = sortedMonths.map(item => item.monthLabel);
-  const pemasukanData = sortedMonths.map(item => item.pemasukan);
-  const pengeluaranData = sortedMonths.map(item => item.pengeluaran);
+  const labels = chartData.labels || [];
+  const pemasukanData = chartData.pemasukan || [];
+  const pengeluaranData = chartData.pengeluaran || [];
   new Chart(ctx, {
     type: 'bar',
     data: {
@@ -292,7 +244,7 @@ function formatRupiah(number) {
 
 // Initialize and render deadline calendar (Revision Calendar only)
 let calendarCurrentDate = new Date();
-function initDeadlineCalendar(proyekList) {
+function initDeadlineCalendar(revisiProjects) {
   const prevBtn = document.getElementById('prevMonthBtn');
   const nextBtn = document.getElementById('nextMonthBtn');
   if (!prevBtn || !nextBtn) return;
@@ -317,9 +269,6 @@ function initDeadlineCalendar(proyekList) {
 
     const daysGrid = document.getElementById('calendarDaysGrid');
     daysGrid.innerHTML = '';
-
-    // Filter project list to only show projects with status 'Revisi'
-    const revisiProjects = proyekList.filter(p => p.status && p.status.toLowerCase() === 'revisi');
 
     // Create lookup by YYYY-MM-DD
     const deadlineLookup = {};

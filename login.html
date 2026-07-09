@@ -286,7 +286,7 @@
       const result = await Auth.login(password);
 
       if (result.success) {
-        // Redirection handled by Auth.checkLogin or immediate window.location change
+        sessionStorage.setItem('just_logged_in', 'true');
         window.location.href = 'index.html';
       } else {
         errorMessage.textContent = result.message;

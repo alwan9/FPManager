@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnTestNotif = document.getElementById('btnTestNotif');
   const btnReqNotif = document.getElementById('btnReqNotif');
+  const btnTestToast = document.getElementById('btnTestToast');
 
   // Load saved configurations to inputs
   if (apiUrlInput) apiUrlInput.value = CONFIG.API_URL || '';
@@ -149,6 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Test In-App Notification (Toast)
+  if (btnTestToast) {
+    btnTestToast.addEventListener('click', () => {
+      showToast({
+        title: CONFIG.LANG === 'en' ? "In-App Notification Test" : "Uji Coba Alert Aplikasi 🔔",
+        message: CONFIG.LANG === 'en' ? "Success! This in-app alert is working properly." : "Berhasil! Alert dalam aplikasi ini berfungsi dengan baik.",
+        type: "success"
+      });
+    });
+  }
 });
 
 // Helper update status badge on header

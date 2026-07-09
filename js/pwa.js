@@ -171,9 +171,12 @@ function createNotificationPrompt() {
 }
 
 // Function to show iOS install instructions
-function showIOSInstallPrompt() {
+function showIOSInstallPrompt(callback) {
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  if (currentPath !== 'index.html') return;
+  if (currentPath !== 'index.html' && currentPath !== '') {
+    if (typeof callback === 'function') callback();
+    return;
+  }
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -211,21 +214,113 @@ function showIOSInstallPrompt() {
 
     const closePrompt = () => {
       prompt.classList.add('translate-y-10', 'opacity-0');
-      setTimeout(() => prompt.remove(), 500);
+      setTimeout(() => {
+        prompt.remove();
+        if (typeof callback === 'function') callback();
+      }, 500);
     };
 
     document.getElementById('pwaIOSClose').addEventListener('click', () => {
       closePrompt();
       sessionStorage.setItem('pwa_ios_prompt_dismissed', 'true');
     });
+  } else {
+    if (typeof callback === 'function') callback();
+  }
+}
+
+// Function to show Android / Desktop install instructions custom prompt
+function showAndroidInstallPrompt(callback) {
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPath !== 'index.html' && currentPath !== '') {
+    if (typeof callback === 'function') callback();
+    return;
+  }
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+  if (!isStandalone && deferredPrompt && sessionStorage.getItem('pwa_install_prompt_dismissed') !== 'true') {
+    const prompt = document.createElement('div');
+    prompt.id = 'pwa-android-prompt';
+    prompt.className = 'fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
+
+    prompt.innerHTML = `
+      <div style="z-index: 99999;" class="flex items-start space-x-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0 mt-0.5">
+          <i class="fa-solid fa-download text-lg"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-zinc-100 font-sans">Instal Aplikasi FPManager</h4>
+          <p class="text-xs text-zinc-400 mt-1 font-sans">Instal FPManager di perangkat Anda untuk akses lebih cepat, lancar, dan mendukung penggunaan offline.</p>
+        </div>
+      </div>
+      <div class="flex space-x-2 justify-end">
+        <button id="pwaAndroidClose" class="px-4 py-2 rounded-xl border border-zinc-700 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 transition-all font-sans">Nanti</button>
+        <button id="pwaAndroidInstall" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold text-white transition-all font-sans">Instal</button>
+      </div>
+    `;
+
+    document.body.appendChild(prompt);
+
+    // Animate in
+    setTimeout(() => {
+      prompt.classList.remove('translate-y-10', 'opacity-0');
+    }, 100);
+
+    const closePrompt = () => {
+      prompt.classList.add('translate-y-10', 'opacity-0');
+      setTimeout(() => {
+        prompt.remove();
+        if (typeof callback === 'function') callback();
+      }, 500);
+    };
+
+    document.getElementById('pwaAndroidClose').addEventListener('click', () => {
+      closePrompt();
+      sessionStorage.setItem('pwa_install_prompt_dismissed', 'true');
+    });
+
+    document.getElementById('pwaAndroidInstall').addEventListener('click', async () => {
+      closePrompt();
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      }
+    });
+  } else {
+    if (typeof callback === 'function') callback();
+  }
+}
+
+// Initialize chained prompts logic
+function initPWAPrompts() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  // Reset dismissed flags if the user just logged in to guarantee prompts appear
+  const justLoggedIn = sessionStorage.getItem('just_logged_in') === 'true';
+  if (justLoggedIn) {
+    sessionStorage.removeItem('just_logged_in');
+    sessionStorage.removeItem('pwa_install_prompt_dismissed');
+    sessionStorage.removeItem('pwa_ios_prompt_dismissed');
+    sessionStorage.removeItem('pwa_notif_prompt_dismissed');
+  }
+
+  const proceedToNotificationPrompt = () => {
+    createNotificationPrompt();
+  };
+
+  if (isIOS) {
+    showIOSInstallPrompt(proceedToNotificationPrompt);
+  } else {
+    showAndroidInstallPrompt(proceedToNotificationPrompt);
   }
 }
 
 // Run prompts after the page is loaded
 window.addEventListener('load', () => {
   setTimeout(() => {
-    createNotificationPrompt();
-    showIOSInstallPrompt();
+    initPWAPrompts();
   }, 3000);
 });
 

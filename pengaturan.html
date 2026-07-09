@@ -258,13 +258,13 @@
           <!-- Right Column -->
           <div class="space-y-6">
 
-            <!-- Card 3: PWA & Notifications Settings -->
+            <!-- Card 3: Notifikasi HP (PWA) -->
             <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
               <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
-                <i class="fa-solid fa-bell text-rose-500"></i>
-                <span data-i18n="settings-card-notif">Notifikasi & Pengingat PWA</span>
+                <i class="fa-solid fa-mobile-screen-button text-rose-500"></i>
+                <span data-i18n="settings-card-notif-hp">Notifikasi HP (PWA)</span>
               </h4>
-              <p class="text-xs text-zinc-500" data-i18n="settings-card-notif-desc">Sesuaikan interval pengecekan dan pengiriman notifikasi pengingat deadline projek H-1.</p>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-notif-hp-desc">Sesuaikan pengiriman notifikasi pengingat deadline projek H-1 langsung ke sistem/HP Anda.</p>
               
               <div class="space-y-4">
                 <div>
@@ -299,10 +299,29 @@
                 </div>
               </div>
 
-              <!-- In-App Alert / Toast Options -->
-              <div class="border-t border-zinc-100 dark:border-zinc-800 pt-4 space-y-4">
-                <h5 class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider" data-i18n="settings-toast-sec">Alert / Toast Dalam Aplikasi</h5>
-                
+              <div class="pt-2 flex flex-wrap gap-2">
+                <button type="button" id="btnTestNotif"
+                  class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-100 transition flex items-center gap-2">
+                  <i class="fa-solid fa-message"></i>
+                  <span data-i18n="settings-btn-test-notif">Kirim Test Notifikasi</span>
+                </button>
+                <button type="button" id="btnReqNotif"
+                  class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-xl border border-zinc-200 transition flex items-center gap-2">
+                  <i class="fa-solid fa-unlock"></i>
+                  <span data-i18n="settings-btn-req-notif">Minta Izin Notifikasi</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 4: Notifikasi Dalam Aplikasi (Alert / Toast) -->
+            <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-square-poll-horizontal text-indigo-500"></i>
+                <span data-i18n="settings-card-notif-app">Notifikasi Dalam Aplikasi</span>
+              </h4>
+              <p class="text-xs text-zinc-500" data-i18n="settings-card-notif-app-desc">Atur posisi dan durasi tampilan alert pop-up (toast) saat Anda sedang membuka aplikasi.</p>
+              
+              <div class="space-y-4">
                 <div>
                   <label for="toastPosition" class="block text-xs font-semibold text-zinc-500 uppercase mb-1" data-i18n="settings-toast-pos">Posisi Tampilan Alert</label>
                   <select id="toastPosition"
@@ -327,15 +346,10 @@
               </div>
 
               <div class="pt-2 flex flex-wrap gap-2">
-                <button type="button" id="btnTestNotif"
-                  class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-100 transition flex items-center gap-2">
-                  <i class="fa-solid fa-message"></i>
-                  <span data-i18n="settings-btn-test-notif">Kirim Test Notifikasi</span>
-                </button>
-                <button type="button" id="btnReqNotif"
-                  class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-xl border border-zinc-200 transition flex items-center gap-2">
-                  <i class="fa-solid fa-unlock"></i>
-                  <span data-i18n="settings-btn-req-notif">Minta Izin Notifikasi</span>
+                <button type="button" id="btnTestToast"
+                  class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 transition flex items-center gap-2">
+                  <i class="fa-solid fa-circle-info"></i>
+                  <span data-i18n="settings-btn-test-toast">Kirim Test Alert</span>
                 </button>
               </div>
             </div>

@@ -33,36 +33,73 @@ function doGet(e) {
 
       case "getProyek":
 
+        let proyekData = getCacheLarge("PROYEK_DATA");
+        if (!proyekData) {
+          proyekData = getRowsData(ss.getSheetByName("Proyek"));
+          setCacheLarge("PROYEK_DATA", proyekData, 21600); // Cache selama 6 jam
+        }
+
         responseData = {
           success: true,
-          data: getRowsData(ss.getSheetByName("Proyek"))
+          data: proyekData
         };
 
         break;
 
       case "getKeuangan":
 
-        const sheet = ss.getSheetByName("Keuangan");
-        const values = sheet.getDataRange().getValues();
-        const data = [];
+        let keuanganData = getCacheLarge("KEUANGAN_DATA");
+        if (!keuanganData) {
+          const sheet = ss.getSheetByName("Keuangan");
+          const values = sheet.getDataRange().getValues();
+          const data = [];
 
-        for (let i = 1; i < values.length; i++) {
-
-          data.push({
-            id: values[i][0],
-            tanggal: values[i][1] instanceof Date
-              ? Utilities.formatDate(values[i][1], Session.getScriptTimeZone(), "yyyy-MM-dd")
-              : values[i][1],
-            jenis: values[i][2],
-            keterangan: values[i][3],
-            nominal: Number(values[i][4])
-          });
-
+          for (let i = 1; i < values.length; i++) {
+            data.push({
+              id: values[i][0],
+              tanggal: values[i][1] instanceof Date
+                ? Utilities.formatDate(values[i][1], Session.getScriptTimeZone(), "yyyy-MM-dd")
+                : values[i][1],
+              jenis: values[i][2],
+              keterangan: values[i][3],
+              nominal: Number(values[i][4])
+            });
+          }
+          keuanganData = data;
+          setCacheLarge("KEUANGAN_DATA", keuanganData, 21600); // Cache selama 6 jam
         }
 
         responseData = {
           success: true,
-          data
+          data: keuanganData
+        };
+
+        break;
+
+      case "getDashboardStats":
+
+        let stats = getCacheLarge("DASHBOARD_STATS");
+        if (!stats) {
+          stats = calculateDashboardStats(ss);
+        }
+
+        responseData = {
+          success: true,
+          data: stats
+        };
+
+        break;
+
+      case "getDashboard":
+
+        let dashboardData = getCacheLarge("DASHBOARD_DATA");
+        if (!dashboardData) {
+          dashboardData = compileDashboardData(ss);
+        }
+
+        responseData = {
+          success: true,
+          data: dashboardData
         };
 
         break;
@@ -215,6 +252,10 @@ function doPost(e) {
           folderUrl // Kolom Baru ke-16 (Kolom P): Link GDrive
         ]);
 
+        removeCacheLarge("PROYEK_DATA");
+        clearRowIndexMap("Proyek");
+        calculateDashboardStats(ss);
+
         responseData = {
           success: true,
           id: nextId,
@@ -278,12 +319,96 @@ function doPost(e) {
             folderUrl // Update kolom ke-16: Link GDrive
           ]]);
 
+          removeCacheLarge("PROYEK_DATA");
+          calculateDashboardStats(ss);
+
           responseData = {
             success: true,
             message: "Data berhasil diupdate"
           };
 
         }
+
+      } finally {
+
+        lock.releaseLock();
+
+    }
+
+    // =========================
+    // BATCH UPDATE PROYEK
+    // =========================
+    else if (action === "batchUpdateProyek") {
+
+      requireLogin(e.parameter.token);
+      checkRateLimit(e.parameter.token);
+
+      const lock = LockService.getScriptLock();
+      lock.waitLock(30000);
+
+      try {
+
+        const sheet = ss.getSheetByName("Proyek");
+
+        let updates = [];
+        try {
+          updates = JSON.parse(e.parameter.data || "[]");
+        } catch (err) {
+          throw new Error("Format JSON tidak valid");
+        }
+
+        if (!Array.isArray(updates)) {
+          throw new Error("Data harus berupa array");
+        }
+
+        const map = getRowIndexMap(sheet);
+        const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const camelHeaders = headers.map(toCamelCase);
+
+        let count = 0;
+        for (let i = 0; i < updates.length; i++) {
+          const update = updates[i];
+          const projId = update.id || update.iDProyek;
+          if (!projId) continue;
+
+          const rowIndex = map[String(projId)];
+          if (rowIndex && rowIndex > 1) {
+            const rowRange = sheet.getRange(rowIndex, 1, 1, headers.length);
+            const rowValues = rowRange.getValues()[0];
+
+            for (let j = 0; j < camelHeaders.length; j++) {
+              const field = camelHeaders[j];
+              let updateVal = update[field];
+              if (updateVal === undefined) {
+                if (field === "iDProyek") updateVal = update.id || update.iDProyek;
+                else if (field === "dP") updateVal = update.dp || update.dP;
+                else if (field === "nomorWA") updateVal = update.wa || update.nomorWA;
+                else if (field === "namaPelanggan") updateVal = update.pelanggan || update.namaPelanggan;
+                else if (field === "nominalProyek") updateVal = update.nominal || update.nominalProyek;
+                else if (field === "sisaPembayaran") updateVal = update.sisa || update.sisaPembayaran;
+              }
+
+              if (updateVal !== undefined) {
+                if (field === "jumlah" || field === "hargaSatuan" || field === "nominalProyek" || field === "dP" || field === "sisaPembayaran") {
+                  rowValues[j] = Number(updateVal);
+                } else {
+                  rowValues[j] = updateVal;
+                }
+              }
+            }
+
+            rowRange.setValues([rowValues]);
+            count++;
+          }
+        }
+
+        removeCacheLarge("PROYEK_DATA");
+        calculateDashboardStats(ss);
+
+        responseData = {
+          success: true,
+          message: count + " data proyek berhasil diupdate"
+        };
 
       } finally {
 
@@ -325,16 +450,25 @@ function doPost(e) {
         }
 
         if (idsToDelete.length > 0) {
-          const rows = sheet.getDataRange().getValues();
-          let count = 0;
-          // Hapus baris dari bawah ke atas agar indeks baris tidak bergeser
-          for (let i = rows.length - 1; i >= 1; i--) {
-            const currentId = String(rows[i][0]);
-            if (idsToDelete.indexOf(currentId) !== -1) {
-              sheet.deleteRow(i + 1); // Row Google Sheet adalah 1-indexed (baris 1 adalah header)
-              count++;
+          const map = getRowIndexMap(sheet);
+          const rowIndices = [];
+          for (let i = 0; i < idsToDelete.length; i++) {
+            const rIndex = map[idsToDelete[i]];
+            if (rIndex !== undefined && rIndex > 1) {
+              rowIndices.push(rIndex);
             }
           }
+          rowIndices.sort((a, b) => b - a);
+
+          let count = 0;
+          for (let i = 0; i < rowIndices.length; i++) {
+            sheet.deleteRow(rowIndices[i]);
+            count++;
+          }
+
+          removeCacheLarge("PROYEK_DATA");
+          clearRowIndexMap("Proyek");
+          calculateDashboardStats(ss);
 
           responseData = {
             success: true,
@@ -399,6 +533,10 @@ function doPost(e) {
           Number(data.nominal)
         ]);
 
+        removeCacheLarge("KEUANGAN_DATA");
+        clearRowIndexMap("Keuangan");
+        calculateDashboardStats(ss);
+
         responseData = {
           success: true,
           id: nextId
@@ -434,6 +572,9 @@ function doPost(e) {
             data.keterangan,
             Number(data.nominal)
           ]]);
+
+          removeCacheLarge("KEUANGAN_DATA");
+          calculateDashboardStats(ss);
 
           responseData = {
             success: true,
@@ -473,6 +614,10 @@ function doPost(e) {
         if (rowIndex > 0) {
 
           sheet.deleteRow(rowIndex);
+
+          removeCacheLarge("KEUANGAN_DATA");
+          clearRowIndexMap("Keuangan");
+          calculateDashboardStats(ss);
 
           responseData = {
             success: true,
@@ -538,22 +683,23 @@ function initSheets(ss) {
 
 // Auto Increment ID generator helper (ex: PRJ-001, KAS-005)
 function generateNextId(sheet, prefix) {
-  const rows = sheet.getDataRange().getValues();
+  const propKey = "LAST_ID_" + prefix;
+  const props = PropertiesService.getScriptProperties();
+  let lastIdNumVal = props.getProperty(propKey);
 
-  if (rows.length <= 1) {
-    return prefix + "001";
+  if (!lastIdNumVal) {
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      lastIdNumVal = "0";
+    } else {
+      const lastValue = String(sheet.getRange(lastRow, 1).getValue());
+      const match = lastValue.match(/\d+$/);
+      lastIdNumVal = match ? match[0] : "0";
+    }
   }
 
-  const lastValue = String(rows[rows.length - 1][0]);
-
-  const match = lastValue.match(/\d+$/);
-
-  if (!match) {
-    return prefix + "001";
-  }
-
-  const next = Number(match[0]) + 1;
-
+  const next = Number(lastIdNumVal) + 1;
+  props.setProperty(propKey, next.toString());
   return prefix + String(next).padStart(3, "0");
 }
 
@@ -699,21 +845,9 @@ function checkRateLimit(token) {
 }
 
 function findRow(sheet, id) {
-
-  const rows = sheet.getDataRange().getValues();
-
-  for (let i = 1; i < rows.length; i++) {
-
-    if (String(rows[i][0]) === String(id)) {
-
-      return i + 1;
-
-    }
-
-  }
-
-  return -1;
-
+  const map = getRowIndexMap(sheet);
+  const rowIndex = map[String(id)];
+  return rowIndex !== undefined ? rowIndex : -1;
 }
 
 function validateProyek(data) {
@@ -888,4 +1022,243 @@ Gunakan emoji seperlunya.
   return json.candidates[0]
     .content.parts[0].text;
 
+}
+
+// ================================
+// CACHE HELPERS (Large Payload Support)
+// ================================
+function setCacheLarge(key, dataObj, expirationSeconds) {
+  const cache = CacheService.getScriptCache();
+  const jsonStr = JSON.stringify(dataObj);
+  const chunkSize = 90000; // Aman di bawah batas 100KB dari CacheService Google
+
+  if (jsonStr.length <= chunkSize) {
+    cache.put(key, jsonStr, expirationSeconds);
+    cache.remove(key + "_chunks");
+  } else {
+    const numChunks = Math.ceil(jsonStr.length / chunkSize);
+    cache.put(key + "_chunks", numChunks.toString(), expirationSeconds);
+    for (let i = 0; i < numChunks; i++) {
+      const chunk = jsonStr.substring(i * chunkSize, (i + 1) * chunkSize);
+      cache.put(key + "_" + i, chunk, expirationSeconds);
+    }
+    cache.remove(key);
+  }
+}
+
+function getCacheLarge(key) {
+  const cache = CacheService.getScriptCache();
+  const numChunksStr = cache.get(key + "_chunks");
+
+  if (numChunksStr) {
+    const numChunks = parseInt(numChunksStr, 10);
+    let jsonStr = "";
+    for (let i = 0; i < numChunks; i++) {
+      const chunk = cache.get(key + "_" + i);
+      if (chunk === null) {
+        return null;
+      }
+      jsonStr += chunk;
+    }
+    try {
+      return JSON.parse(jsonStr);
+    } catch (e) {
+      return null;
+    }
+  } else {
+    const value = cache.get(key);
+    if (!value) return null;
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
+function removeCacheLarge(key) {
+  const cache = CacheService.getScriptCache();
+  const numChunksStr = cache.get(key + "_chunks");
+  if (numChunksStr) {
+    const numChunks = parseInt(numChunksStr, 10);
+    for (let i = 0; i < numChunks; i++) {
+      cache.remove(key + "_" + i);
+    }
+    cache.remove(key + "_chunks");
+  }
+  cache.remove(key);
+}
+
+// ================================
+// ROW INDEX MAPPING HELPERS
+// ================================
+function getRowIndexMap(sheet) {
+  const sheetName = sheet.getName();
+  const cacheKey = "ROW_INDEX_MAP_" + sheetName;
+  let map = getCacheLarge(cacheKey);
+
+  if (!map) {
+    map = {};
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      const ids = sheet.getRange(1, 1, lastRow, 1).getValues();
+      for (let i = 1; i < ids.length; i++) {
+        const idVal = String(ids[i][0]);
+        if (idVal) {
+          map[idVal] = i + 1;
+        }
+      }
+    }
+    setCacheLarge(cacheKey, map, 21600); // Simpan 6 jam
+  }
+  return map;
+}
+
+function clearRowIndexMap(sheetName) {
+  removeCacheLarge("ROW_INDEX_MAP_" + sheetName);
+}
+
+// ================================
+// DASHBOARD STATS HELPER
+// ================================
+function calculateDashboardStats(ss) {
+  const proyekSheet = ss.getSheetByName("Proyek");
+  const keuanganSheet = ss.getSheetByName("Keuangan");
+
+  const totalProyek = Math.max(0, proyekSheet.getLastRow() - 1);
+
+  let totalPemasukan = 0;
+  let totalPengeluaran = 0;
+
+  const keuanganLastRow = keuanganSheet.getLastRow();
+  if (keuanganLastRow > 1) {
+    const values = keuanganSheet.getRange(2, 3, keuanganLastRow - 1, 3).getValues();
+    for (let i = 0; i < values.length; i++) {
+      const jenis = values[i][0];
+      const nominal = Number(values[i][2]) || 0;
+      if (jenis === 'Pemasukan') {
+        totalPemasukan += nominal;
+      } else if (jenis === 'Pengeluaran') {
+        totalPengeluaran += nominal;
+      }
+    }
+  }
+
+  const stats = {
+    totalProyek: totalProyek,
+    totalPemasukan: totalPemasukan,
+    totalPengeluaran: totalPengeluaran,
+    labaBersih: totalPemasukan - totalPengeluaran
+  };
+
+  setCacheLarge("DASHBOARD_STATS", stats, 21600); // Simpan 6 jam
+  removeCacheLarge("DASHBOARD_DATA"); // Invalidate compiled dashboard cache
+  return stats;
+}
+
+// ================================
+// COMPILE DASHBOARD DATA HELPER
+// ================================
+function compileDashboardData(ss) {
+  const proyekSheet = ss.getSheetByName("Proyek");
+  const keuanganSheet = ss.getSheetByName("Keuangan");
+
+  let stats = getCacheLarge("DASHBOARD_STATS");
+  if (!stats) {
+    stats = calculateDashboardStats(ss);
+  }
+
+  const proyekList = getRowsData(proyekSheet);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const recentProjects = [...proyekList].reverse().slice(0, 5);
+
+  const deadlineAlerts = [];
+  const revisiProjects = [];
+
+  proyekList.forEach(p => {
+    const statusLower = (p.status || '').toLowerCase();
+    
+    if (statusLower === 'revisi') {
+      revisiProjects.push({
+        iDProyek: p.iDProyek,
+        namaProyek: p.namaProyek,
+        namaPelanggan: p.namaPelanggan,
+        deadline: p.deadline,
+        status: p.status
+      });
+    }
+
+    if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
+      return;
+    }
+    if (!p.deadline) return;
+
+    const deadlineDate = new Date(p.deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+    const diffTime = deadlineDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays >= 0 && diffDays <= 3) {
+      deadlineAlerts.push({
+        namaProyek: p.namaProyek,
+        namaPelanggan: p.namaPelanggan,
+        deadline: p.deadline,
+        diffDays: diffDays
+      });
+    }
+  });
+
+  const monthlyData = {};
+  const keuanganLastRow = keuanganSheet.getLastRow();
+  if (keuanganLastRow > 1) {
+    const values = keuanganSheet.getRange(2, 2, keuanganLastRow - 1, 4).getValues();
+    for (let i = 0; i < values.length; i++) {
+      const tanggalVal = values[i][0];
+      if (!tanggalVal) continue;
+      
+      const date = new Date(tanggalVal);
+      const monthNames = ["Jan", "Feb", "Mar", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const key = monthNames[date.getMonth()] + " " + date.getFullYear();
+      
+      if (!monthlyData[key]) {
+        monthlyData[key] = {
+          monthLabel: key,
+          sortKey: date.getFullYear() * 100 + (date.getMonth() + 1),
+          pemasukan: 0,
+          pengeluaran: 0
+        };
+      }
+      
+      const jenis = values[i][1];
+      const nominal = Number(values[i][3]) || 0;
+      if (jenis === 'Pemasukan') {
+        monthlyData[key].pemasukan += nominal;
+      } else if (jenis === 'Pengeluaran') {
+        monthlyData[key].pengeluaran += nominal;
+      }
+    }
+  }
+
+  const sortedMonths = Object.values(monthlyData)
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .slice(-6);
+
+  const chartData = {
+    labels: sortedMonths.map(item => item.monthLabel),
+    pemasukan: sortedMonths.map(item => item.pemasukan),
+    pengeluaran: sortedMonths.map(item => item.pengeluaran)
+  };
+
+  const dashboardData = {
+    stats: stats,
+    recentProjects: recentProjects,
+    deadlineAlerts: deadlineAlerts,
+    revisiProjects: revisiProjects,
+    chartData: chartData
+  };
+
+  setCacheLarge("DASHBOARD_DATA", dashboardData, 21600); // Simpan 6 jam
+  return dashboardData;
 }
