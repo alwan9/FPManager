@@ -24,7 +24,7 @@ const Toast = (() => {
         } else if (pos === 'bottom-left') {
             posClasses += " bottom-6 left-6";
         } else if (pos === 'top-center') {
-            posClasses += " top-6 left-1/2 -tranzinc-x-1/2";
+            posClasses += " top-6 left-1/2 -translate-x-1/2";
         } else {
             posClasses += " top-6 right-6";
         }
@@ -61,18 +61,18 @@ const Toast = (() => {
         const toast = document.createElement("div");
 
         toast.className =
-            "w-96 bg-white rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden transform tranzinc-x-[450px] opacity-0 transition-all duration-300";
+            "custom-toast toast-hidden w-96 bg-white rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden transform transition-all duration-300";
 
         toast.innerHTML = `
 
-            <div style="z-index: 999;" class="p-5">
+            <div style="z-index: 999;" class="toast-inner p-5">
 
                 <div class="flex justify-between items-start">
 
                     <div class="flex">
 
                         <div
-                            class="w-10 h-10 rounded-full flex items-center justify-center text-white mr-4"
+                            class="toast-icon-container w-10 h-10 rounded-full flex items-center justify-center text-white mr-4 shrink-0"
                             style="background:${c.bg}">
 
                             <i class="fa-solid ${c.icon}"></i>
@@ -81,13 +81,13 @@ const Toast = (() => {
 
                         <div>
 
-                            <h3 class="font-bold text-zinc-800">
+                            <h3 class="toast-title font-bold text-zinc-800">
 
                                 ${title}
 
                             </h3>
 
-                            <p class="text-sm text-zinc-500 mt-1">
+                            <p class="toast-message text-sm text-zinc-500 mt-1">
 
                                 ${message}
 
@@ -97,7 +97,7 @@ const Toast = (() => {
 
                     </div>
 
-                    <button class="close text-zinc-400 hover:text-black">
+                    <button class="close close-btn text-zinc-400 hover:text-black ml-4">
 
                         <i class="fa-solid fa-xmark"></i>
 
@@ -126,7 +126,8 @@ const Toast = (() => {
 
         requestAnimationFrame(() => {
 
-            toast.classList.remove("tranzinc-x-[450px]", "opacity-0");
+            toast.classList.remove("toast-hidden");
+            toast.classList.add("toast-visible");
 
         });
 
@@ -138,7 +139,8 @@ const Toast = (() => {
 
         function removeToast() {
 
-            toast.classList.add("tranzinc-x-[450px]", "opacity-0");
+            toast.classList.remove("toast-visible");
+            toast.classList.add("toast-hidden");
 
             setTimeout(() => {
 

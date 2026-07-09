@@ -399,3 +399,109 @@ table.dataTable.no-footer {
     background-color: transparent !important;
   }
 }
+
+/* ======================================================= */
+/* Toast Custom Animations & Mobile Styling               */
+/* ======================================================= */
+.custom-toast {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+}
+
+/* Desktop animation: slide in from right */
+@media (min-width: 768px) {
+  .toast-hidden {
+    transform: translateX(450px) !important;
+    opacity: 0 !important;
+  }
+  .toast-visible {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Mobile animation: slide down from top and centered */
+@media (max-width: 767px) {
+  #toast-container {
+    top: 1rem !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
+    max-width: 320px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .custom-toast {
+    width: 100% !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .custom-toast .toast-inner {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .custom-toast .toast-icon-container {
+    width: 2rem !important;
+    height: 2rem !important;
+    margin-right: 0.75rem !important;
+  }
+
+  .custom-toast .toast-icon-container i {
+    font-size: 0.875rem !important;
+  }
+
+  .custom-toast .toast-title {
+    font-size: 0.875rem !important;
+    font-weight: 700 !important;
+  }
+
+  .custom-toast .toast-message {
+    font-size: 0.75rem !important;
+    margin-top: 0.125rem !important;
+  }
+  
+  .custom-toast .close-btn {
+    font-size: 0.875rem !important;
+  }
+
+  .toast-hidden {
+    transform: translateY(-40px) !important;
+    opacity: 0 !important;
+  }
+  
+  .toast-visible {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Splash Screen Loading Bar Animation */
+@keyframes loading-bar {
+  0% {
+    left: -50%;
+    width: 30%;
+  }
+  50% {
+    width: 60%;
+  }
+  100% {
+    left: 120%;
+    width: 30%;
+  }
+}
+
+.splash-loading-progress {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(to right, #6366f1, #3b82f6);
+  border-radius: 9999px;
+  animation: loading-bar 1.5s infinite ease-in-out;
+}
+
+

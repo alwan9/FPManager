@@ -41,29 +41,44 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/darkmode.css">
+  <script>
+    // Force light mode on login page
+    document.documentElement.classList.remove('dark');
+  </script>
 </head>
 
-<body class="bg-zinc-50 dark:bg-zinc-950 min-h-screen flex transition-all duration-300">
+<body class="bg-zinc-50 min-h-screen flex transition-all duration-300">
 
-  <!-- Global Loader -->
-  <div id="globalLoader"
-    class="fixed inset-0 z-[9999] bg-zinc-50 flex items-center justify-center transition-opacity duration-500">
-    <div class="flex flex-col items-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-zinc-200 border-t-indigo-600 mb-3"></div>
-      <p class="text-zinc-500 font-medium text-sm">Memuat data...</p>
+  <!-- Splash Screen Loader -->
+  <div id="splashLoader"
+    class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-between p-8 transition-opacity duration-700 ease-in-out">
+    <div></div>
+    
+    <!-- Logo and loader container -->
+    <div class="flex flex-col items-center space-y-6">
+      <div class="p-4 transform hover:scale-105 transition-transform duration-300">
+        <img src="./assets/img/logo.png" alt="FPManager Logo" class="h-16 w-auto object-contain">
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="w-48 h-1 bg-zinc-100 rounded-full overflow-hidden relative">
+        <div class="splash-loading-progress"></div>
+      </div>
+    </div>
+
+    <!-- Developer Footer -->
+    <div class="text-center space-y-1">
+      <p class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">Powered by</p>
+      <p class="text-indigo-600 font-bold tracking-wide text-xs">programmer alwan</p>
     </div>
   </div>
 
   <!-- Main split container -->
   <div class="flex-1 flex flex-col md:flex-row">
 
-    <!-- Left Side: Gradient Banner -->
+    <!-- Left Side: Solid Banner -->
     <div
-      class="flex w-full md:w-2/3 bg-gradient-to-br from-indigo-900 via-blue-900 to-zinc-950 text-white p-8 md:p-12 flex-col justify-between relative overflow-hidden min-h-[360px] md:min-h-screen">
-      <!-- Decorative circles / ambient lights -->
-      <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-indigo-500 opacity-20 blur-3xl"></div>
-      <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-blue-500 opacity-20 blur-3xl"></div>
+      class="flex w-full md:w-2/3 bg-indigo-900 text-white p-8 md:p-12 flex-col justify-between relative overflow-hidden min-h-[360px] md:min-h-screen">
 
       <!-- Top brand / logo -->
       <div class="z-10 flex items-center space-x-3">
@@ -128,19 +143,11 @@
 
     <!-- Right Side: Login Form (Visible on all screens) -->
     <div
-      class="flex-1 flex items-center justify-center p-6 bg-gradient-to-br from-indigo-50 via-blue-50 to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 relative min-h-[calc(100vh-360px)] md:min-h-screen py-12 md:py-6 rounded-t-[30px] md:rounded-none -mt-8 md:mt-0 transition-all duration-300">
-
-      <!-- Dark Mode Toggle -->
-      <div class="absolute top-6 right-6 z-50">
-        <button id="darkModeToggle"
-          class="bg-white bg-opacity-80 dark:bg-zinc-800 dark:bg-opacity-50 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-full p-3 shadow-lg focus:outline-none transition-all flex items-center justify-center">
-          <i class="fa-solid fa-moon text-lg" id="darkModeIcon"></i>
-        </button>
-      </div>
+      class="flex-1 flex items-center justify-center p-6 bg-zinc-100 relative min-h-[calc(100vh-360px)] md:min-h-screen py-12 md:py-6 rounded-t-[30px] md:rounded-none -mt-8 md:mt-0 transition-all duration-300">
 
       <!-- Glassmorphic Login Container -->
       <div
-        class="glass-panel w-full max-w-md p-6 md:p-8 rounded-2xl md:shadow-2xl flex flex-col justify-center border-transparent md:border text-zinc-800 dark:text-zinc-100 bg-transparent md:bg-white/60 md:dark:bg-zinc-900/60 md:backdrop-blur-lg md:border-white/20">
+        class="glass-panel w-full max-w-md p-6 md:p-8 rounded-2xl md:shadow-2xl flex flex-col justify-center border-transparent md:border text-zinc-800 bg-transparent md:bg-white/60 md:backdrop-blur-lg md:border-white/20">
 
         <!-- Logo for mobile only -->
         <div class="text-center mb-8">
@@ -204,7 +211,6 @@
   <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/pwa.js"></script>
-  <script src="js/theme.js"></script>
   <script>
     // Login Slider Logic
     let currentSlide = 0;
@@ -285,6 +291,19 @@
       } else {
         errorMessage.textContent = result.message;
         errorAlert.classList.remove('hidden');
+      }
+    });
+
+    // Splash Screen fade out logic
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splashLoader');
+      if (splash) {
+        setTimeout(() => {
+          splash.classList.add('opacity-0');
+          setTimeout(() => {
+            splash.classList.add('hidden');
+          }, 700); // Allow CSS opacity transition to complete
+        }, 5000); // Keep the splash screen visible for 5 seconds
       }
     });
   </script>
