@@ -142,15 +142,20 @@
             Mock Mode (Offline)
           </span>
           <div class="relative">
-            <button id="profileDropdownBtn" class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow hover:bg-zinc-300 transition-colors focus:outline-none" title="Menu Profil">
+            <button id="profileDropdownBtn"
+              class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow hover:bg-zinc-300 transition-colors focus:outline-none"
+              title="Menu Profil">
               A
             </button>
-            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
-              <a href="pengaturan.html" class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+            <div id="profileDropdown"
+              class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              <a href="pengaturan.html"
+                class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
                 <span data-i18n="nav-pengaturan">Pengaturan</span>
               </a>
-              <button onclick="Auth.logout()" class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
+              <button onclick="Auth.logout()"
+                class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
                 <i class="fa-solid fa-right-from-bracket w-4"></i>
                 <span data-i18n="nav-logout">Logout</span>
               </button>
@@ -173,7 +178,8 @@
 
         <!-- Form Card Container -->
         <div class="bg-white rounded-2xl shadow-md border border-zinc-200 p-6 md:p-8">
-          <h3 id="formTitle" class="text-lg font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-6" data-i18n="add-card-title">
+          <h3 id="formTitle" class="text-lg font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-6"
+            data-i18n="add-card-title">
             Detail Informasi Projek
           </h3>
 
@@ -183,7 +189,8 @@
 
               <!-- Nama Proyek -->
               <div>
-                <label for="namaProyek" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-name">Nama Pekerjaan / Projek*</label>
+                <label for="namaProyek" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-name">Nama Pekerjaan / Projek*</label>
                 <input type="text" id="namaProyek" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   placeholder="Contoh: Cetak Brosur Kopi">
@@ -191,7 +198,8 @@
 
               <!-- Nama Pelanggan -->
               <div>
-                <label for="pelanggan" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-client">Nama Pelanggan*</label>
+                <label for="pelanggan" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-client">Nama Pelanggan*</label>
                 <input type="text" id="pelanggan" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   placeholder="Contoh: Budi Santoso">
@@ -199,7 +207,8 @@
 
               <!-- WhatsApp Pelanggan -->
               <div>
-                <label for="wa" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-wa">Nomor WhatsApp*</label>
+                <label for="wa" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-wa">Nomor
+                  WhatsApp*</label>
                 <div class="relative">
                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-500 text-sm">
                     62
@@ -208,12 +217,14 @@
                     class="w-full pl-10 pr-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                     placeholder="8123456789">
                 </div>
-                <p class="text-xs text-zinc-400 mt-1" data-i18n="add-label-wa-sub">Gunakan kode negara (62) tanpa karakter + atau spasi.</p>
+                <p class="text-xs text-zinc-400 mt-1" data-i18n="add-label-wa-sub">Gunakan kode negara (62) tanpa
+                  karakter + atau spasi.</p>
               </div>
 
               <!-- Jenis Produk -->
               <div>
-                <label for="produk" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-prod">Jenis Produk*</label>
+                <label for="produk" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-prod">Jenis Produk*</label>
                 <input type="text" id="produk" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   placeholder="Contoh: Brosur A5, Banner 2x1">
@@ -221,7 +232,8 @@
 
               <!-- Jumlah -->
               <div>
-                <label for="jumlah" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-qty">Jumlah / Qty*</label>
+                <label for="jumlah" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-qty">Jumlah / Qty*</label>
                 <input type="number" id="jumlah" min="1" value="1" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                   placeholder="1">
@@ -229,7 +241,8 @@
 
               <!-- Satuan -->
               <div>
-                <label for="satuan" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-unit">Satuan*</label>
+                <label for="satuan" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-unit">Satuan*</label>
                 <select id="satuan" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                   <option value="pcs">pcs</option>
@@ -244,16 +257,22 @@
 
               <!-- Harga Satuan -->
               <div>
-                <label for="hargaSatuan" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-price">Harga per Satuan (Rp)*</label>
-                <input type="number" id="hargaSatuan" min="0" value="50000" required
-                  class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  placeholder="0">
+                <label for="hargaSatuan" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-price">Harga per Satuan (Rp)*</label>
+                <div class="flex gap-2">
+                  <input type="number" id="hargaSatuan" min="0" required
+                    class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="50000">
+                  <button type="button" onclick="addZeros('hargaSatuan')"
+                    class="px-3 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 rounded-xl text-sm font-bold transition-colors shrink-0">+000</button>
+                </div>
                 <div id="hargaSatuanPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
               </div>
 
               <!-- Nominal Proyek (Kalkulasi Otomatis) -->
               <div>
-                <label class="block text-sm font-medium text-zinc-500 mb-1" data-i18n="add-label-total">Total Nominal Projek (Rp)</label>
+                <label class="block text-sm font-medium text-zinc-500 mb-1" data-i18n="add-label-total">Total Nominal
+                  Projek (Rp)</label>
                 <input type="text" id="nominal" readonly
                   class="w-full px-4 py-2 border border-zinc-200 bg-zinc-100 rounded-xl font-bold text-zinc-600 text-sm focus:outline-none"
                   value="0">
@@ -261,16 +280,22 @@
 
               <!-- Uang Muka / DP -->
               <div>
-                <label for="dp" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-dp">Uang Muka / DP (Rp)*</label>
-                <input type="number" id="dp" min="0" value="50000" required
-                  class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  placeholder="0">
+                <label for="dp" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-dp">Uang Muka
+                  / DP (Rp)*</label>
+                <div class="flex gap-2">
+                  <input type="number" id="dp" min="0" required
+                    class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    placeholder="50000">
+                  <button type="button" onclick="addZeros('dp')"
+                    class="px-3 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 rounded-xl text-sm font-bold transition-colors shrink-0">+000</button>
+                </div>
                 <div id="dpPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
               </div>
 
               <!-- Sisa Pembayaran (Kalkulasi Otomatis) -->
               <div>
-                <label class="block text-sm font-medium text-zinc-500 mb-1" data-i18n="add-label-debt">Sisa Pembayaran (Rp)</label>
+                <label class="block text-sm font-medium text-zinc-500 mb-1" data-i18n="add-label-debt">Sisa Pembayaran
+                  (Rp)</label>
                 <input type="text" id="sisa" readonly
                   class="w-full px-4 py-2 border border-zinc-200 bg-zinc-100 rounded-xl font-bold text-zinc-600 text-sm focus:outline-none"
                   value="0">
@@ -278,7 +303,8 @@
 
               <!-- Deadline -->
               <div>
-                <label for="deadline" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-deadline">Deadline / Target Selesai*</label>
+                <label for="deadline" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-deadline">Deadline / Target Selesai*</label>
                 <input type="date" id="deadline" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                 <div class="flex gap-2 mt-2">
@@ -305,7 +331,8 @@
 
               <!-- Status Proyek -->
               <div>
-                <label for="status" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-status">Status Projek*</label>
+                <label for="status" class="block text-sm font-medium text-zinc-700 mb-1"
+                  data-i18n="add-label-status">Status Projek*</label>
                 <select id="status" required
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                   <option value="Menunggu">Menunggu</option>
@@ -321,7 +348,8 @@
 
             <!-- Link Google Drive -->
             <div>
-              <label for="gdriveLink" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-gdrive">Link Google Drive (Opsional)</label>
+              <label for="gdriveLink" class="block text-sm font-medium text-zinc-700 mb-1"
+                data-i18n="add-label-gdrive">Link Google Drive (Opsional)</label>
               <input type="url" id="gdriveLink"
                 class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white"
                 placeholder="https://drive.google.com/drive/folders/.../view?usp=sharing">
@@ -329,7 +357,8 @@
 
             <!-- Catatan Tambahan -->
             <div>
-              <label for="catatan" class="block text-sm font-medium text-zinc-700 mb-1" data-i18n="add-label-notes">Catatan Tambahan / Spesifikasi (Opsional)</label>
+              <label for="catatan" class="block text-sm font-medium text-zinc-700 mb-1"
+                data-i18n="add-label-notes">Catatan Tambahan / Spesifikasi (Opsional)</label>
               <textarea id="catatan" rows="3"
                 class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                 placeholder="Masukkan spesifikasi kertas, finishing, dsb."></textarea>
@@ -370,6 +399,14 @@
   <script src="js/tambah.js"></script>
 
   <script>
+    function addZeros(inputId) {
+      const input = document.getElementById(inputId);
+      if (input.value) {
+        input.value = input.value + "000";
+        input.dispatchEvent(new Event('input'));
+      }
+    }
+
     // Responsive sidebar toggler
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navMenu = document.getElementById('navMenu');

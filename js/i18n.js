@@ -221,7 +221,7 @@ const TRANSLATIONS = {
     
     // Services Page (layanan.html)
     "lay-title": "Layanan & Pricelist Jasa",
-    "lay-banner-title": "Katalog Jasa Desain 🎨",
+    "lay-banner-title": "Katalog Jasa Desain",
     "lay-banner-desc": "Gunakan katalog harga ini untuk membuat penawaran atau langsung mendaftarkan projek baru.",
     "lay-banner-btn": "Hitung Estimasi",
     "lay-cat-social": "Desain Media Sosial & Digital",
@@ -520,7 +520,7 @@ const TRANSLATIONS = {
     
     // Services Page (layanan.html)
     "lay-title": "Services & Pricelist",
-    "lay-banner-title": "Design Catalog 🎨",
+    "lay-banner-title": "Design Catalog",
     "lay-banner-desc": "Use this pricing catalog to generate quotes or directly register a new project.",
     "lay-banner-btn": "Calculate Estimate",
     "lay-cat-social": "Social Media & Digital Design",
