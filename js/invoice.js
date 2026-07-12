@@ -106,30 +106,33 @@ const Invoice = {
             'Dibatalkan': 'Dibatalkan'
         };
         const status = document.getElementById("previewStatus");
-        status.innerText = statusMap[data.status] || data.status;
-        status.className =
-            "px-4 py-1 rounded-full text-white";
-        switch (data.status) {
-            case "Menunggu":
-                status.classList.add("bg-yellow-500");
-                break;
-            case "Sedang Dikerjakan":
-                status.classList.add("bg-blue-600");
-                break;
-            case "Selesai":
-                status.classList.add("bg-green-600");
-                break;
-            case "Belum Pembayaran":
-                status.classList.add("bg-red-600");
-                break;
-            default:
-                status.classList.add("bg-gray-500");
+        if (status) {
+            status.innerText = statusMap[data.status] || data.status;
+            status.className = "px-4 py-1 rounded-full text-white";
+            switch (data.status) {
+                case "Menunggu":
+                    status.classList.add("bg-yellow-500");
+                    break;
+                case "Sedang Dikerjakan":
+                    status.classList.add("bg-blue-600");
+                    break;
+                case "Selesai":
+                    status.classList.add("bg-green-600");
+                    break;
+                case "Belum Pembayaran":
+                    status.classList.add("bg-red-600");
+                    break;
+                default:
+                    status.classList.add("bg-gray-500");
+            }
         }
         // ==========================
         // DEADLINE
         // ==========================
-        document.getElementById("previewDeadline").innerText =
-            data.deadline || "-";
+        const deadlineEl = document.getElementById("previewDeadline");
+        if (deadlineEl) {
+            deadlineEl.innerText = data.deadline || "-";
+        }
         // ==========================
         // CATATAN
         // ==========================
