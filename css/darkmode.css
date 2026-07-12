@@ -211,40 +211,49 @@ html:not(.dark) aside nav {
 }
 
 html:not(.dark) aside .sidebar-link:not(.bg-indigo-600) {
-  color: #4b5563 !important; /* gray-600 */
+  color: #4b5563 !important;
+  /* gray-600 */
 }
 
 html:not(.dark) aside .sidebar-link:not(.bg-indigo-600):hover {
-  background-color: #f3f4f6 !important; /* gray-100 */
-  color: #111827 !important; /* gray-900 */
+  background-color: #f3f4f6 !important;
+  /* gray-100 */
+  color: #111827 !important;
+  /* gray-900 */
 }
 
 /* Install Application button in light mode */
 html:not(.dark) #pwaInstallBtn {
-  color: #059669 !important; /* emerald-600 */
+  color: #059669 !important;
+  /* emerald-600 */
   background-color: transparent !important;
 }
 
 html:not(.dark) #pwaInstallBtn:hover {
-  background-color: #ecfdf5 !important; /* emerald-50 */
-  color: #047857 !important; /* emerald-700 */
+  background-color: #ecfdf5 !important;
+  /* emerald-50 */
+  color: #047857 !important;
+  /* emerald-700 */
 }
 
 /* Logout button in light mode */
 html:not(.dark) aside button[onclick="Auth.logout()"],
 html:not(.dark) aside button[onclick="Auth.logout()"] i,
 html:not(.dark) aside button[onclick="Auth.logout()"] span {
-  color: #dc2626 !important; /* red-600 */
+  color: #dc2626 !important;
+  /* red-600 */
   background-color: transparent !important;
 }
 
 html:not(.dark) aside button[onclick="Auth.logout()"]:hover {
-  background-color: #fef2f2 !important; /* red-50 */
+  background-color: #fef2f2 !important;
+  /* red-50 */
 }
 
 html:not(.dark) aside button[onclick="Auth.logout()"]:hover i,
 html:not(.dark) aside button[onclick="Auth.logout()"]:hover span {
-  color: #b91c1c !important; /* red-700 */
+  color: #b91c1c !important;
+  /* red-700 */
 }
 
 
@@ -252,58 +261,73 @@ html:not(.dark) aside button[onclick="Auth.logout()"]:hover span {
 html.dark aside,
 html.dark aside div,
 html.dark aside nav {
-  background-color: #18181b !important; /* zinc-900 */
-  border-color: #27272a !important; /* zinc-800 */
-  color: #f4f4f5 !important; /* zinc-100 */
+  background-color: #18181b !important;
+  /* zinc-900 */
+  border-color: #27272a !important;
+  /* zinc-800 */
+  color: #f4f4f5 !important;
+  /* zinc-100 */
 }
 
 html.dark aside .sidebar-link:not(.bg-indigo-600) {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
+  /* gray-400 */
 }
 
 html.dark aside .sidebar-link:not(.bg-indigo-600):hover {
-  background-color: #1f2937 !important; /* gray-800 */
-  color: #f9fafb !important; /* gray-50 */
+  background-color: #1f2937 !important;
+  /* gray-800 */
+  color: #f9fafb !important;
+  /* gray-50 */
 }
 
 /* Install Application button in dark mode */
 html.dark #pwaInstallBtn {
-  color: #34d399 !important; /* emerald-400 */
+  color: #34d399 !important;
+  /* emerald-400 */
 }
 
 html.dark #pwaInstallBtn:hover {
   background-color: rgba(6, 78, 59, 0.3) !important;
-  color: #6ee7b7 !important; /* emerald-300 */
+  color: #6ee7b7 !important;
+  /* emerald-300 */
 }
 
 /* Logout button in dark mode */
 html.dark aside button[onclick="Auth.logout()"] {
-  color: #f87171 !important; /* red-400 */
+  color: #f87171 !important;
+  /* red-400 */
 }
 
 html.dark aside button[onclick="Auth.logout()"]:hover {
   background-color: rgba(127, 29, 29, 0.3) !important;
-  color: #fca5a5 !important; /* red-300 */
+  color: #fca5a5 !important;
+  /* red-300 */
 }
 
 /* Secondary/Cancel Button Dark Mode Override */
 html.dark .btn-secondary {
-  background-color: #3f3f46 !important; /* zinc-700 */
-  color: #f4f4f5 !important; /* zinc-100 */
+  background-color: #3f3f46 !important;
+  /* zinc-700 */
+  color: #f4f4f5 !important;
+  /* zinc-100 */
 }
 
 html.dark .btn-secondary:hover {
-  background-color: #52525b !important; /* zinc-600 */
+  background-color: #52525b !important;
+  /* zinc-600 */
 }
 
 /* Nested bg-zinc-50 blocks inside Detail Modal should be darker for contrast */
 html.dark #detailModal .bg-zinc-50 {
-  background-color: #18181b !important; /* zinc-900 */
+  background-color: #18181b !important;
+  /* zinc-900 */
 }
 
 /* Divide borders in Detail Modal */
-html.dark .md\:divide-zinc-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #3f3f46 !important; /* zinc-700 */
+html.dark .md\:divide-zinc-100> :not([hidden])~ :not([hidden]) {
+  border-color: #3f3f46 !important;
+  /* zinc-700 */
 }
 
 /* Google Drive Link hover & border in dark mode */
@@ -318,51 +342,67 @@ html.dark .border-indigo-100 {
 
 /* Modal Header Dark Mode Override */
 html.dark #detailModal .bg-indigo-600 {
-  background-color: #18181b !important; /* zinc-900 */
-  border-bottom: 1px solid #27272a !important; /* zinc-800 */
+  background-color: #18181b !important;
+  /* zinc-900 */
+  border-bottom: 1px solid #27272a !important;
+  /* zinc-800 */
 }
 
 html.dark #detailModal .bg-indigo-600 button {
-  color: #a1a1aa !important; /* zinc-400 */
+  color: #a1a1aa !important;
+  /* zinc-400 */
 }
 
 html.dark #detailModal .bg-indigo-600 button:hover {
-  color: #f4f4f5 !important; /* zinc-100 */
+  color: #f4f4f5 !important;
+  /* zinc-100 */
 }
 
 /* Modal Title Icon Dark Mode Override */
 html.dark #detailModal .bg-indigo-600 h4 i {
-  color: #818cf8 !important; /* indigo-400 */
+  color: #818cf8 !important;
+  /* indigo-400 */
 }
 
 /* Settings Page Notification Buttons Dark Mode Override */
 html.dark #btnReqNotif {
-  background-color: #27272a !important; /* zinc-800 */
-  color: #f4f4f5 !important; /* zinc-100 */
-  border-color: #3f3f46 !important; /* zinc-700 */
+  background-color: #27272a !important;
+  /* zinc-800 */
+  color: #f4f4f5 !important;
+  /* zinc-100 */
+  border-color: #3f3f46 !important;
+  /* zinc-700 */
 }
 
 html.dark #btnReqNotif:hover {
-  background-color: #3f3f46 !important; /* zinc-700 */
+  background-color: #3f3f46 !important;
+  /* zinc-700 */
 }
 
 html.dark #btnTestNotif {
-  background-color: rgba(244, 63, 94, 0.15) !important; /* rose-500/15% */
-  color: #fb7185 !important; /* rose-400 */
-  border-color: rgba(244, 63, 94, 0.3) !important; /* rose-500/30% */
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  /* rose-500/15% */
+  color: #fb7185 !important;
+  /* rose-400 */
+  border-color: rgba(244, 63, 94, 0.3) !important;
+  /* rose-500/30% */
 }
 
 html.dark #btnTestNotif:hover {
-  background-color: rgba(244, 63, 94, 0.25) !important; /* rose-500/25% */
+  background-color: rgba(244, 63, 94, 0.25) !important;
+  /* rose-500/25% */
 }
 
 html.dark #btnTestToast {
-  background-color: rgba(99, 102, 241, 0.15) !important; /* indigo-500/15% */
-  color: #818cf8 !important; /* indigo-400 */
-  border-color: rgba(99, 102, 241, 0.3) !important; /* indigo-500/30% */
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  /* indigo-500/15% */
+  color: #818cf8 !important;
+  /* indigo-400 */
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  /* indigo-500/30% */
 }
 
 html.dark #btnTestToast:hover {
-  background-color: rgba(99, 102, 241, 0.25) !important; /* indigo-500/25% */
+  background-color: rgba(99, 102, 241, 0.25) !important;
+  /* indigo-500/25% */
 }
-

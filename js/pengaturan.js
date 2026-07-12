@@ -191,7 +191,7 @@ function resetDefaults() {
     localStorage.removeItem('cfg_toast_position');
     localStorage.removeItem('cfg_toast_duration');
     localStorage.removeItem('cfg_lang');
-    
+
     showToast({
       title: "Setelan Direset",
       message: "Mengembalikan konfigurasi default. Halaman akan dimuat ulang...",
