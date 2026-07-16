@@ -2,7 +2,7 @@ const CONFIG = {
   // Helper functions to get/set settings in LocalStorage
   get MOCK_MODE() {
     const val = localStorage.getItem('cfg_mock_mode');
-    return val === null ? false : val === 'true';
+    return false; // Forced to always be false
   },
   set MOCK_MODE(val) {
     localStorage.setItem('cfg_mock_mode', val);

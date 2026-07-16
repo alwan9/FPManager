@@ -430,138 +430,8 @@ const API = {
     }
   },
 
-  // Batch update multiple projects in a single network request
-  batchUpdateProyek: async (updates) => {
-    APICache.clear();
-    if (CONFIG.MOCK_MODE) {
-      const list = await API.getProyek();
-      let count = 0;
-      updates.forEach(update => {
-        const projId = update.id || update.iDProyek;
-        const target = list.find(p => p.iDProyek === projId);
-        if (target) {
-          Object.keys(update).forEach(key => {
-            if (key === "id") return;
-            let targetKey = key;
-            if (key === "dp") targetKey = "dP";
-            else if (key === "wa") targetKey = "nomorWA";
-            else if (key === "pelanggan") targetKey = "namaPelanggan";
-            else if (key === "nominal") targetKey = "nominalProyek";
-            else if (key === "sisa") targetKey = "sisaPembayaran";
-            
-            target[targetKey] = update[key];
-          });
-          count++;
-        }
-      });
-      localStorage.setItem('mock_proyek', JSON.stringify(list));
-      return { success: true, message: `${count} data proyek berhasil diupdate (Mock)` };
-    }
-
-    try {
-      const body = new URLSearchParams();
-      body.append("action", "batchUpdateProyek");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("data", JSON.stringify(updates));
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      return await response.json();
-    } catch (error) {
-      console.error(error);
-      return {
-        success: false,
-        message: "Terjadi kesalahan saat menghubungi server."
-      };
-    }
-  },
-
-  // Get consolidated dashboard data (stats, recent projects, alerts, chart, calendar)
+  
   getDashboard: async () => {
-    if (CONFIG.MOCK_MODE) {
-      const proyekList = await API.getProyek();
-      const keuanganList = await API.getKeuangan();
-      const stats = await API.getDashboardStats();
-      
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const recentProjects = [...proyekList].reverse().slice(0, 5);
-
-      const deadlineAlerts = [];
-      const revisiProjects = [];
-
-      proyekList.forEach(p => {
-        const statusLower = (p.status || '').toLowerCase();
-        if (statusLower === 'revisi') {
-          revisiProjects.push(p);
-        }
-
-        if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
-          return;
-        }
-        if (!p.deadline) return;
-
-        const deadlineDate = new Date(p.deadline);
-        deadlineDate.setHours(0, 0, 0, 0);
-        const diffTime = deadlineDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays >= 0 && diffDays <= 3) {
-          deadlineAlerts.push({
-            namaProyek: p.namaProyek,
-            namaPelanggan: p.namaPelanggan,
-            deadline: p.deadline,
-            diffDays: diffDays
-          });
-        }
-      });
-
-      const monthlyData = {};
-      keuanganList.forEach(k => {
-        if (!k.tanggal) return;
-        const date = new Date(k.tanggal);
-        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-        const langCode = isEn ? 'en-US' : 'id-ID';
-        const monthName = date.toLocaleString(langCode, { month: 'short' });
-        const key = `${monthName} ${date.getFullYear()}`;
-        
-        if (!monthlyData[key]) {
-          monthlyData[key] = {
-            monthLabel: key,
-            sortKey: date.getFullYear() * 100 + (date.getMonth() + 1),
-            pemasukan: 0,
-            pengeluaran: 0
-          };
-        }
-        const nominal = Number(k.nominal) || 0;
-        if (k.jenis === 'Pemasukan') {
-          monthlyData[key].pemasukan += nominal;
-        } else if (k.jenis === 'Pengeluaran') {
-          monthlyData[key].pengeluaran += nominal;
-        }
-      });
-      const sortedMonths = Object.values(monthlyData)
-        .sort((a, b) => a.sortKey - b.sortKey)
-        .slice(-6);
-
-      const chartData = {
-        labels: sortedMonths.map(item => item.monthLabel),
-        pemasukan: sortedMonths.map(item => item.pemasukan),
-        pengeluaran: sortedMonths.map(item => item.pengeluaran)
-      };
-
-      return {
-        stats,
-        recentProjects,
-        deadlineAlerts,
-        revisiProjects,
-        chartData
-      };
-    }
-
     try {
       const response = await fetch(
         `${CONFIG.API_URL}?action=getDashboard&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
@@ -577,5 +447,109 @@ const API = {
       console.error("FETCH ERROR :", error);
       return null;
     }
+  },
+
+  // ===================================
+  // API TOOLS (PROMPTS)
+  // ===================================
+  getTools: async () => {
+    try {
+      const response = await fetch(`${CONFIG.API_URL}?action=getTools&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`);
+      const result = await response.json();
+      if (handleUnauthorized(result)) return [];
+      return result.success ? result.data : [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  addTool: async (data) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "addTool");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("data", JSON.stringify(data));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  updateTool: async (id, data) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "updateTool");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("data", JSON.stringify(data));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  deleteTool: async (id) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "deleteTool");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  // ===================================
+  // API WEB SHORTCUTS
+  // ===================================
+  getShortcuts: async () => {
+    try {
+      const response = await fetch(`${CONFIG.API_URL}?action=getShortcuts&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`);
+      const result = await response.json();
+      if (handleUnauthorized(result)) return [];
+      return result.success ? result.data : [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  addShortcut: async (data) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "addShortcut");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("data", JSON.stringify(data));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  updateShortcut: async (id, data) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "updateShortcut");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("data", JSON.stringify(data));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  deleteShortcut: async (id) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "deleteShortcut");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
   }
 };
