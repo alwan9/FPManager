@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Load all project and financial data for dashboard cards and charts
 async function loadDashboardData() {
+  showDashboardSkeletons();
   try {
     // Single consolidated fetch to drastically reduce dashboard loading latency
     const dashboardData = await API.getDashboard();
@@ -354,6 +355,66 @@ function initDeadlineCalendar(revisiProjects) {
   };
 
   renderCalendar();
+}
+
+function showDashboardSkeletons() {
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.add('hidden');
+
+  const skeletonText = '<div class="h-6 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse inline-block mt-1"></div>';
+  
+  // Stats
+  document.getElementById('statTotalProyek').innerHTML = skeletonText;
+  document.getElementById('statPendapatan').innerHTML = skeletonText;
+  document.getElementById('statPengeluaran').innerHTML = skeletonText;
+  document.getElementById('statKeuntungan').innerHTML = skeletonText;
+  document.getElementById('statKeuntungan').className = 'block'; // reset color classes during load
+
+  // Deadline Alerts
+  const deadlineList = document.getElementById('deadlineList');
+  const deadlineContainer = document.getElementById('deadlineAlertContainer');
+  deadlineContainer.classList.remove('hidden');
+  deadlineList.innerHTML = Array(3).fill(`
+    <div class="flex items-center justify-between p-3.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm animate-pulse">
+      <div class="min-w-0 flex-1 pr-2 space-y-2">
+        <div class="h-3 w-1/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="h-4 w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="h-3 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+      </div>
+      <div class="w-12 h-8 bg-zinc-200 dark:bg-zinc-700 rounded-lg"></div>
+    </div>
+  `).join('');
+
+  // Recent Projects
+  const recentList = document.getElementById('recentProyekList');
+  recentList.innerHTML = Array(5).fill(`
+    <div class="flex items-center justify-between p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 animate-pulse">
+      <div class="min-w-0 flex-1 pr-2 space-y-2">
+        <div class="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="h-3 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="flex gap-2 mt-1">
+          <div class="h-4 w-16 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
+        </div>
+      </div>
+      <div class="text-right flex-shrink-0 space-y-2">
+        <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="h-3 w-16 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Calendar Skeletons
+  const daysGrid = document.getElementById('calendarDaysGrid');
+  if (daysGrid) {
+    daysGrid.innerHTML = Array(35).fill(`
+      <div class="p-2 border border-zinc-200 dark:border-zinc-800 rounded-xl min-h-[54px] bg-zinc-50 dark:bg-zinc-800/50 animate-pulse">
+        <div class="h-3 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto mb-2"></div>
+        <div class="flex space-x-1 justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+        </div>
+      </div>
+    `).join('');
+  }
 }
 
 

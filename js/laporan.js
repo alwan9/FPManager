@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load all project and financial data and compile reports
 async function loadLaporanData() {
+  showLaporanSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
     const proyekList = await API.getProyek();
@@ -303,4 +304,34 @@ function formatRupiah(number) {
   }).format(number);
 }
 
+function showLaporanSkeletons() {
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.add('hidden');
 
+  const skeletonText = '<div class="h-6 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
+  const stats = [
+    'recapTotalProyek', 'recapTotalOmzet', 'recapTotalDp', 
+    'recapTotalPiutang', 'recapTotalPengeluaran', 'recapTotalLaba'
+  ];
+  
+  stats.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = skeletonText;
+  });
+  
+  const container = document.getElementById('monthlySummaryContainer');
+  if (container) {
+    container.innerHTML = Array(4).fill(`
+      <div class="p-4 border border-zinc-100 rounded-xl space-y-2 bg-zinc-50 dark:bg-zinc-800/50 animate-pulse">
+        <div class="flex justify-between items-center mb-2">
+          <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+          <div class="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <div class="h-3 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+          <div class="h-3 w-20 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+}

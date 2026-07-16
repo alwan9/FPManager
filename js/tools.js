@@ -29,9 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadData() {
-  const loader = document.getElementById('globalLoader');
-  if (loader) loader.classList.remove('hidden');
-
+  showToolsSkeletons();
   try {
     const [tools, shortcuts] = await Promise.all([
       API.getTools(),
@@ -47,8 +45,38 @@ async function loadData() {
   } catch (error) {
     console.error(error);
     if(typeof Toast !== 'undefined') Toast.error('Error', 'Gagal memuat data.');
-  } finally {
-    if (loader) loader.classList.add('hidden');
+  }
+}
+
+function showToolsSkeletons() {
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.add('hidden');
+
+  const toolsContainer = document.getElementById('toolsContainer');
+  const shortcutsContainer = document.getElementById('shortcutsContainer');
+  
+  if (toolsContainer) {
+    toolsContainer.innerHTML = Array(6).fill(`
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200 animate-pulse flex flex-col h-full">
+        <div class="h-5 w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded mb-3"></div>
+        <div class="h-4 w-full bg-zinc-200 dark:bg-zinc-700 rounded mb-1"></div>
+        <div class="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-700 rounded mb-4"></div>
+        <div class="mt-auto pt-4 border-t border-zinc-100 flex gap-2">
+          <div class="h-8 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded-lg"></div>
+          <div class="h-8 w-1/4 bg-zinc-200 dark:bg-zinc-700 rounded-lg"></div>
+          <div class="h-8 w-1/4 bg-zinc-200 dark:bg-zinc-700 rounded-lg"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  if (shortcutsContainer) {
+    shortcutsContainer.innerHTML = Array(6).fill(`
+      <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm border border-zinc-200 animate-pulse">
+        <div class="w-12 h-12 bg-zinc-200 dark:bg-zinc-700 rounded-2xl mb-3"></div>
+        <div class="h-3 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+      </div>
+    `).join('');
   }
 }
 

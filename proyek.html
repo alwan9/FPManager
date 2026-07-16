@@ -50,16 +50,8 @@
 
 
 <body class="bg-zinc-50 text-zinc-800">
-  <!-- Global Loader -->
-  <div id="globalLoader"
-    class="fixed inset-0 z-[9999] bg-zinc-50 flex items-center justify-center transition-opacity duration-500">
-    <div class="flex flex-col items-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-zinc-200 border-t-indigo-600 mb-3"></div>
-      <p class="text-zinc-500 font-medium text-sm">Memuat data...</p>
-    </div>
-  </div>
-
-  <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
+  <!-- Layout Wrapper -->
+  <div class="flex h-screen overflow-hidden flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Sidebar Navigation -->
     <aside
@@ -188,32 +180,32 @@
           <button onclick="filterStatus('all')"
             class="status-filter-btn p-2 md:px-4 md:py-3 bg-white border border-zinc-200 hover:border-indigo-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all active:ring-2 active:ring-indigo-200 ring-offset-1">
             <span class="text-[10px] md:text-xs text-zinc-500 font-medium uppercase tracking-tight" data-i18n="proj-badge-all">Semua</span>
-            <span id="count-all" class="text-base md:text-xl font-bold text-zinc-800 mt-1">-</span>
+            <span id="count-all" class="mt-1"><div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div></span>
           </button>
           <button onclick="filterStatus('Menunggu')"
             class="status-filter-btn p-2 md:px-4 md:py-3 bg-white border border-zinc-200 hover:border-blue-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-[10px] md:text-xs text-blue-600 font-medium uppercase tracking-tight" data-i18n="proj-badge-wait">Menunggu</span>
-            <span id="count-menunggu" class="text-base md:text-xl font-bold text-blue-600 mt-1">-</span>
+            <span id="count-menunggu" class="mt-1"><div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div></span>
           </button>
           <button onclick="filterStatus('Sedang Dikerjakan')"
             class="status-filter-btn p-2 md:px-4 md:py-3 bg-white border border-zinc-200 hover:border-amber-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-[10px] md:text-xs text-amber-600 font-medium uppercase tracking-tight" data-i18n="proj-badge-progress">Dikerjakan</span>
-            <span id="count-dikerjakan" class="text-base md:text-xl font-bold text-amber-600 mt-1">-</span>
+            <span id="count-dikerjakan" class="mt-1"><div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div></span>
           </button>
           <button onclick="filterStatus('Revisi')"
             class="status-filter-btn p-2 md:px-4 md:py-3 bg-white border border-zinc-200 hover:border-red-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-[10px] md:text-xs text-red-600 font-medium uppercase tracking-tight" data-i18n="proj-badge-revision">Revisi</span>
-            <span id="count-revisi" class="text-base md:text-xl font-bold text-red-600 mt-1">-</span>
+            <span id="count-revisi" class="mt-1"><div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div></span>
           </button>
           <button onclick="filterStatus('Selesai')"
             class="status-filter-btn p-2 md:px-4 md:py-3 bg-white border border-zinc-200 hover:border-green-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-[10px] md:text-xs text-green-600 font-medium uppercase tracking-tight" data-i18n="proj-badge-done">Selesai</span>
-            <span id="count-selesai" class="text-base md:text-xl font-bold text-green-600 mt-1">-</span>
+            <span id="count-selesai" class="mt-1"><div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div></span>
           </button>
           <button onclick="filterStatus('Belum Pembayaran')"
             class="status-filter-btn p-2 md:px-4 md:py-3 bg-white border border-zinc-200 hover:border-red-500 rounded-xl shadow-sm flex flex-col justify-between text-left transition-all">
             <span class="text-[10px] md:text-xs text-red-600 font-medium uppercase tracking-tight" data-i18n="proj-badge-unpaid">Belum Bayar</span>
-            <span id="count-belumpembayaran" class="text-base md:text-xl font-bold text-red-600 mt-1">-</span>
+            <span id="count-belumpembayaran" class="mt-1"><div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div></span>
           </button>
         </div>
 
@@ -261,7 +253,49 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- DataTables will populate this -->
+                <!-- Skeleton Loader Data -->
+                <tr class="border-b border-zinc-100 bg-white animate-pulse">
+                  <td class="p-4 text-center"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
+                  <td class="p-4"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="flex gap-2"><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></div></td>
+                </tr>
+                <tr class="border-b border-zinc-100 bg-white animate-pulse">
+                  <td class="p-4 text-center"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
+                  <td class="p-4"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="flex gap-2"><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></div></td>
+                </tr>
+                <tr class="border-b border-zinc-100 bg-white animate-pulse">
+                  <td class="p-4 text-center"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
+                  <td class="p-4"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+                  <td class="p-4"><div class="flex gap-2"><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></div></td>
+                </tr>
               </tbody>
             </table>
           </div>

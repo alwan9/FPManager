@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Load proyek data and initialize DataTables
 async function loadProyekData() {
+  showProyekSkeletons();
   try {
     const listProyek = await API.getProyek();
     window.allProyekList = listProyek; // Cache list globally for status updates
@@ -658,6 +659,47 @@ function updateBulkDeleteButton() {
       btn.disabled = true;
     }
   }
+}
+
+// Setup custom search handling
+$('#customSearch').on('keyup', function () {
+  if (table) {
+    table.search(this.value).draw();
+  }
+});
+
+function showProyekSkeletons() {
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.add('hidden');
+
+  const tbody = document.querySelector('#proyekTable tbody');
+  if (tbody) {
+    tbody.innerHTML = Array(5).fill(`
+      <tr class="border-b border-zinc-100 bg-white animate-pulse">
+        <td class="p-4 text-center"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
+        <td class="p-4 hidden md:table-cell"><div class="h-4 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4 hidden"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
+        <td class="p-4"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="flex gap-2"><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></div></td>
+      </tr>
+    `).join('');
+  }
+  
+  // Status Counters
+  const skeletonCounter = '<div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
+  document.getElementById('count-all').innerHTML = skeletonCounter;
+  document.getElementById('count-menunggu').innerHTML = skeletonCounter;
+  document.getElementById('count-dikerjakan').innerHTML = skeletonCounter;
+  document.getElementById('count-revisi').innerHTML = skeletonCounter;
+  document.getElementById('count-selesai').innerHTML = skeletonCounter;
+  document.getElementById('count-belumpembayaran').innerHTML = skeletonCounter;
 }
 
 // Action Bulk Delete

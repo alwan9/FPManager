@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load and calculate finance summaries
 async function loadKeuanganData() {
+  showKeuanganSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
     const listMutasi = await API.getKeuangan();
@@ -79,6 +80,8 @@ function calculateSummary(mutasiList) {
 }
 
 // Initialize DataTable for mutation ledger
+// Removed incorrectly placed functions
+
 function initTable(data) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   if ($.fn.DataTable.isDataTable('#keuanganTable')) {
@@ -228,4 +231,34 @@ function formatRupiah(number) {
   }).format(number);
 }
 
+function deleteTransaksi(id) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (!confirm(isEn ? 'Are you sure you want to delete this transaction?' : 'Yakin ingin menghapus transaksi ini?')) return;
+  // Implementasi API deleteKeuangan...
+  // Untuk saat ini mock/not implemented di client lengkap
+  Toast.info(isEn ? 'Info' : 'Info', isEn ? 'Delete transaction API not yet hooked.' : 'Fitur hapus belum disambungkan ke server.');
+}
 
+function showKeuanganSkeletons() {
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.add('hidden');
+
+  const skeletonText = '<div class="h-6 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
+  
+  document.getElementById('totalPemasukan').innerHTML = skeletonText;
+  document.getElementById('totalPengeluaran').innerHTML = skeletonText;
+  document.getElementById('saldoBersih').innerHTML = skeletonText;
+  
+  const tbody = document.querySelector('#keuanganTable tbody');
+  if (tbody) {
+    tbody.innerHTML = Array(5).fill(`
+      <tr class="border-b border-zinc-100 bg-white animate-pulse">
+        <td class="p-4"><div class="h-4 w-12 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
+        <td class="p-4"><div class="h-4 w-40 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+      </tr>
+    `).join('');
+  }
+}
