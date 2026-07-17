@@ -295,6 +295,11 @@ function showAndroidInstallPrompt(callback) {
 
 // Initialize chained prompts logic
 function initPWAPrompts() {
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPath !== 'index.html' && currentPath !== '') {
+    return;
+  }
+
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   // Reset dismissed flags if the user just logged in to guarantee prompts appear
