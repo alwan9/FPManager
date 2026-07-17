@@ -58,7 +58,7 @@
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-keuangan">Keuangan</span>
         </a>
         <a href="laporan.html"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          class="sidebar-link hidden md:flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-pie text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
         </a>
@@ -94,7 +94,7 @@
     </aside>
 
     <!-- Main Workspace Area -->
-    <main class="flex-1 flex flex-col min-w-0 bg-transparent relative">
+    <main class="flex-1 flex flex-col min-w-0 bg-transparent relative overflow-y-auto">
 
       <!-- Header Top Bar -->
       <header
@@ -164,7 +164,7 @@
           </button>
         </div>
 
-        <div id="shortcutsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div id="shortcutsContainer" class="flex flex-row justify-around w-full gap-2">
           <!-- Web shortcuts populated here -->
         </div>
 
@@ -188,6 +188,13 @@
             <i class="fa-solid fa-plus mr-2 text-indigo-600"></i>
             <span>Tambah Prompt</span>
           </button>
+        </div>
+
+        <!-- Search Bar for Prompts -->
+        <div class="relative">
+          <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-zinc-400"></i>
+          <input type="text" id="searchInput" placeholder="Cari judul atau isi prompt..." 
+            class="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all dark:text-zinc-100 shadow-sm">
         </div>
 
         <div id="toolsContainer" class="grid grid-cols-1 gap-4">

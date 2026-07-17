@@ -26,6 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     await saveShortcut();
   });
+
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+      const query = e.target.value.toLowerCase();
+      renderTools(query);
+    });
+  }
 });
 
 async function loadData() {
@@ -84,21 +92,29 @@ function showToolsSkeletons() {
 // CRUD PROMPTS (TOOLS)
 // =====================================
 
-function renderTools() {
+function renderTools(query = '') {
   const container = document.getElementById('toolsContainer');
   container.innerHTML = '';
   
-  if (!toolsData || toolsData.length === 0) {
+  let filteredTools = toolsData;
+  if (query) {
+    filteredTools = toolsData.filter(t => 
+      t.title.toLowerCase().includes(query) || 
+      t.prompt.toLowerCase().includes(query)
+    );
+  }
+  
+  if (!filteredTools || filteredTools.length === 0) {
     container.innerHTML = `
       <div class="text-center py-10 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
         <i class="fa-solid fa-folder-open text-4xl text-zinc-300 mb-3"></i>
-        <p class="text-zinc-500 font-medium">Belum ada prompt yang disimpan.</p>
+        <p class="text-zinc-500 font-medium">${query ? 'Tidak ditemukan.' : 'Belum ada prompt yang disimpan.'}</p>
       </div>
     `;
     return;
   }
   
-  toolsData.forEach(tool => {
+  filteredTools.forEach(tool => {
     const el = document.createElement('div');
     el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all flex flex-col md:flex-row gap-4 items-start md:items-center justify-between';
     
@@ -125,6 +141,13 @@ function renderTools() {
 }
 
 async function saveTool() {
+  const btnSubmit = document.querySelector('#toolForm button[type="submit"]');
+  if (btnSubmit) {
+    if (btnSubmit.disabled) return;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+  }
+
   const idInput = document.getElementById('toolId').value;
   const title = document.getElementById('toolTitle').value;
   const prompt = document.getElementById('toolPrompt').value;
@@ -133,13 +156,23 @@ async function saveTool() {
   if(loader) loader.classList.remove('hidden');
 
   let res;
-  if (idInput) {
-    res = await API.updateTool(idInput, { title, prompt });
-  } else {
-    res = await API.addTool({ title, prompt });
+  try {
+    if (idInput) {
+      res = await API.updateTool(idInput, { title, prompt });
+    } else {
+      res = await API.addTool({ title, prompt });
+    }
+  } catch (err) {
+    console.error(err);
+    res = { success: false, message: 'Terjadi kesalahan sistem' };
   }
   
   if(loader) loader.classList.add('hidden');
+
+  if (btnSubmit) {
+    btnSubmit.disabled = false;
+    btnSubmit.innerHTML = 'Simpan';
+  }
 
   if (res && res.success) {
     if(typeof Toast !== 'undefined') Toast.success('Berhasil', res.message);
@@ -209,20 +242,28 @@ function copyPrompt(id) {
 // CRUD WEB SHORTCUTS
 // =====================================
 
-function renderShortcuts() {
+function renderShortcuts(query = '') {
   const container = document.getElementById('shortcutsContainer');
   container.innerHTML = '';
   
-  if (!shortcutsData || shortcutsData.length === 0) {
+  let filteredShortcuts = shortcutsData;
+  if (query) {
+    filteredShortcuts = shortcutsData.filter(s => 
+      s.title.toLowerCase().includes(query) || 
+      s.url.toLowerCase().includes(query)
+    );
+  }
+
+  if (!filteredShortcuts || filteredShortcuts.length === 0) {
     container.innerHTML = `
       <div class="col-span-full text-center py-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-        <p class="text-zinc-500 text-sm font-medium">Belum ada web shortcut.</p>
+        <p class="text-zinc-500 text-sm font-medium">${query ? 'Tidak ditemukan.' : 'Belum ada web shortcut.'}</p>
       </div>
     `;
     return;
   }
   
-  shortcutsData.forEach(shortcut => {
+  filteredShortcuts.forEach(shortcut => {
     let iconUrl = (shortcut.icon && shortcut.icon.trim() !== '') ? shortcut.icon.trim() : 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
     if (iconUrl.startsWith('fa-') || (!iconUrl.startsWith('http') && !iconUrl.startsWith('data:'))) {
       iconUrl = 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
@@ -230,7 +271,7 @@ function renderShortcuts() {
     const linkUrl = shortcut.url || shortcut.uRL || shortcut.Url || '#';
     
     const el = document.createElement('div');
-    el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-500 transition-all flex flex-col items-center relative group';
+    el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2 sm:p-4 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-500 transition-all flex flex-col items-center relative group flex-1 min-w-0 max-w-[120px]';
     
     el.innerHTML = `
       <a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full text-center group-hover:text-emerald-600 transition-colors">
@@ -239,12 +280,11 @@ function renderShortcuts() {
         </div>
         <span class="font-bold text-zinc-800 dark:text-zinc-200 text-sm truncate w-full px-1 group-hover:text-emerald-600">${shortcut.title}</span>
       </a>
-      
-      <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-        <button onclick="editShortcut('${shortcut.id}')" class="w-7 h-7 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm">
+      <div class="w-full opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2 mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+        <button onclick="editShortcut('${shortcut.id}')" class="w-8 h-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm">
           <i class="fa-solid fa-pen text-xs"></i>
         </button>
-        <button onclick="deleteShortcut('${shortcut.id}')" class="w-7 h-7 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm">
+        <button onclick="deleteShortcut('${shortcut.id}')" class="w-8 h-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm">
           <i class="fa-solid fa-trash-can text-xs"></i>
         </button>
       </div>
@@ -254,6 +294,13 @@ function renderShortcuts() {
 }
 
 async function saveShortcut() {
+  const btnSubmit = document.querySelector('#shortcutForm button[type="submit"]');
+  if (btnSubmit) {
+    if (btnSubmit.disabled) return;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+  }
+
   const idInput = document.getElementById('shortcutId').value;
   const title = document.getElementById('shortcutTitle').value;
   const url = document.getElementById('shortcutUrl').value;
@@ -263,13 +310,23 @@ async function saveShortcut() {
   if(loader) loader.classList.remove('hidden');
 
   let res;
-  if (idInput) {
-    res = await API.updateShortcut(idInput, { title, url, icon });
-  } else {
-    res = await API.addShortcut({ title, url, icon });
+  try {
+    if (idInput) {
+      res = await API.updateShortcut(idInput, { title, url, icon });
+    } else {
+      res = await API.addShortcut({ title, url, icon });
+    }
+  } catch(err) {
+    console.error(err);
+    res = { success: false, message: 'Terjadi kesalahan sistem' };
   }
   
   if(loader) loader.classList.add('hidden');
+
+  if (btnSubmit) {
+    btnSubmit.disabled = false;
+    btnSubmit.innerHTML = 'Simpan';
+  }
 
   if (res && res.success) {
     if(typeof Toast !== 'undefined') Toast.success('Berhasil', res.message);
