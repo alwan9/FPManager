@@ -271,20 +271,20 @@ function renderShortcuts(query = '') {
     const linkUrl = shortcut.url || shortcut.uRL || shortcut.Url || '#';
     
     const el = document.createElement('div');
-    el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2 sm:p-4 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-500 transition-all flex flex-col items-center relative group flex-1 min-w-0 max-w-[120px]';
+    el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2 sm:p-4 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-500 transition-all flex flex-col items-center relative group w-full';
     
     el.innerHTML = `
       <a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full text-center group-hover:text-emerald-600 transition-colors">
-        <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center text-xl mb-2 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors overflow-hidden">
+        <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center text-xl md:mb-2 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors overflow-hidden">
           <img src="${iconUrl}" alt="${shortcut.title}" class="w-full h-full object-cover">
         </div>
-        <span class="font-bold text-zinc-800 dark:text-zinc-200 text-sm truncate w-full px-1 group-hover:text-emerald-600">${shortcut.title}</span>
+        <span class="font-bold text-zinc-800 dark:text-zinc-200 text-sm truncate w-full px-1 group-hover:text-emerald-600 hidden md:block">${shortcut.title}</span>
       </a>
-      <div class="w-full opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2 mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-        <button onclick="editShortcut('${shortcut.id}')" class="w-8 h-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm">
+      <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
+        <button onclick="editShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
           <i class="fa-solid fa-pen text-xs"></i>
         </button>
-        <button onclick="deleteShortcut('${shortcut.id}')" class="w-8 h-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm">
+        <button onclick="deleteShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
           <i class="fa-solid fa-trash-can text-xs"></i>
         </button>
       </div>
