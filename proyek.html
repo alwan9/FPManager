@@ -51,7 +51,7 @@
 
 <body class="bg-zinc-50 text-zinc-800">
   <!-- Layout Wrapper -->
-  <div class="flex h-screen overflow-hidden flex-col md:flex-row pb-[76px] md:pb-0">
+  <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Sidebar Navigation -->
     <aside
@@ -75,11 +75,17 @@
           <i class="fa-solid fa-list-check text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-proyek">Projek</span>
         </a>
-        <a href="tambah-proyek.html"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-circle-plus text-lg md:text-base md:w-5"></i>
-          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
-        </a>
+                  <a href="tambah-proyek.html"
+            class="sidebar-link flex flex-col md:flex-row items-center md:space-x-3 px-1 md:px-4 py-1 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 relative group">
+            <div class="md:hidden flex flex-col items-center justify-center -mt-6">
+              <div class="bg-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-indigo-500/40 border-4 border-zinc-900 transition-transform active:scale-95 group-hover:scale-105">
+                <i class="fa-solid fa-plus text-xl"></i>
+              </div>
+              <span class="text-[10px] font-bold text-zinc-300 mt-1 leading-none" data-i18n="nav-tambah">Tambah</span>
+            </div>
+            <i class="fa-solid fa-circle-plus hidden md:block text-base w-5"></i>
+            <span class="hidden md:block text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
+          </a>
         <a href="keuangan.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-wallet text-lg md:text-base md:w-5"></i>
