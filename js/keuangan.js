@@ -221,7 +221,7 @@ async function handleAddTransaksi(e) {
   inputDate.setHours(0,0,0,0);
   const todayDate = new Date();
   todayDate.setHours(0,0,0,0);
-  if (inputDate < todayDate) {
+  if (!editModeId && inputDate < todayDate) {
     alert(isEn ? "Transaction date cannot be in the past!" : "Tanggal transaksi tidak boleh sebelum hari ini!");
     return;
   }
@@ -276,7 +276,10 @@ async function handleAddTransaksi(e) {
       document.getElementById('transaksiForm').reset();
       const nominalPreview = document.getElementById('nominalPreview');
       if (nominalPreview) nominalPreview.textContent = '';
-      document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('tanggal').value = todayStr;
+      document.getElementById('tanggal').min = todayStr;
       
       // Reset edit mode
       editModeId = null;
@@ -314,7 +317,11 @@ function editTransaksi(id) {
   if (!tx) return;
 
   editModeId = tx.id;
-  document.getElementById('tanggal').value = tx.tanggal;
+  const tanggalInput = document.getElementById('tanggal');
+  if (tanggalInput) {
+    tanggalInput.removeAttribute('min');
+    tanggalInput.value = tx.tanggal;
+  }
   document.getElementById('jenis').value = tx.jenis;
   document.getElementById('keterangan').value = tx.keterangan;
   const cleanNominal = String(tx.nominal).replace(/[^0-9]/g, '');
