@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!isEditMode) {
     const defaultDate = new Date();
     deadlineInput.value = formatDate(defaultDate);
+    deadlineInput.min = formatDate(defaultDate);
     checkDeadline(deadlineInput.value);
 
     // Pre-fill fields from URL query params (useful for Pricelist redirect)
@@ -244,6 +245,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dp = parseFloat(dpInput.value) || 0;
     const nominal = qty * price;
     const sisa = nominal - dp;
+
+    if (!isEditMode) {
+      const inputDate = new Date(deadlineInput.value);
+      inputDate.setHours(0, 0, 0, 0);
+      const todayDate = new Date();
+      todayDate.setHours(0, 0, 0, 0);
+      if (inputDate < todayDate) {
+        alert(isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!");
+        return;
+      }
+    }
+
     const payload = {
       namaProyek: namaProyekInput.value,
       pelanggan: pelangganInput.value,

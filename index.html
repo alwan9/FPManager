@@ -317,7 +317,9 @@
         </div>
 
         <!-- Calendar Row (Full Width) -->
-        <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col">
+        <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm flex flex-col overflow-hidden">
+          <div class="overflow-x-auto w-full">
+            <div class="min-w-[300px]">
           <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
             <h4 class="font-bold text-zinc-800 text-sm flex items-center">
               <i class="fa-solid fa-calendar-days text-rose-600 mr-2"></i>
@@ -345,6 +347,8 @@
           </div>
           <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5 grow">
             <!-- Rendered dynamically by JS -->
+          </div>
+          </div>
           </div>
         </div>
 

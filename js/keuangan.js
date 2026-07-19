@@ -16,7 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set default tanggal hari ini
   const tanggalInput = document.getElementById('tanggal');
   if (tanggalInput) {
-    tanggalInput.value = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0];
+    tanggalInput.value = todayStr;
+    tanggalInput.min = todayStr;
   }
 
   // Load Keuangan Data
@@ -215,6 +217,15 @@ async function handleAddTransaksi(e) {
     return;
   }
 
+  const inputDate = new Date(payload.tanggal);
+  inputDate.setHours(0,0,0,0);
+  const todayDate = new Date();
+  todayDate.setHours(0,0,0,0);
+  if (inputDate < todayDate) {
+    alert(isEn ? "Transaction date cannot be in the past!" : "Tanggal transaksi tidak boleh sebelum hari ini!");
+    return;
+  }
+
   if (!payload.jenis) {
     alert(isEn ? "Transaction type is required!" : "Jenis transaksi wajib dipilih!");
     return;
@@ -229,6 +240,24 @@ async function handleAddTransaksi(e) {
     alert(isEn ? "Amount must be greater than 0!" : "Nominal harus lebih dari 0!");
     return;
   }
+
+  if (payload.jenis === 'Pengeluaran') {
+    let totalIn = 0;
+    let totalOut = 0;
+    currentKeuanganList.forEach(item => {
+      if (editModeId && item.id === editModeId) return;
+      const n = Number(item.nominal) || 0;
+      if (item.jenis === 'Pemasukan') totalIn += n;
+      else if (item.jenis === 'Pengeluaran') totalOut += n;
+    });
+    const currentSaldo = totalIn - totalOut;
+
+    if (payload.nominal > currentSaldo) {
+      alert(isEn ? `Expense cannot exceed available balance (${formatRupiah(currentSaldo)})!` : `Pengeluaran tidak boleh melebihi saldo yang tersedia (${formatRupiah(currentSaldo)})!`);
+      return;
+    }
+  }
+
   try {
     submitBtn.disabled = true;
     submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
