@@ -194,59 +194,113 @@
 
                     </thead>
 
-                    <tbody>
-
-                        <tr>
+                                        <tbody id="invoiceTableBody">
+                        <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">1</td>
-                            <td class="border p-1 md:p-3" id="previewProduk"></td>
-                            <td class="border text-center" id="previewJumlah"></td>
-                            <td class="border text-center" id="previewHarga"></td>
-                            <td class="border text-center font-bold" id="previewNominal"></td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true" id="previewProduk"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true" id="previewJumlah"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true" id="previewHarga"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true" id="previewNominal"></td>
                         </tr>
-                        <!-- Baris kosong tambahan (menjadi 7 baris total default) -->
-                        <tr>
-                            <td class="border p-1 md:p-3 h-5 md:h-10 text-center"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
+                        <!-- Baris kosong tambahan (menjadi 15 baris total) -->
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">2</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-                        <tr>
-                            <td class="border p-1 md:p-3 h-5 md:h-10 text-center"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">3</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-                        <tr>
-                            <td class="border p-1 md:p-3 h-5 md:h-10 text-center"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">4</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-                        <tr>
-                            <td class="border p-1 md:p-3 h-5 md:h-10 text-center"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">5</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-                        <tr>
-                            <td class="border p-1 md:p-3 h-5 md:h-10 text-center"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">6</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-                        <tr>
-                            <td class="border p-1 md:p-3 h-5 md:h-10 text-center"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
-                            <td class="border"></td>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">7</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">8</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">9</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">10</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">11</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">12</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">13</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">14</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
+                        <tr class="invoice-row">
+                            <td class="border p-1 md:p-3 text-center">15</td>
+                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
+                        </tr>
                     </tbody>
 
                 </table>
@@ -312,8 +366,16 @@
 
         <!-- Action -->
 
-        <div class="grid md:grid-cols-3 gap-5 mt-8 no-print ">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-8 no-print ">
 
+            <button id="btnSaveInvoice" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
+                <i class="fa fa-save mr-2"></i>
+                <span>Simpan Perubahan</span>
+            </button>
+            <button id="btnResetInvoice" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
+                <i class="fa fa-undo mr-2"></i>
+                <span>Reset</span>
+            </button>
             <button id="btnPDF"
                 class="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
 

@@ -119,16 +119,14 @@ const API = {
       return list;
     }
 
-    const now = Date.now();
-    if (!page && !limit && !search && APICache.proyek && (now - APICache.proyekTime < 15000)) {
-      return APICache.proyek;
-    }
+    // Cache lokal dihapus agar selalu sinkron secara real-time dengan Spreadsheet
 
     try {
       let url = `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`;
       if (page) url += `&page=${page}`;
       if (limit) url += `&limit=${limit}`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
+      url += `&_t=${Date.now()}`; // Prevent browser HTTP caching
 
       const response = await fetch(url);
       const result = await response.json();
@@ -303,14 +301,11 @@ const API = {
       return JSON.parse(mockData);
     }
 
-    const now = Date.now();
-    if (APICache.keuangan && (now - APICache.keuanganTime < 15000)) {
-      return APICache.keuangan;
-    }
+    // Cache lokal dihapus agar selalu sinkron secara real-time dengan Spreadsheet
 
     try {
       const response = await fetch(
-        `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
+        `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&_t=${Date.now()}`
       );
       if (!response.ok) {
         throw new Error("HTTP Error");
@@ -355,6 +350,78 @@ const API = {
       body.append("token", API.getToken());
       body.append("apiKey", CONFIG.API_KEY);
       body.append("data", JSON.stringify(transaksiData));
+      const response = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        message: "Terjadi kesalahan saat menghubungi server."
+      };
+    }
+  },
+
+  // Update Transaksi Keuangan
+  updateKeuangan: async (id, transaksiData) => {
+    APICache.clear();
+    if (CONFIG.MOCK_MODE) {
+      const list = await API.getKeuangan();
+      const index = list.findIndex(k => k.id === id);
+      if (index !== -1) {
+        list[index] = {
+          ...list[index],
+          tanggal: transaksiData.tanggal || list[index].tanggal,
+          jenis: transaksiData.jenis || list[index].jenis,
+          keterangan: transaksiData.keterangan || list[index].keterangan,
+          nominal: transaksiData.nominal ? Number(transaksiData.nominal) : list[index].nominal
+        };
+        localStorage.setItem('mock_keuangan', JSON.stringify(list));
+        return { success: true, message: "Transaksi berhasil diupdate (Mock)" };
+      }
+      return { success: false, message: "Transaksi tidak ditemukan" };
+    }
+
+    try {
+      const payload = { id, ...transaksiData };
+      const body = new URLSearchParams();
+      body.append("action", "updateKeuangan");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("id", id);
+      body.append("data", JSON.stringify(payload));
+      const response = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        message: "Terjadi kesalahan saat menghubungi server."
+      };
+    }
+  },
+
+  // Hapus Transaksi Keuangan
+  deleteKeuangan: async (id) => {
+    APICache.clear();
+    if (CONFIG.MOCK_MODE) {
+      const list = await API.getKeuangan();
+      const newList = list.filter(k => k.id !== id);
+      localStorage.setItem('mock_keuangan', JSON.stringify(newList));
+      return { success: true, message: "Transaksi berhasil dihapus (Mock)" };
+    }
+
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "deleteKeuangan");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("id", id);
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body

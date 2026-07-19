@@ -19,9 +19,16 @@ async function loadProyekData() {
     const listProyek = await API.getProyek();
     window.allProyekList = listProyek; // Cache list globally for status updates
 
-    // Add statusOrder property dynamically
+    // Add statusOrder property dynamically for custom sorting
     listProyek.forEach(p => {
-      p.statusOrder = (p.status && p.status.toLowerCase() === 'dibatalkan') ? 1 : 0;
+      const st = (p.status || '').toLowerCase().trim();
+      if (st === 'menunggu') p.statusOrder = 1;
+      else if (st === 'revisi') p.statusOrder = 2;
+      else if (st === 'sedang dikerjakan') p.statusOrder = 3;
+      else if (st === 'belum pembayaran') p.statusOrder = 4;
+      else if (st === 'selesai') p.statusOrder = 5;
+      else if (st === 'dibatalkan') p.statusOrder = 6;
+      else p.statusOrder = 99;
     });
 
     updateStatusCounters(listProyek);
@@ -94,6 +101,7 @@ function initTable(data) {
   if ($.fn.DataTable.isDataTable('#proyekTable')) {
     $('#proyekTable').DataTable().destroy();
   }
+  $('#proyekTable tbody').empty();
   table = $('#proyekTable').DataTable({
     autoWidth: false,
     data: data,
@@ -318,9 +326,45 @@ async function viewDetail(id) {
       document.getElementById('modalSatuan').textContent = isEn ? (satuanMap[proyek.satuan] || proyek.satuan) : proyek.satuan;
       document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
       document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
-      document.getElementById('modalSisa').textContent = formatRupiah(proyek.sisaPembayaran);
       document.getElementById('modalDeadline').textContent = proyek.deadline;
       document.getElementById('modalCatatan').textContent = proyek.catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
+      
+      // Dropdown Sisa & Fitur Lunasi
+      const sisaVal = Number(proyek.sisaPembayaran) || 0;
+      const dpVal = Number(proyek.dP) || 0;
+      const nominalVal = Number(proyek.nominalProyek) || 0;
+      const sisaSelect = document.getElementById('modalSisaSelect');
+      const sisaIcon = document.getElementById('modalSisaIcon');
+      
+      if(sisaSelect) {
+        sisaSelect.innerHTML = '';
+        if (dpVal >= nominalVal && nominalVal > 0) {
+          // Lunas
+          const opt = document.createElement('option');
+          opt.value = 'lunas';
+          opt.textContent = isEn ? 'Paid' : 'Lunas';
+          sisaSelect.appendChild(opt);
+          sisaSelect.disabled = true;
+          sisaSelect.className = "appearance-none bg-transparent font-bold text-emerald-600 text-sm focus:outline-none w-full truncate";
+          if(sisaIcon) sisaIcon.classList.add('hidden');
+        } else {
+          // Belum Lunas
+          const optUtang = document.createElement('option');
+          optUtang.value = 'utang';
+          optUtang.textContent = formatRupiah(sisaVal);
+          optUtang.selected = true;
+          sisaSelect.appendChild(optUtang);
+          
+          const optLunas = document.createElement('option');
+          optLunas.value = 'lunas';
+          optLunas.textContent = isEn ? 'Mark as Paid' : 'Lunasi (Ubah jadi lunas)';
+          sisaSelect.appendChild(optLunas);
+          
+          sisaSelect.disabled = false;
+          sisaSelect.className = "appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate";
+          if(sisaIcon) sisaIcon.classList.remove('hidden');
+        }
+      }
       // Style badge status
       const statusBadge = document.getElementById('modalStatus');
       const statusMap = {
@@ -377,6 +421,99 @@ async function viewDetail(id) {
 // Close Modal
 function closeModal() {
   document.getElementById('detailModal').classList.add('hidden');
+}
+
+// Handler Dropdown Sisa
+async function handleSisaChange(selectEl) {
+  if (selectEl.value === 'lunas') {
+    // Revert select back to 'utang' initially so if they cancel, it stays.
+    selectEl.value = 'utang';
+    await lunasiProyek();
+  }
+}
+
+// Fitur Lunasi Proyek
+async function lunasiProyek() {
+  if (!currentProyek) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  
+  const nominalVal = Number(currentProyek.nominalProyek) || 0;
+  const dpVal = Number(currentProyek.dP) || 0;
+  const sisa = nominalVal - dpVal;
+  
+  if (sisa <= 0) {
+    showToast({ title: "Info", message: "Proyek sudah lunas.", type: "info" });
+    return;
+  }
+  
+  if (!confirm(isEn ? `Are you sure you want to mark this project as paid? (Amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`)) {
+    return;
+  }
+  
+  try {
+    const sisaSelect = document.getElementById('modalSisaSelect');
+    if (sisaSelect) {
+      sisaSelect.disabled = true;
+    }
+    
+    let newCatatan = currentProyek.catatan || "";
+    if (newCatatan && !newCatatan.toLowerCase().includes("lunas")) {
+      newCatatan += " - Pembayaran LUNAS";
+    } else if (!newCatatan) {
+      newCatatan = "Pembayaran LUNAS";
+    }
+
+    // 1. Update data proyek
+    const payloadProyek = {
+      namaProyek: currentProyek.namaProyek,
+      pelanggan: currentProyek.namaPelanggan,
+      wa: currentProyek.nomorWA,
+      produk: currentProyek.produk,
+      jumlah: currentProyek.jumlah,
+      satuan: currentProyek.satuan,
+      hargaSatuan: currentProyek.hargaSatuan,
+      nominal: nominalVal,
+      dp: nominalVal,
+      sisa: 0,
+      deadline: currentProyek.deadline,
+      status: currentProyek.status,
+      catatan: newCatatan,
+      gdriveLink: currentProyek.gdriveLink
+    };
+    
+    const updateRes = await API.updateProyek(currentProyek.iDProyek, payloadProyek);
+    
+    // 2. Insert Mutasi Keuangan
+    if (updateRes.success) {
+      const txPayload = {
+        tanggal: new Date().toISOString().split('T')[0],
+        jenis: 'Pemasukan',
+        keterangan: `Pelunasan - ${currentProyek.namaPelanggan}`,
+        nominal: sisa
+      };
+      
+      await API.addKeuangan(txPayload);
+      
+      showToast({
+        title: isEn ? "Success" : "Berhasil",
+        message: isEn ? "Project marked as paid and financial record added." : "Pelunasan berhasil dicatat ke sistem Keuangan.",
+        type: "success"
+      });
+      
+      closeModal();
+      loadProyekData();
+    } else {
+      showToast({ title: "Error", message: updateRes.message, type: "error" });
+    }
+  } catch (error) {
+    console.error(error);
+    showToast({ title: "Error", message: "Terjadi kesalahan saat melunasi proyek.", type: "error" });
+  } finally {
+    const sisaSelect = document.getElementById('modalSisaSelect');
+    if (sisaSelect) {
+      sisaSelect.disabled = false;
+    }
+  }
 }
 // Hapus Proyek Action
 async function hapusProyek(id, name) {

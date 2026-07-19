@@ -268,6 +268,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         result = await API.updateProyek(proyekId, payload);
       } else {
         result = await API.addProyek(payload);
+        
+        // Auto-insert ke Mutasi Keuangan jika ada DP
+        if (result.success && dp > 0) {
+          const isLunas = dp >= nominal;
+          const txDesc = isLunas 
+            ? `Pembayaran Lunas - ${payload.pelanggan}` 
+            : `Pembayaran DP - ${payload.pelanggan}`;
+            
+          const txPayload = {
+            tanggal: payload.tanggal || new Date().toISOString().split('T')[0],
+            jenis: 'Pemasukan',
+            keterangan: txDesc,
+            nominal: dp
+          };
+          
+          await API.addKeuangan(txPayload);
+        }
       }
       if (result.success) {
 

@@ -1,4 +1,6 @@
 let table; // Global table instance
+let editModeId = null; // Global flag untuk mode edit
+let currentKeuanganList = []; // Menyimpan list untuk referensi cepat
 
 document.addEventListener('DOMContentLoaded', () => {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -44,6 +46,7 @@ async function loadKeuanganData() {
   try {
     const listMutasi = await API.getKeuangan();
 
+    currentKeuanganList = listMutasi;
     calculateSummary(listMutasi);
     initTable(listMutasi);
   } catch (error) {
@@ -87,6 +90,7 @@ function initTable(data) {
   if ($.fn.DataTable.isDataTable('#keuanganTable')) {
     $('#keuanganTable').DataTable().destroy();
   }
+  $('#keuanganTable tbody').empty();
 
   const dtLang = isEn ? {
     search: "Search Transactions:",
@@ -143,6 +147,38 @@ function initTable(data) {
           }
           return `<span class="text-rose-600 font-semibold">- ${formatted}</span>`;
         }
+      },
+      {
+        data: null,
+        orderable: false,
+        className: 'text-center',
+        render: function (data) {
+          const isProjectIncome = data.jenis === 'Pemasukan' && (data.keterangan.toLowerCase().includes('pembayaran dp') || data.keterangan.toLowerCase().includes('pelunasan'));
+          
+          if (isProjectIncome) {
+            return `
+              <div class="flex space-x-1.5 justify-center">
+                <button disabled class="px-2 py-1 bg-zinc-100 text-zinc-400 rounded-md text-xs font-semibold cursor-not-allowed" title="Transaksi otomatis dari proyek tidak bisa diedit">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button disabled class="px-2 py-1 bg-zinc-100 text-zinc-400 rounded-md text-xs font-semibold cursor-not-allowed" title="Transaksi otomatis dari proyek tidak bisa dihapus">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="flex space-x-1.5 justify-center">
+              <button onclick="editTransaksi('${data.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Transaksi">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Transaksi">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          `;
+        }
       }
     ],
     order: [[0, 'desc']], // Urutkan transaksi terbaru
@@ -197,28 +233,40 @@ async function handleAddTransaksi(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
 
-    const res = await API.addKeuangan(payload);
+    let res;
+    if (editModeId) {
+      res = await API.updateKeuangan(editModeId, payload);
+    } else {
+      res = await API.addKeuangan(payload);
+    }
+
     if (res.success) {
-      alert(isEn ? 'Transaction recorded successfully!' : 'Transaksi berhasil dicatat!');
+      alert(isEn ? 'Transaction recorded successfully!' : 'Transaksi berhasil dicatat/diupdate!');
 
       // Reset form kecuali tanggal
       document.getElementById('transaksiForm').reset();
       const nominalPreview = document.getElementById('nominalPreview');
       if (nominalPreview) nominalPreview.textContent = '';
-      document.getElementById('tanggal').value =
-        new Date().toISOString().split('T')[0];
+      document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+      
+      // Reset edit mode
+      editModeId = null;
+      submitBtn.textContent = isEn ? 'Save Transaction' : 'Simpan Transaksi';
+      const formTitle = document.querySelector('#transaksiForm').previousElementSibling.querySelector('span');
+      if (formTitle) formTitle.textContent = isEn ? 'Record New Transaction' : 'Catat Transaksi Baru';
 
       // Muat ulang data
       await loadKeuanganData();
     } else {
       alert((isEn ? 'Failed to save transaction: ' : 'Gagal menyimpan transaksi: ') + res.message);
+      submitBtn.textContent = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
     }
   } catch (error) {
     console.error(error);
     alert(isEn ? 'An error occurred while saving transaction.' : 'Terjadi kesalahan saat menyimpan transaksi.');
+    submitBtn.textContent = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = isEn ? 'Save Transaction' : 'Simpan Transaksi';
   }
 }
 
@@ -231,12 +279,58 @@ function formatRupiah(number) {
   }).format(number);
 }
 
-function deleteTransaksi(id) {
+function editTransaksi(id) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const tx = currentKeuanganList.find(k => k.id === id);
+  if (!tx) return;
+
+  editModeId = tx.id;
+  document.getElementById('tanggal').value = tx.tanggal;
+  document.getElementById('jenis').value = tx.jenis;
+  document.getElementById('keterangan').value = tx.keterangan;
+  const cleanNominal = String(tx.nominal).replace(/[^0-9]/g, '');
+  document.getElementById('nominal').value = cleanNominal;
+  
+  const nominalPreview = document.getElementById('nominalPreview');
+  if (nominalPreview) nominalPreview.textContent = formatRupiah(tx.nominal);
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.textContent = isEn ? 'Update Transaction' : 'Update Transaksi';
+  const formTitle = document.querySelector('#transaksiForm').previousElementSibling.querySelector('span');
+  if (formTitle) formTitle.textContent = isEn ? 'Edit Transaction' : 'Edit Transaksi';
+
+  // Scroll to form
+  document.querySelector('#transaksiForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function deleteTransaksi(id) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   if (!confirm(isEn ? 'Are you sure you want to delete this transaction?' : 'Yakin ingin menghapus transaksi ini?')) return;
-  // Implementasi API deleteKeuangan...
-  // Untuk saat ini mock/not implemented di client lengkap
-  Toast.info(isEn ? 'Info' : 'Info', isEn ? 'Delete transaction API not yet hooked.' : 'Fitur hapus belum disambungkan ke server.');
+  
+  try {
+    const res = await API.deleteKeuangan(id);
+    if (res.success) {
+      showToast({
+        title: isEn ? "Success" : "Berhasil",
+        message: isEn ? "Transaction deleted successfully." : "Transaksi berhasil dihapus.",
+        type: "success"
+      });
+      await loadKeuanganData();
+    } else {
+      showToast({
+        title: isEn ? "Failed" : "Gagal",
+        message: res.message,
+        type: "error"
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    showToast({
+        title: isEn ? "Error" : "Error",
+        message: isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.",
+        type: "error"
+    });
+  }
 }
 
 function showKeuanganSkeletons() {

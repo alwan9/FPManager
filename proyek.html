@@ -75,17 +75,11 @@
           <i class="fa-solid fa-list-check text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-proyek">Projek</span>
         </a>
-                  <a href="tambah-proyek.html"
-            class="sidebar-link flex flex-col md:flex-row items-center md:space-x-3 px-1 md:px-4 py-1 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 relative group">
-            <div class="md:hidden flex flex-col items-center justify-center -mt-6">
-              <div class="bg-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-indigo-500/40 border-4 border-zinc-900 transition-transform active:scale-95 group-hover:scale-105">
-                <i class="fa-solid fa-plus text-xl"></i>
-              </div>
-              <span class="text-[10px] font-bold text-zinc-300 mt-1 leading-none" data-i18n="nav-tambah">Tambah</span>
-            </div>
-            <i class="fa-solid fa-circle-plus hidden md:block text-base w-5"></i>
-            <span class="hidden md:block text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
-          </a>
+                          <a href="tambah-proyek.html"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-circle-plus text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
+        </a>
         <a href="keuangan.html"
           class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-wallet text-lg md:text-base md:w-5"></i>
@@ -318,9 +312,9 @@
 
   <!-- Detail Modal -->
   <div id="detailModal" style="background-color: rgba(0, 0, 0, 0.269);"
-    class="fixed inset-0 bg-opacity-85 z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
+    class="fixed inset-0 bg-opacity-85 z-50 flex items-start justify-center p-3 sm:p-4 overflow-y-auto hidden">
     <div
-      class="bg-white rounded-2xl shadow-2xl max-w-lg md:max-w-4xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-100">
+      class="bg-white rounded-2xl shadow-2xl max-w-lg md:max-w-4xl w-full my-4 sm:my-8 flex flex-col transform transition-all border border-zinc-100">
 
       <!-- Modal Header -->
       <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center shrink-0">
@@ -333,8 +327,8 @@
         </button>
       </div>
 
-      <!-- Modal Body (Scrollable) -->
-      <div class="overflow-y-auto flex-1">
+      <!-- Modal Body -->
+      <div class="flex-1">
         <div class="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-zinc-100 bg-white">
 
           <!-- Left Column: Details -->
@@ -397,7 +391,14 @@
               </div>
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-debt">Sisa / Hutang</span>
-                <span id="modalSisa" class="font-bold text-rose-600 text-sm">Rp0</span>
+                <div class="relative inline-block mt-0.5 w-full">
+                  <select id="modalSisaSelect" onchange="handleSisaChange(this)" class="appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate">
+                    <!-- Options injected via JS -->
+                  </select>
+                  <div id="modalSisaIcon" class="pointer-events-none absolute inset-y-0 right-0 flex items-center text-rose-600 hidden">
+                    <i class="fa-solid fa-caret-down text-xs"></i>
+                  </div>
+                </div>
               </div>
             </div>
 

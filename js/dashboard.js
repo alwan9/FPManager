@@ -123,8 +123,8 @@ function renderRecentProjects(recent) {
     const displayStatus = statusMap[p.status] || p.status;
     const badgeClass = 'badge-' + p.status.toLowerCase().replace(/\s+/g, '');
     const gdriveBtn = p.gdriveLink ? `
-      <a href="${p.gdriveLink}" target="_blank" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[10px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
-        <i class="fa-solid fa-folder-open text-indigo-600"></i>
+      <a href="${p.gdriveLink}" target="_blank" class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[8px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
+        <i class="fa-solid fa-folder-open text-indigo-600 text-[8px]"></i>
         <span>Drive</span>
       </a>
     ` : '';
@@ -133,15 +133,15 @@ function renderRecentProjects(recent) {
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
         <span class="font-bold text-sm text-zinc-900 block truncate">${p.namaProyek}</span>
-        <span class="text-xs text-zinc-500 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
+        <span class="text-[10px] text-zinc-500 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
         <div class="flex items-center mt-1">
-          <span class="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
+          <span class="inline-block px-1.5 py-0.5 text-[8px] font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
           ${gdriveBtn}
         </div>
       </div>
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-sm text-zinc-800 block">${formatRupiah(p.nominalProyek)}</span>
-        <span class="text-[10px] text-zinc-400 block mt-1">${p.tanggal}</span>
+        <span class="font-bold text-xs text-zinc-800 block">${formatRupiah(p.nominalProyek)}</span>
+        <span class="text-[8px] text-zinc-400 block mt-1">${p.tanggal}</span>
       </div>
     `;
     container.appendChild(item);
