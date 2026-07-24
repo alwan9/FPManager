@@ -169,11 +169,11 @@ const API = {
         deadline: proyekData.deadline,
         status: proyekData.status,
         catatan: proyekData.catatan,
-        gdriveLink: proyekData.gdriveLink || ""
+        gdriveLink: proyekData.gdriveLink || (proyekData.createDriveFolder ? `https://drive.google.com/drive/folders/mock-${Date.now()}` : "")
       };
       list.push(newProyek);
       localStorage.setItem('mock_proyek', JSON.stringify(list));
-      return { success: true, message: "Data berhasil disimpan (Mock)" };
+      return { success: true, message: "Data berhasil disimpan (Mock)", gdriveLink: newProyek.gdriveLink };
     }
 
     try {

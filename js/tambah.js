@@ -65,8 +65,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusInput = document.getElementById('status');
   const catatanInput = document.getElementById('catatan');
   const gdriveLinkInput = document.getElementById('gdriveLink');
+  const createDriveFolderCheckbox = document.getElementById('createDriveFolder');
+  const manualGDriveContainer = document.getElementById('manualGDriveContainer');
   const deadlineWarning = document.getElementById('deadlineWarning');
   const submitBtn = document.getElementById('submitBtn');
+
+  // Toggle visibilitas input link manual berdasarkan status checkbox
+  if (createDriveFolderCheckbox && manualGDriveContainer) {
+    createDriveFolderCheckbox.addEventListener('change', () => {
+      if (createDriveFolderCheckbox.checked) {
+        manualGDriveContainer.classList.add('hidden');
+      } else {
+        manualGDriveContainer.classList.remove('hidden');
+      }
+    });
+  }
   // Deteksi mode Edit vs Tambah
   const urlParams = new URLSearchParams(window.location.search);
   const proyekId = urlParams.get('id');
@@ -108,6 +121,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentGDriveLink = proyek.gdriveLink || "";
         if (gdriveLinkInput) {
           gdriveLinkInput.value = proyek.gdriveLink || "";
+        }
+        // Jika mode edit dan projek sudah memiliki link drive, uncheck pembuat folder otomatis & tampilkan link
+        if (proyek.gdriveLink && createDriveFolderCheckbox && manualGDriveContainer) {
+          createDriveFolderCheckbox.checked = false;
+          manualGDriveContainer.classList.remove('hidden');
         }
         checkDeadline(proyek.deadline);
         kalkulasiNominalDanSisa();
@@ -271,6 +289,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       deadline: deadlineInput.value,
       status: statusInput.value,
       catatan: catatanInput.value,
+      createDriveFolder: createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false,
       gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink
     };
     try {

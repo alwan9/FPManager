@@ -343,13 +343,30 @@
 
             </div>
 
-            <!-- Link Google Drive -->
-            <div class="hidden">
-              <label for="gdriveLink" class="block text-sm font-medium text-zinc-700 mb-1"
-                data-i18n="add-label-gdrive">Link Google Drive (Opsional)</label>
-              <input type="url" id="gdriveLink"
-                class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white"
-                placeholder="https://drive.google.com/drive/folders/.../view?usp=sharing">
+            <!-- Opsi Google Drive & Link -->
+            <div class="p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl space-y-3">
+              <div class="flex items-center justify-between">
+                <label for="createDriveFolder" class="text-sm font-semibold text-zinc-800 flex items-center gap-3 cursor-pointer select-none">
+                  <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-folder-plus text-base"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-zinc-800" data-i18n="add-label-createdrive">Buat Folder Google Drive Otomatis?</div>
+                    <div class="text-xs text-zinc-500 font-normal" data-i18n="add-desc-createdrive">Sistem akan membuatkan folder baru di Google Drive untuk proyek ini.</div>
+                  </div>
+                </label>
+                <input type="checkbox" id="createDriveFolder" checked
+                  class="w-5 h-5 text-indigo-600 border-zinc-300 rounded focus:ring-indigo-500 cursor-pointer">
+              </div>
+
+              <!-- Input Link Google Drive Manual (muncul jika "Buat Folder" tidak dicentang) -->
+              <div id="manualGDriveContainer" class="hidden pt-3 border-t border-indigo-100/80">
+                <label for="gdriveLink" class="block text-xs font-semibold text-zinc-600 mb-1 uppercase tracking-wider"
+                  data-i18n="add-label-gdrive">Link Google Drive (Opsional / Manual)</label>
+                <input type="url" id="gdriveLink"
+                  class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white"
+                  placeholder="https://drive.google.com/drive/folders/...">
+              </div>
             </div>
 
             <!-- Catatan Tambahan -->
