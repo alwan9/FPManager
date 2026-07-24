@@ -112,7 +112,7 @@ const TRANSLATIONS = {
     "fin-th-type": "Jenis",
     "fin-th-desc": "Keterangan",
     "fin-th-amount": "Nominal (Rp)",
-    
+
     // Calendar days
     "day-sun": "Min",
     "day-mon": "Sen",
@@ -121,7 +121,7 @@ const TRANSLATIONS = {
     "day-thu": "Kam",
     "day-fri": "Jum",
     "day-sat": "Sab",
-    
+
     // Invoice Page (invoice.html)
     "inv-date": "Tanggal :",
     "inv-to": "Kepada",
@@ -137,7 +137,7 @@ const TRANSLATIONS = {
     "inv-btn-pdf": "Download PDF",
     "inv-btn-print": "Print",
     "inv-btn-back": "Kembali",
-    
+
     // Project Page (proyek.html)
     "proj-header": "Manajemen Data Projek",
     "proj-title": "Daftar Projek",
@@ -151,7 +151,7 @@ const TRANSLATIONS = {
     "proj-badge-revision": "Revisi",
     "proj-badge-done": "Selesai",
     "proj-badge-unpaid": "Belum Bayar",
-    
+
     // Table Columns
     "tbl-th-id": "ID",
     "tbl-th-date": "Tanggal",
@@ -195,7 +195,7 @@ const TRANSLATIONS = {
     "dt-btn-invoice": "Invoice",
     "dt-btn-edit": "Edit",
     "dt-btn-delete": "Hapus",
-    
+
     // Add/Edit Project (tambah-proyek.html)
     "add-title-new": "Form Projek Baru",
     "add-title-edit": "Form Edit Projek",
@@ -220,7 +220,7 @@ const TRANSLATIONS = {
     "add-label-notes": "Catatan Tambahan / Spesifikasi (Opsional)",
     "add-btn-cancel": "Batal",
     "add-btn-save": "Simpan Projek",
-    
+
     // Services Page (layanan.html)
     "lay-title": "Layanan & Pricelist Jasa",
     "lay-banner-title": "Katalog Jasa Desain",
@@ -247,7 +247,7 @@ const TRANSLATIONS = {
     "lay-total-est": "Total Estimasi Harga",
     "lay-btn-create": "Buat Projek Baru dari Sini",
     "lay-btn-reset": "Kosongkan Estimasi",
-    
+
     // Catalog Item Details
     "lay-item1-name": "Feed Instagram Single",
     "lay-item1-desc": "Desain postingan feed 1:1, pengerjaan 1-2 hari.",
@@ -277,7 +277,7 @@ const TRANSLATIONS = {
     "lay-item13-desc": "Desain mockup landing page modern di Figma (1 Halaman).",
     "lay-item14-name": "Landing Page Website",
     "lay-item14-desc": "Pengembangan website responsif statis (HTML/CSS/JS).",
-    
+
     // Reports Page (laporan.html)
     "rep-header": "Laporan Bisnis & Ekspor",
     "rep-title": "Laporan Keuangan",
@@ -315,7 +315,7 @@ const TRANSLATIONS = {
     "api-status": "API Status:",
     "api-mock": "Mock Mode (Offline)",
     "api-live": "Live API (Google Sheets)",
-    
+
     // Settings Page (pengaturan.html)
     "settings-header": "System Settings",
     "settings-title": "Application Settings",
@@ -370,7 +370,7 @@ const TRANSLATIONS = {
     "settings-device-browser": "Browser",
     "settings-device-ip": "Connection / IP",
     "settings-device-time": "Login Time",
-    
+
 
     // Dashboard Page (index.html)
     "dash-title": "Finance & Project Dashboard",
@@ -414,7 +414,7 @@ const TRANSLATIONS = {
     "fin-th-type": "Type",
     "fin-th-desc": "Description",
     "fin-th-amount": "Amount (Rp)",
-    
+
     "day-sun": "Sun",
     "day-mon": "Mon",
     "day-tue": "Tue",
@@ -422,7 +422,7 @@ const TRANSLATIONS = {
     "day-thu": "Thu",
     "day-fri": "Fri",
     "day-sat": "Sat",
-    
+
     // Invoice Page (invoice.html)
     "inv-date": "Date :",
     "inv-to": "To",
@@ -438,7 +438,7 @@ const TRANSLATIONS = {
     "inv-btn-pdf": "Download PDF",
     "inv-btn-print": "Print",
     "inv-btn-back": "Back",
-    
+
     // Project Page (proyek.html)
     "proj-header": "Project Data Management",
     "proj-title": "Project List",
@@ -496,7 +496,7 @@ const TRANSLATIONS = {
     "dt-btn-invoice": "Invoice",
     "dt-btn-edit": "Edit",
     "dt-btn-delete": "Delete",
-    
+
     // Add/Edit Project (tambah-proyek.html)
     "add-title-new": "Add New Project",
     "add-title-edit": "Edit Project Form",
@@ -521,7 +521,7 @@ const TRANSLATIONS = {
     "add-label-notes": "Additional Notes / Specifications (Optional)",
     "add-btn-cancel": "Cancel",
     "add-btn-save": "Save Project",
-    
+
     // Services Page (layanan.html)
     "lay-title": "Services & Pricelist",
     "lay-banner-title": "Design Catalog",
@@ -548,7 +548,7 @@ const TRANSLATIONS = {
     "lay-total-est": "Total Estimated Cost",
     "lay-btn-create": "Create New Project From Here",
     "lay-btn-reset": "Clear Estimation",
-    
+
     // Catalog Item Details
     "lay-item1-name": "Single Instagram Feed",
     "lay-item1-desc": "Post layout 1:1, 1-2 days delivery.",
@@ -578,7 +578,7 @@ const TRANSLATIONS = {
     "lay-item13-desc": "Modern landing page mockup design in Figma (1 Page).",
     "lay-item14-name": "Website Landing Page",
     "lay-item14-desc": "Static responsive website development (HTML/CSS/JS).",
-    
+
     // Reports Page (laporan.html)
     "rep-header": "Business & Export Reports",
     "rep-title": "Financial Report",
