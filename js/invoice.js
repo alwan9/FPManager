@@ -270,26 +270,49 @@ const Invoice = {
         );
     },
     exportPDF() {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         const invoice = document.getElementById("invoiceArea");
-        html2pdf().set({
-            margin: 0.4,
-            filename:
-                "Invoice-" +
-                document.getElementById("previewInvoiceNo").innerText +
-                ".pdf",
-            image: {
-                type: "jpeg",
-                quality: 1
-            },
-            html2canvas: {
-                scale: 2
-            },
-            jsPDF: {
-                unit: "in",
-                format: "a4",
-                orientation: "portrait"
-            }
-        }).from(invoice).save();
+        const invNo = document.getElementById("previewInvoiceNo") ? document.getElementById("previewInvoiceNo").innerText : 'FPManager';
+        const fileName = `Invoice-${invNo}.pdf`;
+
+        if (typeof Toast !== 'undefined') {
+            Toast.info(
+                isEn ? "Generating PDF..." : "Membuat PDF Invoice...",
+                isEn ? "Please wait while your PDF is rendered offline." : "Mohon tunggu, file PDF sedang diproses secara offline."
+            );
+        }
+
+        if (typeof html2pdf !== 'undefined') {
+            html2pdf().set({
+                margin: 0.4,
+                filename: fileName,
+                image: {
+                    type: "jpeg",
+                    quality: 1
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true
+                },
+                jsPDF: {
+                    unit: "in",
+                    format: "a4",
+                    orientation: "portrait"
+                }
+            }).from(invoice).save().then(() => {
+                if (typeof Toast !== 'undefined') {
+                    Toast.success(
+                        isEn ? "PDF Exported" : "PDF Berhasil Diunduh",
+                        isEn ? `Invoice ${fileName} has been generated.` : `File ${fileName} berhasil disimpan.`
+                    );
+                }
+            }).catch(err => {
+                console.error("html2pdf export error:", err);
+                window.print();
+            });
+        } else {
+            window.print();
+        }
     },
     generateWatermark() {
         const img = new Image();
@@ -331,4 +354,3 @@ const Invoice = {
 document.addEventListener("DOMContentLoaded", () => {
     Invoice.init();
 });
-

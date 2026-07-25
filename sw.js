@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v42';
+const CACHE_NAME = 'fpmanager-v44';
 const urlsToCache = [
   './',
   './index.html',
@@ -16,6 +16,7 @@ const urlsToCache = [
   './js/config.js',
   './js/i18n.js',
   './js/api.js',
+  './js/calendar.js',
   './js/pwa.js',
   './js/auth.js',
   './js/dashboard.js',
@@ -31,13 +32,14 @@ const urlsToCache = [
   './assets/img/favicon.png',
   './assets/img/icon-192.png',
   './assets/img/icon-512.png',
-  './assets/img/logo.png'
+  './assets/img/logo.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => cache.addAll(urlsToCache).catch(err => console.warn('Cache addAll warning:', err)))
       .then(() => self.skipWaiting())
   );
 });
@@ -67,6 +69,19 @@ self.addEventListener('fetch', event => {
   );
 });
 
+// Handle Background Sync event
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-offline-data') {
+    event.waitUntil(
+      clients.matchAll({ type: 'window' }).then(clientList => {
+        clientList.forEach(client => {
+          client.postMessage({ type: 'SYNC_OFFLINE_DATA' });
+        });
+      })
+    );
+  }
+});
+
 // Handle notification click to open/focus the app
 self.addEventListener('notificationclick', event => {
   event.notification.close();
@@ -86,3 +101,4 @@ self.addEventListener('notificationclick', event => {
       })
   );
 });
+

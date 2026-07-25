@@ -202,6 +202,9 @@ function initTable(data) {
               <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
                 <i class="fa-solid fa-eye"></i>
               </button>
+              <button onclick="syncCalendarPromptByProyekId('${data.iDProyek}')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
+                <i class="fa-solid fa-calendar-plus"></i>
+              </button>
               <a href="tambah-proyek.html?id=${data.iDProyek}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
                 <i class="fa-solid fa-pen"></i>
               </a>
@@ -377,6 +380,15 @@ async function viewDetail(id) {
       };
       statusBadge.textContent = isEn ? (statusMap[proyek.status] || proyek.status) : proyek.status;
       statusBadge.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full badge-${proyek.status.toLowerCase().replace(/\s+/g, '')}`;
+      // Calendar Button
+      const modalCalendarBtn = document.getElementById('modalCalendarBtn');
+      if (modalCalendarBtn) {
+        modalCalendarBtn.onclick = () => {
+          if (typeof CalendarSync !== 'undefined') {
+            CalendarSync.prompt(proyek);
+          }
+        };
+      }
       // Edit Button
       document.getElementById('modalEditBtn').onclick = () => {
         window.location.href = `tambah-proyek.html?id=${proyek.iDProyek}`;
@@ -890,5 +902,25 @@ async function bulkDeleteProyek() {
     }
   }
 }
+
+// Global Calendar Sync helper by Proyek ID
+function syncCalendarPromptByProyekId(id) {
+  if (window.allProyekList) {
+    const proyek = window.allProyekList.find(p => String(p.iDProyek) === String(id));
+    if (proyek && typeof CalendarSync !== 'undefined') {
+      CalendarSync.prompt(proyek);
+      return;
+    }
+  }
+  if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
+    API.getProyek().then(list => {
+      const proyek = list.find(p => String(p.iDProyek) === String(id));
+      if (proyek && typeof CalendarSync !== 'undefined') {
+        CalendarSync.prompt(proyek);
+      }
+    });
+  }
+}
+
 
 

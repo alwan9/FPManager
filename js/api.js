@@ -23,6 +23,135 @@ const APICache = {
   }
 };
 
+// IndexedDB Helper for Offline Storage & Sync Queue
+const FPManagerDB = {
+  dbName: 'FPManagerDB',
+  dbVersion: 1,
+  db: null,
+
+  async init() {
+    if (this.db) return this.db;
+    return new Promise((resolve) => {
+      if (!('indexedDB' in window)) {
+        console.warn('IndexedDB tidak didukung pada browser ini.');
+        resolve(null);
+        return;
+      }
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+      request.onerror = (e) => {
+        console.error('IndexedDB open error:', e);
+        resolve(null);
+      };
+      request.onsuccess = (e) => {
+        this.db = e.target.result;
+        resolve(this.db);
+      };
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('proyek')) {
+          db.createObjectStore('proyek', { keyPath: 'iDProyek' });
+        }
+        if (!db.objectStoreNames.contains('keuangan')) {
+          db.createObjectStore('keuangan', { keyPath: 'id', autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains('offline_queue')) {
+          db.createObjectStore('offline_queue', { keyPath: 'queueId', autoIncrement: true });
+        }
+      };
+    });
+  },
+
+  async getAll(storeName) {
+    const db = await this.init();
+    if (!db) return [];
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      } catch (e) {
+        resolve([]);
+      }
+    });
+  },
+
+  async saveAll(storeName, items) {
+    const db = await this.init();
+    if (!db || !Array.isArray(items)) return;
+    try {
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      items.forEach(item => {
+        if (item && (item.iDProyek || item.id)) store.put(item);
+      });
+    } catch (e) {
+      console.error('Save to IndexedDB error:', e);
+    }
+  },
+
+  async saveOne(storeName, item) {
+    const db = await this.init();
+    if (!db || !item) return;
+    try {
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      store.put(item);
+    } catch (e) {
+      console.error('Save item error:', e);
+    }
+  },
+
+  async removeOne(storeName, key) {
+    const db = await this.init();
+    if (!db) return;
+    try {
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      store.delete(key);
+    } catch (e) {
+      console.error('Remove item error:', e);
+    }
+  },
+
+  async addToQueue(action, data) {
+    const db = await this.init();
+    const item = { action, data, timestamp: Date.now() };
+    if (db) {
+      try {
+        const tx = db.transaction('offline_queue', 'readwrite');
+        tx.objectStore('offline_queue').add(item);
+      } catch (e) {
+        console.error('Queue error:', e);
+      }
+    } else {
+      const q = JSON.parse(localStorage.getItem('fpm_offline_queue') || '[]');
+      q.push(item);
+      localStorage.setItem('fpm_offline_queue', JSON.stringify(q));
+    }
+  },
+
+  async getQueue() {
+    const db = await this.init();
+    if (db) {
+      return await this.getAll('offline_queue');
+    }
+    return JSON.parse(localStorage.getItem('fpm_offline_queue') || '[]');
+  },
+
+  async clearQueue() {
+    const db = await this.init();
+    if (db) {
+      try {
+        const tx = db.transaction('offline_queue', 'readwrite');
+        tx.objectStore('offline_queue').clear();
+      } catch (e) {}
+    }
+    localStorage.removeItem('fpm_offline_queue');
+  }
+};
+
 // Wrapper API Helper
 const API = {
   // Ambil token login
@@ -618,5 +747,39 @@ const API = {
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
     } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  // Synchronize offline queue to server/mock
+  syncOfflineData: async () => {
+    if (!navigator.onLine) return { success: false, message: "Masih offline" };
+    const queue = await FPManagerDB.getQueue();
+    if (!queue || queue.length === 0) return { success: true, count: 0 };
+    
+    let successCount = 0;
+    for (const item of queue) {
+      try {
+        if (item.action === 'addProyek') {
+          await API.addProyek(item.data);
+          successCount++;
+        } else if (item.action === 'updateProyek') {
+          await API.updateProyek(item.data.id, item.data.proyekData);
+          successCount++;
+        } else if (item.action === 'deleteProyek') {
+          await API.deleteProyek(item.data.id);
+          successCount++;
+        } else if (item.action === 'addKeuangan') {
+          await API.addKeuangan(item.data);
+          successCount++;
+        }
+      } catch (err) {
+        console.error('Failed to sync queue item:', item, err);
+      }
+    }
+    await FPManagerDB.clearQueue();
+    if (typeof Toast !== 'undefined' && successCount > 0) {
+      Toast.success('Sinkronisasi Otomatis', `${successCount} perubahan data offline telah tersinkronisasi ke server.`);
+    }
+    return { success: true, count: successCount };
   }
 };
+

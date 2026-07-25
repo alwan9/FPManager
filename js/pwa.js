@@ -329,8 +329,92 @@ window.addEventListener('load', () => {
   }, 3000);
 });
 
-// Check for Deadlines (H-1)
+// App Badging API Helper
+function updateAppBadge(count) {
+  if ('setAppBadge' in navigator) {
+    if (count > 0) {
+      navigator.setAppBadge(count).catch(err => console.log('App badging error:', err));
+    } else {
+      navigator.clearAppBadge().catch(err => console.log('App badging clear error:', err));
+    }
+  }
+}
+
+// Calculate and update App Badge for urgent deadlines / unpaid projects
+async function refreshAppBadge() {
+  if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
+    try {
+      const proyekList = await API.getProyek();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let urgentCount = 0;
+      proyekList.forEach(proyek => {
+        const statusLower = (proyek.status || '').toLowerCase();
+        if (statusLower === 'selesai' || statusLower === 'dibatalkan') return;
+
+        if (statusLower === 'belum pembayaran') {
+          urgentCount++;
+          return;
+        }
+
+        if (proyek.deadline) {
+          const deadlineDate = new Date(proyek.deadline);
+          deadlineDate.setHours(0, 0, 0, 0);
+          const diffTime = deadlineDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays <= 1) { // Due today, tomorrow, or overdue
+            urgentCount++;
+          }
+        }
+      });
+
+      updateAppBadge(urgentCount);
+    } catch (err) {
+      console.error('Failed to update app badge:', err);
+    }
+  }
+}
+
+// Online / Offline Status Listeners & Auto-Sync
+window.addEventListener('online', async () => {
+  if (typeof showToast === 'function') {
+    showToast({
+      title: 'Kembali Online 🌐',
+      message: 'Perangkat Anda telah terhubung kembali. Memulai sinkronisasi data...',
+      type: 'success'
+    });
+  }
+  if (typeof API !== 'undefined' && typeof API.syncOfflineData === 'function') {
+    await API.syncOfflineData();
+  }
+});
+
+window.addEventListener('offline', () => {
+  if (typeof showToast === 'function') {
+    showToast({
+      title: 'Mode Offline 📡',
+      message: 'Anda sedang offline. Perubahan data akan disimpan lokal & disinkronkan nanti.',
+      type: 'warning'
+    });
+  }
+});
+
+// Service Worker message listener for Background Sync
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', async (event) => {
+    if (event.data && event.data.type === 'SYNC_OFFLINE_DATA') {
+      if (typeof API !== 'undefined' && typeof API.syncOfflineData === 'function') {
+        await API.syncOfflineData();
+      }
+    }
+  });
+}
+
+// Check for Deadlines (H-1) & Refresh Badge
 async function checkDeadlines() {
+  refreshAppBadge();
   if (!('Notification' in window)) return;
 
   if (Notification.permission === 'granted') {
@@ -419,3 +503,4 @@ function showNotification(title, options) {
 setTimeout(checkDeadlines, 5000);
 // Run check periodically (every 30 minutes)
 setInterval(checkDeadlines, 30 * 60 * 1000);
+

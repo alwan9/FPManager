@@ -85,6 +85,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   const proyekId = urlParams.get('id');
   let isEditMode = false;
   let currentGDriveLink = "";
+
+  // Handle Web Share Target API parameters
+  const shareTitle = urlParams.get('share_title') || urlParams.get('title');
+  const shareText = urlParams.get('share_text') || urlParams.get('text');
+  const shareUrl = urlParams.get('share_url') || urlParams.get('url');
+
+  if (shareTitle || shareText || shareUrl) {
+    if (namaProyekInput && shareTitle) {
+      namaProyekInput.value = shareTitle;
+    } else if (namaProyekInput && shareText) {
+      const firstLine = shareText.split('\n')[0];
+      namaProyekInput.value = firstLine.substring(0, 60);
+    }
+    if (catatanInput) {
+      let combinedNotes = '';
+      if (shareText) combinedNotes += shareText;
+      if (shareUrl) combinedNotes += (combinedNotes ? '\n\nLink: ' : '') + shareUrl;
+      catatanInput.value = combinedNotes;
+    }
+    if (typeof Toast !== 'undefined') {
+      Toast.success(
+        isEn ? 'Shared Brief Received' : 'Brief Berhasil Diterima',
+        isEn ? 'Project details were populated from shared content.' : 'Detail brief dari aplikasi lain telah diisikan ke formulir.'
+      );
+    }
+  }
+
   if (proyekId) {
     isEditMode = true;
     document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>${isEn ? 'Edit Project' : 'Edit Projek'} ${proyekId}</span>`;

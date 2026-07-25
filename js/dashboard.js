@@ -83,9 +83,14 @@ function renderDeadlineAlerts(deadlineAlerts) {
         <span class="font-semibold text-sm text-zinc-900 block truncate">${alert.namaProyek}</span>
         <span class="text-xs text-zinc-500 truncate block">${isEn ? 'Customer' : 'Pelanggan'}: ${alert.namaPelanggan}</span>
       </div>
-      <a href="proyek.html" class="flex-shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
-        ${isEn ? 'Check' : 'Cek'}
-      </a>
+      <div class="flex items-center space-x-1.5 flex-shrink-0">
+        <button onclick="syncCalendarPromptByProyekId('${alert.iDProyek}')" class="px-2.5 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-colors" title="Tambah ke Kalender">
+          <i class="fa-solid fa-calendar-plus"></i>
+        </button>
+        <a href="proyek.html" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
+          ${isEn ? 'Check' : 'Cek'}
+        </a>
+      </div>
     `;
     list.appendChild(alertCard);
   });
@@ -416,5 +421,18 @@ function showDashboardSkeletons() {
     `).join('');
   }
 }
+
+// Global Calendar Sync helper for Dashboard
+function syncCalendarPromptByProyekId(id) {
+  if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
+    API.getProyek().then(list => {
+      const proyek = list.find(p => String(p.iDProyek) === String(id));
+      if (proyek && typeof CalendarSync !== 'undefined') {
+        CalendarSync.prompt(proyek);
+      }
+    });
+  }
+}
+
 
 
