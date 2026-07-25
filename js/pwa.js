@@ -1,13 +1,52 @@
-// Register Service Worker
+// Register Service Worker & Auto-Update Handling
 if ('serviceWorker' in navigator) {
+  let refreshing = false;
+
+  // Reload page automatically when new Service Worker takes control
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      console.log('PWA: Controller changed. Reloading page for latest update...');
+      window.location.reload();
+    }
+  });
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+        // Force check for updates on load
+        registration.update();
+
+        // Detect when a new Service Worker update is installing
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (typeof showToast === 'function') {
+                  showToast({
+                    title: 'Pembaruan Aplikasi 🚀',
+                    message: 'Versi baru FPManager telah siap. Memuat ulang halaman...',
+                    type: 'info'
+                  });
+                }
+              }
+            });
+          }
+        });
       })
       .catch(err => {
         console.log('ServiceWorker registration failed: ', err);
       });
+  });
+
+  // Check for SW updates whenever user switches back to the app window
+  window.addEventListener('focus', () => {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.update();
+    });
   });
 }
 
