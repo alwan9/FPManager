@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
     apiStatusBadge.textContent = 'Live API (Google Sheets)';
-    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+    apiStatusBadge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 
   // Set default tanggal hari ini

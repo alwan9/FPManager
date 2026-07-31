@@ -43,6 +43,10 @@ body {
   transform: translateX(4px);
 }
 
+.logo-mini {
+  display: none !important;
+}
+
 aside {
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
@@ -53,10 +57,26 @@ aside {
   }
 
   aside.sidebar-collapsed nav span,
-  aside.sidebar-collapsed nav .pt-4,
-  aside.sidebar-collapsed nav div.border-t,
   aside.sidebar-collapsed .logo-full {
     display: none !important;
+  }
+
+  aside.sidebar-collapsed nav div.border-t {
+    padding-top: 0.5rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  aside.sidebar-collapsed .logo-mini {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  aside.sidebar-collapsed .logo-container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    justify-content: center !important;
   }
 
   aside.sidebar-collapsed nav a.sidebar-link,

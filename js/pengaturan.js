@@ -199,7 +199,7 @@ function updateApiStatusBadge() {
   const badge = document.getElementById('apiStatusBadge');
   if (badge) {
     badge.textContent = 'Live API (Google Sheets)';
-    badge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+    badge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 }
 
