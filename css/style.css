@@ -544,4 +544,98 @@ table.dataTable.no-footer {
   animation: loading-bar 1.5s infinite ease-in-out;
 }
 
+/* ======================================================= */
+/* Tablet Viewport Responsive Optimizations (640px - 1024px) */
+/* ======================================================= */
+@media (min-width: 640px) and (max-width: 1024px) {
+  /* Main Container Layout */
+  body {
+    font-size: 0.9375rem;
+  }
+
+  main {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  /* Compact Sidebar Navigation for Tablets */
+  aside {
+    width: 14rem !important;
+  }
+
+  /* Tablet Header Controls */
+  header .header-search-bar {
+    max-width: 240px;
+  }
+
+  /* Grid Layouts for Tablets: 2 Columns for Stats & Cards */
+  .grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4,
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4,
+  .grid-cols-1.md\:grid-cols-3,
+  .grid-cols-1.md\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  /* Tablet Form Grid Sizing */
+  .form-grid-tablet {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  /* Table Container Horizontal Scrolling on Tablet */
+  .table-responsive-container,
+  .overflow-x-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 0.75rem !important;
+  }
+
+  table {
+    min-width: 680px;
+  }
+
+  th, td {
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.8125rem !important;
+  }
+
+  /* Modals on Tablet Devices */
+  .modal-dialog,
+  #userModal > div,
+  #proyekModal > div,
+  #toolModal > div,
+  #shortcutModal > div {
+    max-width: 90vw !important;
+    width: 640px !important;
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    border-radius: 1rem !important;
+    margin: auto !important;
+  }
+
+  /* Enhanced Touch Target Sizing */
+  button, 
+  .sidebar-link,
+  input[type="checkbox"],
+  select,
+  input[type="text"],
+  input[type="number"],
+  input[type="date"] {
+    min-height: 40px;
+  }
+
+  .form-checkbox {
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+  }
+
+  /* Badges & Pills */
+  .badge-tablet {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.625rem !important;
+  }
+}
+
 

@@ -65,6 +65,11 @@ const Auth = {
     const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
     if (isSuperAdmin) return true;
 
+    // User Biasa/Biasa Tidak Bisa Akses User Manager
+    if (action.startsWith("users") || action.includes(":users") || action === "users") {
+      return false;
+    }
+
     const permissions = user.permissions;
 
     // Handle Object/Map format: { "proyek:read": true, "proyek:delete": false }
@@ -96,8 +101,17 @@ const Auth = {
     // 5. Fallback to default role matrix if permissions array is empty
     if ((!userPerms || userPerms.length === 0) && user.role) {
       const roleDefaults = {
-        service: ["proyek:read", "proyek:create", "proyek:update", "keuangan:read", "keuangan:create", "keuangan:update", "laporan:read", "laporan:export"],
-        desainer: ["proyek:read", "proyek:update", "layanan:read", "layanan:create", "layanan:update", "tools:read", "tools:create", "tools:update"]
+        service: [
+          "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
+          "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
+          "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
+          "laporan:read", "laporan:export"
+        ],
+        desainer: [
+          "proyek:read", "proyek:create", "proyek:update",
+          "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
+          "tools:read", "tools:create", "tools:update", "tools:delete"
+        ]
       };
       const defs = roleDefaults[user.role] || [];
       if (defs.includes(action)) return true;
@@ -144,7 +158,7 @@ const Auth = {
     if (path.endsWith("laporan.html") && !Auth.hasPermission("laporan:read")) isDenied = true;
     if (path.endsWith("layanan.html") && !Auth.hasPermission("layanan:read")) isDenied = true;
     if (path.endsWith("tools.html") && !Auth.hasPermission("tools:read")) isDenied = true;
-    if (path.endsWith("user-management.html") && !Auth.hasPermission("users:read")) isDenied = true;
+    if (path.endsWith("user-management.html")) isDenied = true; // User Biasa Tidak Boleh Akses Halaman User Manager
 
     if (isDenied) {
       sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman tersebut.");

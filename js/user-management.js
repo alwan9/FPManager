@@ -23,14 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const defaultRolePerms = {
     service: [
-      "proyek:read", "proyek:create", "proyek:update",
-      "keuangan:read", "keuangan:create", "keuangan:update",
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
+      "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
       "laporan:read", "laporan:export"
     ],
     desainer: [
-      "proyek:read", "proyek:update",
-      "layanan:read", "layanan:create", "layanan:update",
-      "tools:read", "tools:create", "tools:update"
+      "proyek:read", "proyek:create", "proyek:update",
+      "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
+      "tools:read", "tools:create", "tools:update", "tools:delete"
     ],
     super_admin: [
       "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
@@ -106,35 +107,29 @@ document.addEventListener("DOMContentLoaded", () => {
     updateStats(users);
 
     const modules = [
-      { key: "proyek", label: "Projek", actions: [ { act: "read", tag: "R" }, { act: "create", tag: "C" }, { act: "update", tag: "U" }, { act: "delete", tag: "D" } ] },
-      { key: "keuangan", label: "Keuangan", actions: [ { act: "read", tag: "R" }, { act: "create", tag: "C" }, { act: "update", tag: "U" }, { act: "delete", tag: "D" } ] },
-      { key: "laporan", label: "Laporan", actions: [ { act: "read", tag: "R" }, { act: "export", tag: "E" } ] },
-      { key: "layanan", label: "Layanan", actions: [ { act: "read", tag: "R" }, { act: "create", tag: "C" }, { act: "update", tag: "U" }, { act: "delete", tag: "D" } ] },
-      { key: "tools", label: "Tools", actions: [ { act: "read", tag: "R" }, { act: "create", tag: "C" }, { act: "update", tag: "U" }, { act: "delete", tag: "D" } ] },
-      { key: "users", label: "User Mgr", actions: [ { act: "read", tag: "R" }, { act: "create", tag: "C" }, { act: "update", tag: "U" }, { act: "delete", tag: "D" } ] }
+      { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete"] },
+      { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete"] },
+      { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export"] },
+      { key: "layanan", label: "Layanan", actions: ["layanan:read", "layanan:create", "layanan:update", "layanan:delete"] },
+      { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete"] },
+      { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
     ];
 
     userTableBody.innerHTML = users.map(u => {
       const isMainAdmin = (u.username === 'wansmin');
 
-      const crudMatrixHtml = modules.map(m => {
-        const actionBadges = m.actions.map(a => {
-          const permKey = `${m.key}:${a.act}`;
-          const isChecked = userHasPerm(u, permKey);
-          return `
-            <label class="inline-flex items-center cursor-pointer space-x-0.5 text-[11px]" title="${m.label} ${a.act.toUpperCase()}">
-              <input type="checkbox" onchange="toggleUserPermDirectly('${u.id}', '${permKey}', this.checked)"
-                class="form-checkbox h-3 w-3 text-indigo-600 rounded" ${isChecked ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''}>
-              <span class="text-zinc-500 font-mono font-semibold">${a.tag}</span>
-            </label>
-          `;
-        }).join(" ");
+      const moduleCheckboxesHtml = modules.map(m => {
+        const isAllChecked = m.actions.every(permKey => userHasPerm(u, permKey));
+        const isPartial = !isAllChecked && m.actions.some(permKey => userHasPerm(u, permKey));
 
         return `
-          <div class="inline-flex items-center space-x-1 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-lg text-xs">
-            <span class="font-bold text-zinc-700 dark:text-zinc-300 mr-1 text-[11px]">${m.label}:</span>
-            ${actionBadges}
-          </div>
+          <label class="inline-flex items-center space-x-1.5 bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-1 rounded-lg text-xs cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors select-none ${isPartial ? 'border border-amber-400/60 dark:border-amber-600/60' : ''}" 
+            title="${m.label}: ${isAllChecked ? 'Akses Penuh (CRUD Ceklis)' : isPartial ? 'Akses Sebagian (Kosong, klik Edit untuk detail)' : 'Kosong (Tidak Ada Akses)'}">
+            <input type="checkbox" onchange="toggleUserModuleDirectly('${u.id}', '${m.key}', this.checked)"
+              class="form-checkbox h-4 w-4 text-indigo-600 rounded transition cursor-pointer" ${isAllChecked ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''}>
+            <span class="font-semibold ${isAllChecked ? 'text-indigo-600 dark:text-indigo-400' : isPartial ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-zinc-600 dark:text-zinc-400'}">${m.label}</span>
+            ${isPartial ? '<span class="text-[10px] text-amber-500 font-mono" title="Akses Sebagian - Klik Edit untuk ubah">*</span>' : ''}
+          </label>
         `;
       }).join("");
 
@@ -166,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </td>
           <td class="px-4 py-3">
             <div class="flex flex-wrap items-center gap-1.5 max-w-xl">
-              ${crudMatrixHtml}
+              ${moduleCheckboxesHtml}
             </div>
           </td>
           <td class="px-4 py-3 text-xs text-zinc-400">${u.createdAt || '-'}</td>
@@ -174,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="flex items-center justify-center space-x-1">
               <button onclick="openEditUserModal('${u.id}')" data-permission-allow="users:update"
                 class="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
-                title="Edit User & Permission">
+                title="Edit User & Permission Detail">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
               ${isMainAdmin ? '' : `
@@ -239,29 +234,42 @@ document.addEventListener("DOMContentLoaded", () => {
     userModal.classList.remove("hidden");
   };
 
-  // Direct Inline Permission Toggle Handler
-  window.toggleUserPermDirectly = async (id, permKey, isChecked) => {
+  // Direct Inline Module Master Checkbox Toggle Handler
+  window.toggleUserModuleDirectly = async (id, moduleKey, isChecked) => {
     const user = usersData.find(u => u.id === id);
     if (!user) return;
 
-    let perms = Array.isArray(user.permissions) ? [...user.permissions] : (defaultRolePerms[user.role] || defaultRolePerms.service);
+    const moduleActionsMap = {
+      proyek: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete"],
+      keuangan: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete"],
+      laporan: ["laporan:read", "laporan:export"],
+      layanan: ["layanan:read", "layanan:create", "layanan:update", "layanan:delete"],
+      tools: ["tools:read", "tools:create", "tools:update", "tools:delete"],
+      users: ["users:read", "users:create", "users:update", "users:delete"]
+    };
+
+    const targetActions = moduleActionsMap[moduleKey] || [];
+    let currentPerms = Array.isArray(user.permissions) ? [...user.permissions] : (defaultRolePerms[user.role] || defaultRolePerms.service);
 
     if (isChecked) {
-      if (!perms.includes(permKey)) perms.push(permKey);
+      targetActions.forEach(act => {
+        if (!currentPerms.includes(act)) currentPerms.push(act);
+      });
     } else {
-      perms = perms.filter(p => p !== permKey && p !== permKey.split(':')[0]);
+      currentPerms = currentPerms.filter(act => !targetActions.includes(act));
     }
 
-    user.permissions = perms;
-    user.role = "custom"; // Switch to custom if checkboxes edited manually
+    user.permissions = currentPerms;
+    user.role = "custom";
 
-    const res = await API.updateUser(id, { permissions: perms, role: user.role });
+    const res = await API.updateUser(id, { permissions: currentPerms, role: user.role });
     if (res.success) {
       syncSessionUserIfMatch(user);
-      if (typeof Toast !== 'undefined') Toast.success("Hak Akses Diperbarui", `Hak akses ${user.username} telah diperbarui.`);
+      if (typeof Toast !== 'undefined') Toast.success("Hak Akses Diperbarui", `Akses modul ${moduleKey.toUpperCase()} untuk ${user.username} diubah.`);
       loadUsers();
     } else {
       if (typeof Toast !== 'undefined') Toast.error("Gagal", res.message);
+      loadUsers();
     }
   };
 
