@@ -13,7 +13,7 @@ const TRANSLATIONS = {
 
     // Global Header
     "api-status": "Status API:",
-    "api-mock": "Mock Mode (Offline)",
+    "api-mock": "Live API (Google Sheets)",
     "api-live": "Live API (Google sheets)",
 
     // Settings Page (pengaturan.html)
@@ -313,7 +313,7 @@ const TRANSLATIONS = {
 
     // Global Header
     "api-status": "API Status:",
-    "api-mock": "Mock Mode (Offline)",
+    "api-mock": "Live API (Google Sheets)",
     "api-live": "Live API (Google Sheets)",
 
     // Settings Page (pengaturan.html)

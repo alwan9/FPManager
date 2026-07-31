@@ -80,6 +80,24 @@ document.addEventListener('DOMContentLoaded', () => {
       profileDropdown.classList.add('hidden');
     });
   }
+
+  // Sidebar Toggle (Buka / Tutup)
+  const sidebar = document.querySelector('aside');
+  const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+  if (sidebar && isCollapsed && window.innerWidth >= 768) {
+    sidebar.classList.add('sidebar-collapsed');
+  }
+
+  const toggleButtons = document.querySelectorAll('#sidebarToggleBtn, .sidebarToggleBtn, .sidebar-toggle-trigger');
+  toggleButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!sidebar) return;
+      sidebar.classList.toggle('sidebar-collapsed');
+      const collapsedNow = sidebar.classList.contains('sidebar-collapsed');
+      localStorage.setItem('sidebar_collapsed', collapsedNow ? 'true' : 'false');
+    });
+  });
 });
 
 

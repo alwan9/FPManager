@@ -69,6 +69,8 @@ async function exportExcel() {
 
         ID: item.iDProyek,
 
+        UserID: item.userId || "USR-001",
+
         Tanggal: item.tanggal,
 
         Pelanggan: item.namaPelanggan,

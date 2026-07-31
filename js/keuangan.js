@@ -7,10 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = isEn ? 'Live API (Google Sheets)' : 'Live API (Google sheets)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    }
+    apiStatusBadge.textContent = 'Live API (Google Sheets)';
+    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 
   // Set default tanggal hari ini
@@ -43,11 +41,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load and calculate finance summaries
 async function loadKeuanganData() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:read')) {
+    const mainArea = document.querySelector('main section') || document.querySelector('main');
+    if (mainArea) {
+      mainArea.innerHTML = `
+        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
+          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
+          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (keuangan:read) untuk melihat modul keuangan.</p>
+        </div>
+      `;
+    }
+    return;
+  }
   showKeuanganSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
-    const listMutasi = await API.getKeuangan();
-
+    let listMutasi = await API.getKeuangan();
+    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    if (currUser && currUser.role !== 'super_admin') {
+      listMutasi = listMutasi.filter(k => (k.userId || 'USR-001') === currUser.id);
+    }
     currentKeuanganList = listMutasi;
     calculateSummary(listMutasi);
     initTable(listMutasi);
@@ -127,6 +141,14 @@ function initTable(data) {
     data: data,
     columns: [
       { data: 'id' },
+      {
+        data: 'userId',
+        defaultContent: 'USR-001',
+        render: function (data) {
+          const uid = data || 'USR-001';
+          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">${uid}</span>`;
+        }
+      },
       { data: 'tanggal' },
       {
         data: 'jenis',
@@ -170,14 +192,21 @@ function initTable(data) {
             `;
           }
 
+          const canUpdate = (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update'));
+          const canDelete = (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
+
           return `
             <div class="flex space-x-1.5 justify-center">
+              ${canUpdate ? `
               <button onclick="editTransaksi('${data.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Transaksi">
                 <i class="fa-solid fa-pen"></i>
               </button>
+              ` : ''}
+              ${canDelete ? `
               <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Transaksi">
                 <i class="fa-solid fa-trash"></i>
               </button>
+              ` : ''}
             </div>
           `;
         }
@@ -198,6 +227,11 @@ function sanitize(text) {
 async function handleAddTransaksi(e) {
   e.preventDefault();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const requiredPerm = editModeId ? 'keuangan:update' : 'keuangan:create';
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
+    alert(isEn ? "Access Denied: You do not have permission to manage finances." : "Akses Ditolak: Anda tidak memiliki izin untuk mengelola Keuangan.");
+    return;
+  }
   const submitBtn = document.getElementById('submitBtn');
   if (submitBtn.disabled) return;
   const tanggal = document.getElementById('tanggal').value;
@@ -341,6 +375,10 @@ function editTransaksi(id) {
 
 async function deleteTransaksi(id) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
+    alert(isEn ? "Access Denied: You do not have permission to delete financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk menghapus data Keuangan.");
+    return;
+  }
   if (!confirm(isEn ? 'Are you sure you want to delete this transaction?' : 'Yakin ingin menghapus transaksi ini?')) return;
   
   try {

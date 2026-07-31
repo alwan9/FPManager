@@ -4,19 +4,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    }
+    apiStatusBadge.textContent = 'Live API (Google Sheets)';
+    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
   // Load Data
   loadProyekData();
 });
 // Load proyek data and initialize DataTables
 async function loadProyekData() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:read')) {
+    const mainArea = document.querySelector('main section') || document.querySelector('main');
+    if (mainArea) {
+      mainArea.innerHTML = `
+        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
+          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
+          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (proyek:read) untuk melihat data projek.</p>
+        </div>
+      `;
+    }
+    return;
+  }
   showProyekSkeletons();
   try {
-    const listProyek = await API.getProyek();
+    let listProyek = await API.getProyek();
+    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    if (currUser && currUser.role !== 'super_admin') {
+      listProyek = listProyek.filter(p => (p.userId || 'USR-001') === currUser.id);
+    }
     window.allProyekList = listProyek; // Cache list globally for status updates
 
     // Add statusOrder property dynamically for custom sorting
@@ -115,6 +130,15 @@ function initTable(data) {
         }
       },
       { data: 'iDProyek', className: 'hidden md:table-cell' },
+      {
+        data: 'userId',
+        defaultContent: 'USR-001',
+        className: 'hidden md:table-cell',
+        render: function (data) {
+          const uid = data || 'USR-001';
+          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${uid}</span>`;
+        }
+      },
       { data: 'tanggal', visible: false },
       { data: 'namaProyek' },
       { data: 'namaPelanggan', className: 'hidden md:table-cell' },
@@ -197,6 +221,9 @@ function initTable(data) {
         data: null,
         orderable: false,
         render: function (data) {
+          const canUpdate = (typeof Auth === 'undefined' || Auth.hasPermission('proyek:update'));
+          const canDelete = (typeof Auth === 'undefined' || Auth.hasPermission('proyek:delete'));
+
           return `
             <div class="flex space-x-1.5">
               <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
@@ -205,12 +232,16 @@ function initTable(data) {
               <button onclick="syncCalendarPromptByProyekId('${data.iDProyek}')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
                 <i class="fa-solid fa-calendar-plus"></i>
               </button>
+              ${canUpdate ? `
               <a href="tambah-proyek.html?id=${data.iDProyek}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
                 <i class="fa-solid fa-pen"></i>
               </a>
+              ` : ''}
+              ${canDelete ? `
               <button onclick="hapusProyek('${data.iDProyek}', '${data.namaProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Proyek">
                 <i class="fa-solid fa-trash"></i>
               </button>
+              ` : ''}
             </div>
           `;
         }
@@ -311,6 +342,9 @@ async function viewDetail(id) {
         }
       }
       document.getElementById('modalId').textContent = proyek.iDProyek;
+      if (document.getElementById('modalUserId')) {
+        document.getElementById('modalUserId').textContent = proyek.userId || 'USR-001';
+      }
       document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
       document.getElementById('modalWa').textContent = `+${proyek.nomorWA}`;
       document.getElementById('modalNamaProyek').textContent = proyek.namaProyek;
@@ -504,11 +538,13 @@ async function lunasiProyek() {
         nominal: sisa
       };
       
-      await API.addKeuangan(txPayload);
+      if (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:create')) {
+        await API.addKeuangan(txPayload);
+      }
       
       showToast({
         title: isEn ? "Success" : "Berhasil",
-        message: isEn ? "Project marked as paid and financial record added." : "Pelunasan berhasil dicatat ke sistem Keuangan.",
+        message: isEn ? "Project marked as paid." : "Pelunasan berhasil dicatat ke sistem.",
         type: "success"
       });
       
@@ -530,6 +566,14 @@ async function lunasiProyek() {
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:delete')) {
+    showToast({
+      title: isEn ? "Access Denied" : "Akses Ditolak",
+      message: isEn ? "You do not have permission to delete projects." : "Anda tidak memiliki izin untuk menghapus projek.",
+      type: "error"
+    });
+    return;
+  }
   console.log("ID yang akan dihapus =", id);
   const confirmMsg = isEn 
     ? `Are you sure you want to delete project "${id} - ${name}"? This action cannot be undone.` 

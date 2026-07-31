@@ -3,10 +3,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = isEn ? 'Live API (Google Sheets)' : 'Live API (Google sheets)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    }
+    apiStatusBadge.textContent = 'Live API (Google Sheets)';
+    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 
   // Localize Dropdowns
@@ -80,6 +78,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
+  // Auto-format Nomor WA (08... -> 628...)
+  if (waInput) {
+    waInput.addEventListener('blur', () => {
+      let val = waInput.value.trim().replace(/\D/g, '');
+      if (val.startsWith('0')) {
+        val = '62' + val.substring(1);
+      }
+      if (val) waInput.value = val;
+    });
+  }
   // Deteksi mode Edit vs Tambah
   const urlParams = new URLSearchParams(window.location.search);
   const proyekId = urlParams.get('id');
@@ -112,7 +121,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  if (!proyekId && typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:create')) {
+    sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk menambah proyek.");
+    window.location.href = "proyek.html";
+    return;
+  }
+
+  const currUser = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : { id: 'USR-001' };
+  const displayUserIdEl = document.getElementById('displayUserId');
+  if (displayUserIdEl) {
+    displayUserIdEl.textContent = currUser ? currUser.id : 'USR-001';
+  }
+
   if (proyekId) {
+    if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:update')) {
+      sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk mengedit proyek.");
+      window.location.href = "proyek.html";
+      return;
+    }
     isEditMode = true;
     document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>${isEn ? 'Edit Project' : 'Edit Projek'} ${proyekId}</span>`;
     document.getElementById('formTitle').textContent = isEn ? `Modify Project Details (${proyekId})` : `Ubah Rincian Projek (${proyekId})`;
@@ -129,6 +155,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const projects = await API.getProyek();
       const proyek = projects.find(p => p.iDProyek === proyekId);
       if (proyek) {
+        if (displayUserIdEl) {
+          displayUserIdEl.textContent = proyek.userId || (currUser ? currUser.id : 'USR-001');
+        }
         namaProyekInput.value = proyek.namaProyek;
         pelangganInput.value = proyek.namaPelanggan;
         const nomorWA = String(proyek.nomorWA);
@@ -317,7 +346,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       status: statusInput.value,
       catatan: catatanInput.value,
       createDriveFolder: createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false,
-      gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink
+      gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink,
+      userId: displayUserIdEl ? displayUserIdEl.textContent : (currUser ? currUser.id : 'USR-001')
     };
     try {
       submitBtn.disabled = true;
@@ -327,21 +357,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         result = await API.updateProyek(proyekId, payload);
       } else {
         result = await API.addProyek(payload);
-        
+
         // Auto-insert ke Mutasi Keuangan jika ada DP
         if (result.success && dp > 0) {
           const isLunas = dp >= nominal;
-          const txDesc = isLunas 
-            ? `Pembayaran Lunas - ${payload.pelanggan}` 
+          const txDesc = isLunas
+            ? `Pembayaran Lunas - ${payload.pelanggan}`
             : `Pembayaran DP - ${payload.pelanggan}`;
-            
+
           const txPayload = {
             tanggal: payload.tanggal || new Date().toISOString().split('T')[0],
             jenis: 'Pemasukan',
             keterangan: txDesc,
             nominal: dp
           };
-          
+
           await API.addKeuangan(txPayload);
         }
       }
@@ -380,8 +410,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = isEditMode 
-        ? (isEn ? 'Save Changes' : 'Simpan Perubahan') 
+      submitBtn.textContent = isEditMode
+        ? (isEn ? 'Save Changes' : 'Simpan Perubahan')
         : (isEn ? 'Save Project' : 'Simpan Projek');
     }
   });

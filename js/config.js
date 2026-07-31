@@ -1,12 +1,5 @@
 const CONFIG = {
   // Helper functions to get/set settings in LocalStorage
-  get MOCK_MODE() {
-    const val = localStorage.getItem('cfg_mock_mode');
-    return false; // Forced to always be false
-  },
-  set MOCK_MODE(val) {
-    localStorage.setItem('cfg_mock_mode', val);
-  },
 
   get API_URL() {
     return localStorage.getItem('cfg_api_url') || 'https://script.google.com/macros/s/AKfycbyaZZrCQtMX9zNjl7KKKS_ne86m5q4_Ma534x6knNbZ9xsWik7DJRtwaF0KzbWU0KUtxQ/exec';

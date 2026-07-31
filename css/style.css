@@ -34,13 +34,53 @@ body {
   background: #a1a1aa;
 }
 
-/* Sidebar Hover Animations */
+/* Sidebar Hover & Collapse Animations */
 .sidebar-link {
   transition: all 0.2s ease-in-out;
 }
 
 .sidebar-link:hover {
   transform: translateX(4px);
+}
+
+aside {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@media (min-width: 768px) {
+  aside.sidebar-collapsed {
+    width: 4.5rem !important;
+  }
+
+  aside.sidebar-collapsed nav span,
+  aside.sidebar-collapsed nav .pt-4,
+  aside.sidebar-collapsed nav div.border-t,
+  aside.sidebar-collapsed .logo-full {
+    display: none !important;
+  }
+
+  aside.sidebar-collapsed nav a.sidebar-link,
+  aside.sidebar-collapsed nav button.sidebar-link {
+    justify-content: center !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    text-align: center !important;
+  }
+
+  aside.sidebar-collapsed nav a.sidebar-link i,
+  aside.sidebar-collapsed nav button.sidebar-link i {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    font-size: 1.25rem !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Mobile bottom bar should remain visible */
+  aside.sidebar-collapsed {
+    transform: none;
+  }
 }
 
 /* Glassmorphism Effect */

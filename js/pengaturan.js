@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const apiUrlInput = document.getElementById('apiUrl');
   const waTemplateInput = document.getElementById('waTemplate');
   const reminderIntervalSelect = document.getElementById('reminderInterval');
-  const mockModeCheckbox = document.getElementById('mockMode');
   const notifStyleSelect = document.getElementById('notifStyle');
   const notifVibrateCheckbox = document.getElementById('notifVibrate');
   const notifSilentCheckbox = document.getElementById('notifSilent');
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (apiUrlInput) apiUrlInput.value = CONFIG.API_URL || '';
   if (waTemplateInput) waTemplateInput.value = CONFIG.WA_TEMPLATE || '';
   if (reminderIntervalSelect) reminderIntervalSelect.value = (CONFIG.REMINDER_INTERVAL || 18000000).toString();
-  if (mockModeCheckbox) mockModeCheckbox.checked = !!CONFIG.MOCK_MODE;
   if (notifStyleSelect) notifStyleSelect.value = CONFIG.NOTIF_STYLE || 'casual';
   if (notifVibrateCheckbox) notifVibrateCheckbox.checked = CONFIG.NOTIF_VIBRATE !== false;
   if (notifSilentCheckbox) notifSilentCheckbox.checked = !!CONFIG.NOTIF_SILENT;
@@ -49,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       CONFIG.WA_TEMPLATE = waTemplateInput.value.trim();
       CONFIG.REMINDER_INTERVAL = parseInt(reminderIntervalSelect.value);
-      CONFIG.MOCK_MODE = mockModeCheckbox.checked;
       if (notifStyleSelect) CONFIG.NOTIF_STYLE = notifStyleSelect.value;
       if (notifVibrateCheckbox) CONFIG.NOTIF_VIBRATE = notifVibrateCheckbox.checked;
       if (notifSilentCheckbox) CONFIG.NOTIF_SILENT = notifSilentCheckbox.checked;
@@ -161,19 +158,48 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+  // Handle Clear Cache & Session Button
+  const btnClearStorageCache = document.getElementById('btnClearStorageCache');
+  if (btnClearStorageCache) {
+    btnClearStorageCache.addEventListener('click', async () => {
+      if (confirm('Apakah Anda yakin ingin membersihkan seluruh cache, session, cookie, dan riwayat sementara aplikasi?')) {
+        // Clear session storage
+        sessionStorage.clear();
+        // Clear cache storage if supported
+        if ('caches' in window) {
+          try {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(key => caches.delete(key)));
+          } catch (err) {
+            console.error("Cache cleanup error:", err);
+          }
+        }
+        // Clear API cache
+        if (typeof APICache !== 'undefined' && typeof APICache.clear === 'function') {
+          APICache.clear();
+        }
+        // Remove mock data remnants in localStorage
+        ['mock_users', 'mock_proyek', 'mock_keuangan', 'mock_tools', 'mock_shortcuts', 'cfg_mock_mode'].forEach(k => localStorage.removeItem(k));
+
+        showToast({
+          title: 'Cache & Session Dibersihkan',
+          message: 'Cache, sesi cookie, dan riwayat sementara berhasil dibersihkan! Memuat ulang...',
+          type: 'success'
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+      }
+    });
+  }
 });
 
 // Helper update status badge on header
 function updateApiStatusBadge() {
   const badge = document.getElementById('apiStatusBadge');
   if (badge) {
-    if (CONFIG.MOCK_MODE) {
-      badge.textContent = 'Mock Mode (Offline)';
-      badge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800';
-    } else {
-      badge.textContent = 'Live API (Google sheets)';
-      badge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    }
+    badge.textContent = 'Live API (Google Sheets)';
+    badge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 }
 
@@ -184,7 +210,6 @@ function resetDefaults() {
     localStorage.removeItem('cfg_api_key');
     localStorage.removeItem('cfg_wa_template');
     localStorage.removeItem('cfg_reminder_interval');
-    localStorage.removeItem('cfg_mock_mode');
     localStorage.removeItem('cfg_notif_style');
     localStorage.removeItem('cfg_notif_vibrate');
     localStorage.removeItem('cfg_notif_silent');

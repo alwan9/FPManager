@@ -6,13 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update badge api status
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    if (CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = 'Mock Mode (Offline)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-    } else {
-      apiStatusBadge.textContent = 'Live API (Google Sheets)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-    }
+    apiStatusBadge.textContent = 'Live API (Google Sheets)';
+    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
   }
 
   loadData();
@@ -37,6 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadData() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:read')) {
+    const mainArea = document.querySelector('main section') || document.querySelector('main');
+    if (mainArea) {
+      mainArea.innerHTML = `
+        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
+          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
+          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (tools:read) untuk melihat modul tools.</p>
+        </div>
+      `;
+    }
+    return;
+  }
   showToolsSkeletons();
   try {
     const [tools, shortcuts] = await Promise.all([
@@ -44,8 +52,14 @@ async function loadData() {
       API.getShortcuts()
     ]);
 
-    toolsData = tools || [];
-    shortcutsData = shortcuts || [];
+    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    if (currUser && currUser.role !== 'super_admin') {
+      toolsData = (tools || []).filter(t => (t.userId || 'USR-001') === currUser.id);
+      shortcutsData = (shortcuts || []).filter(s => (s.userId || 'USR-001') === currUser.id);
+    } else {
+      toolsData = tools || [];
+      shortcutsData = shortcuts || [];
+    }
 
     renderTools();
     renderShortcuts();
@@ -120,7 +134,10 @@ function renderTools(query = '') {
 
     el.innerHTML = `
       <div class="flex-1 w-full min-w-0">
-        <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-lg mb-1 truncate">${tool.title}</h4>
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-1">
+          <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-lg truncate">${tool.title}</h4>
+          <span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">${tool.userId || 'USR-001'}</span>
+        </div>
         <div class="bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 text-[5px] md:text-sm whitespace-pre-wrap font-mono mt-2">${tool.prompt}</div>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0 justify-end shrink-0">
@@ -132,12 +149,16 @@ function renderTools(query = '') {
           <i class="fa-regular fa-copy"></i>
           <span>EN</span>
         </button>
-        <button onclick="editTool('${tool.id}')" class="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 font-semibold rounded-xl transition-colors flex items-center justify-center">
+        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
+        <button onclick="editTool('${tool.id}')" class="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 font-semibold rounded-xl transition-colors flex items-center justify-center" title="Edit Prompt">
           <i class="fa-solid fa-pen"></i>
         </button>
-        <button onclick="deleteTool('${tool.id}')" class="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 font-semibold rounded-xl transition-colors flex items-center justify-center">
+        ` : ''}
+        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
+        <button onclick="deleteTool('${tool.id}')" class="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 font-semibold rounded-xl transition-colors flex items-center justify-center" title="Hapus Prompt">
           <i class="fa-solid fa-trash-can"></i>
         </button>
+        ` : ''}
       </div>
     `;
     container.appendChild(el);
@@ -145,6 +166,13 @@ function renderTools(query = '') {
 }
 
 async function saveTool() {
+  const idInput = document.getElementById('toolId').value;
+  const requiredPerm = idInput ? 'tools:update' : 'tools:create';
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola Prompt.');
+    return;
+  }
+
   const btnSubmit = document.querySelector('#toolForm button[type="submit"]');
   if (btnSubmit) {
     if (btnSubmit.disabled) return;
@@ -152,10 +180,10 @@ async function saveTool() {
     btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
   }
 
-  const idInput = document.getElementById('toolId').value;
   const title = document.getElementById('toolTitle').value;
   const prompt = document.getElementById('toolPrompt').value;
-  const promptEn = document.getElementById('toolPromptEn') ? document.getElementById('toolPromptEn').value : '';
+  const promptEnInput = document.getElementById('toolPromptEn');
+  const promptEn = promptEnInput ? promptEnInput.value : '';
 
   const loader = document.getElementById('globalLoader');
   if (loader) loader.classList.remove('hidden');
@@ -203,6 +231,10 @@ function editTool(id) {
 }
 
 async function deleteTool(id) {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:delete')) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Prompt.');
+    return;
+  }
   if (confirm('Apakah Anda yakin ingin menghapus prompt ini?')) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');
@@ -326,14 +358,19 @@ function renderShortcuts(query = '') {
           <img src="${iconUrl}" alt="${shortcut.title}" class="w-full h-full object-cover">
         </div>
         <span class="font-bold text-zinc-800 dark:text-zinc-200 text-sm truncate w-full px-1 group-hover:text-emerald-600 hidden md:block">${shortcut.title}</span>
+        <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 mt-1">${shortcut.userId || 'USR-001'}</span>
       </a>
       <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
-        <button onclick="editShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
+        <button onclick="editShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform" title="Edit Shortcut">
           <i class="fa-solid fa-pen text-xs"></i>
         </button>
-        <button onclick="deleteShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+        ` : ''}
+        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
+        <button onclick="deleteShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform" title="Hapus Shortcut">
           <i class="fa-solid fa-trash-can text-xs"></i>
         </button>
+        ` : ''}
       </div>
     `;
     container.appendChild(el);
@@ -356,6 +393,13 @@ function renderShortcuts(query = '') {
 }
 
 async function saveShortcut() {
+  const idInput = document.getElementById('shortcutId').value;
+  const requiredPerm = idInput ? 'tools:update' : 'tools:create';
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola Web Shortcut.');
+    return;
+  }
+
   const btnSubmit = document.querySelector('#shortcutForm button[type="submit"]');
   if (btnSubmit) {
     if (btnSubmit.disabled) return;
@@ -363,7 +407,6 @@ async function saveShortcut() {
     btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
   }
 
-  const idInput = document.getElementById('shortcutId').value;
   const title = document.getElementById('shortcutTitle').value;
   const url = document.getElementById('shortcutUrl').value;
   const icon = document.getElementById('shortcutIcon').value;
@@ -412,6 +455,10 @@ function editShortcut(id) {
 }
 
 async function deleteShortcut(id) {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:delete')) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Web Shortcut.');
+    return;
+  }
   if (confirm('Apakah Anda yakin ingin menghapus shortcut ini?')) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');

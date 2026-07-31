@@ -4,10 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    }
+    apiStatusBadge.textContent = 'Live API (Google Sheets)';
+    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 
   // Set tanggal cetak
@@ -25,6 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load all project and financial data and compile reports
 async function loadLaporanData() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('laporan:read')) {
+    const mainArea = document.querySelector('main section') || document.querySelector('main');
+    if (mainArea) {
+      mainArea.innerHTML = `
+        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
+          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
+          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (laporan:read) untuk melihat laporan keuangan.</p>
+        </div>
+      `;
+    }
+    return;
+  }
   showLaporanSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
@@ -250,18 +261,19 @@ async function exportToExcel() {
 
     // 1. Siapkan Sheet Proyek
     const wsProyekData = proyek.map(p => ({
-      'ID Proyek': p.id,
+      'ID Proyek': p.iDProyek || p.id,
+      'User ID': p.userId || 'USR-001',
       'Tanggal Input': p.tanggal,
       'Nama Proyek': p.namaProyek,
-      'Nama Pelanggan': p.pelanggan,
-      'No WhatsApp': p.wa,
+      'Nama Pelanggan': p.namaPelanggan || p.pelanggan,
+      'No WhatsApp': p.nomorWA || p.wa,
       'Jenis Produk': p.produk || '-',
       'Jumlah': p.jumlah,
       'Satuan': p.satuan,
       'Harga Satuan (Rp)': p.hargaSatuan || 0,
-      'Nominal Proyek (Rp)': p.nominal,
-      'DP (Rp)': p.dp,
-      'Sisa Tagihan (Rp)': p.sisa,
+      'Nominal Proyek (Rp)': p.nominalProyek || p.nominal,
+      'DP (Rp)': p.dP || p.dp,
+      'Sisa Tagihan (Rp)': p.sisaPembayaran || p.sisa,
       'Tenggat Waktu': p.deadline,
       'Status': p.status,
       'Catatan': p.catatan || ''
@@ -270,6 +282,7 @@ async function exportToExcel() {
     // 2. Siapkan Sheet Keuangan
     const wsKeuanganData = keuangan.map(k => ({
       'ID Transaksi': k.id,
+      'User ID': k.userId || 'USR-001',
       'Tanggal': k.tanggal,
       'Jenis Mutasi': k.jenis,
       'Keterangan': k.keterangan,
@@ -310,15 +323,15 @@ function showLaporanSkeletons() {
 
   const skeletonText = '<div class="h-6 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
   const stats = [
-    'recapTotalProyek', 'recapTotalOmzet', 'recapTotalDp', 
+    'recapTotalProyek', 'recapTotalOmzet', 'recapTotalDp',
     'recapTotalPiutang', 'recapTotalPengeluaran', 'recapTotalLaba'
   ];
-  
+
   stats.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = skeletonText;
   });
-  
+
   const container = document.getElementById('monthlySummaryContainer');
   if (container) {
     container.innerHTML = Array(4).fill(`

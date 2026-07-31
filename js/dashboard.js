@@ -2,10 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    if (!CONFIG.MOCK_MODE) {
-      apiStatusBadge.textContent = 'Live API (Google sheets)';
-      apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-    }
+    apiStatusBadge.textContent = 'Live API (Google Sheets)';
+    apiStatusBadge.className = 'hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
   // Load Dashboard Data
   loadDashboardData();

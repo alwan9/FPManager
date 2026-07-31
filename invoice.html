@@ -194,13 +194,16 @@
 
                     </thead>
 
-                                        <tbody id="invoiceTableBody">
+                    <tbody id="invoiceTableBody">
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">1</td>
                             <td class="border p-1 md:p-3 editable-cell" contenteditable="true" id="previewProduk"></td>
-                            <td class="border text-center editable-cell qty-cell" contenteditable="true" id="previewJumlah"></td>
-                            <td class="border text-center editable-cell price-cell" contenteditable="true" id="previewHarga"></td>
-                            <td class="border text-center font-bold nominal-cell" contenteditable="true" id="previewNominal"></td>
+                            <td class="border text-center editable-cell qty-cell" contenteditable="true"
+                                id="previewJumlah"></td>
+                            <td class="border text-center editable-cell price-cell" contenteditable="true"
+                                id="previewHarga"></td>
+                            <td class="border text-center font-bold nominal-cell" contenteditable="true"
+                                id="previewNominal"></td>
                         </tr>
                         <!-- Baris kosong tambahan (menjadi 15 baris total) -->
                         <tr class="invoice-row">
@@ -368,11 +371,13 @@
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-8 no-print ">
 
-            <button id="btnSaveInvoice" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
+            <button id="btnSaveInvoice"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
                 <i class="fa fa-save mr-2"></i>
                 <span>Simpan Perubahan</span>
             </button>
-            <button id="btnResetInvoice" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
+            <button id="btnResetInvoice"
+                class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
                 <i class="fa fa-undo mr-2"></i>
                 <span>Reset</span>
             </button>
