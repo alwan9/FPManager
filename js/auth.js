@@ -49,6 +49,10 @@ const Auth = {
     }
   },
 
+  getCurrentUser: () => {
+    return Auth.getUser();
+  },
+
   getToken: () => {
     return sessionStorage.getItem("token") || localStorage.getItem("token") || "";
   },
@@ -176,13 +180,15 @@ const Auth = {
 
     const role = (user.role || "service").toLowerCase().trim();
     const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+    const isDesainer = role.includes("desainer") || role.includes("designer");
+    const isMobile = window.innerWidth < 768;
 
     // 1. Check sidebar navigation links inside navMenu
     const navLinks = document.querySelectorAll("#navMenu .sidebar-link");
     navLinks.forEach(el => {
       if (el.id === "pwaInstallBtn") return; // Let PWA manager control install button visibility
 
-      const href = el.getAttribute("href");
+      const href = el.getAttribute("href") || "";
       let permNeeded = el.getAttribute("data-permission-allow");
 
       if (!permNeeded && href) {
@@ -198,6 +204,60 @@ const Auth = {
       const isAllowed = isSuperAdmin || !permNeeded || Auth.hasPermission(permNeeded);
 
       if (isAllowed) {
+        if (isMobile) {
+          // On mobile bottom navbar:
+          // For Desainer role: show Home, Projek, Tambah, Layanan, Tools
+          // For Service/Admin/Other roles: show Home, Projek, Tambah, Keuangan, Laporan
+          let showOnMobile = false;
+          if (href.endsWith("index.html") || href.endsWith("proyek.html") || href.endsWith("tambah-proyek.html")) {
+            showOnMobile = true;
+          } else if (isDesainer) {
+            if (href.endsWith("layanan.html") || href.endsWith("tools.html")) {
+              showOnMobile = true;
+            }
+          } else {
+            // Service staff / Default roles show Keuangan & Laporan on bottom navbar
+            if (href.endsWith("keuangan.html") || href.endsWith("laporan.html")) {
+              showOnMobile = true;
+            }
+          }
+
+          if (showOnMobile) {
+            el.classList.remove("hidden");
+            el.style.display = "";
+          } else {
+            el.classList.add("hidden");
+            el.style.display = "none";
+          }
+        } else {
+          // Desktop sidebar: show all allowed items
+          el.classList.remove("hidden");
+          el.style.display = "";
+        }
+      } else {
+        el.classList.add("hidden");
+        el.style.display = "none";
+      }
+    });
+
+    // 2. Check profile dropdown links for permissions
+    const dropdownLinks = document.querySelectorAll("#profileDropdown a");
+    dropdownLinks.forEach(el => {
+      const href = el.getAttribute("href") || "";
+      let permNeeded = el.getAttribute("data-permission-allow");
+
+      if (!permNeeded && href) {
+        if (href.endsWith("proyek.html")) permNeeded = "proyek:read";
+        else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
+        else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
+        else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
+        else if (href.endsWith("layanan.html")) permNeeded = "layanan:read";
+        else if (href.endsWith("tools.html")) permNeeded = "tools:read";
+        else if (href.endsWith("user-management.html")) permNeeded = "users:read";
+      }
+
+      const isAllowed = isSuperAdmin || !permNeeded || Auth.hasPermission(permNeeded);
+      if (isAllowed) {
         el.classList.remove("hidden");
         el.style.display = "";
       } else {
@@ -209,7 +269,11 @@ const Auth = {
     // Update Profile Name / Badge display if elements exist
     const profileBtn = document.getElementById("profileDropdownBtn");
     if (profileBtn) {
-      profileBtn.innerText = (user.name || user.username || "A").charAt(0).toUpperCase();
+      if (user.avatar) {
+        profileBtn.innerHTML = `<img src="${user.avatar}" class="h-full w-full rounded-full object-cover">`;
+      } else {
+        profileBtn.innerText = (user.name || user.username || "A").charAt(0).toUpperCase();
+      }
       profileBtn.title = `${user.name || user.username} (${role})`;
     }
 
@@ -224,29 +288,20 @@ const Auth = {
     const user = Auth.getUser();
     if (!user) return;
 
-    const role = (user.role || "").toLowerCase().trim();
+    const role = (user.role || "service").toLowerCase().trim();
     const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
 
-    const actionElements = document.querySelectorAll("[data-permission-allow]");
-    actionElements.forEach(el => {
-      if (el.classList.contains("sidebar-link")) return;
-
-      const perm = el.getAttribute("data-permission-allow");
-      if (!perm) return;
-
-      const isAllowed = isSuperAdmin || Auth.hasPermission(perm);
-
-      if (!isAllowed) {
-        el.classList.add("hidden");
-        el.dataset.authHidden = "true";
-        if (el.tagName === "BUTTON" || el.tagName === "INPUT" || el.tagName === "SELECT") {
-          el.disabled = true;
-        }
+    const permButtons = document.querySelectorAll("[data-permission-allow]");
+    permButtons.forEach(btn => {
+      if (btn.closest("#navMenu") || btn.closest("#profileDropdown")) return; // Skip menu items handled in applyMenuPermissions
+      const permNeeded = btn.getAttribute("data-permission-allow");
+      const isAllowed = isSuperAdmin || Auth.hasPermission(permNeeded);
+      if (isAllowed) {
+        btn.classList.remove("hidden");
+        btn.style.display = "";
       } else {
-        if (el.dataset.authHidden === "true") {
-          el.classList.remove("hidden");
-          delete el.dataset.authHidden;
-        }
+        btn.classList.add("hidden");
+        btn.style.display = "none";
       }
     });
   },
@@ -270,6 +325,12 @@ const Auth = {
     window.location.href = "login.html";
   }
 };
+
+window.addEventListener("resize", () => {
+  if (typeof Auth !== "undefined" && Auth.applyMenuPermissions) {
+    Auth.applyMenuPermissions();
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   // Check for Access Denied notification

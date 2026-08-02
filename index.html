@@ -97,23 +97,23 @@
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
         </a>
-        <a href="layanan.html" data-permission-allow="layanan:read"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="layanan.html" data-permission-allow="layanan:read" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-layanan">Layanan</span>
         </a>
-        <a href="tools.html" data-permission-allow="tools:read"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="tools.html" data-permission-allow="tools:read" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-toolbox text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Tools</span>
         </a>
-        <a href="user-management.html" data-permission-allow="users:read"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="user-management.html" data-permission-allow="users:read" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-users-gear text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Manajemen User</span>
         </a>
-        <a href="pengaturan.html"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="pengaturan.html" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-gear text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
         </a>
@@ -145,7 +145,7 @@
           </button>
           <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
             <i class="fa-solid fa-chart-line text-indigo-600"></i>
-            <span data-i18n="dash-title">Dashboard Usaha</span>
+            <span><span class="hidden md:inline" data-i18n="dash-title">Dashboard Usaha</span><span class="inline md:hidden">Dashboard</span></span>
           </h2>
         </div>
         <div class="flex items-center space-x-4">
@@ -170,14 +170,45 @@
               A
             </button>
             <div id="profileDropdown"
-              class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              <a href="profil.html"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-user w-4 text-zinc-500"></i>
+                <span>Profil Saya</span>
+              </a>
+              <a href="keuangan.html" data-permission-allow="keuangan:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-wallet w-4 text-zinc-500"></i>
+                <span data-i18n="nav-keuangan">Keuangan</span>
+              </a>
+              <a href="laporan.html" data-permission-allow="laporan:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-file-invoice-dollar w-4 text-zinc-500"></i>
+                <span data-i18n="nav-laporan">Laporan</span>
+              </a>
+              <a href="layanan.html" data-permission-allow="layanan:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-tags w-4 text-zinc-500"></i>
+                <span data-i18n="nav-layanan">Layanan</span>
+              </a>
+              <a href="tools.html" data-permission-allow="tools:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-toolbox w-4 text-zinc-500"></i>
+                <span>Tools</span>
+              </a>
+              <a href="user-management.html" data-permission-allow="users:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-users-gear w-4 text-zinc-500"></i>
+                <span>Manajemen User</span>
+              </a>
               <a href="pengaturan.html"
-                class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
                 <span data-i18n="nav-pengaturan">Pengaturan</span>
               </a>
+              <div class="border-t border-zinc-100 dark:border-zinc-700 my-1"></div>
               <button onclick="Auth.logout()"
-                class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
+                class="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
                 <i class="fa-solid fa-right-from-bracket w-4"></i>
                 <span data-i18n="nav-logout">Logout</span>
               </button>
@@ -195,22 +226,24 @@
           <div>
             <h3 class="text-xl md:text-2xl font-bold tracking-tight" data-i18n="dash-welcome">Selamat Datang Admin! 👋
             </h3>
-            <p class="text-indigo-100 text-xs md:text-sm mt-1" data-i18n="dash-desc">Berikut adalah ringkasan performa
-              dan laporan usaha
-              FPManager hari ini.</p>
+            <p class="text-indigo-100 text-xs md:text-sm mt-1" data-i18n="dash-desc">
+              <span class="hidden md:inline">Berikut adalah ringkasan performa dan laporan usaha FPManager hari ini.</span>
+              <span class="inline md:hidden">Ringkasan performa usaha hari ini.</span>
+            </p>
           </div>
-          <a href="tambah-proyek.html"
+          <a href="tambah-proyek.html" data-permission-allow="proyek:create"
             class="inline-flex items-center justify-center px-4 py-2.5 bg-white text-indigo-700 font-semibold rounded-xl text-sm shadow hover:bg-zinc-100 transition-colors">
             <i class="fa-solid fa-circle-plus mr-2 text-indigo-600"></i>
-            <span data-i18n="dash-quick-add">Tambah Projek</span>
+            <span data-i18n="dash-quick-add"><span class="hidden md:inline">Tambah Projek</span><span class="inline md:hidden">+ Projek</span></span>
           </a>
         </div>
 
         <!-- Deadline Alerts Container -->
         <div id="deadlineAlertContainer" class="hidden space-y-2">
           <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-            <i class="fa-solid fa-bell text-rose-500 mr-1.5 animate-bounce"></i> Pengingat Deadline Mendatang (&le; 3
-            Hari)
+            <i class="fa-solid fa-bell text-rose-500 mr-1.5 animate-bounce"></i>
+            <span class="hidden md:inline">Pengingat Deadline Mendatang (&le; 3 Hari)</span>
+            <span class="inline md:hidden">Deadline Mendatang (&le; 3 Hari)</span>
           </h4>
           <div id="deadlineList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <!-- Alert items populated by JS -->
@@ -224,56 +257,56 @@
           <div
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
+              <span id="statCard1Title" class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
                 data-i18n="dash-total-projects">Total
                 Projek</span>
               <span id="statTotalProyek"
                 class="text-base sm:text-lg md:text-2xl font-extrabold text-zinc-900 mt-1 block truncate">-</span>
             </div>
-            <div class="bg-zinc-100 text-zinc-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
+            <div id="statCard1Icon" class="bg-zinc-100 text-zinc-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-briefcase text-base md:text-lg"></i>
             </div>
           </div>
 
-          <!-- Card Pendapatan -->
+          <!-- Card Pendapatan / Status 1 -->
           <div
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
+              <span id="statCard2Title" class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
                 data-i18n="dash-income">Pendapatan</span>
               <span id="statPendapatan"
                 class="text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate">Rp0</span>
             </div>
-            <div class="bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
+            <div id="statCard2Icon" class="bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-arrow-trend-up text-base md:text-lg"></i>
             </div>
           </div>
 
-          <!-- Card Pengeluaran -->
+          <!-- Card Pengeluaran / Status 2 -->
           <div
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
+              <span id="statCard3Title" class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
                 data-i18n="dash-expense">Pengeluaran</span>
               <span id="statPengeluaran"
                 class="text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate">Rp0</span>
             </div>
-            <div class="bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
+            <div id="statCard3Icon" class="bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-arrow-trend-down text-base md:text-lg"></i>
             </div>
           </div>
 
-          <!-- Card Keuntungan -->
+          <!-- Card Keuntungan / Status 3 -->
           <div
             class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-5 shadow-sm hover-card flex items-center justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
+              <span id="statCard4Title" class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
                 data-i18n="dash-profit">Laba
                 Bersih</span>
               <span id="statKeuntungan"
                 class="text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 mt-1 block truncate">Rp0</span>
             </div>
-            <div class="bg-indigo-50 text-indigo-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
+            <div id="statCard4Icon" class="bg-indigo-50 text-indigo-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-scale-balanced text-base md:text-lg"></i>
             </div>
           </div>
@@ -284,12 +317,12 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           <!-- Column Chart (Left) -->
-          <div
+          <div id="chartCard"
             class="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col justify-between">
             <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
               <h4 class="font-bold text-zinc-800 text-sm flex items-center">
                 <i class="fa-solid fa-chart-simple text-indigo-600 mr-2"></i>
-                <span data-i18n="dash-chart-title">Grafik Arus Keuangan Bulanan</span>
+                <span data-i18n="dash-chart-title"><span class="hidden md:inline">Grafik Arus Keuangan Bulanan</span><span class="inline md:hidden">Grafik Keuangan</span></span>
               </h4>
               <a href="laporan.html"
                 class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
@@ -303,7 +336,7 @@
           </div>
 
           <!-- Column Recent Projects (Right) -->
-          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col justify-between">
+          <div id="recentProjectsCard" class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
                 <h4 class="font-bold text-zinc-800 text-sm flex items-center">
@@ -336,7 +369,7 @@
               <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
                 <h4 class="font-bold text-zinc-800 text-sm flex items-center">
                   <i class="fa-solid fa-calendar-days text-rose-600 mr-2"></i>
-                  <span data-i18n="dash-deadline-title">Kalender Deadline Revisi</span>
+                  <span data-i18n="dash-deadline-title"><span class="hidden md:inline">Kalender Deadline Revisi</span><span class="inline md:hidden">Kalender Revisi</span></span>
                 </h4>
                 <div class="flex items-center space-x-2">
                   <button id="prevMonthBtn" class="p-1.5 hover:bg-zinc-100 rounded-lg text-zinc-600 transition-colors">

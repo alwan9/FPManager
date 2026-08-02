@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  const currUser = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : { id: 'USR-001' };
+  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : { id: 'USR-001' };
   const displayUserIdEl = document.getElementById('displayUserId');
   if (displayUserIdEl) {
     displayUserIdEl.textContent = currUser ? currUser.id : 'USR-001';

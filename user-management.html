@@ -64,23 +64,23 @@
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
         </a>
-        <a href="layanan.html" data-permission-allow="layanan:read"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="layanan.html" data-permission-allow="layanan:read" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-layanan">Layanan</span>
         </a>
-        <a href="tools.html" data-permission-allow="tools:read"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="tools.html" data-permission-allow="tools:read" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-toolbox text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Tools</span>
         </a>
-        <a href="user-management.html" data-permission-allow="users:read"
-          class="sidebar-link active flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-indigo-400 bg-zinc-800 font-semibold">
+        <a href="user-management.html" data-permission-allow="users:read" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link active flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-indigo-400 bg-zinc-800 font-semibold">
           <i class="fa-solid fa-users-gear text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium">Manajemen User</span>
         </a>
-        <a href="pengaturan.html"
-          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <a href="pengaturan.html" data-mobile-hide="true"
+          class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-gear text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
         </a>
@@ -113,7 +113,7 @@
           </button>
           <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
             <i class="fa-solid fa-users-gear text-indigo-600"></i>
-            <span>Manajemen User</span>
+            <span><span class="hidden md:inline">Manajemen User</span><span class="inline md:hidden">Users</span></span>
           </h2>
         </div>
         <div class="flex items-center space-x-4">
@@ -142,14 +142,45 @@
               W
             </button>
             <div id="profileDropdown"
-              class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+              <a href="profil.html"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-user w-4 text-zinc-500"></i>
+                <span>Profil Saya</span>
+              </a>
+              <a href="keuangan.html" data-permission-allow="keuangan:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-wallet w-4 text-zinc-500"></i>
+                <span data-i18n="nav-keuangan">Keuangan</span>
+              </a>
+              <a href="laporan.html" data-permission-allow="laporan:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-file-invoice-dollar w-4 text-zinc-500"></i>
+                <span data-i18n="nav-laporan">Laporan</span>
+              </a>
+              <a href="layanan.html" data-permission-allow="layanan:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-tags w-4 text-zinc-500"></i>
+                <span data-i18n="nav-layanan">Layanan</span>
+              </a>
+              <a href="tools.html" data-permission-allow="tools:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-toolbox w-4 text-zinc-500"></i>
+                <span>Tools</span>
+              </a>
+              <a href="user-management.html" data-permission-allow="users:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-users-gear w-4 text-zinc-500"></i>
+                <span>Manajemen User</span>
+              </a>
               <a href="pengaturan.html"
-                class="flex items-center space-x-2 px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
                 <span data-i18n="nav-pengaturan">Pengaturan</span>
               </a>
+              <div class="border-t border-zinc-100 dark:border-zinc-700 my-1"></div>
               <button onclick="Auth.logout()"
-                class="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
+                class="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
                 <i class="fa-solid fa-right-from-bracket w-4"></i>
                 <span data-i18n="nav-logout">Logout</span>
               </button>
@@ -161,45 +192,45 @@
       <!-- Page Content -->
       <section class="flex-grow p-6 md:p-8 space-y-6">
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 rounded-xl">
-              <i class="fa-solid fa-users text-2xl"></i>
+        <!-- Stats Cards (4 Columns in 1 Row on Mobile & Desktop) -->
+        <div class="grid grid-cols-4 gap-2 sm:gap-4">
+          <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
+            <div class="p-2 sm:p-3 bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 rounded-lg sm:rounded-xl">
+              <i class="fa-solid fa-users text-lg sm:text-2xl"></i>
             </div>
             <div>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Total User</p>
-              <h3 id="statTotalUsers" class="text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
+              <p class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight">Total User</p>
+              <h3 id="statTotalUsers" class="text-lg sm:text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300 rounded-xl">
-              <i class="fa-solid fa-user-shield text-2xl"></i>
+          <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
+            <div class="p-2 sm:p-3 bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300 rounded-lg sm:rounded-xl">
+              <i class="fa-solid fa-user-shield text-lg sm:text-2xl"></i>
             </div>
             <div>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Super Admin</p>
-              <h3 id="statSuperAdmin" class="text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
+              <p class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight">Super Admin</p>
+              <h3 id="statSuperAdmin" class="text-lg sm:text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 rounded-xl">
-              <i class="fa-solid fa-headset text-2xl"></i>
+          <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
+            <div class="p-2 sm:p-3 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 rounded-lg sm:rounded-xl">
+              <i class="fa-solid fa-headset text-lg sm:text-2xl"></i>
             </div>
             <div>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Service Staff</p>
-              <h3 id="statService" class="text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
+              <p class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight">Service Staff</p>
+              <h3 id="statService" class="text-lg sm:text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="p-3 bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300 rounded-xl">
-              <i class="fa-solid fa-palette text-2xl"></i>
+          <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
+            <div class="p-2 sm:p-3 bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300 rounded-lg sm:rounded-xl">
+              <i class="fa-solid fa-palette text-lg sm:text-2xl"></i>
             </div>
             <div>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Desainer Staff</p>
-              <h3 id="statDesainer" class="text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
+              <p class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight">Desainer Staff</p>
+              <h3 id="statDesainer" class="text-lg sm:text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
             </div>
           </div>
         </div>
@@ -223,12 +254,10 @@
             <table class="w-full text-left text-sm text-zinc-600 dark:text-zinc-300">
               <thead class="bg-zinc-50 dark:bg-zinc-900/50 text-xs uppercase text-zinc-400 font-semibold border-b border-zinc-200 dark:border-zinc-700">
                 <tr>
-                  <th class="px-4 py-3.5">ID User</th>
-                  <th class="px-4 py-3.5">Username</th>
-                  <th class="px-4 py-3.5">Nama Lengkap</th>
+                  <th class="px-3 py-3.5 text-center w-12">No.</th>
+                  <th class="px-4 py-3.5">User & Profile (Klik untuk Detail)</th>
                   <th class="px-4 py-3.5">Peran / Role (Edit Langsung)</th>
                   <th class="px-4 py-3.5">Hak Akses Feature (Checklist Langsung)</th>
-                  <th class="px-4 py-3.5">Tanggal Dibuat</th>
                   <th class="px-4 py-3.5 text-center">Aksi</th>
                 </tr>
               </thead>
@@ -243,34 +272,131 @@
     </main>
   </div>
 
+  <!-- Modal User Detail Popup -->
+  <div id="userDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all flex flex-col">
+      <div class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+        <h3 class="text-base font-bold text-zinc-800 dark:text-white flex items-center space-x-2">
+          <i class="fa-solid fa-address-card text-indigo-600 dark:text-indigo-400"></i>
+          <span>Detail Pengguna</span>
+        </h3>
+        <button id="closeUserDetailModalBtn" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
+        <!-- Top Profile Info -->
+        <div class="flex items-center space-x-4">
+          <div id="detailAvatarContainer">
+            <!-- Avatar populated JS -->
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 id="detailName" class="text-lg font-bold text-zinc-900 dark:text-white truncate"></h4>
+            <div class="flex items-center space-x-2 mt-0.5">
+              <span id="detailUsername" class="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-semibold"></span>
+              <span id="detailId" class="px-2 py-0.5 font-mono font-bold text-[11px] rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta Details grid -->
+        <div class="grid grid-cols-1 gap-3 bg-zinc-50 dark:bg-zinc-900/40 p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 text-xs">
+          <div class="flex items-center justify-between py-1 border-b border-zinc-200/60 dark:border-zinc-700/60">
+            <span class="text-zinc-500 dark:text-zinc-400 font-medium flex items-center"><i class="fa-solid fa-user-shield w-5 text-indigo-500"></i> Peran / Role:</span>
+            <span id="detailRole" class="font-semibold"></span>
+          </div>
+
+          <div class="flex items-center justify-between py-1 border-b border-zinc-200/60 dark:border-zinc-700/60">
+            <span class="text-zinc-500 dark:text-zinc-400 font-medium flex items-center"><i class="fa-solid fa-envelope w-5 text-zinc-400"></i> Email:</span>
+            <span id="detailEmail" class="font-medium text-zinc-800 dark:text-zinc-200"></span>
+          </div>
+
+          <div class="flex items-center justify-between py-1 border-b border-zinc-200/60 dark:border-zinc-700/60">
+            <span class="text-zinc-500 dark:text-zinc-400 font-medium flex items-center"><i class="fa-solid fa-phone w-5 text-zinc-400"></i> Kontak (WA):</span>
+            <span id="detailPhone" class="font-medium text-zinc-800 dark:text-zinc-200"></span>
+          </div>
+
+          <div class="flex items-center justify-between py-1">
+            <span class="text-zinc-500 dark:text-zinc-400 font-medium flex items-center"><i class="fa-solid fa-calendar-day w-5 text-zinc-400"></i> Tanggal Dibuat:</span>
+            <span id="detailCreatedAt" class="font-medium text-zinc-800 dark:text-zinc-200"></span>
+          </div>
+        </div>
+
+        <!-- Access Rights Summary -->
+        <div>
+          <h5 class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Hak Akses Modul</h5>
+          <div id="detailPermissions" class="flex flex-wrap gap-1.5">
+            <!-- Badges populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 flex justify-end space-x-2">
+        <button id="closeUserDetailModalBtn2" class="px-4 py-2 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-xl text-xs font-semibold transition-colors">
+          Tutup
+        </button>
+        <button id="detailEditBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-colors flex items-center space-x-1">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>Edit User</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal User Form (Add / Edit) -->
   <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all">
-      <div class="p-6 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
+    <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all max-h-[90vh] flex flex-col">
+      <div class="p-6 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center flex-shrink-0">
         <h3 id="modalTitle" class="text-lg font-bold text-zinc-800 dark:text-white">Tambah User Baru</h3>
         <button id="closeUserModalBtn" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-white">
           <i class="fa-solid fa-xmark text-xl"></i>
         </button>
       </div>
       
-      <form id="userForm" class="p-6 space-y-4">
+      <form id="userForm" class="p-6 space-y-4 overflow-y-auto flex-grow">
         <input type="hidden" id="userIdInput">
 
-        <div>
-          <label for="usernameInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Username</label>
-          <input type="text" id="usernameInput" required
-            class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            placeholder="misal: staff_service1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="usernameInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Username</label>
+            <input type="text" id="usernameInput" required
+              class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none read-only:bg-zinc-100 dark:read-only:bg-zinc-800/60 read-only:text-zinc-500 dark:read-only:text-zinc-400 read-only:cursor-not-allowed"
+              placeholder="misal: staff_service1">
+          </div>
+
+          <div>
+            <label for="nameInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Nama Lengkap</label>
+            <input type="text" id="nameInput" required
+              class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none read-only:bg-zinc-100 dark:read-only:bg-zinc-800/60 read-only:text-zinc-500 dark:read-only:text-zinc-400 read-only:cursor-not-allowed"
+              placeholder="misal: Budi Santoso">
+          </div>
         </div>
 
-        <div>
-          <label for="nameInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Nama Lengkap</label>
-          <input type="text" id="nameInput" required
-            class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            placeholder="misal: Budi Santoso">
+        <div id="contactFieldsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden">
+          <div>
+            <label for="emailInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Email</label>
+            <input type="email" id="emailInput"
+              class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              placeholder="user@email.com">
+          </div>
+
+          <div>
+            <label for="phoneInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">No. Telepon / WA</label>
+            <input type="text" id="phoneInput"
+              class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              placeholder="08123456789">
+          </div>
         </div>
 
-        <div>
+        <div id="avatarFieldContainer" class="hidden">
+          <label for="avatarInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Foto Profil / Avatar URL</label>
+          <input type="text" id="avatarInput"
+            class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            placeholder="URL Gambar atau Data URL">
+        </div>
+
+        <div id="passwordFieldContainer" class="hidden">
           <label for="passwordInput" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Password</label>
           <input type="password" id="passwordInput"
             class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"

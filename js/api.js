@@ -431,15 +431,144 @@ const API = {
       );
       const result = await response.json();
       if (handleUnauthorized(result)) return null;
-      if (!result.success) {
-        console.error("API ERROR :", result.message);
-        return null;
+      if (result.success && result.data) {
+        return result.data;
       }
-      return result.data;
     } catch (error) {
-      console.error("FETCH ERROR :", error);
+      console.warn("Backend getDashboard failed, computing locally:", error);
+    }
+
+    // Fallback: Build complete Dashboard data client-side from Proyek & Keuangan APIs
+    try {
+      const projects = (await API.getProyek()) || [];
+      const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+      const canKeuangan = user && (user.username === "wansmin" || (user.role && user.role.includes("admin")) || Auth.hasPermission("keuangan:read"));
+      const keuanganList = canKeuangan ? ((await API.getKeuangan()) || []) : [];
+
+      return API.buildDashboardData(projects, keuanganList);
+    } catch (err) {
+      console.error("Local dashboard calculation error:", err);
       return null;
     }
+  },
+
+  buildDashboardData: (projects, keuanganList) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // 1. Stats calculation
+    let totalPemasukan = 0;
+    let totalPengeluaran = 0;
+    let dikerjakanCount = 0;
+    let revisiCount = 0;
+    let selesaiCount = 0;
+
+    (projects || []).forEach(p => {
+      totalPemasukan += (Number(p.pembayaranAwal) || 0);
+      const st = String(p.status || '').toLowerCase();
+      if (st.includes('dikerjakan')) dikerjakanCount++;
+      else if (st.includes('revisi')) revisiCount++;
+      else if (st.includes('selesai')) selesaiCount++;
+    });
+
+    (keuanganList || []).forEach(k => {
+      const jenis = String(k.jenis || '').toLowerCase();
+      const nominal = Number(k.nominal) || 0;
+      if (jenis.includes('masuk') || jenis === 'pemasukan') {
+        totalPemasukan += nominal;
+      } else if (jenis.includes('keluar') || jenis === 'pengeluaran') {
+        totalPengeluaran += nominal;
+      }
+    });
+
+    const labaBersih = totalPemasukan - totalPengeluaran;
+
+    // 2. Deadline Alerts (<= 3 days)
+    const deadlineAlerts = [];
+    (projects || []).forEach(p => {
+      if (p.deadline) {
+        const dlDate = new Date(p.deadline);
+        dlDate.setHours(0, 0, 0, 0);
+        const diffMs = dlDate - today;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const st = String(p.status || '').toLowerCase();
+        if (diffDays >= 0 && diffDays <= 3 && !st.includes('selesai') && !st.includes('batal')) {
+          deadlineAlerts.push({
+            iDProyek: p.iDProyek,
+            namaProyek: p.namaProyek,
+            namaPelanggan: p.namaPelanggan,
+            deadline: p.deadline,
+            diffDays: diffDays
+          });
+        }
+      }
+    });
+
+    // 3. Recent Projects (Top 5)
+    const recentProjects = [...(projects || [])].slice(-5).reverse();
+
+    // 4. Monthly Financial Chart Data (Last 6 Months)
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const labels = [];
+    const pemasukanArr = [];
+    const pengeluaranArr = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const mIdx = d.getMonth();
+      const yr = d.getFullYear();
+      labels.push(`${monthNames[mIdx]} ${yr.toString().slice(-2)}`);
+
+      let mIn = 0;
+      let mOut = 0;
+
+      (projects || []).forEach(p => {
+        if (p.tanggal) {
+          const pDate = new Date(p.tanggal);
+          if (pDate.getMonth() === mIdx && pDate.getFullYear() === yr) {
+            mIn += (Number(p.pembayaranAwal) || 0);
+          }
+        }
+      });
+
+      (keuanganList || []).forEach(k => {
+        if (k.tanggal) {
+          const kDate = new Date(k.tanggal);
+          if (kDate.getMonth() === mIdx && kDate.getFullYear() === yr) {
+            const jenis = String(k.jenis || '').toLowerCase();
+            const nominal = Number(k.nominal) || 0;
+            if (jenis.includes('masuk') || jenis === 'pemasukan') mIn += nominal;
+            else if (jenis.includes('keluar') || jenis === 'pengeluaran') mOut += nominal;
+          }
+        }
+      });
+
+      pemasukanArr.push(mIn);
+      pengeluaranArr.push(mOut);
+    }
+
+    // 5. Revision Projects for Calendar
+    const revisiProjects = (projects || []).filter(p => String(p.status || '').toLowerCase().includes('revisi'));
+
+    return {
+      stats: {
+        totalProyek: (projects || []).length,
+        totalPemasukan,
+        totalPengeluaran,
+        labaBersih,
+        dikerjakanCount,
+        revisiCount,
+        selesaiCount
+      },
+      deadlineAlerts,
+      recentProjects,
+      chartData: {
+        labels,
+        pemasukan: pemasukanArr,
+        pengeluaran: pengeluaranArr
+      },
+      revisiProjects
+    };
   },
 
   // ===================================

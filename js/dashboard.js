@@ -5,9 +5,64 @@ document.addEventListener('DOMContentLoaded', () => {
     apiStatusBadge.textContent = 'Live API (Google Sheets)';
     apiStatusBadge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
+  
+  // Apply role & permission customizations to dashboard UI
+  applyDashboardRoleCustomizations();
+
   // Load Dashboard Data
   loadDashboardData();
 });
+
+// Customize Dashboard UI elements according to logged-in User Role and Permissions
+function applyDashboardRoleCustomizations() {
+  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+  if (!user) return;
+
+  const role = (user.role || 'service').toLowerCase().trim();
+  const isSuperAdmin = (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+  const isDesainer = role.includes("desainer") || role.includes("designer");
+  const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+
+  // 1. Customize Welcome Banner Title & Description
+  const welcomeTitle = document.querySelector('[data-i18n="dash-welcome"]');
+  const welcomeDesc = document.querySelector('[data-i18n="dash-desc"]');
+
+  if (welcomeTitle) {
+    if (isSuperAdmin) {
+      welcomeTitle.textContent = isEn ? "Welcome Super Admin! 👋" : "Selamat Datang Super Admin! 👋";
+    } else if (isDesainer) {
+      welcomeTitle.textContent = isEn ? `Welcome ${user.name || 'Designer'}! 🎨` : `Selamat Datang ${user.name || 'Desainer'}! 🎨`;
+    } else {
+      welcomeTitle.textContent = isEn ? `Welcome ${user.name || 'Staff'}! 👋` : `Selamat Datang ${user.name || 'Staff'}! 👋`;
+    }
+  }
+
+  if (welcomeDesc) {
+    if (isDesainer) {
+      welcomeDesc.textContent = isEn ? "Here is the summary of your design projects and upcoming revision deadlines." : "Berikut adalah ringkasan projek desain dan kalender revisi hari ini.";
+    } else if (!canReadFinancials) {
+      welcomeDesc.textContent = isEn ? "Here is the summary of your active projects and task deadlines." : "Berikut adalah ringkasan projek dan deadline tugas hari ini.";
+    }
+  }
+
+  // 2. Hide/Show Financial Chart & Adjust Layout for Non-Financial Roles
+  const chartCard = document.getElementById('chartCard');
+  const recentProjectsCard = document.getElementById('recentProjectsCard');
+
+  if (!canReadFinancials) {
+    if (chartCard) chartCard.classList.add('hidden');
+    if (recentProjectsCard) {
+      recentProjectsCard.className = 'lg:col-span-3 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm flex flex-col justify-between';
+    }
+  } else {
+    if (chartCard) chartCard.classList.remove('hidden');
+    if (recentProjectsCard) {
+      recentProjectsCard.className = 'bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm flex flex-col justify-between';
+    }
+  }
+}
+
 // Load all project and financial data for dashboard cards and charts
 async function loadDashboardData() {
   showDashboardSkeletons();
@@ -16,7 +71,10 @@ async function loadDashboardData() {
     const dashboardData = await API.getDashboard();
     if (!dashboardData) return;
 
-    // 1. Tampilkan Statistik Ringkasan
+    // Apply dashboard role customizations
+    applyDashboardRoleCustomizations();
+
+    // 1. Tampilkan Statistik Ringkasan (Role-aware)
     if (dashboardData.stats) {
       renderSummaryStats(dashboardData.stats);
     }
@@ -24,10 +82,17 @@ async function loadDashboardData() {
     renderDeadlineAlerts(dashboardData.deadlineAlerts);
     // 3. Tampilkan Proyek Terbaru (Top 5)
     renderRecentProjects(dashboardData.recentProjects);
-    // 4. Render Grafik Keuangan Bulanan
-    renderDashboardChart(dashboardData.chartData);
+    // 4. Render Grafik Keuangan Bulanan (jika diizinkan)
+    const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+    const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
+    const isSuperAdmin = (user && (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin")));
+    const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+    
+    if (canReadFinancials && dashboardData.chartData) {
+      renderDashboardChart(dashboardData.chartData);
+    }
     // 5. Inisialisasi Kalender Deadline
-    initDeadlineCalendar(dashboardData.revisiProjects);
+    initDeadlineCalendar(dashboardData.revisiProjects || []);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
     const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -37,8 +102,14 @@ async function loadDashboardData() {
     );
   }
 }
-// Render statistic card counters from pre-calculated stats
+
+// Render statistic card counters dynamically according to role & permissions
 function renderSummaryStats(stats) {
+  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+  const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
+  const isSuperAdmin = (user && (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin")));
+  const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+
   const totalProyek = stats.totalProyek || 0;
   const totalPemasukan = stats.totalPemasukan || 0;
   const totalPengeluaran = stats.totalPengeluaran || 0;
@@ -46,15 +117,80 @@ function renderSummaryStats(stats) {
 
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const projSuffix = isEn ? 'Projects' : 'Proyek';
-  document.getElementById('statTotalProyek').textContent = `${totalProyek} ${projSuffix}`;
-  document.getElementById('statPendapatan').textContent = formatRupiah(totalPemasukan);
-  document.getElementById('statPengeluaran').textContent = formatRupiah(totalPengeluaran);
-  const labaEl = document.getElementById('statKeuntungan');
-  labaEl.textContent = formatRupiah(labaBersih);
-  if (labaBersih < 0) {
-    labaEl.className = 'text-2xl font-extrabold text-rose-600 mt-1 block';
+
+  const statTotalEl = document.getElementById('statTotalProyek');
+  if (statTotalEl) statTotalEl.textContent = `${totalProyek} ${projSuffix}`;
+
+  if (canReadFinancials) {
+    // Show Financial Metrics for Admin & Financial roles
+    const title2 = document.getElementById('statCard2Title');
+    if (title2) title2.textContent = isEn ? 'Income' : 'Pendapatan';
+    const val2 = document.getElementById('statPendapatan');
+    if (val2) {
+      val2.textContent = formatRupiah(totalPemasukan);
+      val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
+    }
+    const icon2 = document.getElementById('statCard2Icon');
+    if (icon2) icon2.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+
+    const title3 = document.getElementById('statCard3Title');
+    if (title3) title3.textContent = isEn ? 'Expenses' : 'Pengeluaran';
+    const val3 = document.getElementById('statPengeluaran');
+    if (val3) {
+      val3.textContent = formatRupiah(totalPengeluaran);
+      val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
+    }
+    const icon3 = document.getElementById('statCard3Icon');
+    if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+
+    const title4 = document.getElementById('statCard4Title');
+    if (title4) title4.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
+    const val4 = document.getElementById('statKeuntungan');
+    if (val4) {
+      val4.textContent = formatRupiah(labaBersih);
+      if (labaBersih < 0) {
+        val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
+      } else {
+        val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 mt-1 block truncate';
+      }
+    }
+    const icon4 = document.getElementById('statCard4Icon');
+    if (icon4) icon4.className = 'bg-indigo-50 text-indigo-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
   } else {
-    labaEl.className = 'text-2xl font-extrabold text-indigo-600 mt-1 block';
+    // Show Project Status Metrics for Desainer & Non-financial roles
+    const inProgress = stats.dikerjakanCount !== undefined ? stats.dikerjakanCount : (stats.sedangDikerjakan || 0);
+    const inRevision = stats.revisiCount !== undefined ? stats.revisiCount : (stats.revisi || 0);
+    const completed = stats.selesaiCount !== undefined ? stats.selesaiCount : (stats.selesai || 0);
+
+    const title2 = document.getElementById('statCard2Title');
+    if (title2) title2.textContent = isEn ? 'In Progress' : 'Sedang Dikerjakan';
+    const val2 = document.getElementById('statPendapatan');
+    if (val2) {
+      val2.textContent = `${inProgress} ${projSuffix}`;
+      val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-amber-600 mt-1 block truncate';
+    }
+    const icon2 = document.getElementById('statCard2Icon');
+    if (icon2) icon2.className = 'bg-amber-50 text-amber-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+
+    const title3 = document.getElementById('statCard3Title');
+    if (title3) title3.textContent = isEn ? 'In Revision' : 'Dalam Revisi';
+    const val3 = document.getElementById('statPengeluaran');
+    if (val3) {
+      val3.textContent = `${inRevision} ${projSuffix}`;
+      val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-red-600 mt-1 block truncate';
+    }
+    const icon3 = document.getElementById('statCard3Icon');
+    if (icon3) icon3.className = 'bg-red-50 text-red-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+
+    const title4 = document.getElementById('statCard4Title');
+    if (title4) title4.textContent = isEn ? 'Completed' : 'Selesai';
+    const val4 = document.getElementById('statKeuntungan');
+    if (val4) {
+      val4.textContent = `${completed} ${projSuffix}`;
+      val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
+    }
+    const icon4 = document.getElementById('statCard4Icon');
+    if (icon4) icon4.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
   }
 }
 // Identify and render alerts for projects with deadline <= 3 days

@@ -26,6 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnReqNotif = document.getElementById('btnReqNotif');
   const btnTestToast = document.getElementById('btnTestToast');
 
+  // Role-based visibility for WhatsApp Template Card (Super Admin & Service Only)
+  const waTemplateCard = document.getElementById('waTemplateCard');
+  if (waTemplateCard && typeof Auth !== 'undefined') {
+    const user = Auth.getUser();
+    const role = (user && user.role) ? user.role.toLowerCase().trim() : '';
+    const isSuperAdmin = (user && (user.username === 'wansmin' || role === 'super_admin' || role === 'superadmin' || role.includes('super')));
+    const isService = (role === 'service');
+
+    if (!isSuperAdmin && !isService) {
+      waTemplateCard.classList.add('hidden');
+    }
+  }
+
   // Load saved configurations to inputs
   if (apiUrlInput) apiUrlInput.value = CONFIG.API_URL || '';
   if (waTemplateInput) waTemplateInput.value = CONFIG.WA_TEMPLATE || '';
@@ -45,7 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (apiUrlInput) {
         CONFIG.API_URL = apiUrlInput.value.trim();
       }
-      CONFIG.WA_TEMPLATE = waTemplateInput.value.trim();
+      if (waTemplateInput && waTemplateCard && !waTemplateCard.classList.contains('hidden')) {
+        CONFIG.WA_TEMPLATE = waTemplateInput.value.trim();
+      }
       CONFIG.REMINDER_INTERVAL = parseInt(reminderIntervalSelect.value);
       if (notifStyleSelect) CONFIG.NOTIF_STYLE = notifStyleSelect.value;
       if (notifVibrateCheckbox) CONFIG.NOTIF_VIBRATE = notifVibrateCheckbox.checked;

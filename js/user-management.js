@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const userIdInput = document.getElementById("userIdInput");
   const usernameInput = document.getElementById("usernameInput");
   const nameInput = document.getElementById("nameInput");
+  const emailInput = document.getElementById("emailInput");
+  const phoneInput = document.getElementById("phoneInput");
+  const avatarInput = document.getElementById("avatarInput");
   const passwordInput = document.getElementById("passwordInput");
   const roleSelect = document.getElementById("roleSelect");
   const permCrudCheckboxes = document.querySelectorAll(".perm-crud-cb");
@@ -60,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       userTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center py-8 text-zinc-400">
+          <td colspan="5" class="text-center py-8 text-zinc-400">
             <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2"></i>
             <p>Memuat data user...</p>
           </td>
@@ -90,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!users || users.length === 0) {
       userTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center py-8 text-zinc-400">
+          <td colspan="5" class="text-center py-8 text-zinc-400">
             <i class="fa-solid fa-user-slash text-2xl mb-2 text-zinc-300 block"></i>
             <p class="font-semibold text-zinc-600 dark:text-zinc-300">Belum ada data user yang dimuat dari Spreadsheet.</p>
             <p class="text-xs text-zinc-400 mt-1 mb-3">Pastikan Apps Script telah di-deploy ulang ke versi terbaru (New Version).</p>
@@ -115,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
     ];
 
-    userTableBody.innerHTML = users.map(u => {
+    userTableBody.innerHTML = users.map((u, idx) => {
       const isMainAdmin = (u.username === 'wansmin');
 
       const moduleCheckboxesHtml = modules.map(m => {
@@ -133,16 +136,28 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }).join("");
 
+      const avatarHtml = u.avatar ? 
+        `<img src="${escapeHtml(u.avatar)}" class="h-9 w-9 rounded-full object-cover shadow-sm border border-zinc-200 dark:border-zinc-700">` : 
+        `<div class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-xs flex items-center justify-center shadow-sm">
+           ${escapeHtml((u.name || u.username || "U").charAt(0).toUpperCase())}
+         </div>`;
+
       return `
         <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-          <td class="px-4 py-3 font-mono text-xs">
-            <span class="px-2 py-0.5 font-mono font-bold text-xs rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${u.id || '-'}</span>
-          </td>
-          <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-white">
-            ${escapeHtml(u.username)}
-          </td>
-          <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
-            ${escapeHtml(u.name || u.username)}
+          <td class="px-3 py-3 text-center text-xs font-semibold text-zinc-400 font-mono">${idx + 1}</td>
+          <td class="px-4 py-3">
+            <div onclick="openUserDetailModal('${u.id}')" 
+              class="flex items-center space-x-3 cursor-pointer group p-1.5 -m-1.5 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-all"
+              title="Klik untuk melihat detail pengguna">
+              ${avatarHtml}
+              <div>
+                <div class="font-bold text-zinc-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center space-x-1.5">
+                  <span>${escapeHtml(u.name || u.username)}</span>
+                  <i class="fa-solid fa-circle-info text-xs text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+                <div class="text-xs text-indigo-600 dark:text-indigo-400 font-mono">@${escapeHtml(u.username)}</div>
+              </div>
+            </div>
           </td>
           <td class="px-4 py-3">
             ${isMainAdmin ? `
@@ -164,22 +179,14 @@ document.addEventListener("DOMContentLoaded", () => {
               ${moduleCheckboxesHtml}
             </div>
           </td>
-          <td class="px-4 py-3 text-xs text-zinc-400">${u.createdAt || '-'}</td>
           <td class="px-4 py-3 text-center">
-            <div class="flex items-center justify-center space-x-1">
-              <button onclick="openEditUserModal('${u.id}')" data-permission-allow="users:update"
-                class="p-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
-                title="Edit User & Permission Detail">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              ${isMainAdmin ? '' : `
+            ${isMainAdmin ? '<span class="text-zinc-400 text-xs font-mono">-</span>' : `
               <button onclick="deleteUser('${u.id}', '${escapeHtml(u.username)}')" data-permission-allow="users:delete"
                 class="p-2 text-red-500 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
                 title="Hapus User">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
-              `}
-            </div>
+            `}
           </td>
         </tr>
       `;
@@ -212,19 +219,163 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // User Detail Modal Handlers
+  const userDetailModal = document.getElementById("userDetailModal");
+  const closeUserDetailModalBtn = document.getElementById("closeUserDetailModalBtn");
+  const closeUserDetailModalBtn2 = document.getElementById("closeUserDetailModalBtn2");
+  const detailAvatarContainer = document.getElementById("detailAvatarContainer");
+  const detailName = document.getElementById("detailName");
+  const detailUsername = document.getElementById("detailUsername");
+  const detailId = document.getElementById("detailId");
+  const detailRole = document.getElementById("detailRole");
+  const detailEmail = document.getElementById("detailEmail");
+  const detailPhone = document.getElementById("detailPhone");
+  const detailCreatedAt = document.getElementById("detailCreatedAt");
+  const detailPermissions = document.getElementById("detailPermissions");
+  const detailEditBtn = document.getElementById("detailEditBtn");
+
+  const closeUserDetailModal = () => {
+    if (userDetailModal) userDetailModal.classList.add("hidden");
+  };
+
+  if (closeUserDetailModalBtn) closeUserDetailModalBtn.addEventListener("click", closeUserDetailModal);
+  if (closeUserDetailModalBtn2) closeUserDetailModalBtn2.addEventListener("click", closeUserDetailModal);
+  if (userDetailModal) {
+    userDetailModal.addEventListener("click", (e) => {
+      if (e.target === userDetailModal) closeUserDetailModal();
+    });
+  }
+
+  window.openUserDetailModal = (id) => {
+    const user = usersData.find(u => u.id === id);
+    if (!user) return;
+
+    if (detailAvatarContainer) {
+      detailAvatarContainer.innerHTML = user.avatar ? 
+        `<img src="${escapeHtml(user.avatar)}" class="h-12 w-12 rounded-full object-cover shadow border border-zinc-200 dark:border-zinc-700">` : 
+        `<div class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-base flex items-center justify-center shadow">
+           ${escapeHtml((user.name || user.username || "U").charAt(0).toUpperCase())}
+         </div>`;
+    }
+
+    if (detailName) detailName.innerText = user.name || user.username;
+    if (detailUsername) detailUsername.innerText = `@${user.username}`;
+    if (detailId) detailId.innerText = user.id || "-";
+
+    if (detailRole) {
+      let roleLabel = user.role || 'service';
+      let badgeClass = "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700";
+      if (user.role === 'super_admin' || user.username === 'wansmin') {
+        roleLabel = "Super Admin";
+        badgeClass = "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border-purple-200 dark:border-purple-800";
+      } else if (user.role === 'service') {
+        roleLabel = "Service";
+        badgeClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800";
+      } else if (user.role === 'desainer') {
+        roleLabel = "Desainer";
+        badgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
+      } else if (user.role === 'custom') {
+        roleLabel = "Custom";
+        badgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 border-amber-200 dark:border-amber-800";
+      }
+      detailRole.className = `px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeClass}`;
+      detailRole.innerText = roleLabel;
+    }
+
+    if (detailEmail) {
+      detailEmail.innerHTML = user.email ? 
+        `<a href="mailto:${escapeHtml(user.email)}" class="hover:underline text-indigo-600 dark:text-indigo-400 font-semibold">${escapeHtml(user.email)}</a>` : 
+        `<span class="text-zinc-400">-</span>`;
+    }
+
+    if (detailPhone) {
+      if (user.phone) {
+        const cleanPhone = user.phone.replace(/[^0-9]/g, '');
+        const waLink = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
+        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" class="hover:underline text-emerald-600 dark:text-emerald-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
+      } else {
+        detailPhone.innerHTML = `<span class="text-zinc-400">-</span>`;
+      }
+    }
+
+    if (detailCreatedAt) detailCreatedAt.innerText = user.createdAt || "-";
+
+    if (detailPermissions) {
+      const modules = [
+        { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete"] },
+        { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete"] },
+        { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export"] },
+        { key: "layanan", label: "Layanan", actions: ["layanan:read", "layanan:create", "layanan:update", "layanan:delete"] },
+        { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete"] },
+        { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
+      ];
+
+      detailPermissions.innerHTML = modules.map(m => {
+        const isAllChecked = m.actions.every(permKey => userHasPerm(user, permKey));
+        const isPartial = !isAllChecked && m.actions.some(permKey => userHasPerm(user, permKey));
+
+        let badgeStyle = "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400";
+        let statusText = "Tidak ada akses";
+        if (isAllChecked) {
+          badgeStyle = "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 font-bold";
+          statusText = "Akses Penuh";
+        } else if (isPartial) {
+          badgeStyle = "bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 font-semibold";
+          statusText = "Sebagian";
+        }
+
+        return `<span class="px-2.5 py-1 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 ${badgeStyle}" title="${m.label}: ${statusText}">
+          ${m.label}: ${statusText}
+        </span>`;
+      }).join("");
+    }
+
+    if (detailEditBtn) {
+      if (typeof Auth !== 'undefined' && !Auth.hasPermission('users:update')) {
+        detailEditBtn.classList.add('hidden');
+      } else {
+        detailEditBtn.classList.remove('hidden');
+        detailEditBtn.onclick = () => {
+          closeUserDetailModal();
+          openEditUserModal(user.id);
+        };
+      }
+    }
+
+    if (userDetailModal) userDetailModal.classList.remove("hidden");
+  };
+
+  const contactFieldsContainer = document.getElementById("contactFieldsContainer");
+  const avatarFieldContainer = document.getElementById("avatarFieldContainer");
+  const passwordFieldContainer = document.getElementById("passwordFieldContainer");
+
+  const toggleSuperAdminFieldsLock = () => {
+    if (contactFieldsContainer) contactFieldsContainer.classList.add("hidden");
+    if (avatarFieldContainer) avatarFieldContainer.classList.add("hidden");
+    if (passwordFieldContainer) passwordFieldContainer.classList.add("hidden");
+  };
+
   // Open Edit User Modal with Prefilled Role & CRUD Permissions
   window.openEditUserModal = (id) => {
     const user = usersData.find(u => u.id === id);
     if (!user) return;
+
+    const isSuperAdmin = (user.role === 'super_admin' || user.username === 'wansmin');
 
     modalTitle.innerText = `Edit User & Permission (${user.username})`;
     userIdInput.value = user.id;
     usernameInput.value = user.username;
     usernameInput.setAttribute("readonly", "readonly");
     nameInput.value = user.name || user.username;
+    nameInput.setAttribute("readonly", "readonly");
+    if (emailInput) emailInput.value = user.email || "";
+    if (phoneInput) phoneInput.value = user.phone || "";
+    if (avatarInput) avatarInput.value = user.avatar || "";
     passwordInput.value = "";
-    passwordInput.setAttribute("placeholder", "Biarkan kosong jika password tidak diubah");
+    passwordInput.setAttribute("placeholder", isSuperAdmin ? "Super Admin: Ubah password di Profil Saya" : "Biarkan kosong jika password tidak diubah");
     roleSelect.value = user.role || "service";
+
+    toggleSuperAdminFieldsLock();
 
     permCrudCheckboxes.forEach(cb => {
       const permKey = cb.getAttribute("data-perm");
@@ -303,6 +454,10 @@ document.addEventListener("DOMContentLoaded", () => {
         cb.checked = allowed.includes(permKey);
       });
     }
+
+    const editId = userIdInput.value;
+    const existingUser = editId ? usersData.find(u => u.id === editId) : null;
+    toggleSuperAdminFieldsLock();
   });
 
   // Checkbox change listener inside modal to switch preset role to custom
@@ -319,10 +474,16 @@ document.addEventListener("DOMContentLoaded", () => {
     usernameInput.value = "";
     usernameInput.removeAttribute("readonly");
     nameInput.value = "";
+    nameInput.removeAttribute("readonly");
+    if (emailInput) emailInput.value = "";
+    if (phoneInput) phoneInput.value = "";
+    if (avatarInput) avatarInput.value = "";
     passwordInput.value = "";
     passwordInput.setAttribute("placeholder", "Masukkan password (misal: 123456)");
     roleSelect.value = "service";
     
+    toggleSuperAdminFieldsLock();
+
     const servicePerms = defaultRolePerms.service;
     permCrudCheckboxes.forEach(cb => {
       const permKey = cb.getAttribute("data-perm");
@@ -362,14 +523,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const editId = userIdInput.value;
+    const existingUser = editId ? usersData.find(u => u.id === editId) : null;
+    const isSuperAdminEdit = existingUser && (existingUser.role === 'super_admin' || existingUser.username === 'wansmin');
+
     const userData = {
       username: usernameInput.value.trim(),
       name: nameInput.value.trim(),
+      email: existingUser ? (existingUser.email || "") : (emailInput ? emailInput.value.trim() : ""),
+      phone: existingUser ? (existingUser.phone || "") : (phoneInput ? phoneInput.value.trim() : ""),
+      avatar: existingUser ? (existingUser.avatar || "") : (avatarInput ? avatarInput.value.trim() : ""),
       role: roleSelect.value,
       permissions: selectedPerms
     };
 
-    if (passwordInput.value.trim()) {
+    if (passwordInput && passwordInput.value.trim()) {
       userData.password = passwordInput.value.trim();
     }
 
