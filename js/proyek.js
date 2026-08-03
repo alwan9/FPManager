@@ -208,7 +208,7 @@ function initTable(data) {
           const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
           if (data) {
             return `
-              <a href="${data}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
+              <a href="${data}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
                 <i class="fa-solid fa-folder-open text-indigo-600"></i>
                 <span>Drive</span>
               </a>
@@ -574,7 +574,6 @@ async function hapusProyek(id, name) {
     });
     return;
   }
-  console.log("ID yang akan dihapus =", id);
   const confirmMsg = isEn 
     ? `Are you sure you want to delete project "${id} - ${name}"? This action cannot be undone.` 
     : `Apakah Anda yakin ingin menghapus projek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`;

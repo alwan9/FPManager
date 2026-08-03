@@ -54,8 +54,8 @@ async function loadData() {
 
     const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
     if (currUser && currUser.role !== 'super_admin') {
-      toolsData = (tools || []).filter(t => (t.userId || 'USR-001') === currUser.id);
-      shortcutsData = (shortcuts || []).filter(s => (s.userId || 'USR-001') === currUser.id);
+      toolsData = (tools || []).filter(t => !t.userId || t.userId === 'USR-001' || t.userId === 'super_admin' || t.userId === currUser.id);
+      shortcutsData = (shortcuts || []).filter(s => !s.userId || s.userId === 'USR-001' || s.userId === 'super_admin' || s.userId === currUser.id);
     } else {
       toolsData = tools || [];
       shortcutsData = shortcuts || [];

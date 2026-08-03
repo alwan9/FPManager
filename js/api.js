@@ -149,6 +149,22 @@ const FPManagerDB = {
       } catch (e) {}
     }
     localStorage.removeItem('fpm_offline_queue');
+  },
+
+  async clearAllStores() {
+    const db = await this.init();
+    if (db) {
+      try {
+        const stores = ['proyek', 'keuangan', 'offline_queue'];
+        stores.forEach(s => {
+          if (db.objectStoreNames.contains(s)) {
+            const tx = db.transaction(s, 'readwrite');
+            tx.objectStore(s).clear();
+          }
+        });
+      } catch (e) {}
+    }
+    localStorage.removeItem('fpm_offline_queue');
   }
 };
 

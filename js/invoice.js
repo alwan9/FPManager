@@ -5,9 +5,7 @@ const Invoice = {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         try {
             this.proyek = await API.getProyek();
-            console.log("DATA PROYEK =", this.proyek);
             const id = new URLSearchParams(window.location.search).get("id");
-            console.log("ID URL =", id);
             if (!id) {
 
                 Toast.warning(
@@ -38,11 +36,9 @@ const Invoice = {
     },
     loadInvoice(id) {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-        console.log("Mencari ID :", id);
         const data = this.proyek.find(
             p => String(p.iDProyek).trim() === String(id).trim()
         );
-        console.log("HASIL FIND =", data);
         if (!data) {
 
             Toast.warning(

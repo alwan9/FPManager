@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (user.phone) {
         const cleanPhone = user.phone.replace(/[^0-9]/g, '');
         const waLink = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
-        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" class="hover:underline text-emerald-600 dark:text-emerald-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
+        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" rel="noopener noreferrer" class="hover:underline text-emerald-600 dark:text-emerald-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
       } else {
         detailPhone.innerHTML = `<span class="text-zinc-400">-</span>`;
       }
@@ -348,11 +348,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const contactFieldsContainer = document.getElementById("contactFieldsContainer");
   const avatarFieldContainer = document.getElementById("avatarFieldContainer");
   const passwordFieldContainer = document.getElementById("passwordFieldContainer");
+  const nameFieldContainer = document.getElementById("nameFieldContainer");
+  const permissionsTableContainer = document.getElementById("permissionsTableContainer");
 
-  const toggleSuperAdminFieldsLock = () => {
+  const configureModalMode = (isEdit) => {
     if (contactFieldsContainer) contactFieldsContainer.classList.add("hidden");
     if (avatarFieldContainer) avatarFieldContainer.classList.add("hidden");
-    if (passwordFieldContainer) passwordFieldContainer.classList.add("hidden");
+    if (passwordFieldContainer) passwordFieldContainer.classList.remove("hidden");
+
+    if (isEdit) {
+      if (nameFieldContainer) nameFieldContainer.classList.remove("hidden");
+      if (permissionsTableContainer) permissionsTableContainer.classList.remove("hidden");
+    } else {
+      if (nameFieldContainer) nameFieldContainer.classList.add("hidden");
+      if (permissionsTableContainer) permissionsTableContainer.classList.add("hidden");
+    }
   };
 
   // Open Edit User Modal with Prefilled Role & CRUD Permissions
@@ -362,20 +372,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isSuperAdmin = (user.role === 'super_admin' || user.username === 'wansmin');
 
-    modalTitle.innerText = `Edit User & Permission (${user.username})`;
+    modalTitle.innerText = `Edit User & Hak Akses (${user.username})`;
     userIdInput.value = user.id;
     usernameInput.value = user.username;
     usernameInput.setAttribute("readonly", "readonly");
-    nameInput.value = user.name || user.username;
-    nameInput.setAttribute("readonly", "readonly");
+    if (nameInput) {
+      nameInput.value = user.name || user.username;
+    }
     if (emailInput) emailInput.value = user.email || "";
     if (phoneInput) phoneInput.value = user.phone || "";
     if (avatarInput) avatarInput.value = user.avatar || "";
     passwordInput.value = "";
+    passwordInput.removeAttribute("required");
     passwordInput.setAttribute("placeholder", isSuperAdmin ? "Super Admin: Ubah password di Profil Saya" : "Biarkan kosong jika password tidak diubah");
     roleSelect.value = user.role || "service";
 
-    toggleSuperAdminFieldsLock();
+    configureModalMode(true);
 
     permCrudCheckboxes.forEach(cb => {
       const permKey = cb.getAttribute("data-perm");
@@ -454,10 +466,6 @@ document.addEventListener("DOMContentLoaded", () => {
         cb.checked = allowed.includes(permKey);
       });
     }
-
-    const editId = userIdInput.value;
-    const existingUser = editId ? usersData.find(u => u.id === editId) : null;
-    toggleSuperAdminFieldsLock();
   });
 
   // Checkbox change listener inside modal to switch preset role to custom
@@ -473,16 +481,16 @@ document.addEventListener("DOMContentLoaded", () => {
     userIdInput.value = "";
     usernameInput.value = "";
     usernameInput.removeAttribute("readonly");
-    nameInput.value = "";
-    nameInput.removeAttribute("readonly");
+    if (nameInput) nameInput.value = "";
     if (emailInput) emailInput.value = "";
     if (phoneInput) phoneInput.value = "";
     if (avatarInput) avatarInput.value = "";
     passwordInput.value = "";
-    passwordInput.setAttribute("placeholder", "Masukkan password (misal: 123456)");
+    passwordInput.setAttribute("required", "required");
+    passwordInput.setAttribute("placeholder", "Masukkan password user (misal: 123456)");
     roleSelect.value = "service";
     
-    toggleSuperAdminFieldsLock();
+    configureModalMode(false); // Mode Tambah: Hanya Username, Password, Role
 
     const servicePerms = defaultRolePerms.service;
     permCrudCheckboxes.forEach(cb => {
@@ -514,24 +522,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   userForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const selectedPerms = [];
-    permCrudCheckboxes.forEach(cb => {
-      if (cb.checked) {
-        const permKey = cb.getAttribute("data-perm");
-        if (permKey) selectedPerms.push(permKey);
-      }
-    });
-
     const editId = userIdInput.value;
     const existingUser = editId ? usersData.find(u => u.id === editId) : null;
-    const isSuperAdminEdit = existingUser && (existingUser.role === 'super_admin' || existingUser.username === 'wansmin');
+    const uname = usernameInput.value.trim();
+
+    if (!editId && !passwordInput.value.trim()) {
+      if (typeof Toast !== 'undefined') Toast.error("Peringatan", "Password wajib diisi saat menambah user baru.");
+      return;
+    }
+
+    let selectedPerms = [];
+    if (editId && roleSelect.value === "custom") {
+      permCrudCheckboxes.forEach(cb => {
+        if (cb.checked) {
+          const permKey = cb.getAttribute("data-perm");
+          if (permKey) selectedPerms.push(permKey);
+        }
+      });
+    } else {
+      selectedPerms = defaultRolePerms[roleSelect.value] || defaultRolePerms.service;
+    }
 
     const userData = {
-      username: usernameInput.value.trim(),
-      name: nameInput.value.trim(),
-      email: existingUser ? (existingUser.email || "") : (emailInput ? emailInput.value.trim() : ""),
-      phone: existingUser ? (existingUser.phone || "") : (phoneInput ? phoneInput.value.trim() : ""),
-      avatar: existingUser ? (existingUser.avatar || "") : (avatarInput ? avatarInput.value.trim() : ""),
+      username: uname,
+      name: editId ? (nameInput ? nameInput.value.trim() : uname) : (uname.charAt(0).toUpperCase() + uname.slice(1)),
+      email: existingUser ? (existingUser.email || `${uname}@fpmanager.com`) : `${uname}@fpmanager.com`,
+      phone: existingUser ? (existingUser.phone || "") : "",
+      avatar: existingUser ? (existingUser.avatar || "") : "",
       role: roleSelect.value,
       permissions: selectedPerms
     };

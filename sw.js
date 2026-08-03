@@ -63,6 +63,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Prevent caching for API requests (Google Apps Script or requests containing sensitive data parameters)
+  const url = event.request.url || '';
+  if (url.includes('script.google.com') || url.includes('action=') || url.includes('apiKey=')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {

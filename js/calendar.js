@@ -116,7 +116,7 @@ const CalendarSync = {
         </p>
 
         <div class="space-y-3">
-          <a href="${gcalUrl}" target="_blank" onclick="document.getElementById('calendarSyncModal').classList.add('hidden')" class="flex items-center justify-between p-3.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 rounded-xl transition text-blue-700 dark:text-blue-300 font-semibold text-sm">
+          <a href="${gcalUrl}" target="_blank" rel="noopener noreferrer" onclick="document.getElementById('calendarSyncModal').classList.add('hidden')" class="flex items-center justify-between p-3.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 rounded-xl transition text-blue-700 dark:text-blue-300 font-semibold text-sm">
             <div class="flex items-center space-x-3">
               <i class="fa-brands fa-google text-lg text-blue-600"></i>
               <span>Google Calendar</span>

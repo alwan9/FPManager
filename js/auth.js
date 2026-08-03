@@ -316,12 +316,24 @@ const Auth = {
         await fetch(CONFIG.API_URL, { method: "POST", body });
       }
     } catch (e) {
-      console.log(e);
+      // Silent error logging
     }
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
+
+    if (typeof APICache !== 'undefined' && APICache.clear) {
+      APICache.clear();
+    }
+
+    if (typeof FPManagerDB !== 'undefined' && FPManagerDB.clearAllStores) {
+      try {
+        await FPManagerDB.clearAllStores();
+      } catch (e) {}
+    }
+
+    sessionStorage.clear();
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("fpm_offline_queue");
+
     window.location.href = "login.html";
   }
 };

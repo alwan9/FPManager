@@ -262,7 +262,7 @@ function renderRecentProjects(recent) {
     const displayStatus = statusMap[p.status] || p.status;
     const badgeClass = 'badge-' + p.status.toLowerCase().replace(/\s+/g, '');
     const gdriveBtn = p.gdriveLink ? `
-      <a href="${p.gdriveLink}" target="_blank" class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[8px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
+      <a href="${p.gdriveLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[8px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
         <i class="fa-solid fa-folder-open text-indigo-600 text-[8px]"></i>
         <span>Drive</span>
       </a>
