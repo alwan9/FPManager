@@ -1,4 +1,5 @@
-/* Real Dark Mode Overrides (Zinc Theme) */
+/* Real Dark Mode Overrides (Zinc Theme - FPManager) */
+
 html.dark body,
 html.dark body.bg-zinc-50 {
   background-color: #09090b !important;
@@ -7,125 +8,346 @@ html.dark body.bg-zinc-50 {
   /* zinc-200 */
 }
 
-/* For panels, cards, headers */
+/* 1. Global Container, Panel, Card, & Header Overrides */
 html.dark .bg-white,
 html.dark section .bg-zinc-50,
-html.dark div.bg-zinc-50 {
-  background-color: #27272a !important;
+html.dark div.bg-zinc-50,
+html.dark main .bg-white,
+html.dark article .bg-white,
+html.dark form.bg-white,
+html.dark footer.bg-white,
+html.dark header.bg-white {
+  background-color: #18181b !important;
+  /* zinc-900 */
+  border-color: #27272a !important;
   /* zinc-800 */
+  color: #e4e4e7 !important;
+}
+
+/* Wildcard Opacity Modifier Matchers (e.g. bg-zinc-50/50, bg-zinc-100/50, etc.) */
+html.dark [class*="bg-zinc-50"],
+html.dark [class*="bg-zinc-100"] {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #e4e4e7 !important;
+}
+
+html.dark [class*="bg-zinc-200"] {
+  background-color: #27272a !important;
   border-color: #3f3f46 !important;
-  /* zinc-700 */
+  color: #f4f4f5 !important;
 }
 
-/* Hover utilities */
-html.dark .hover\:bg-zinc-100:hover,
-html.dark .hover\:bg-zinc-800:hover,
-html.dark .hover\:bg-zinc-50:hover {
+/* 2. Hover Utilities (including slash opacity variants) */
+html.dark [class*="hover:bg-zinc-50"]:hover,
+html.dark [class*="hover:bg-zinc-100"]:hover,
+html.dark [class*="hover:bg-zinc-200"]:hover {
   background-color: #27272a !important;
-  /* zinc-800 */
 }
 
+html.dark [class*="hover:bg-zinc-300"]:hover,
+html.dark [class*="hover:bg-zinc-800"]:hover {
+  background-color: #3f3f46 !important;
+}
+
+/* 3. Text & Heading Overrides */
+html.dark .text-zinc-950,
 html.dark .text-zinc-900,
 html.dark .text-zinc-800,
-html.dark .text-zinc-700 {
+html.dark .text-zinc-700,
+html.dark .text-black {
   color: #f4f4f5 !important;
   /* zinc-100 */
 }
 
-/* Indigo text adjustments */
-html.dark .text-indigo-600,
-html.dark .text-indigo-700,
-html.dark .text-indigo-800 {
-  color: #6366f1 !important;
-  /* indigo-500 */
-}
-
-html.dark .hover\:text-indigo-800:hover,
-html.dark .hover\:text-indigo-600:hover {
-  color: #818cf8 !important;
-  /* indigo-400 */
-}
-
-html.dark .text-zinc-500,
-html.dark .text-zinc-600 {
+html.dark .text-zinc-600,
+html.dark .text-zinc-500 {
   color: #a1a1aa !important;
   /* zinc-400 */
 }
 
 html.dark .text-zinc-400 {
-  color: #e4e4e7 !important;
-  /* zinc-200 */
+  color: #a1a1aa !important;
 }
 
+/* Border utilities */
+html.dark .border-zinc-300,
 html.dark .border-zinc-200,
-html.dark .border-zinc-100 {
+html.dark .border-zinc-100,
+html.dark [class*="border-zinc-100"],
+html.dark [class*="border-zinc-200"],
+html.dark [class*="border-zinc-300"] {
   border-color: #27272a !important;
   /* zinc-800 */
 }
 
-html.dark .hover-card:hover {
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.7), 0 8px 8px -6px rgba(0, 0, 0, 0.5);
+/* 4. FontAwesome & SVG Icons in Dark Mode */
+html.dark i,
+html.dark svg {
+  color: inherit;
 }
 
-/* Sidebar adjustments */
+/* Explicit icon colors when parent or icon has dark text class */
+html.dark i.text-zinc-900,
+html.dark i.text-zinc-800,
+html.dark i.text-zinc-700,
+html.dark i.text-zinc-600,
+html.dark i.text-black,
+html.dark i.text-gray-900,
+html.dark i.text-gray-800,
+html.dark i.text-slate-900,
+html.dark i.text-slate-800 {
+  color: #f4f4f5 !important;
+}
+
+html.dark i.text-zinc-500,
+html.dark i.text-zinc-400 {
+  color: #a1a1aa !important;
+}
+
+/* Colored Icons in Dark Mode */
+html.dark i.text-indigo-600,
+html.dark i.text-indigo-700,
+html.dark i.text-indigo-500 {
+  color: #818cf8 !important;
+  /* indigo-400 */
+}
+
+html.dark i.text-emerald-600,
+html.dark i.text-emerald-700,
+html.dark i.text-green-600 {
+  color: #34d399 !important;
+  /* emerald-400 */
+}
+
+html.dark i.text-rose-600,
+html.dark i.text-rose-700,
+html.dark i.text-red-600 {
+  color: #f87171 !important;
+  /* red-400 */
+}
+
+html.dark i.text-amber-600,
+html.dark i.text-amber-700,
+html.dark i.text-yellow-600 {
+  color: #fbbf24 !important;
+  /* amber-400 */
+}
+
+html.dark i.text-blue-600,
+html.dark i.text-blue-700 {
+  color: #60a5fa !important;
+  /* blue-400 */
+}
+
+html.dark i.text-purple-600,
+html.dark i.text-purple-700 {
+  color: #c084fc !important;
+  /* purple-400 */
+}
+
+/* 5. Action Buttons in Table & Lists (Detail, Calendar, Edit, Hapus) */
+/* Detail / View Button (bg-zinc-100) */
+html.dark button.bg-zinc-100,
+html.dark a.bg-zinc-100,
+html.dark .bg-zinc-100 button,
+html.dark .bg-zinc-100 a {
+  background-color: #27272a !important;
+  color: #e4e4e7 !important;
+  border-color: #3f3f46 !important;
+}
+html.dark button.bg-zinc-100:hover,
+html.dark a.bg-zinc-100:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+html.dark button.bg-zinc-100 i,
+html.dark a.bg-zinc-100 i {
+  color: #e4e4e7 !important;
+}
+
+/* Sync Calendar / Green Light Buttons (bg-emerald-50, bg-emerald-100, bg-green-50, bg-green-100) */
+html.dark [class*="bg-emerald-50"],
+html.dark [class*="bg-emerald-100"],
+html.dark [class*="bg-green-50"],
+html.dark [class*="bg-green-100"] {
+  background-color: rgba(6, 78, 59, 0.4) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+html.dark [class*="bg-emerald-50"]:hover,
+html.dark [class*="bg-emerald-100"]:hover,
+html.dark [class*="bg-green-50"]:hover,
+html.dark [class*="bg-green-100"]:hover {
+  background-color: rgba(6, 78, 59, 0.65) !important;
+  color: #a7f3d0 !important;
+}
+html.dark [class*="bg-emerald-50"] *,
+html.dark [class*="bg-emerald-100"] *,
+html.dark [class*="bg-green-50"] *,
+html.dark [class*="bg-green-100"] * {
+  color: #6ee7b7 !important;
+}
+
+/* Edit Proyek / Indigo Light Buttons (bg-indigo-50, bg-indigo-100) */
+html.dark [class*="bg-indigo-50"],
+html.dark [class*="bg-indigo-100"] {
+  background-color: rgba(49, 46, 129, 0.4) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+html.dark [class*="bg-indigo-50"]:hover,
+html.dark [class*="bg-indigo-100"]:hover {
+  background-color: rgba(49, 46, 129, 0.65) !important;
+  color: #c7d2fe !important;
+}
+html.dark [class*="bg-indigo-50"] *,
+html.dark [class*="bg-indigo-100"] * {
+  color: #a5b4fc !important;
+}
+
+/* Hapus Proyek / Rose Light Buttons (bg-rose-50, bg-rose-100, bg-red-50, bg-red-100) */
+html.dark [class*="bg-rose-50"],
+html.dark [class*="bg-rose-100"],
+html.dark [class*="bg-red-50"],
+html.dark [class*="bg-red-100"] {
+  background-color: rgba(136, 19, 55, 0.4) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+html.dark [class*="bg-rose-50"]:hover,
+html.dark [class*="bg-rose-100"]:hover,
+html.dark [class*="bg-red-50"]:hover,
+html.dark [class*="bg-red-100"]:hover {
+  background-color: rgba(136, 19, 55, 0.65) !important;
+  color: #fecdd3 !important;
+}
+html.dark [class*="bg-rose-50"] *,
+html.dark [class*="bg-rose-100"] *,
+html.dark [class*="bg-red-50"] *,
+html.dark [class*="bg-red-100"] * {
+  color: #fca5a5 !important;
+}
+
+/* Blue Light Buttons (bg-blue-50, bg-blue-100) */
+html.dark [class*="bg-blue-50"],
+html.dark [class*="bg-blue-100"] {
+  background-color: rgba(30, 58, 138, 0.4) !important;
+  color: #93c5fd !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+html.dark [class*="bg-blue-50"]:hover,
+html.dark [class*="bg-blue-100"]:hover {
+  background-color: rgba(30, 58, 138, 0.65) !important;
+  color: #bfdbfe !important;
+}
+html.dark [class*="bg-blue-50"] *,
+html.dark [class*="bg-blue-100"] * {
+  color: #93c5fd !important;
+}
+
+/* Amber Light Buttons (bg-amber-50, bg-amber-100, bg-yellow-50, bg-yellow-100) */
+html.dark [class*="bg-amber-50"],
+html.dark [class*="bg-amber-100"],
+html.dark [class*="bg-yellow-50"],
+html.dark [class*="bg-yellow-100"] {
+  background-color: rgba(120, 53, 15, 0.4) !important;
+  color: #fde68a !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+html.dark [class*="bg-amber-50"]:hover,
+html.dark [class*="bg-amber-100"]:hover,
+html.dark [class*="bg-yellow-50"]:hover,
+html.dark [class*="bg-yellow-100"]:hover {
+  background-color: rgba(120, 53, 15, 0.65) !important;
+  color: #fef3c7 !important;
+}
+html.dark [class*="bg-amber-50"] *,
+html.dark [class*="bg-amber-100"] *,
+html.dark [class*="bg-yellow-50"] *,
+html.dark [class*="bg-yellow-100"] * {
+  color: #fde68a !important;
+}
+
+/* Purple Light Buttons (bg-purple-50, bg-purple-100) */
+html.dark [class*="bg-purple-50"],
+html.dark [class*="bg-purple-100"] {
+  background-color: rgba(88, 28, 135, 0.4) !important;
+  color: #d8b4fe !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+html.dark [class*="bg-purple-50"]:hover,
+html.dark [class*="bg-purple-100"]:hover {
+  background-color: rgba(88, 28, 135, 0.65) !important;
+  color: #f3e8ff !important;
+}
+html.dark [class*="bg-purple-50"] *,
+html.dark [class*="bg-purple-100"] * {
+  color: #d8b4fe !important;
+}
+
+/* 6. Disabled Buttons */
+html.dark button:disabled,
+html.dark [class*="disabled:bg-zinc-300"]:disabled {
+  background-color: #27272a !important;
+  color: #71717a !important;
+  border-color: #27272a !important;
+}
+
+/* 7. Status Filter Badges/Buttons */
+html.dark .status-filter-btn {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+}
+html.dark .status-filter-btn:hover {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+}
+
+/* 8. Sidebar adjustments */
 html.dark aside.bg-zinc-900,
 html.dark aside {
   background-color: #18181b !important;
-  /* zinc-900 */
   border-color: #27272a !important;
-  /* zinc-800 */
 }
 
-/* Modals & Glass Panels */
-@media (min-width: 768px) {
-  html.dark .glass-panel {
-    background: rgba(24, 24, 27, 0.8) !important;
-    /* zinc-900 */
-    border-color: rgba(255, 255, 255, 0.05) !important;
-  }
+/* 9. DataTables Overrides for Dark Mode */
+html.dark table.dataTable {
+  border-color: #27272a !important;
 }
-
-/* DataTables Overrides for Dark Mode */
 html.dark table.dataTable thead th {
   background-color: #18181b !important;
-  /* zinc-900 */
   color: #d4d4d8 !important;
-  /* zinc-300 */
-  border-bottom: 2px solid #3f3f46 !important;
-  /* zinc-700 */
+  border-bottom: 2px solid #27272a !important;
 }
 
 html.dark table.dataTable tbody td {
   border-bottom: 1px solid #27272a !important;
-  /* zinc-800 */
   color: #e4e4e7 !important;
-  /* zinc-200 */
+}
+html.dark table.dataTable tbody tr {
+  background-color: #18181b !important;
+}
+html.dark table.dataTable tbody tr:hover {
+  background-color: #27272a !important;
 }
 
 html.dark .dataTables_wrapper .dataTables_filter input,
 html.dark .dataTables_wrapper .dataTables_length select {
   background-color: #18181b !important;
-  /* zinc-900 */
   border-color: #3f3f46 !important;
-  /* zinc-700 */
   color: #e4e4e7 !important;
-  /* zinc-200 */
 }
 
 html.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
   background: #27272a !important;
-  /* zinc-800 */
   border-color: #3f3f46 !important;
-  /* zinc-700 */
   color: #d4d4d8 !important;
-  /* zinc-300 */
 }
 
 html.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
   background: #3f3f46 !important;
-  /* zinc-700 */
   color: #f4f4f5 !important;
-  /* zinc-100 */
 }
 
 html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
@@ -134,6 +356,7 @@ html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
   border-color: #4f46e5 !important;
 }
 
+/* 10. Forms, Inputs, Textareas, Selects & Options */
 html.dark input[type="text"],
 html.dark input[type="number"],
 html.dark input[type="date"],
@@ -143,266 +366,121 @@ html.dark input[type="url"],
 html.dark select,
 html.dark textarea {
   background-color: #18181b !important;
-  /* zinc-900 */
   border-color: #3f3f46 !important;
-  /* zinc-700 */
   color: #f4f4f5 !important;
-  /* zinc-100 */
+}
+
+html.dark input[readonly],
+html.dark input:disabled,
+html.dark select:disabled,
+html.dark textarea:disabled {
+  background-color: #09090b !important;
+  color: #71717a !important;
+  border-color: #27272a !important;
+}
+
+html.dark select option {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
 }
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #71717a !important;
-  /* zinc-500 */
 }
 
-/* Specific background adjustments for alerts/badges */
-html.dark .bg-red-50,
+/* 11. Status Badges in Tables & Modals */
 html.dark .badge-belumpembayaran,
 html.dark .badge-dibatalkan {
-  background-color: rgba(220, 38, 38, 0.15) !important;
+  background-color: rgba(220, 38, 38, 0.2) !important;
+  color: #fca5a5 !important;
 }
 
-html.dark .bg-emerald-50,
 html.dark .badge-selesai {
-  background-color: rgba(5, 150, 105, 0.15) !important;
-}
-
-html.dark .bg-indigo-50 {
-  background-color: rgba(79, 70, 229, 0.15) !important;
+  background-color: rgba(5, 150, 105, 0.2) !important;
+  color: #6ee7b7 !important;
 }
 
 html.dark .badge-menunggu {
-  background-color: rgba(37, 99, 235, 0.15) !important;
+  background-color: rgba(37, 99, 235, 0.2) !important;
   color: #93c5fd !important;
 }
 
 html.dark .badge-dikerjakan {
-  background-color: rgba(217, 119, 6, 0.15) !important;
+  background-color: rgba(217, 119, 6, 0.2) !important;
   color: #fde68a !important;
 }
 
 html.dark .badge-revisi {
-  background-color: rgba(220, 38, 38, 0.15) !important;
+  background-color: rgba(220, 38, 38, 0.2) !important;
   color: #fca5a5 !important;
 }
 
 html.dark #globalLoader {
   background-color: #18181b !important;
-  /* zinc-900 */
 }
 
-/* Keep slider dots white in dark mode */
-html.dark .slide-dot.bg-white {
-  background-color: rgba(255, 255, 255, var(--tw-bg-opacity, 1)) !important;
+/* 12. Modals & Glass Panels */
+html.dark .fixed.inset-0.bg-black {
+  background-color: rgba(0, 0, 0, 0.75) !important;
 }
 
-/* ======================================================= */
-/* Sidebar Theme Overrides (Desktop & Mobile)             */
-/* ======================================================= */
-
-/* --- LIGHT MODE (Bright Background) --- */
-html:not(.dark) aside,
-html:not(.dark) aside div,
-html:not(.dark) aside nav {
-  background-color: #ffffff !important;
-  border-color: #e4e4e7 !important;
-  color: #18181b !important;
-}
-
-html:not(.dark) aside .sidebar-link:not(.bg-indigo-600) {
-  color: #4b5563 !important;
-  /* gray-600 */
-}
-
-html:not(.dark) aside .sidebar-link:not(.bg-indigo-600):hover {
-  background-color: #f3f4f6 !important;
-  /* gray-100 */
-  color: #111827 !important;
-  /* gray-900 */
-}
-
-/* Install Application button in light mode */
-html:not(.dark) #pwaInstallBtn {
-  color: #059669 !important;
-  /* emerald-600 */
-  background-color: transparent !important;
-}
-
-html:not(.dark) #pwaInstallBtn:hover {
-  background-color: #ecfdf5 !important;
-  /* emerald-50 */
-  color: #047857 !important;
-  /* emerald-700 */
-}
-
-/* Logout button in light mode */
-html:not(.dark) aside button[onclick="Auth.logout()"],
-html:not(.dark) aside button[onclick="Auth.logout()"] i,
-html:not(.dark) aside button[onclick="Auth.logout()"] span {
-  color: #dc2626 !important;
-  /* red-600 */
-  background-color: transparent !important;
-}
-
-html:not(.dark) aside button[onclick="Auth.logout()"]:hover {
-  background-color: #fef2f2 !important;
-  /* red-50 */
-}
-
-html:not(.dark) aside button[onclick="Auth.logout()"]:hover i,
-html:not(.dark) aside button[onclick="Auth.logout()"]:hover span {
-  color: #b91c1c !important;
-  /* red-700 */
-}
-
-
-/* --- DARK MODE (Dark Background) --- */
-html.dark aside,
-html.dark aside div,
-html.dark aside nav {
+html.dark #detailModal .bg-white,
+html.dark #userDetailModal .bg-white,
+html.dark #userModal .bg-white,
+html.dark #exportModal .bg-white,
+html.dark #toolModal .bg-white,
+html.dark #shortcutModal .bg-white,
+html.dark #calendarSyncModal .bg-white {
   background-color: #18181b !important;
-  /* zinc-900 */
   border-color: #27272a !important;
-  /* zinc-800 */
-  color: #f4f4f5 !important;
-  /* zinc-100 */
+  color: #e4e4e7 !important;
 }
 
-html.dark aside .sidebar-link:not(.bg-indigo-600) {
-  color: #9ca3af !important;
-  /* gray-400 */
+html.dark #detailModal .bg-zinc-50,
+html.dark #userDetailModal .bg-zinc-50,
+html.dark #userModal .bg-zinc-50,
+html.dark #exportModal .bg-zinc-50,
+html.dark #calendarSyncModal .bg-zinc-50 {
+  background-color: #09090b !important;
+  border-color: #27272a !important;
 }
 
-html.dark aside .sidebar-link:not(.bg-indigo-600):hover {
-  background-color: #1f2937 !important;
-  /* gray-800 */
-  color: #f9fafb !important;
-  /* gray-50 */
-}
-
-/* Install Application button in dark mode */
-html.dark #pwaInstallBtn {
-  color: #34d399 !important;
-  /* emerald-400 */
-}
-
-html.dark #pwaInstallBtn:hover {
-  background-color: rgba(6, 78, 59, 0.3) !important;
-  color: #6ee7b7 !important;
-  /* emerald-300 */
-}
-
-/* Logout button in dark mode */
-html.dark aside button[onclick="Auth.logout()"] {
-  color: #f87171 !important;
-  /* red-400 */
-}
-
-html.dark aside button[onclick="Auth.logout()"]:hover {
-  background-color: rgba(127, 29, 29, 0.3) !important;
-  color: #fca5a5 !important;
-  /* red-300 */
-}
-
-/* Secondary/Cancel Button Dark Mode Override */
-html.dark .btn-secondary {
-  background-color: #3f3f46 !important;
-  /* zinc-700 */
-  color: #f4f4f5 !important;
-  /* zinc-100 */
-}
-
-html.dark .btn-secondary:hover {
-  background-color: #52525b !important;
-  /* zinc-600 */
-}
-
-/* Nested bg-zinc-50 blocks inside Detail Modal should be darker for contrast */
-html.dark #detailModal .bg-zinc-50 {
-  background-color: #18181b !important;
-  /* zinc-900 */
-}
-
-/* Divide borders in Detail Modal */
-html.dark .md\:divide-zinc-100> :not([hidden])~ :not([hidden]) {
-  border-color: #3f3f46 !important;
-  /* zinc-700 */
-}
-
-/* Google Drive Link hover & border in dark mode */
-html.dark .hover\:bg-indigo-100:hover,
-html.dark .md\:hover\:bg-indigo-50:hover {
-  background-color: rgba(79, 70, 229, 0.25) !important;
-}
-
-html.dark .border-indigo-100 {
-  border-color: rgba(79, 70, 229, 0.3) !important;
-}
-
-/* Modal Header Dark Mode Override */
+/* Modal Headers */
 html.dark #detailModal .bg-indigo-600 {
   background-color: #18181b !important;
-  /* zinc-900 */
   border-bottom: 1px solid #27272a !important;
-  /* zinc-800 */
 }
 
 html.dark #detailModal .bg-indigo-600 button {
   color: #a1a1aa !important;
-  /* zinc-400 */
 }
 
 html.dark #detailModal .bg-indigo-600 button:hover {
   color: #f4f4f5 !important;
-  /* zinc-100 */
 }
 
-/* Modal Title Icon Dark Mode Override */
 html.dark #detailModal .bg-indigo-600 h4 i {
   color: #818cf8 !important;
-  /* indigo-400 */
 }
 
-/* Settings Page Notification Buttons Dark Mode Override */
-html.dark #btnReqNotif {
+/* 13. Profile Dropdown & Header */
+html.dark #profileDropdown {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8) !important;
+}
+
+html.dark #profileDropdown a {
+  color: #e4e4e7 !important;
+}
+
+html.dark #profileDropdown a:hover {
   background-color: #27272a !important;
-  /* zinc-800 */
+  color: #ffffff !important;
+}
+
+html.dark #profileDropdownBtn {
+  background-color: #27272a !important;
   color: #f4f4f5 !important;
-  /* zinc-100 */
-  border-color: #3f3f46 !important;
-  /* zinc-700 */
-}
-
-html.dark #btnReqNotif:hover {
-  background-color: #3f3f46 !important;
-  /* zinc-700 */
-}
-
-html.dark #btnTestNotif {
-  background-color: rgba(244, 63, 94, 0.15) !important;
-  /* rose-500/15% */
-  color: #fb7185 !important;
-  /* rose-400 */
-  border-color: rgba(244, 63, 94, 0.3) !important;
-  /* rose-500/30% */
-}
-
-html.dark #btnTestNotif:hover {
-  background-color: rgba(244, 63, 94, 0.25) !important;
-  /* rose-500/25% */
-}
-
-html.dark #btnTestToast {
-  background-color: rgba(99, 102, 241, 0.15) !important;
-  /* indigo-500/15% */
-  color: #818cf8 !important;
-  /* indigo-400 */
-  border-color: rgba(99, 102, 241, 0.3) !important;
-  /* indigo-500/30% */
-}
-
-html.dark #btnTestToast:hover {
-  background-color: rgba(99, 102, 241, 0.25) !important;
-  /* indigo-500/25% */
 }
