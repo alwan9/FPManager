@@ -12,6 +12,13 @@ const CONFIG = {
     return '3e9fB2YcALL8458a1fd92ab9d1c772e6bcda';
   },
 
+  get GEMINI_API_KEY() {
+    return localStorage.getItem('cfg_gemini_api_key') || localStorage.getItem('GEMINI_API_KEY') || '';
+  },
+  set GEMINI_API_KEY(val) {
+    localStorage.setItem('cfg_gemini_api_key', val);
+  },
+
   get WA_TEMPLATE() {
     return localStorage.getItem('cfg_wa_template') || 'gimana kak? apakah sudah sesuai? atau bagai mana ya kak?';
   },

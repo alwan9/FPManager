@@ -12,9 +12,9 @@ const TRANSLATIONS = {
     "nav-install": "Install Aplikasi",
 
     // Global Header
-    "api-status": "Status API:",
-    "api-mock": "Live API (Google Sheets)",
-    "api-live": "Live API (Google sheets)",
+    "api-status": "Status:",
+    "api-mock": "Live Google Sheets",
+    "api-live": "Live Google Sheets",
 
     // Settings Page (pengaturan.html)
     "settings-header": "Pengaturan Sistem",
@@ -312,9 +312,9 @@ const TRANSLATIONS = {
     "nav-install": "Install App",
 
     // Global Header
-    "api-status": "API Status:",
-    "api-mock": "Live API (Google Sheets)",
-    "api-live": "Live API (Google Sheets)",
+    "api-status": "Status:",
+    "api-mock": "Live Google Sheets",
+    "api-live": "Live Google Sheets",
 
     // Settings Page (pengaturan.html)
     "settings-header": "System Settings",

@@ -757,4 +757,77 @@ table.dataTable.no-footer {
   }
 }
 
+/* ======================================================= */
+/* Adaptive Sidebar Theme Styling (Light & Dark Mode)     */
+/* ======================================================= */
+html:not(.dark) aside {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+  border-right: 1px solid #e4e4e7 !important;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+html:not(.dark) aside .bg-zinc-900,
+html:not(.dark) aside nav#navMenu {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) aside .border-b,
+html:not(.dark) aside .border-zinc-800,
+html:not(.dark) aside .border-t {
+  border-color: #e4e4e7 !important;
+}
+
+html:not(.dark) aside .sidebar-link:not(.bg-indigo-600) {
+  color: #52525b !important;
+}
+
+html:not(.dark) aside .sidebar-link:not(.bg-indigo-600):hover {
+  background-color: #f4f4f5 !important;
+  color: #18181b !important;
+}
+
+html:not(.dark) aside .logo-full img,
+html:not(.dark) aside .logo-mini img {
+  filter: brightness(0.15) !important;
+}
+
+html:not(.dark) aside .sidebar-link.text-red-400 {
+  color: #dc2626 !important;
+}
+
+html:not(.dark) aside .sidebar-link.text-red-400:hover {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+
+html.dark aside {
+  background-color: #09090b !important;
+  color: #f4f4f5 !important;
+  border-right: 1px solid #18181b !important;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.dark aside .bg-zinc-900,
+html.dark aside nav#navMenu {
+  background-color: #09090b !important;
+}
+
+html.dark aside .border-b,
+html.dark aside .border-zinc-800,
+html.dark aside .border-t {
+  border-color: #18181b !important;
+}
+
+html.dark aside .sidebar-link:not(.bg-indigo-600) {
+  color: #a1a1aa !important;
+}
+
+html.dark aside .sidebar-link:not(.bg-indigo-600):hover {
+  background-color: #18181b !important;
+  color: #ffffff !important;
+}
+
+
+
 

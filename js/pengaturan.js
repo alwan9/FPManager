@@ -178,8 +178,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnClearStorageCache) {
     btnClearStorageCache.addEventListener('click', async () => {
       if (confirm('Apakah Anda yakin ingin membersihkan seluruh cache, session, cookie, dan riwayat sementara aplikasi?')) {
+        // Save current session before clear to prevent logout
+        const savedToken = sessionStorage.getItem("token");
+        const savedUser = sessionStorage.getItem("user");
+        const savedLocalToken = localStorage.getItem("token");
+        const savedLocalUser = localStorage.getItem("user");
+
         // Clear session storage
         sessionStorage.clear();
+
+        // Restore session
+        if (savedToken) sessionStorage.setItem("token", savedToken);
+        if (savedUser) sessionStorage.setItem("user", savedUser);
+        if (savedLocalToken) localStorage.setItem("token", savedLocalToken);
+        if (savedLocalUser) localStorage.setItem("user", savedLocalUser);
+
         // Clear cache storage if supported
         if ('caches' in window) {
           try {
@@ -198,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showToast({
           title: 'Cache & Session Dibersihkan',
-          message: 'Cache, sesi cookie, dan riwayat sementara berhasil dibersihkan! Memuat ulang...',
+          message: 'Cache, sesi cookie, dan riwayat sementara berhasil dibersihkan tanpa memutus sesi login! Memuat ulang...',
           type: 'success'
         });
         setTimeout(() => {
@@ -213,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateApiStatusBadge() {
   const badge = document.getElementById('apiStatusBadge');
   if (badge) {
-    badge.textContent = 'Live API (Google Sheets)';
+    badge.textContent = 'Live Google Sheets';
     badge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
 }

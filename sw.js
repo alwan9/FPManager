@@ -1,4 +1,17 @@
-const CACHE_NAME = 'fpmanager-v47';
+const CACHE_NAME = 'fpmanager-v81';
+
+
+
+
+
+
+
+
+
+
+
+
+
 const urlsToCache = [
   './',
   './index.html',
@@ -10,6 +23,7 @@ const urlsToCache = [
   './pengaturan.html',
   './profil.html',
   './invoice.html',
+  './tools.html',
   './login.html',
   './manifest.json',
   './css/style.css',
@@ -28,6 +42,7 @@ const urlsToCache = [
   './js/pengaturan.js',
   './js/profil.js',
   './js/invoice.js',
+  './js/tools.js',
   './js/theme.js',
   './js/toast.js',
   './js/excel.js',
@@ -63,17 +78,71 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Prevent caching for API requests (Google Apps Script or requests containing sensitive data parameters)
-  const url = event.request.url || '';
-  if (url.includes('script.google.com') || url.includes('action=') || url.includes('apiKey=')) {
-    event.respondWith(fetch(event.request));
+  // Only handle GET requests. Let POST/PUT/DELETE bypass SW to browser native handling.
+  if (event.request.method !== 'GET') {
     return;
   }
 
+  const url = event.request.url || '';
+
+  // Skip caching for external API calls and CDNs — let browser handle directly
+  if (
+    url.includes('script.google.com') ||
+    url.includes('action=') ||
+    url.includes('apiKey=') ||
+    url.includes('generativelanguage.googleapis.com') ||
+    url.includes('googleapis.com') ||
+    url.includes('cdnjs.cloudflare.com') ||
+    url.includes('cdn.jsdelivr.net') ||
+    url.includes('unpkg.com')
+  ) {
+    return;
+  }
+
+  // Network-first strategy for HTML pages/navigation
+  if (event.request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('/') || !url.includes('.')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const responseCopy = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseCopy);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request).then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            return new Response('Offline', { status: 503, statusText: 'Offline' });
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for local static assets
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        return response || fetch(event.request);
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request).then(response => {
+          if (response && response.status === 200) {
+            const responseCopy = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseCopy);
+            });
+          }
+          return response;
+        }).catch(err => {
+          console.warn('SW fetch offline/error for:', url, err);
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
+        });
       })
   );
 });
