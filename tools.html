@@ -192,12 +192,15 @@
         <!-- =============================== -->
         <!-- MOBILE ONLY ACTION BUTTONS      -->
         <!-- =============================== -->
-        <div class="flex sm:hidden flex-row gap-3 w-full">
-          <button onclick="openAddShortcutModal()" data-permission-allow="tools:create" class="flex-1 inline-flex items-center justify-center py-3 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold rounded-xl shadow-sm text-base active:scale-95 transition-transform">
-            <i class="fa-solid fa-plus mr-2"></i> Shortcut
+        <div class="flex sm:hidden flex-wrap gap-2 w-full">
+          <button onclick="openAddShortcutModal()" data-permission-allow="tools:create" class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+            <i class="fa-solid fa-plus mr-1"></i> Shortcut
           </button>
-          <button onclick="openAddToolModal()" data-permission-allow="tools:create" class="flex-1 inline-flex items-center justify-center py-3 bg-indigo-600 dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm text-base active:scale-95 transition-transform">
-            <i class="fa-solid fa-plus mr-2"></i> Prompt
+          <button onclick="openAddToolModal()" data-permission-allow="tools:create" class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+            <i class="fa-solid fa-plus mr-1"></i> Prompt
+          </button>
+          <button onclick="openReferencesModal()" class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-emerald-600 dark:bg-emerald-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+            <i class="fa-solid fa-folder-open mr-1"></i> Referensi
           </button>
         </div>
 
@@ -256,12 +259,14 @@
           <!-- Tools list will be populated here -->
         </div>
 
+
+
       </section>
 
       <!-- Add Tool Modal (Prompt) -->
       <div id="addToolModal" onclick="if(event.target === this) closeToolModal()"
         style="background-color: rgba(0, 0, 0, 0.4);" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
           <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0">
             <h3 class="text-white text-lg font-bold" id="modalTitle">Tambah Prompt</h3>
             <button onclick="closeToolModal()" class="text-indigo-100 hover:text-white transition-colors">
@@ -302,7 +307,7 @@
       <!-- Add Shortcut Modal (Web) -->
       <div id="addShortcutModal" onclick="if(event.target === this) closeShortcutModal()"
         style="background-color: rgba(0, 0, 0, 0.4);" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
           <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0">
             <h3 class="text-white text-lg font-bold" id="shortcutModalTitle">Tambah Web Shortcut</h3>
             <button onclick="closeShortcutModal()" class="text-indigo-100 hover:text-white transition-colors">
@@ -340,6 +345,102 @@
         </div>
       </div>
 
+      <!-- Modal References Galeri (2-Column Layout) -->
+      <div id="referencesModal" onclick="if(event.target === this) closeReferencesModal()" style="background-color: rgba(9, 9, 11, 0.5);" 
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200 dark:border-zinc-800">
+          
+          <!-- Modal Header -->
+          <div class="px-6 py-4 bg-emerald-600 dark:bg-emerald-700 text-white flex justify-between items-center shrink-0">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-white flex items-center justify-center font-bold">
+                <i class="fa-solid fa-bookmark text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-white text-lg md:text-xl font-bold tracking-tight">Galeri Referensi Desain</h3>
+                <p class="text-xs text-emerald-100">Cari inspirasi desain Pinterest & Freepik atau tambahkan referensi baru</p>
+              </div>
+            </div>
+            <button onclick="closeReferencesModal()" class="w-8 h-8 rounded-xl hover:bg-emerald-700 dark:hover:bg-zinc-800 flex items-center justify-center text-emerald-100 hover:text-white dark:hover:text-zinc-200 transition-colors">
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body (2 Columns Layout) -->
+          <div class="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800 flex-1 min-h-0 overflow-y-auto">
+            
+            <!-- Left Column: Data & Search (60% width on large screens) -->
+            <div class="flex-1 md:flex-[1.5] p-6 flex flex-col space-y-4 min-h-0">
+              
+              <!-- Search & Header info -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
+                <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">Daftar Referensi</span>
+                <div class="relative w-full sm:w-64">
+                  <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 text-xs"></i>
+                  <input type="text" id="refSearchInput" placeholder="Cari referensi..." onkeyup="searchReferences(this.value)"
+                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none font-semibold text-zinc-800 dark:text-white focus:ring-1 focus:ring-emerald-500">
+                </div>
+              </div>
+
+              <!-- Table Container -->
+              <div class="flex-1 overflow-y-auto border border-zinc-200 dark:border-zinc-800 rounded-xl bg-zinc-50/30 dark:bg-zinc-950/20">
+                <table class="w-full text-sm text-left text-zinc-500 dark:text-zinc-400 border-collapse">
+                  <thead class="text-xs text-zinc-700 dark:text-zinc-300 uppercase bg-zinc-100 dark:bg-zinc-800/80 sticky top-0 border-b border-zinc-200 dark:border-zinc-800">
+                    <tr>
+                      <th class="px-4 py-3">Nama Judul</th>
+                      <th class="px-4 py-3">Sumber</th>
+                      <th class="px-4 py-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="refTableBody">
+                    <!-- Data populated here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Column: Add Form (40% width on large screens) -->
+            <div class="w-full md:w-96 p-6 bg-zinc-50/50 dark:bg-zinc-800/20 flex flex-col justify-start shrink-0">
+              <h4 class="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center justify-between">
+                <span id="refFormTitle">Tambah Referensi</span>
+                <button onclick="resetRefForm()" id="refCancelEditBtn" class="hidden text-xs text-rose-500 hover:underline">Batal Edit</button>
+              </h4>
+              
+              <form id="refSubmitForm" class="space-y-4">
+                <input type="hidden" id="refFormId">
+                <div>
+                  <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Judul Referensi*</label>
+                  <input type="text" id="refFormTitleInput" required placeholder="Contoh: Inspirasi Desain Brosur Kopi"
+                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none font-semibold transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Link Sumber Referensi*</label>
+                  <input type="url" id="refFormUrlInput" required placeholder="https://pinterest.com/pin/..."
+                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none font-semibold transition-all">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Platform Sumber*</label>
+                  <select id="refFormSourceInput" required
+                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none font-semibold transition-all">
+                    <option value="Pinterest" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Pinterest</option>
+                    <option value="Freepik" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Freepik</option>
+                    <option value="Behance" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Behance</option>
+                    <option value="Dribbble" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Dribbble</option>
+                    <option value="Lainnya" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Lainnya</option>
+                  </select>
+                </div>
+                
+                <button type="submit"
+                  class="w-full py-2 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition-colors shadow">
+                  Simpan Data Referensi
+                </button>
+              </form>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
 
 
       <!-- Footer -->
@@ -351,6 +452,16 @@
 
   <!-- Floating Action Buttons Group (Sleek Round Icons - No UI Collision) -->
   <div class="fixed bottom-20 right-3 md:bottom-6 md:right-6 z-40 flex flex-col space-y-2.5 items-end">
+
+    <!-- Referensi Desain Floating Button -->
+    <button onclick="openReferencesModal()" 
+      class="group flex items-center bg-emerald-600 hover:bg-emerald-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-emerald-300/30 focus:outline-none"
+      title="Inspirasi & Referensi Desain">
+      <i class="fa-solid fa-bookmark text-base md:text-lg text-emerald-100 group-hover:rotate-12 transition-transform"></i>
+      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
+        Referensi Desain
+      </span>
+    </button>
 
     <!-- Project Preview Blender Floating Button -->
     <button onclick="openProjectPreviewBlenderModal()" 
@@ -389,6 +500,16 @@
       <i class="fa-solid fa-lightbulb text-base md:text-lg text-indigo-100 group-hover:rotate-12 transition-transform"></i>
       <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
         Filosofi Logo AI
+      </span>
+    </button>
+
+    <!-- Go to Top Floating Button -->
+    <button onclick="scrollToTop()" 
+      class="group flex items-center bg-zinc-800 hover:bg-zinc-950 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-zinc-700/30 focus:outline-none"
+      title="Kembali ke Atas">
+      <i class="fa-solid fa-arrow-up text-base md:text-lg text-zinc-100 group-hover:-translate-y-1 transition-transform"></i>
+      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
+        Ke Atas
       </span>
     </button>
   </div>
@@ -705,11 +826,15 @@
 
           </div>
 
-          <!-- Bottom Actions -->
-          <div class="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60 mt-auto">
-            <button onclick="copyPbImage()" id="pbCopyBtn" disabled class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-base shadow-sm transition-all flex items-center justify-center space-x-2">
+          <!-- Bottom Actions (Salin & Unduh) -->
+          <div class="space-y-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60 mt-auto">
+            <button onclick="copyPbImage()" id="pbCopyBtn" disabled class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Gambar</span>
+            </button>
+            <button onclick="downloadPbImage()" id="pbDownloadBtn" disabled class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-download"></i>
+              <span>Unduh (PNG)</span>
             </button>
           </div>
 
@@ -723,7 +848,7 @@
   <!-- Modal Watermark Generator (Tanpa Permission - Dashboard 2 Kolom Sejajar) -->
   <div id="watermarkGeneratorModal" onclick="if(event.target === this) closeWatermarkModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
       
       <!-- Modal Header -->
       <div class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
@@ -858,7 +983,7 @@
   <!-- Modal Panduan Ukuran & Konversi Satuan (Tanpa Permission - Clean UI) -->
   <div id="sizeCheatSheetModal" onclick="if(event.target === this) closeSizeCheatSheetModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 overflow-y-auto backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[88vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
       
       <!-- Modal Header (Clean Minimalist) -->
       <div class="px-6 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
@@ -916,7 +1041,7 @@
   <!-- Modal AI Generator Filosofi Logo & Brand Story -->
   <div id="logoPhilosophyModal" onclick="if(event.target === this) closeLogoPhilosophyModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
       
       <!-- Modal Header -->
       <div class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
@@ -988,31 +1113,18 @@
                   <input type="text" id="logoIndustrySearch" oninput="filterLogoIndustries(this.value)" placeholder="Cari bidang / industri..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                 </div>
                 <select id="logoIndustry" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
-                  <option value="fnb">Kuliner / Makanan &amp; Minuman (F&amp;B / Cafe)</option>
-                  <option value="snack">Makanan Ringan, Snack &amp; Bakery</option>
-                  <option value="coffee">Kedai Kopi / Coffee Shop &amp; Boba</option>
-                  <option value="tech">Teknologi, IT &amp; Digital Startup</option>
-                  <option value="software">Software, Aplikasi &amp; Web Dev</option>
-                  <option value="fashion">Fashion, Pakaian &amp; Distro/Apparel</option>
-                  <option value="hijab">Hijab, Busana Muslim &amp; Tekstil</option>
-                  <option value="beauty">Kecantikan, Skincare &amp; Kosmetik</option>
-                  <option value="salon">Barbershop, Salon &amp; Spa</option>
-                  <option value="property">Properti, Real Estate &amp; Kontraktor</option>
-                  <option value="architecture">Arsitektur &amp; Desain Interior</option>
-                  <option value="automotive">Otomotif, Bengkel &amp; Aksesoris</option>
-                  <option value="creative">Studio Kreatif, Desain &amp; Fotografi</option>
-                  <option value="media">Media, Musik &amp; Production House</option>
-                  <option value="finance">Keuangan, Perbankan &amp; Fintech</option>
-                  <option value="consultant">Konsultan Bisnis, Hukum &amp; Akuntan</option>
-                  <option value="health">Kesehatan, Klinik &amp; Farmasi</option>
-                  <option value="sports">Olahraga, Gym &amp; E-Sports</option>
-                  <option value="agri">Pertanian, Peternakan &amp; Agribisnis</option>
-                  <option value="logistics">Logistik, Ekspedisi &amp; Travel</option>
-                  <option value="education">Pendidikan, Sekolah &amp; Kursus</option>
-                  <option value="event">Event Organizer &amp; Wedding</option>
-                  <option value="community">Komunitas, Organisasi &amp; Yayasan</option>
-                  <option value="retail">UMKM, Toko Online &amp; Retail</option>
-                  <option value="general">Umum / Bidang Lainnya</option>
+                  <option value="fnb">FNB (Kuliner, Cafe, Kopi &amp; Bakery)</option>
+                  <option value="tech">TECH (IT, Web, Startup &amp; Software)</option>
+                  <option value="fashion">FASHION (Pakaian, Muslim &amp; Hijab)</option>
+                  <option value="beauty">BEAUTY (Skincare, Kosmetik &amp; Salon)</option>
+                  <option value="property">PROPERTY (Rumah, Interior &amp; Arsitek)</option>
+                  <option value="automotive">OTOMOTIF (Kendaraan &amp; Bengkel)</option>
+                  <option value="creative">KREATIF (Desain, Foto &amp; Media)</option>
+                  <option value="finance">KEUANGAN &amp; JASA (Fintech &amp; Konsultan)</option>
+                  <option value="health">KESEHATAN (Klinik, Medis &amp; Farmasi)</option>
+                  <option value="logistics">LOGISTIK (Ekspedisi &amp; Travel)</option>
+                  <option value="education">EDUKASI (Sekolah &amp; Kursus)</option>
+                  <option value="general">UMUM (Bidang Lainnya)</option>
                 </select>
               </div>
 

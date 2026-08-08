@@ -648,6 +648,66 @@ const API = {
   },
 
   // ===================================
+  // API DESIGN REFERENCES
+  // ===================================
+  getReferences: async () => {
+    const currUser = API.getCurrentUser();
+    try {
+      const response = await fetch(`${CONFIG.API_URL}?action=getReferences&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&userId=${currUser.id}`);
+      const result = await response.json();
+      if (handleUnauthorized(result)) return [];
+      return result.success ? result.data : [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  addReference: async (data) => {
+    const currUser = API.getCurrentUser();
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "addReference");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("userId", currUser.id);
+      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  updateReference: async (id, data) => {
+    const currUser = API.getCurrentUser();
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "updateReference");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("userId", currUser.id);
+      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  deleteReference: async (id) => {
+    const currUser = API.getCurrentUser();
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "deleteReference");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", currUser.role);
+      body.append("userId", currUser.id);
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) { return { success: false, message: e.message }; }
+  },
+
+  // ===================================
   // API WEB SHORTCUTS
   // ===================================
   getShortcuts: async () => {

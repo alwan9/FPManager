@@ -165,7 +165,88 @@ function initTable(data) {
           return `<span class="text-green-600 font-semibold">${isEn ? 'Paid' : 'Lunas'}</span>`;
         }
       },
-      { data: 'deadline' },
+      {
+        data: 'deadline',
+        render: function (data, type, row) {
+          if (!data) return '-';
+          if (type === 'display') {
+            const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+            const dlDate = new Date(data);
+            dlDate.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffMs = dlDate - today;
+            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+            const st = String(row.status || '').toLowerCase().trim();
+            const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
+
+            let dateDisplay = data;
+            try {
+              const parts = data.split('-');
+              if (parts.length === 3) {
+                const year = parts[0];
+                const month = parseInt(parts[1], 10);
+                const day = parseInt(parts[2], 10);
+                const monthsId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const mName = isEn ? monthsEn[month - 1] : monthsId[month - 1];
+                dateDisplay = `${day} ${mName} ${year}`;
+              }
+            } catch (e) {
+              dateDisplay = data;
+            }
+
+            const isWaitingOrProgress = st.includes('menunggu') || st.includes('dikerjakan');
+            const isRevision = st.includes('revisi');
+
+            if (isFinished) {
+              return `<span class="font-semibold text-zinc-800 dark:text-zinc-200">${dateDisplay}</span>`;
+            }
+
+            let badgeHtml = '';
+            if (isWaitingOrProgress) {
+              if (diffDays >= 0) {
+                const label = isEn ? `-${diffDays}d` : `-${diffDays} hari`;
+                const badgeClass = diffDays <= 3
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-900/50'
+                  : 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+              } else {
+                const label = isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`;
+                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+              }
+            } else if (isRevision) {
+              if (diffDays < 0) {
+                const label = isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`;
+                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50 animate-pulse';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+              } else {
+                const label = isEn ? `-${diffDays}d` : `-${diffDays} hari`;
+                const badgeClass = 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/50';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+              }
+            } else {
+              // Fallback for other states (e.g. Belum Pembayaran)
+              if (diffDays >= 0) {
+                const label = isEn ? `-${diffDays}d` : `-${diffDays} hari`;
+                const badgeClass = 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+              } else {
+                const label = isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`;
+                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+              }
+            }
+
+            return `<div class="flex flex-col space-y-0.5">
+              <span class="font-semibold text-zinc-800 dark:text-zinc-200">${dateDisplay}</span>
+              ${badgeHtml}
+            </div>`;
+          }
+          return data;
+        }
+      },
       {
         data: 'status',
         render: function (data, type, row) {
@@ -363,7 +444,74 @@ async function viewDetail(id) {
       document.getElementById('modalSatuan').textContent = isEn ? (satuanMap[proyek.satuan] || proyek.satuan) : proyek.satuan;
       document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
       document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
-      document.getElementById('modalDeadline').textContent = proyek.deadline;
+      
+      const modalDeadlineEl = document.getElementById('modalDeadline');
+      if (modalDeadlineEl) {
+        if (proyek.deadline) {
+          const dlDate = new Date(proyek.deadline);
+          dlDate.setHours(0, 0, 0, 0);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const diffMs = dlDate - today;
+          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          const st = String(proyek.status || '').toLowerCase().trim();
+          const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
+          
+          let dateDisplay = proyek.deadline;
+          try {
+            const parts = proyek.deadline.split('-');
+            if (parts.length === 3) {
+              const year = parts[0];
+              const month = parseInt(parts[1], 10);
+              const day = parseInt(parts[2], 10);
+              const monthsId = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+              const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+              const mName = isEn ? monthsEn[month - 1] : monthsId[month - 1];
+              dateDisplay = `${day} ${mName} ${year}`;
+            }
+          } catch (e) {
+            dateDisplay = proyek.deadline;
+          }
+          
+          if (isFinished) {
+            modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span>`;
+          } else {
+            const isWaitingOrProgress = st.includes('menunggu') || st.includes('dikerjakan');
+            const isRevision = st.includes('revisi');
+
+            if (isWaitingOrProgress) {
+              if (diffDays >= 0) {
+                const label = isEn ? `-${diffDays} days` : `-${diffDays} hari`;
+                const colorClass = diffDays <= 3 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-zinc-500 dark:text-zinc-400 font-semibold';
+                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs ${colorClass}"> (${label})</span>`;
+              } else {
+                const label = isEn ? `Overdue by ${Math.abs(diffDays)} days` : `Terlambat ${Math.abs(diffDays)} hari`;
+                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${label})</span>`;
+              }
+            } else if (isRevision) {
+              if (diffDays < 0) {
+                const label = isEn ? `Overdue by ${Math.abs(diffDays)} days` : `Terlambat ${Math.abs(diffDays)} hari`;
+                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${label})</span>`;
+              } else {
+                const label = isEn ? `-${diffDays} days` : `-${diffDays} hari`;
+                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-amber-600 dark:text-amber-400 font-bold"> (${label})</span>`;
+              }
+            } else {
+              // Fallback (e.g. Belum Pembayaran)
+              if (diffDays >= 0) {
+                const label = isEn ? `-${diffDays} days` : `-${diffDays} hari`;
+                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-zinc-500 dark:text-zinc-400 font-semibold"> (${label})</span>`;
+              } else {
+                const label = isEn ? `Overdue by ${Math.abs(diffDays)} days` : `Terlambat ${Math.abs(diffDays)} hari`;
+                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${label})</span>`;
+              }
+            }
+          }
+        } else {
+          modalDeadlineEl.textContent = '-';
+        }
+      }
+      
       document.getElementById('modalCatatan').textContent = proyek.catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
       
       // Dropdown Sisa & Fitur Lunasi

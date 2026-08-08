@@ -85,6 +85,11 @@ self.addEventListener('fetch', event => {
 
   const url = event.request.url || '';
 
+  // Only cache http/https schemes (ignore chrome-extension, etc.)
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return;
+  }
+
   // Skip caching for external API calls and CDNs — let browser handle directly
   if (
     url.includes('script.google.com') ||
