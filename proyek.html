@@ -505,7 +505,7 @@
               <span id="modalPelanggan" class="font-bold text-base text-zinc-900 block mt-0.5">Nama Pelanggan</span>
               <div class="flex items-center space-x-2 mt-1">
                 <i class="fa-brands fa-whatsapp text-green-500"></i>
-                <span id="modalWa" class="text-zinc-600 text-xs">62812345</span>
+                <span id="modalWa" onclick="copyTextToClipboard(this.textContent.replace('+', ''), 'Nomor WA')" class="text-zinc-600 text-xs cursor-pointer hover:underline hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Klik untuk salin Nomor WA">62812345</span>
               </div>
             </div>
 

@@ -151,7 +151,7 @@ function initTable(data) {
       {
         data: 'nomorWA',
         render: function (data) {
-          return `+${escapeHtml(data)}`;
+          return `<span onclick="copyTextToClipboard('${escapeHtml(data)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold" title="Klik untuk salin Nomor WA">+${escapeHtml(data)}</span>`;
         }
       },
       {
