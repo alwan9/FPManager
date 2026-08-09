@@ -129,14 +129,20 @@ function initTable(data) {
           return `<input type="checkbox" value="${data.iDProyek}" class="proyek-checkbox rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle">`;
         }
       },
-      { data: 'iDProyek', className: 'hidden md:table-cell' },
+      {
+        data: 'iDProyek',
+        className: 'hidden md:table-cell',
+        render: function (data) {
+          return `<span onclick="copyTextToClipboard('${escapeHtml(data)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(data)}</span>`;
+        }
+      },
       {
         data: 'userId',
         defaultContent: 'USR-001',
         className: 'hidden md:table-cell',
         render: function (data) {
           const uid = data || 'USR-001';
-          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${uid}</span>`;
+          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${escapeHtml(uid)}</span>`;
         }
       },
       { data: 'tanggal', visible: false },
@@ -145,7 +151,7 @@ function initTable(data) {
       {
         data: 'nomorWA',
         render: function (data) {
-          return `+${data}`;
+          return `+${escapeHtml(data)}`;
         }
       },
       {
@@ -289,7 +295,7 @@ function initTable(data) {
           const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
           if (data) {
             return `
-              <a href="${data}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
+              <a href="${sanitizeUrl(data)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
                 <i class="fa-solid fa-folder-open text-indigo-600"></i>
                 <span>Drive</span>
               </a>
@@ -310,7 +316,7 @@ function initTable(data) {
               <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button onclick="syncCalendarPromptByProyekId('${data.iDProyek}')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
+              <button onclick="syncCalendarPromptByProyekId('${data.iDProyek}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
                 <i class="fa-solid fa-calendar-plus"></i>
               </button>
               ${canUpdate ? `
@@ -416,7 +422,7 @@ async function viewDetail(id) {
       if (modalGDriveContainer && modalGDriveLink) {
         if (proyek.gdriveLink) {
           modalGDriveContainer.classList.remove('hidden');
-          modalGDriveLink.href = proyek.gdriveLink;
+          modalGDriveLink.href = sanitizeUrl(proyek.gdriveLink);
         } else {
           modalGDriveContainer.classList.add('hidden');
           modalGDriveLink.href = '#';
@@ -530,7 +536,7 @@ async function viewDetail(id) {
           opt.textContent = isEn ? 'Paid' : 'Lunas';
           sisaSelect.appendChild(opt);
           sisaSelect.disabled = true;
-          sisaSelect.className = "appearance-none bg-transparent font-bold text-emerald-600 text-sm focus:outline-none w-full truncate";
+          sisaSelect.className = "appearance-none bg-transparent font-bold text-green-600 text-sm focus:outline-none w-full truncate";
           if(sisaIcon) sisaIcon.classList.add('hidden');
         } else {
           // Belum Lunas

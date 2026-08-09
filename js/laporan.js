@@ -88,7 +88,7 @@ function renderOverviewCards(proyekList, keuanganList) {
   if (estimasiLaba < 0) {
     labaEl.className = 'text-xl font-extrabold text-rose-600';
   } else {
-    labaEl.className = 'text-xl font-extrabold text-emerald-600';
+    labaEl.className = 'text-xl font-extrabold text-green-600';
   }
 }
 
@@ -147,12 +147,12 @@ function renderMonthlySummaryList(monthlyList) {
     itemEl.innerHTML = `
       <div class="flex justify-between items-center">
         <span class="font-bold text-zinc-800 text-sm">${item.monthLabel}</span>
-        <span class="text-xs font-semibold ${profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+        <span class="text-xs font-semibold ${profit >= 0 ? 'text-green-600' : 'text-rose-600'}">
           Profit: ${formatRupiah(profit)}
         </span>
       </div>
       <div class="grid grid-cols-2 gap-2 text-xs text-zinc-500">
-        <div>${isEn ? 'In' : 'Masuk'}: <span class="text-emerald-600 font-medium">${formatRupiah(item.pemasukan)}</span></div>
+        <div>${isEn ? 'In' : 'Masuk'}: <span class="text-green-600 font-medium">${formatRupiah(item.pemasukan)}</span></div>
         <div class="text-right">${isEn ? 'Out' : 'Keluar'}: <span class="text-rose-600 font-medium">${formatRupiah(item.pengeluaran)}</span></div>
       </div>
     `;
@@ -181,8 +181,8 @@ function renderChart(monthlyList) {
         {
           label: isEn ? 'Income (Rp)' : 'Pemasukan (Rp)',
           data: pemasukanData,
-          backgroundColor: 'rgba(16, 185, 129, 0.85)', // Emerald
-          borderColor: 'rgb(16, 185, 129)',
+          backgroundColor: 'rgba(34, 197, 94, 0.85)', // Green
+          borderColor: 'rgb(34, 197, 94)',
           borderWidth: 1,
           borderRadius: 6
         },

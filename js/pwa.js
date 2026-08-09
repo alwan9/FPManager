@@ -228,7 +228,7 @@ function showIOSInstallPrompt(callback) {
     prompt.innerHTML = `
       <div class="flex items-start justify-between">
         <div class="flex items-start space-x-3">
-          <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0 mt-0.5">
+          <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
             <i class="fa-solid fa-circle-info text-lg"></i>
           </div>
           <div>
@@ -240,7 +240,7 @@ function showIOSInstallPrompt(callback) {
       </div>
       <div class="text-xs text-zinc-300 bg-zinc-950 p-3 rounded-xl leading-relaxed font-sans">
         1. Ketuk tombol <strong>Bagikan (Share)</strong> <i class="fa-solid fa-share-from-square text-indigo-400 mx-0.5"></i> di bagian bawah layar Safari.<br>
-        2. Gulir ke bawah dan ketuk <strong>Tambah ke Layar Utama (Add to Home Screen)</strong> <i class="fa-regular fa-square-plus text-emerald-400 mx-0.5"></i>.
+        2. Gulir ke bawah dan ketuk <strong>Tambah ke Layar Utama (Add to Home Screen)</strong> <i class="fa-regular fa-square-plus text-indigo-400 mx-0.5"></i>.
       </div>
     `;
 
@@ -285,7 +285,7 @@ function showAndroidInstallPrompt(callback) {
 
     prompt.innerHTML = `
       <div style="z-index: 99999;" class="flex items-start space-x-3">
-        <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0 mt-0.5">
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
           <i class="fa-solid fa-download text-lg"></i>
         </div>
         <div>
@@ -295,7 +295,7 @@ function showAndroidInstallPrompt(callback) {
       </div>
       <div class="flex space-x-2 justify-end">
         <button id="pwaAndroidClose" class="px-4 py-2 rounded-xl border border-zinc-700 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 transition-all font-sans">Nanti</button>
-        <button id="pwaAndroidInstall" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold text-white transition-all font-sans">Instal</button>
+        <button id="pwaAndroidInstall" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white transition-all font-sans">Instal</button>
       </div>
     `;
 

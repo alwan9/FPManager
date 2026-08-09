@@ -164,7 +164,7 @@ function renderTools(query = '') {
           <i class="fa-regular fa-copy"></i>
           <span>ID</span>
         </button>
-        <button onclick="copyPrompt('${tool.id}', 'en')" class="flex-1 md:flex-none px-3.5 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 font-normal rounded-xl transition-colors flex items-center justify-center space-x-1 text-base" title="Salin Prompt (EN)">
+        <button onclick="copyPrompt('${tool.id}', 'en')" class="flex-1 md:flex-none px-3.5 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 font-normal rounded-xl transition-colors flex items-center justify-center space-x-1 text-base" title="Salin Prompt (EN)">
           <i class="fa-regular fa-copy"></i>
           <span>EN</span>
         </button>
@@ -400,12 +400,12 @@ function renderShortcuts(query = '') {
     el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2 sm:p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all flex flex-col items-center relative group w-full cursor-pointer';
 
     el.innerHTML = `
-      <a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full text-center group-hover:text-indigo-600 transition-colors">
+      <a href="${sanitizeUrl(linkUrl)}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full text-center group-hover:text-indigo-600 transition-colors">
         <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center text-xl md:mb-2 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors overflow-hidden">
-          <img src="${iconUrl}" alt="${shortcut.title}" class="w-full h-full object-cover">
+          <img src="${sanitizeUrl(iconUrl)}" alt="${escapeHtml(shortcut.title)}" class="w-full h-full object-cover">
         </div>
-        <span class="font-normal text-zinc-900 dark:text-zinc-100 text-base truncate w-full px-1 group-hover:text-indigo-600 block mt-1">${shortcut.title}</span>
-        <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1">${shortcut.userId || 'USR-001'}</span>
+        <span class="font-normal text-zinc-900 dark:text-zinc-100 text-base truncate w-full px-1 group-hover:text-indigo-600 block mt-1">${escapeHtml(shortcut.title)}</span>
+        <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1">${escapeHtml(shortcut.userId || 'USR-001')}</span>
       </a>
       <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
         ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
@@ -1206,11 +1206,79 @@ function filterLogoIndustries(query) {
   const options = select.options;
   let firstVisible = null;
 
+  // Keyword mappings for broader/smart synonyms search
+  const keywordMappings = {
+    fnb: [
+      'makanan', 'minuman', 'kuliner', 'cafe', 'kopi', 'bakery', 'roti', 'snack', 'camilan', 'boba',
+      'resto', 'restoran', 'warung', 'eat', 'drink', 'food', 'beverage', 'coffee', 'kue', 'jajanan',
+      'catering', 'dapur', 'kitchen', 'ice cream', 'es krim', 'juice', 'jus', 'angkringan', 'pecel', 'bakso'
+    ],
+    tech: [
+      'it', 'web', 'startup', 'software', 'aplikasi', 'teknologi', 'coding', 'programmer', 'komputer', 'digital',
+      'developer', 'sistem', 'hosting', 'cloud', 'security', 'cyber', 'hardware', 'robotic', 'robot', 'ai',
+      'artificial intelligence', 'data', 'database', 'network', 'jaringan'
+    ],
+    fashion: [
+      'pakaian', 'muslim', 'hijab', 'distro', 'apparel', 'baju', 'busana', 'gamis', 'butik', 'clothing',
+      'jersey', 'kaos', 'jaket', 'celana', 'sepatu', 'tas', 'jilbab', 'koko', 'mukena', 'sarung',
+      'wear', 'outfit', 'boutique', 't-shirt', 'hoodie'
+    ],
+    beauty: [
+      'skincare', 'kosmetik', 'salon', 'spa', 'cantik', 'kecantikan', 'make up', 'makeup', 'barber', 'potong rambut',
+      'perawatan', 'glow', 'glowing', 'parfum', 'perfume', 'creambath', 'facial', 'treatment', 'waxing', 'haircut',
+      'shampoo', 'sabun', 'aesthetic', 'estetika'
+    ],
+    property: [
+      'rumah', 'interior', 'arsitek', 'property', 'real estate', 'kontraktor', 'bangunan', 'gedung', 'apartemen', 'perumahan',
+      'kontruksi', 'construction', 'developer', 'tanah', 'land', 'villa', 'kost', 'kontrakan', 'renovasi', 'desain rumah',
+      'arsitektur', 'mebel', 'furniture', 'decor'
+    ],
+    automotive: [
+      'kendaraan', 'bengkel', 'otomotif', 'motor', 'mobil', 'servis', 'racing', 'aksesoris', 'ban', 'oli',
+      'sparepart', 'suku cadang', 'car', 'bike', 'garage', 'detailing', 'wash', 'cuci mobil', 'cuci motor', 'helm',
+      'exhaust', 'knalpot', 'modif', 'modifikasi'
+    ],
+    creative: [
+      'desain', 'foto', 'media', 'kreatif', 'studio', 'video', 'editing', 'fotografi', 'videografi', 'shooting',
+      'seni', 'art', 'design', 'photography', 'creative', 'agency', 'iklan', 'advertising', 'content creator', 'konten',
+      'youtube', 'podcast', 'cinematic', 'animasi', 'graphics'
+    ],
+    finance: [
+      'keuangan', 'jasa', 'fintech', 'konsultan', 'bank', 'investasi', 'saham', 'akuntan', 'hukum', 'pengacara',
+      'audit', 'finance', 'money', 'uang', 'koperasi', 'crypto', 'legal', 'pajak', 'tax', 'insurance',
+      'asuransi', 'modal', 'capital', 'advisory'
+    ],
+    health: [
+      'klinik', 'medis', 'farmasi', 'kesehatan', 'dokter', 'obat', 'apotek', 'sakit', 'puskesmas', 'suntik',
+      'hospital', 'rumah sakit', 'bidan', 'perawat', 'nurse', 'dentist', 'dokter gigi', 'therapy', 'terapi', 'herbal',
+      'suplemen', 'vitamin', 'masker', 'ambulan'
+    ],
+    logistics: [
+      'ekspedisi', 'travel', 'logistik', 'kurir', 'paket', 'kirim', 'cargo', 'delivery', 'wisata', 'bus',
+      'tiket', 'tour', 'shipping', 'pos', 'cargo', 'send', 'antar', 'jemput', 'rent', 'rental mobil',
+      'sewa mobil', 'transportasi', 'kargo', 'supply chain'
+    ],
+    education: [
+      'sekolah', 'kursus', 'edukasi', 'pendidikan', 'kuliah', 'les', 'bimbel', 'belajar', 'guru', 'dosen',
+      'training', 'academy', 'akademi', 'school', 'university', 'universitas', 'sains', 'science', 'math', 'matematika',
+      'bahasa', 'english', 'buku', 'pustaka', 'perpustakaan'
+    ],
+    general: [
+      'umum', 'lainnya', 'lain', 'bebas', 'all', 'etc', 'misc', 'layanan', 'service', 'toko',
+      'shop', 'store', 'umkm', 'retail', 'bisnis', 'business', 'company', 'perusahaan', 'office', 'kantor'
+    ]
+  };
+
   for (let i = 0; i < options.length; i++) {
     const opt = options[i];
-    const text = opt.text.toLowerCase();
     const val = opt.value.toLowerCase();
-    if (!q || text.includes(q) || val.includes(q)) {
+    const text = opt.text.toLowerCase();
+    
+    // Check if the query matches the option text, option value, OR any of the synonyms/keywords for this option value
+    const synonyms = keywordMappings[val] || [];
+    const matchesSynonym = synonyms.some(syn => syn.includes(q) || q.includes(syn));
+
+    if (!q || text.includes(q) || val.includes(q) || matchesSynonym) {
       opt.hidden = false;
       opt.style.display = '';
       if (!firstVisible) firstVisible = opt;
@@ -2365,11 +2433,11 @@ function renderReferences(query = '') {
     const tr = document.createElement('tr');
     tr.className = 'bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50';
     tr.innerHTML = `
-      <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-100">${ref.title}</td>
+      <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-100">${escapeHtml(ref.title)}</td>
       <td class="px-4 py-3">
-        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-md font-bold transition" title="Buka tautan referensi">
+        <a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-md font-bold transition" title="Buka tautan referensi">
           ${icon}
-          <span>${ref.source}</span>
+          <span>${escapeHtml(ref.source)}</span>
         </a>
       </td>
       <td class="px-4 py-3 text-right">
@@ -2533,11 +2601,11 @@ function renderReferences(query = '') {
     const tr = document.createElement('tr');
     tr.className = 'bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50';
     tr.innerHTML = `
-      <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-100">${displayTitle}</td>
+      <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-100">${escapeHtml(displayTitle)}</td>
       <td class="px-4 py-3">
-        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-md font-bold transition" title="Buka tautan referensi">
+        <a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-md font-bold transition" title="Buka tautan referensi">
           ${icon}
-          <span>${ref.source}</span>
+          <span>${escapeHtml(ref.source)}</span>
         </a>
       </td>
       <td class="px-4 py-3 text-right">

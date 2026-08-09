@@ -128,10 +128,10 @@ function renderSummaryStats(stats) {
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
       val2.textContent = formatRupiah(totalPemasukan);
-      val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
+      val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-green-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
-    if (icon2) icon2.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon2) icon2.className = 'bg-green-50 text-green-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
 
     const title3 = document.getElementById('statCard3Title');
     if (title3) title3.textContent = isEn ? 'Expenses' : 'Pengeluaran';
@@ -187,10 +187,10 @@ function renderSummaryStats(stats) {
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
       val4.textContent = `${completed} ${projSuffix}`;
-      val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
+      val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-green-600 mt-1 block truncate';
     }
     const icon4 = document.getElementById('statCard4Icon');
-    if (icon4) icon4.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon4) icon4.className = 'bg-green-50 text-green-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
   }
 }
 // Identify and render alerts for projects with deadline <= 3 days
@@ -218,7 +218,7 @@ function renderDeadlineAlerts(deadlineAlerts) {
         <span class="text-xs text-zinc-500 truncate block">${isEn ? 'Customer' : 'Pelanggan'}: ${alert.namaPelanggan}</span>
       </div>
       <div class="flex items-center space-x-1.5 flex-shrink-0">
-        <button onclick="syncCalendarPromptByProyekId('${alert.iDProyek}')" class="px-2.5 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-colors" title="Tambah ke Kalender">
+        <button onclick="syncCalendarPromptByProyekId('${alert.iDProyek}')" class="px-2.5 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded-lg text-xs font-bold transition-colors" title="Tambah ke Kalender">
           <i class="fa-solid fa-calendar-plus"></i>
         </button>
         <a href="proyek.html" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
@@ -301,8 +301,8 @@ function renderDashboardChart(chartData) {
         {
           label: isEn ? 'In (Rp)' : 'Masuk (Rp)',
           data: pemasukanData,
-          backgroundColor: 'rgba(16, 185, 129, 0.85)', // Emerald
-          borderColor: 'rgb(16, 185, 129)',
+          backgroundColor: 'rgba(34, 197, 94, 0.85)', // Green
+          borderColor: 'rgb(34, 197, 94)',
           borderWidth: 1,
           borderRadius: 6
         },

@@ -1,3 +1,53 @@
+// Helper HTML Escaper for XSS Prevention
+const escapeHtml = (str) => {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
+// Helper URL Sanitizer to prevent javascript: or data: URL injection (XSS)
+const sanitizeUrl = (url) => {
+  if (!url) return '#';
+  const clean = String(url).trim();
+  if (clean.toLowerCase().startsWith('javascript:') || clean.toLowerCase().startsWith('data:')) {
+    return '#';
+  }
+  return clean;
+};
+
+// Helper Clipboard Copier for UX Convenience
+const copyTextToClipboard = async (text, label = "Teks") => {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
+    }
+  } catch (err) {
+    console.error("Gagal menyalin:", err);
+    // Fallback using execCommand
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
+      }
+    } catch (e) {
+      if (typeof Toast !== 'undefined') Toast.error('Gagal Menyalin', 'Perangkat tidak mendukung penyalinan otomatis.');
+    }
+    document.body.removeChild(textarea);
+  }
+};
+
 // Helper Unauthorized
 const handleUnauthorized = (result) => {
   if (result.message === "Error: Unauthorized") {
@@ -179,6 +229,12 @@ const API = {
   // Ambil semua data proyek (mendukung pagination dan pencarian)
   getProyek: async (params = {}) => {
     const { page = 0, limit = 0, search = "" } = params;
+    
+    // Return cached data if valid (within 15 seconds) to boost page performance
+    if (!page && !limit && !search && APICache.proyek && (Date.now() - APICache.proyekTime < 15000)) {
+      return APICache.proyek;
+    }
+
     try {
       const currUser = API.getCurrentUser();
       let url = `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${currUser.role}&userId=${currUser.id}`;
@@ -293,6 +349,11 @@ const API = {
 
   // Ambil semua data keuangan
   getKeuangan: async () => {
+    // Return cached data if valid (within 15 seconds) to boost page performance
+    if (APICache.keuangan && (Date.now() - APICache.keuanganTime < 15000)) {
+      return APICache.keuangan;
+    }
+
     const currUser = API.getCurrentUser();
     try {
       const response = await fetch(

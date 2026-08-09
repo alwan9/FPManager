@@ -1,5 +1,7 @@
 const Invoice = {
     proyek: [],
+    docType: 'invoice',
+    showSignature: true,
     async init() {
         this.generateWatermark();
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -135,6 +137,9 @@ const Invoice = {
         // ==========================
         document.getElementById("previewCatatan").innerText = data.catatan || "-";
 
+        let docType = "invoice";
+        let showSignature = true;
+
         const savedData = localStorage.getItem('invoice_edit_' + id);
         if (savedData) {
             try {
@@ -143,28 +148,35 @@ const Invoice = {
                 if (parsed.totalHtml) document.getElementById('previewTotal').innerHTML = parsed.totalHtml;
                 if (parsed.dpHtml) document.getElementById('previewDP').innerHTML = parsed.dpHtml;
                 if (parsed.sisaHtml) document.getElementById('previewSisa').innerHTML = parsed.sisaHtml;
-            } catch(e) { console.error('Failed to parse saved invoice'); }
+                if (parsed.catatanHtml) document.getElementById('previewCatatan').innerHTML = parsed.catatanHtml;
+                if (parsed.signTitle) document.getElementById('previewSignTitle').innerText = parsed.signTitle;
+                if (parsed.signName) document.getElementById('previewSignName').innerText = parsed.signName;
+                if (parsed.docType) docType = parsed.docType;
+                if (parsed.showSignature !== undefined) showSignature = parsed.showSignature;
+            } catch (e) { console.error('Failed to parse saved invoice', e); }
         }
 
+        this.setDocumentType(docType);
+        this.toggleSignature(showSignature);
     },
-    
+
     setupEditable() {
         const tableBody = document.getElementById('invoiceTableBody');
         const previewTotal = document.getElementById('previewTotal');
         const previewDP = document.getElementById('previewDP');
         const previewSisa = document.getElementById('previewSisa');
-        
+
         const parseCurrency = (str) => {
             if (!str) return 0;
-            let cleaned = str.replace(/[^0-9,.-]+/g,"");
+            let cleaned = str.replace(/[^0-9,.-]+/g, "");
             cleaned = cleaned.replace(/\./g, '').replace(',', '.');
             return Number(cleaned) || 0;
         };
-        
+
         const formatCurrency = (num) => {
             return this.format(num);
         };
-        
+
         const recalculateTable = () => {
             let total = 0;
             const rows = tableBody.querySelectorAll('.invoice-row');
@@ -172,15 +184,15 @@ const Invoice = {
                 const qtyCell = row.querySelector('.qty-cell');
                 const priceCell = row.querySelector('.price-cell');
                 const nominalCell = row.querySelector('.nominal-cell');
-                
+
                 if (qtyCell && priceCell && nominalCell) {
                     const qty = parseCurrency(qtyCell.innerText);
                     const price = parseCurrency(priceCell.innerText);
-                    
+
                     if (qty > 0 || price > 0) {
                         const nominal = qty * price;
-                        if(document.activeElement !== nominalCell) {
-                           nominalCell.innerText = formatCurrency(nominal);
+                        if (document.activeElement !== nominalCell) {
+                            nominalCell.innerText = formatCurrency(nominal);
                         }
                         total += nominal;
                     } else if (document.activeElement !== nominalCell) {
@@ -191,13 +203,13 @@ const Invoice = {
                     }
                 }
             });
-            
+
             if (document.activeElement !== previewTotal) {
                 previewTotal.innerText = formatCurrency(total);
             }
             recalculateSisa();
         };
-        
+
         const recalculateSisa = () => {
             const total = parseCurrency(previewTotal.innerText);
             const dp = parseCurrency(previewDP.innerText);
@@ -212,46 +224,77 @@ const Invoice = {
         }
         if (previewTotal) previewTotal.addEventListener('input', recalculateSisa);
         if (previewDP) previewDP.addEventListener('input', recalculateSisa);
-        
+
         const btnSave = document.getElementById('btnSaveInvoice');
         if (btnSave) {
             btnSave.addEventListener('click', () => {
                 this.saveEditedInvoice();
             });
         }
-        
+
         const btnReset = document.getElementById('btnResetInvoice');
         if (btnReset) {
             btnReset.addEventListener('click', () => {
                 const id = new URLSearchParams(window.location.search).get("id");
                 if (id) {
-                    if(confirm("Apakah Anda yakin ingin menghapus semua perubahan dan mengembalikan invoice ini seperti semula?")) {
+                    if (confirm("Apakah Anda yakin ingin menghapus semua perubahan dan mengembalikan invoice ini seperti semula?")) {
                         localStorage.removeItem('invoice_edit_' + id);
                         window.location.reload();
                     }
                 }
             });
         }
-        
+
+        // Setup Document Type switcher listeners
+        const btnInvoice = document.getElementById('btnTypeInvoice');
+        const btnNota = document.getElementById('btnTypeNota');
+        if (btnInvoice) {
+            btnInvoice.addEventListener('click', () => {
+                this.setDocumentType('invoice');
+            });
+        }
+        if (btnNota) {
+            btnNota.addEventListener('click', () => {
+                this.setDocumentType('nota');
+            });
+        }
+
+        // Setup Signature toggle listener
+        const chkShowSignature = document.getElementById('chkShowSignature');
+        if (chkShowSignature) {
+            chkShowSignature.addEventListener('change', (e) => {
+                this.toggleSignature(e.target.checked);
+            });
+        }
+
         recalculateTable();
     },
-    
+
     saveEditedInvoice() {
         const id = new URLSearchParams(window.location.search).get("id");
         if (!id) return;
-        
+
         const tableBody = document.getElementById('invoiceTableBody');
         const previewTotal = document.getElementById('previewTotal');
         const previewDP = document.getElementById('previewDP');
         const previewSisa = document.getElementById('previewSisa');
-        
+        const previewCatatan = document.getElementById('previewCatatan');
+        const previewSignTitle = document.getElementById('previewSignTitle');
+        const previewSignName = document.getElementById('previewSignName');
+        const chkShowSignature = document.getElementById('chkShowSignature');
+
         const dataToSave = {
-            tableHtml: tableBody.innerHTML,
-            totalHtml: previewTotal.innerHTML,
-            dpHtml: previewDP.innerHTML,
-            sisaHtml: previewSisa.innerHTML
+            tableHtml: tableBody ? tableBody.innerHTML : '',
+            totalHtml: previewTotal ? previewTotal.innerHTML : '',
+            dpHtml: previewDP ? previewDP.innerHTML : '',
+            sisaHtml: previewSisa ? previewSisa.innerHTML : '',
+            catatanHtml: previewCatatan ? previewCatatan.innerHTML : '',
+            signTitle: previewSignTitle ? previewSignTitle.innerText : 'Hormat Kami,',
+            signName: previewSignName ? previewSignName.innerText : 'Premium Desain',
+            showSignature: chkShowSignature ? chkShowSignature.checked : true,
+            docType: this.docType || 'invoice'
         };
-        
+
         localStorage.setItem('invoice_edit_' + id, JSON.stringify(dataToSave));
         if (typeof Toast !== 'undefined') Toast.success('Tersimpan', 'Perubahan invoice berhasil disimpan di penyimpanan lokal browser.');
     },
@@ -269,18 +312,19 @@ const Invoice = {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         const invoice = document.getElementById("invoiceArea");
         const invNo = document.getElementById("previewInvoiceNo") ? document.getElementById("previewInvoiceNo").innerText : 'FPManager';
-        const fileName = `Invoice-${invNo}.pdf`;
+        const prefix = (this.docType === 'nota') ? 'Nota' : 'Invoice';
+        const fileName = `${prefix}-${invNo}.pdf`;
 
         if (typeof Toast !== 'undefined') {
             Toast.info(
-                isEn ? "Generating PDF..." : "Membuat PDF Invoice...",
-                isEn ? "Please wait while your PDF is rendered offline." : "Mohon tunggu, file PDF sedang diproses secara offline."
+                isEn ? "Generating PDF..." : `Membuat PDF ${prefix}...`,
+                isEn ? "Please wait while your PDF is rendered offline." : `Mohon tunggu, file PDF ${prefix} sedang diproses secara offline.`
             );
         }
 
         if (typeof html2pdf !== 'undefined') {
             html2pdf().set({
-                margin: 0.4,
+                margin: 0.2,
                 filename: fileName,
                 image: {
                     type: "jpeg",
@@ -288,7 +332,8 @@ const Invoice = {
                 },
                 html2canvas: {
                     scale: 2,
-                    useCORS: true
+                    useCORS: true,
+                    logging: false
                 },
                 jsPDF: {
                     unit: "in",
@@ -299,7 +344,7 @@ const Invoice = {
                 if (typeof Toast !== 'undefined') {
                     Toast.success(
                         isEn ? "PDF Exported" : "PDF Berhasil Diunduh",
-                        isEn ? `Invoice ${fileName} has been generated.` : `File ${fileName} berhasil disimpan.`
+                        isEn ? `${prefix} ${fileName} has been generated.` : `File ${fileName} berhasil disimpan.`
                     );
                 }
             }).catch(err => {
@@ -310,41 +355,77 @@ const Invoice = {
             window.print();
         }
     },
+    setDocumentType(type) {
+        this.docType = type;
+        const titleEl = document.getElementById("previewDocTitle");
+        const labelEl = document.getElementById("previewDocNoLabel");
+        const btnInvoice = document.getElementById("btnTypeInvoice");
+        const btnNota = document.getElementById("btnTypeNota");
+
+        if (type === "nota") {
+            if (titleEl) titleEl.innerText = "NOTA";
+            if (labelEl) labelEl.innerText = "No Nota :";
+            if (btnInvoice) {
+                btnInvoice.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm text-zinc-600 hover:text-zinc-900";
+            }
+            if (btnNota) {
+                btnNota.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm bg-indigo-600 text-white shadow-sm";
+            }
+        } else {
+            if (titleEl) titleEl.innerText = "INVOICE";
+            if (labelEl) labelEl.innerText = "No Invoice :";
+            if (btnInvoice) {
+                btnInvoice.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm bg-indigo-600 text-white shadow-sm";
+            }
+            if (btnNota) {
+                btnNota.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm text-zinc-600 hover:text-zinc-900";
+            }
+        }
+    },
+    toggleSignature(show) {
+        this.showSignature = show;
+        const signatureSection = document.getElementById("signatureSection");
+        const checkbox = document.getElementById("chkShowSignature");
+
+        if (checkbox) checkbox.checked = show;
+        if (signatureSection) {
+            if (show) {
+                signatureSection.style.display = "";
+            } else {
+                signatureSection.style.display = "none";
+            }
+        }
+    },
     generateWatermark() {
-        const img = new Image();
-        img.src = "./assets/img/logo.png";
-        img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+        const grid = document.getElementById('watermarkGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
 
-            // Ukuran per-tile watermark (lebar x tinggi)
-            // Tinggi 120px memberikan jarak atas-bawah yang longgar
-            const tileWidth = 180;
-            const tileHeight = 120;
+        const logoWidth = 120; // Enlarge watermark logos by 50%
+        const gap = 180;      // Proportionally larger gap/margin for clean spacing
 
-            canvas.width = tileWidth;
-            canvas.height = tileHeight;
+        // Populate enough cols and rows to cover typical A4 height
+        const cols = 8;
+        const rows = 12;
 
-            // Pertahankan rasio aspek logo
-            const imgRatio = img.width / img.height;
-            const logoWidth = 95; // Ukuran small
-            const logoHeight = logoWidth / imgRatio;
-
-            // Posisikan di tengah tile (memberikan ruang kosong di sekelilingnya)
-            const x = (tileWidth - logoWidth) / 2;
-            const y = (tileHeight - logoHeight) / 2;
-
-            ctx.drawImage(img, x, y, logoWidth, logoHeight);
-
-            const dataUrl = canvas.toDataURL();
-            const style = document.createElement("style");
-            style.innerHTML = `
-                #invoiceArea::before {
-                    background-image: url("${dataUrl}") !important;
-                }
-            `;
-            document.head.appendChild(style);
-        };
+        for (let r = 0; r < rows; r++) {
+            // Stagger alternate rows to form a beautiful diamond watermark mesh
+            const stagger = (r % 2 === 0) ? (gap / 2) : 0;
+            for (let c = 0; c < cols; c++) {
+                const img = document.createElement('img');
+                img.src = 'assets/img/logo.png';
+                img.style.position = 'absolute';
+                img.style.width = `${logoWidth}px`;
+                img.style.height = 'auto';
+                img.style.opacity = '0.08'; // Clearly visible watermark
+                img.style.pointerEvents = 'none';
+                img.style.left = `${c * gap + stagger - 30}px`;
+                img.style.top = `${r * gap - 20}px`;
+                img.style.transform = 'rotate(-20deg)';
+                img.setAttribute('data-html2canvas-ignore', 'false'); // Force html2pdf to render it
+                grid.appendChild(img);
+            }
+        }
     }
 };
 document.addEventListener("DOMContentLoaded", () => {

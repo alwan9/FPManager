@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         badgeClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800";
       } else if (user.role === 'desainer') {
         roleLabel = "Desainer";
-        badgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
+        badgeClass = "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800";
       } else if (user.role === 'custom') {
         roleLabel = "Custom";
         badgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 border-amber-200 dark:border-amber-800";
@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (user.phone) {
         const cleanPhone = user.phone.replace(/[^0-9]/g, '');
         const waLink = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
-        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" rel="noopener noreferrer" class="hover:underline text-emerald-600 dark:text-emerald-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
+        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" rel="noopener noreferrer" class="hover:underline text-green-600 dark:text-green-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
       } else {
         detailPhone.innerHTML = `<span class="text-zinc-400">-</span>`;
       }
@@ -507,6 +507,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   closeUserModalBtn.addEventListener("click", closeModal);
   cancelUserModalBtn.addEventListener("click", closeModal);
+  userModal.addEventListener("click", (e) => {
+    if (e.target === userModal) closeModal();
+  });
 
   window.deleteUser = async (id, username) => {
     if (confirm(`Apakah Anda yakin ingin menghapus user "${username}"?`)) {

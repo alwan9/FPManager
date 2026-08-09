@@ -828,6 +828,25 @@ html.dark aside .sidebar-link:not(.bg-indigo-600):hover {
   color: #ffffff !important;
 }
 
+/* Enforce perfect circles for all avatar images, dropdowns, and circular icon buttons */
+img.rounded-full,
+button.rounded-full,
+.rounded-full.h-8,
+.rounded-full.h-9,
+.rounded-full.h-12,
+.rounded-full.h-24 {
+  flex-shrink: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+/* Ensure contents/icons inside rounded-full buttons are perfectly centered */
+button.rounded-full {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle;
+}
+
 
 
 

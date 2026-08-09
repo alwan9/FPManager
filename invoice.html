@@ -50,22 +50,49 @@
             overflow: hidden;
         }
 
-        #invoiceArea::before {
-            content: "";
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            right: -10%;
-            bottom: -10%;
-            background-repeat: repeat;
-            background-size: 180px 150px;
-            /* Small, padded size matching the canvas */
-            opacity: 0.1;
-            /* 10% opacity */
-            pointer-events: none;
-            z-index: 0;
-            transform: rotate(-5deg);
-            /* Slanted by 5 degrees */
+        .invoice-row:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .nominal-cell {
+            background-color: #f8fafc !important;
+            border-left: 2px solid #e4e4e7 !important;
+        }
+
+        .invoice-row td {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+            .max-w-5xl {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #invoiceArea {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 10mm !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-height: 297mm !important;
+                page-break-inside: avoid !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
     </style>
 
@@ -76,7 +103,7 @@
     <div class="max-w-5xl mx-auto py-4 px-2 md:py-10 md:px-6">
 
         <!-- Header -->
-        <div class="flex justify-between items-center mb-8">
+        <div class="no-print flex justify-between items-center mb-6">
             <button onclick="history.back()"
                 class="no-print bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center">
                 <i class="fa fa-arrow-left mr-2"></i>
@@ -84,18 +111,54 @@
             </button>
         </div>
 
+        <!-- Control Panel (Document Settings) -->
+        <div
+            class="no-print bg-white rounded-xl shadow-md border border-zinc-200 p-4 mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <span class="font-semibold text-zinc-700">Tipe Dokumen:</span>
+                <div class="flex bg-zinc-100 p-1 rounded-xl w-full sm:w-auto">
+                    <button id="btnTypeInvoice"
+                        class="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm bg-indigo-600 text-white shadow-sm">
+                        Invoice
+                    </button>
+                    <button id="btnTypeNota"
+                        class="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm text-zinc-600 hover:text-zinc-900">
+                        Nota
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+                <label class="relative flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="chkShowSignature" class="sr-only peer" checked>
+                    <div
+                        class="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
+                    </div>
+                    <span class="ml-3 font-semibold text-zinc-700 text-sm">Tampilkan Tanda Tangan</span>
+                </label>
+            </div>
+        </div>
+
         <!-- Invoice -->
 
         <div id="invoiceArea"
             class="bg-white rounded-xl shadow-xl border border-zinc-200 p-4 sm:p-6 md:p-10 relative overflow-hidden text-xs md:text-base">
 
+            <!-- Top Accent Gradient Line -->
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-600 to-purple-600 z-20"></div>
+
+            <!-- Watermark Background (HTML Image Grid for absolute compatibility and customizable spacing) -->
+            <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" id="watermarkGrid" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+
+            <!-- Background Decorative Ornaments (Slanted modern polygon blocks, no circles) -->
+            <div class="absolute top-0 right-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(40px); background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+            <div class="absolute bottom-0 left-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(-40px); background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
 
             <div class="relative z-10 space-y-8">
                 <div class="flex justify-between border-b pb-6">
 
                     <div>
 
-                        <h2 class="text-2xl md:text-4xl font-bold text-indigo-600">
+                        <h2 id="previewDocTitle" class="text-2xl md:text-4xl font-bold text-indigo-600">
 
                             INVOICE
 
@@ -103,7 +166,7 @@
 
                         <p class="mt-2 md:mt-4">
 
-                            <b>No Invoice :</b>
+                            <b id="previewDocNoLabel">No Invoice :</b>
 
                             <span id="previewInvoiceNo">-</span>
 
@@ -269,41 +332,7 @@
                             <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
                             <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
                         </tr>
-                        <tr class="invoice-row">
-                            <td class="border p-1 md:p-3 text-center">11</td>
-                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
-                        </tr>
-                        <tr class="invoice-row">
-                            <td class="border p-1 md:p-3 text-center">12</td>
-                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
-                        </tr>
-                        <tr class="invoice-row">
-                            <td class="border p-1 md:p-3 text-center">13</td>
-                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
-                        </tr>
-                        <tr class="invoice-row">
-                            <td class="border p-1 md:p-3 text-center">14</td>
-                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
-                        </tr>
-                        <tr class="invoice-row">
-                            <td class="border p-1 md:p-3 text-center">15</td>
-                            <td class="border p-1 md:p-3 editable-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell" contenteditable="true"></td>
-                        </tr>
+
                     </tbody>
 
                 </table>
@@ -312,56 +341,57 @@
 
                 <div class="flex justify-end mt-8">
 
-                    <table class="w-80">
-
-                        <tr>
-
-                            <td data-i18n="inv-total">Total</td>
-
-                            <td class="text-right font-bold" id="previewTotal"></td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td data-i18n="inv-dp">DP</td>
-
-                            <td class="text-right" id="previewDP"></td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td data-i18n="inv-balance">Sisa Pembayaran</td>
-
-                            <td class="text-right text-red-600 font-bold" id="previewSisa"></td>
-
-                        </tr>
-
-                    </table>
+                    <div class="w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-semibold" data-i18n="inv-total">Total</span>
+                            <span class="font-bold text-zinc-900 text-base outline-none" contenteditable="true"
+                                id="previewTotal"></span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-semibold" data-i18n="inv-dp">DP</span>
+                            <span class="font-semibold text-zinc-800 outline-none" contenteditable="true"
+                                id="previewDP"></span>
+                        </div>
+                        <div class="border-t border-zinc-200 my-2 pt-2 flex justify-between items-center text-sm">
+                            <span class="text-zinc-900 font-bold" data-i18n="inv-balance">Sisa Pembayaran</span>
+                            <span class="text-red-600 font-extrabold text-base outline-none" contenteditable="true"
+                                id="previewSisa"></span>
+                        </div>
+                    </div>
 
                 </div>
 
-                <!-- Catatan -->
-
-                <div class="mt-8">
-
-                    <h3 class="font-bold mb-2" data-i18n="inv-notes">
-
-                        Catatan
-
-                    </h3>
-
-                    <div class="bg-zinc-100 rounded-lg p-4">
-
-                        <span id="previewCatatan">
-
-                            -
-
-                        </span>
-
+                <!-- Bottom Section: Catatan & Tanda Tangan -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                    <!-- Catatan -->
+                    <div>
+                        <h3 class="font-bold mb-2 text-zinc-700" data-i18n="inv-notes">
+                            Catatan
+                        </h3>
+                        <div class="bg-zinc-100 rounded-lg p-4 min-h-[100px]">
+                            <span id="previewCatatan" class="outline-none block w-full h-full" contenteditable="true">
+                                -
+                            </span>
+                        </div>
                     </div>
 
+                    <!-- Tanda Tangan -->
+                    <div id="signatureSection" class="flex flex-col items-end justify-end mt-6 md:mt-0">
+                        <div class="w-60 text-center flex flex-col items-center ml-auto">
+                            <p id="previewSignTitle" class="font-medium text-zinc-600 outline-none"
+                                contenteditable="true">
+                                Hormat Kami,
+                            </p>
+                            <div class="h-16 my-2 flex items-center justify-center">
+                                <img id="previewSignImage" src="assets/img/ttd.png" alt="Tanda Tangan"
+                                    class="h-16 w-auto object-contain">
+                            </div>
+                            <div class="border-b border-zinc-400 w-full mb-2"></div>
+                            <p id="previewSignName" class="font-bold text-zinc-800 outline-none" contenteditable="true">
+                                Premium Desain
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -372,7 +402,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-8 no-print ">
 
             <button id="btnSaveInvoice"
-                class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
                 <i class="fa fa-save mr-2"></i>
                 <span>Simpan Perubahan</span>
             </button>

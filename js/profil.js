@@ -47,7 +47,7 @@ function loadProfileData() {
   const avatarEl = document.getElementById('profileAvatarLarge');
   if (avatarEl) {
     if (avatar) {
-      avatarEl.innerHTML = `<img src="${avatar}" class="w-full h-full rounded-full object-cover">`;
+      avatarEl.innerHTML = `<img src="${sanitizeUrl(avatar)}" class="w-full h-full rounded-full object-cover">`;
     } else {
       avatarEl.textContent = name.charAt(0).toUpperCase();
     }

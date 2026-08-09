@@ -88,13 +88,14 @@
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
         </a>
         <button id="pwaInstallBtn"
-          class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-emerald-400 hover:bg-emerald-950 hover:bg-opacity-30 hover:text-emerald-300 transition-all text-left w-full">
+          class="hidden md:flex sidebar-link items-center space-x-3 px-4 py-3 rounded-xl text-indigo-400 hover:bg-indigo-950 hover:bg-opacity-30 hover:text-indigo-300 transition-all text-left w-full">
           <i class="fa-solid fa-download w-5"></i>
           <span data-i18n="nav-install">Install Aplikasi</span>
         </button>
         <div class="hidden md:block pt-4 border-t border-zinc-800 mt-4">
           <button onclick="Auth.logout()"
-            class="sidebar-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left" title="Logout">
+            class="sidebar-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left"
+            title="Logout">
             <i class="fa-solid fa-right-from-bracket text-lg md:text-base md:w-5"></i>
             <span data-i18n="nav-logout">Logout</span>
           </button>
@@ -108,18 +109,20 @@
       <header
         class="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
         <div class="flex items-center space-x-3">
-          <button class="sidebarToggleBtn text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          <button
+            class="sidebarToggleBtn text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             title="Buka / Tutup Sidebar">
             <i class="fa-solid fa-bars text-xl"></i>
           </button>
           <h2 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 flex items-center space-x-2">
             <i class="fa-solid fa-toolbox text-indigo-600"></i>
-            <span><span class="hidden md:inline">Tools & Prompts</span><span class="inline md:hidden">Tools</span></span>
+            <span><span class="hidden md:inline">Tools & Prompts</span><span
+                class="inline md:hidden">Tools</span></span>
           </h2>
         </div>
         <div class="flex items-center space-x-4">
           <button id="pwaInstallBtnMobile"
-            class="hidden md:hidden text-emerald-500 hover:text-emerald-700 focus:outline-none transition-colors"
+            class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
             title="Install Aplikasi">
             <i class="fa-solid fa-download text-lg"></i>
           </button>
@@ -188,18 +191,21 @@
 
       <!-- Page Content -->
       <section class="flex-grow p-6 md:p-8 space-y-6 md:space-y-8">
-  
+
         <!-- =============================== -->
         <!-- MOBILE ONLY ACTION BUTTONS      -->
         <!-- =============================== -->
         <div class="flex sm:hidden flex-wrap gap-2 w-full">
-          <button onclick="openAddShortcutModal()" data-permission-allow="tools:create" class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+          <button onclick="openAddShortcutModal()" data-permission-allow="tools:create"
+            class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
             <i class="fa-solid fa-plus mr-1"></i> Shortcut
           </button>
-          <button onclick="openAddToolModal()" data-permission-allow="tools:create" class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+          <button onclick="openAddToolModal()" data-permission-allow="tools:create"
+            class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
             <i class="fa-solid fa-plus mr-1"></i> Prompt
           </button>
-          <button onclick="openReferencesModal()" class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-emerald-600 dark:bg-emerald-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+          <button onclick="openReferencesModal()"
+            class="flex-1 min-w-[80px] inline-flex items-center justify-center py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
             <i class="fa-solid fa-folder-open mr-1"></i> Referensi
           </button>
         </div>
@@ -214,7 +220,8 @@
               <span>Web Shortcuts</span>
               <i class="fa-solid fa-globe ml-2 text-indigo-200"></i>
             </h3>
-            <p class="text-indigo-100 dark:text-indigo-200 text-base mt-1 font-semibold">Akses cepat ke website sering dipakai (Freepik, Canva, dll).</p>
+            <p class="text-indigo-100 dark:text-indigo-200 text-base mt-1 font-semibold">Akses cepat ke website sering
+              dipakai (Freepik, Canva, dll).</p>
           </div>
           <button onclick="openAddShortcutModal()" data-permission-allow="tools:create"
             class="inline-flex items-center justify-center w-full md:w-auto px-4 py-2.5 bg-white text-indigo-700 font-bold rounded-xl text-base shadow-md hover:bg-indigo-50 transition-all">
@@ -239,7 +246,8 @@
               <span>Kumpulan Shortcut Prompt</span>
               <i class="fa-solid fa-terminal ml-2 text-indigo-200"></i>
             </h3>
-            <p class="text-indigo-100 dark:text-indigo-200 text-base mt-1 font-normal">Simpan dan gunakan prompt untuk keperluan proyek atau desain secara cepat.</p>
+            <p class="text-indigo-100 dark:text-indigo-200 text-base mt-1 font-normal">Simpan dan gunakan prompt untuk
+              keperluan proyek atau desain secara cepat.</p>
           </div>
           <button onclick="openAddToolModal()" data-permission-allow="tools:create"
             class="inline-flex items-center justify-center w-full md:w-auto px-4 py-2.5 bg-white text-indigo-700 font-bold rounded-xl text-base shadow-md hover:bg-indigo-50 transition-all">
@@ -251,7 +259,7 @@
         <!-- Search Bar for Prompts -->
         <div class="relative">
           <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-zinc-400"></i>
-          <input type="text" id="searchInput" placeholder="Cari judul atau isi prompt..." 
+          <input type="text" id="searchInput" placeholder="Cari judul atau isi prompt..."
             class="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-base font-semibold text-zinc-900 dark:text-zinc-100 shadow-sm">
         </div>
 
@@ -265,9 +273,12 @@
 
       <!-- Add Tool Modal (Prompt) -->
       <div id="addToolModal" onclick="if(event.target === this) closeToolModal()"
-        style="background-color: rgba(0, 0, 0, 0.4);" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
-          <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0">
+        style="background-color: rgba(0, 0, 0, 0.4);"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
+          <div
+            class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0 rounded-t-2xl">
             <h3 class="text-white text-lg font-bold" id="modalTitle">Tambah Prompt</h3>
             <button onclick="closeToolModal()" class="text-indigo-100 hover:text-white transition-colors">
               <i class="fa-solid fa-xmark text-xl"></i>
@@ -278,17 +289,20 @@
               <input type="hidden" id="toolId">
               <div class="space-y-4">
                 <div>
-                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Judul / Nama Prompt</label>
+                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Judul / Nama
+                    Prompt</label>
                   <input type="text" id="toolTitle" required
                     class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-base font-semibold text-zinc-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                 </div>
                 <div>
-                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Isi Prompt (Indonesia)</label>
+                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Isi Prompt
+                    (Indonesia)</label>
                   <textarea id="toolPrompt" required rows="3"
                     class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-base font-semibold text-zinc-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"></textarea>
                 </div>
                 <div>
-                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Isi Prompt (Inggris) <span class="text-sm text-zinc-400 font-semibold">(Opsional)</span></label>
+                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Isi Prompt (Inggris)
+                    <span class="text-sm text-zinc-400 font-semibold">(Opsional)</span></label>
                   <textarea id="toolPromptEn" rows="3"
                     class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-base font-semibold text-zinc-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"></textarea>
                 </div>
@@ -306,9 +320,12 @@
 
       <!-- Add Shortcut Modal (Web) -->
       <div id="addShortcutModal" onclick="if(event.target === this) closeShortcutModal()"
-        style="background-color: rgba(0, 0, 0, 0.4);" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
-          <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0">
+        style="background-color: rgba(0, 0, 0, 0.4);"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto transform transition-all border border-zinc-200 dark:border-zinc-800">
+          <div
+            class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0 rounded-t-2xl">
             <h3 class="text-white text-lg font-bold" id="shortcutModalTitle">Tambah Web Shortcut</h3>
             <button onclick="closeShortcutModal()" class="text-indigo-100 hover:text-white transition-colors">
               <i class="fa-solid fa-xmark text-xl"></i>
@@ -319,17 +336,20 @@
               <input type="hidden" id="shortcutId">
               <div class="space-y-4">
                 <div>
-                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Nama Web (Cth: Freepik)</label>
+                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">Nama Web (Cth:
+                    Freepik)</label>
                   <input type="text" id="shortcutTitle" required
                     class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-base font-semibold text-zinc-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                 </div>
                 <div>
-                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">URL (https://...)</label>
+                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">URL
+                    (https://...)</label>
                   <input type="url" id="shortcutUrl" required
                     class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-base font-semibold text-zinc-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                 </div>
                 <div>
-                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">URL Icon Gambar (salin alamat gambar dari google)</label>
+                  <label class="block text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">URL Icon Gambar
+                    (salin alamat gambar dari google)</label>
                   <input type="text" id="shortcutIcon" placeholder="https://..."
                     class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-base font-semibold text-zinc-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                 </div>
@@ -346,46 +366,58 @@
       </div>
 
       <!-- Modal References Galeri (2-Column Layout) -->
-      <div id="referencesModal" onclick="if(event.target === this) closeReferencesModal()" style="background-color: rgba(9, 9, 11, 0.5);" 
+      <div id="referencesModal" onclick="if(event.target === this) closeReferencesModal()"
+        style="background-color: rgba(9, 9, 11, 0.5);"
         class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-sm transition-all duration-300">
-        <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200 dark:border-zinc-800">
-          
+
+
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200 dark:border-zinc-800">
+
           <!-- Modal Header -->
-          <div class="px-6 py-4 bg-emerald-600 dark:bg-emerald-700 text-white flex justify-between items-center shrink-0">
+          <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex justify-between items-center shrink-0">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-white flex items-center justify-center font-bold">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-white flex items-center justify-center font-bold">
                 <i class="fa-solid fa-bookmark text-lg"></i>
               </div>
               <div>
                 <h3 class="text-white text-lg md:text-xl font-bold tracking-tight">Galeri Referensi Desain</h3>
-                <p class="text-xs text-emerald-100">Cari inspirasi desain Pinterest & Freepik atau tambahkan referensi baru</p>
+                <p class="text-xs text-indigo-100">Cari inspirasi desain Pinterest &amp; Freepik atau tambahkan
+                  referensi
+                  baru</p>
               </div>
             </div>
-            <button onclick="closeReferencesModal()" class="w-8 h-8 rounded-xl hover:bg-emerald-700 dark:hover:bg-zinc-800 flex items-center justify-center text-emerald-100 hover:text-white dark:hover:text-zinc-200 transition-colors">
+            <button onclick="closeReferencesModal()"
+              class="w-8 h-8 rounded-xl hover:bg-indigo-700 dark:hover:bg-zinc-800 flex items-center justify-center text-indigo-100 hover:text-white dark:hover:text-zinc-200 transition-colors">
               <i class="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
 
           <!-- Modal Body (2 Columns Layout) -->
-          <div class="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800 flex-1 min-h-0 overflow-y-auto">
-            
+          <div
+            class="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800 flex-1 min-h-0 overflow-y-auto">
+
             <!-- Left Column: Data & Search (60% width on large screens) -->
             <div class="flex-1 md:flex-[1.5] p-6 flex flex-col space-y-4 min-h-0">
-              
+
               <!-- Search & Header info -->
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
                 <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">Daftar Referensi</span>
                 <div class="relative w-full sm:w-64">
-                  <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 text-xs"></i>
-                  <input type="text" id="refSearchInput" placeholder="Cari referensi..." onkeyup="searchReferences(this.value)"
-                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none font-semibold text-zinc-800 dark:text-white focus:ring-1 focus:ring-emerald-500">
+                  <i
+                    class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 text-xs"></i>
+                  <input type="text" id="refSearchInput" placeholder="Cari referensi..."
+                    onkeyup="searchReferences(this.value)"
+                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none font-semibold text-zinc-800 dark:text-white focus:ring-1 focus:ring-indigo-500">
                 </div>
               </div>
 
               <!-- Table Container -->
-              <div class="flex-1 overflow-y-auto border border-zinc-200 dark:border-zinc-800 rounded-xl bg-zinc-50/30 dark:bg-zinc-950/20">
+              <div
+                class="flex-1 overflow-y-auto border border-zinc-200 dark:border-zinc-800 rounded-xl bg-zinc-50/30 dark:bg-zinc-950/20">
                 <table class="w-full text-sm text-left text-zinc-500 dark:text-zinc-400 border-collapse">
-                  <thead class="text-xs text-zinc-700 dark:text-zinc-300 uppercase bg-zinc-100 dark:bg-zinc-800/80 sticky top-0 border-b border-zinc-200 dark:border-zinc-800">
+                  <thead
+                    class="text-xs text-zinc-700 dark:text-zinc-300 uppercase bg-zinc-100 dark:bg-zinc-800/80 sticky top-0 border-b border-zinc-200 dark:border-zinc-800">
                     <tr>
                       <th class="px-4 py-3">Nama Judul</th>
                       <th class="px-4 py-3">Sumber</th>
@@ -401,50 +433,59 @@
 
             <!-- Right Column: Add Form (40% width on large screens) -->
             <div class="w-full md:w-96 p-6 bg-zinc-50/50 dark:bg-zinc-800/20 flex flex-col justify-start shrink-0">
-              <h4 class="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center justify-between">
+              <h4
+                class="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center justify-between">
                 <span id="refFormTitle">Tambah Referensi</span>
-                <button onclick="resetRefForm()" id="refCancelEditBtn" class="hidden text-xs text-rose-500 hover:underline">Batal Edit</button>
+                <button onclick="resetRefForm()" id="refCancelEditBtn"
+                  class="hidden text-xs text-rose-500 hover:underline">Batal Edit</button>
               </h4>
-              
+
               <form id="refSubmitForm" class="space-y-4">
                 <input type="hidden" id="refFormId">
                 <div>
                   <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Judul Referensi*</label>
                   <input type="text" id="refFormTitleInput" required placeholder="Contoh: Inspirasi Desain Brosur Kopi"
-                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none font-semibold transition-all">
+                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none font-semibold transition-all">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Link Sumber Referensi*</label>
+                  <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Link Sumber
+                    Referensi*</label>
                   <input type="url" id="refFormUrlInput" required placeholder="https://pinterest.com/pin/..."
-                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none font-semibold transition-all">
+                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none font-semibold transition-all">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">Platform Sumber*</label>
                   <select id="refFormSourceInput" required
-                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none font-semibold transition-all">
-                    <option value="Pinterest" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Pinterest</option>
-                    <option value="Freepik" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Freepik</option>
-                    <option value="Behance" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Behance</option>
-                    <option value="Dribbble" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Dribbble</option>
-                    <option value="Lainnya" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Lainnya</option>
+                    class="w-full px-3.5 py-2 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none font-semibold transition-all">
+                    <option value="Pinterest" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Pinterest
+                    </option>
+                    <option value="Freepik" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Freepik
+                    </option>
+                    <option value="Behance" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Behance
+                    </option>
+                    <option value="Dribbble" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Dribbble
+                    </option>
+                    <option value="Lainnya" class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">Lainnya
+                    </option>
                   </select>
                 </div>
-                
+
                 <button type="submit"
-                  class="w-full py-2 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition-colors shadow">
+                  class="w-full py-2 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white font-bold text-xs rounded-lg transition-colors shadow">
                   Simpan Data Referensi
                 </button>
               </form>
             </div>
           </div>
-          
+
         </div>
       </div>
 
 
 
       <!-- Footer -->
-      <footer class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
+      <footer
+        class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
         &copy; <span id="currentYear"></span> Freelance Projek Manager. All rights reserved.
       </footer>
     </main>
@@ -454,114 +495,145 @@
   <div class="fixed bottom-20 right-3 md:bottom-6 md:right-6 z-40 flex flex-col space-y-2.5 items-end">
 
     <!-- Referensi Desain Floating Button -->
-    <button onclick="openReferencesModal()" 
-      class="group flex items-center bg-emerald-600 hover:bg-emerald-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-emerald-300/30 focus:outline-none"
-      title="Inspirasi & Referensi Desain">
-      <i class="fa-solid fa-bookmark text-base md:text-lg text-emerald-100 group-hover:rotate-12 transition-transform"></i>
-      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
-        Referensi Desain
+    <div class="relative flex items-center group">
+      <span
+        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
+        Inspirasi &amp; Referensi Desain
       </span>
-    </button>
+      <button onclick="openReferencesModal()"
+        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
+        title="Inspirasi &amp; Referensi Desain">
+        <i class="fa-solid fa-bookmark text-base md:text-lg text-indigo-100"></i>
+      </button>
+    </div>
 
     <!-- Project Preview Blender Floating Button -->
-    <button onclick="openProjectPreviewBlenderModal()" 
-      class="group flex items-center bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
-      title="Preview & Gabung Projek">
-      <i class="fa-solid fa-images text-base md:text-lg text-indigo-100 group-hover:rotate-12 transition-transform"></i>
-      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
-        Preview Projek
+    <div class="relative flex items-center group">
+      <span
+        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
+        Preview &amp; Gabung Projek
       </span>
-    </button>
+      <button onclick="openProjectPreviewBlenderModal()"
+        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
+        title="Preview &amp; Gabung Projek">
+        <i class="fa-solid fa-images text-base md:text-lg text-indigo-100"></i>
+      </button>
+    </div>
 
     <!-- Watermark Generator Floating Button -->
-    <button onclick="openWatermarkModal()" 
-      class="group flex items-center bg-emerald-600 hover:bg-emerald-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-emerald-300/30 focus:outline-none"
-      title="Watermark Generator">
-      <i class="fa-solid fa-stamp text-base md:text-lg text-emerald-100 group-hover:rotate-12 transition-transform"></i>
-      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
-        Watermark
+    <div class="relative flex items-center group">
+      <span
+        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
+        Watermark Generator
       </span>
-    </button>
+      <button onclick="openWatermarkModal()"
+        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
+        title="Watermark Generator">
+        <i class="fa-solid fa-stamp text-base md:text-lg text-indigo-100"></i>
+      </button>
+    </div>
 
     <!-- Ukuran Media Floating Button -->
-    <button onclick="openSizeCheatSheetModal()" 
-      class="group flex items-center bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
-      title="Panduan Ukuran Kertas & Media">
-      <i class="fa-solid fa-ruler-combined text-base md:text-lg text-indigo-100 group-hover:rotate-12 transition-transform"></i>
-      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
-        Ukuran Media
+    <div class="relative flex items-center group">
+      <span
+        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
+        Panduan Ukuran Kertas &amp; Media
       </span>
-    </button>
+      <button onclick="openSizeCheatSheetModal()"
+        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
+        title="Panduan Ukuran Kertas &amp; Media">
+        <i class="fa-solid fa-ruler-combined text-base md:text-lg text-indigo-100"></i>
+      </button>
+    </div>
 
     <!-- AI Filosofi Logo Floating Button -->
-    <button onclick="openLogoPhilosophyModal()" 
-      class="group flex items-center bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
-      title="AI Generator Filosofi Logo">
-      <i class="fa-solid fa-lightbulb text-base md:text-lg text-indigo-100 group-hover:rotate-12 transition-transform"></i>
-      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
-        Filosofi Logo AI
+    <div class="relative flex items-center group">
+      <span
+        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
+        AI Generator Filosofi Logo
       </span>
-    </button>
+      <button onclick="openLogoPhilosophyModal()"
+        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
+        title="AI Generator Filosofi Logo">
+        <i class="fa-solid fa-lightbulb text-base md:text-lg text-indigo-100"></i>
+      </button>
+    </div>
 
     <!-- Go to Top Floating Button -->
-    <button onclick="scrollToTop()" 
-      class="group flex items-center bg-zinc-800 hover:bg-zinc-950 text-white p-3 md:p-3.5 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-zinc-700/30 focus:outline-none"
-      title="Kembali ke Atas">
-      <i class="fa-solid fa-arrow-up text-base md:text-lg text-zinc-100 group-hover:-translate-y-1 transition-transform"></i>
-      <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs md:text-sm pl-0 group-hover:pl-2">
-        Ke Atas
+    <div class="relative flex items-center group">
+      <span
+        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
+        Kembali ke Atas
       </span>
-    </button>
+      <button onclick="scrollToTop()"
+        class="flex items-center justify-center bg-zinc-800 hover:bg-zinc-950 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-zinc-700/30 focus:outline-none"
+        title="Kembali ke Atas">
+        <i class="fa-solid fa-arrow-up text-base md:text-lg text-zinc-100"></i>
+      </button>
+    </div>
   </div>
 
   <!-- Modal Project Preview Blender -->
-  <div id="projectPreviewBlenderModal" onclick="if(event.target === this) closeProjectPreviewBlenderModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
+  <div id="projectPreviewBlenderModal" onclick="if(event.target === this) closeProjectPreviewBlenderModal()"
+    style="background-color: rgba(9, 9, 11, 0.45);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
-      
+    <div
+      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+
       <!-- Modal Header -->
-      <div class="px-6 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
+      <div
+        class="px-6 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+          <div
+            class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
             <i class="fa-solid fa-images text-base md:text-lg"></i>
           </div>
           <div>
-            <h3 class="text-zinc-900 dark:text-zinc-100 text-lg md:text-xl font-bold tracking-tight">Preview & Penggabung Mockup</h3>
-            <p class="text-xs md:text-sm text-zinc-400 dark:text-zinc-500">Upload/Paste desain utama dan mockup untuk digabungkan secara interaktif</p>
+            <h3 class="text-zinc-900 dark:text-zinc-100 text-lg md:text-xl font-bold tracking-tight">Preview &
+              Penggabung Mockup</h3>
+            <p class="text-xs md:text-sm text-zinc-400 dark:text-zinc-500">Upload/Paste desain utama dan mockup untuk
+              digabungkan secara interaktif</p>
           </div>
         </div>
-        <button onclick="closeProjectPreviewBlenderModal()" class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
+        <button onclick="closeProjectPreviewBlenderModal()"
+          class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <!-- Main Modal Content -->
       <div class="p-4 flex flex-col md:flex-row gap-4 flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
-        
+
         <!-- Left Column: Upload Dropzones OR Live Canvas Preview -->
-        <div class="flex-1 min-h-[300px] md:min-h-0 flex flex-col justify-center items-center relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 overflow-hidden p-2">
-          
+        <div
+          class="flex-1 min-h-[300px] md:min-h-0 flex flex-col justify-center items-center relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 overflow-hidden p-2">
+
           <!-- Dropzones Container (Shown when one or both images are missing) -->
           <div id="pbUploadContainer" class="w-full h-full grid grid-cols-1 sm:grid-cols-2 gap-4 p-2 overflow-y-auto">
-            
+
             <!-- Slot 1: Mockup Background -->
             <div id="pbSlotMockup" onclick="selectPbSlot('mockup'); triggerPbFileInput('mockup');"
               class="border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-indigo-500/80 dark:hover:border-indigo-500/80 rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/20 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/40 transition-all relative group">
-              <input type="file" id="pbMockupInput" accept="image/*" onchange="handlePbFileSelect(event, 'mockup')" class="hidden">
-              
+              <input type="file" id="pbMockupInput" accept="image/*" onchange="handlePbFileSelect(event, 'mockup')"
+                class="hidden">
+
               <h4 class="text-base font-semibold text-zinc-800 dark:text-zinc-200">1. Mockup (Background)</h4>
               <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Klik atau Paste (Ctrl+V)</p>
-              
+
               <!-- Active Badge -->
-              <span id="pbBadgeMockup" class="absolute bottom-4 px-2.5 py-0.5 rounded-full text-xs font-medium transition-all bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
+              <span id="pbBadgeMockup"
+                class="absolute bottom-4 px-2.5 py-0.5 rounded-full text-xs font-medium transition-all bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
                 Nonaktif
               </span>
 
               <!-- Image Thumbnail (Overlay if loaded) -->
-              <div id="pbThumbMockupWrapper" onclick="event.stopPropagation(); selectPbSlot('mockup')" class="hidden absolute inset-0 bg-white dark:bg-zinc-900 rounded-2xl p-4 flex flex-col items-center justify-center">
+              <div id="pbThumbMockupWrapper" onclick="event.stopPropagation(); selectPbSlot('mockup')"
+                class="hidden absolute inset-0 bg-white dark:bg-zinc-900 rounded-2xl p-4 flex flex-col items-center justify-center">
                 <img id="pbThumbMockup" class="max-h-32 max-w-full object-contain rounded-xl shadow-xs mb-3">
-                <span class="text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[180px]" id="pbNameMockup">Mockup loaded</span>
-                <button onclick="event.stopPropagation(); resetPbSlot('mockup')" class="mt-2 text-rose-500 hover:text-rose-600 text-xs font-semibold flex items-center gap-1">
+                <span class="text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[180px]" id="pbNameMockup">Mockup
+                  loaded</span>
+                <button onclick="event.stopPropagation(); resetPbSlot('mockup')"
+                  class="mt-2 text-rose-500 hover:text-rose-600 text-xs font-semibold flex items-center gap-1">
                   <i class="fa-solid fa-trash-can"></i> Hapus
                 </button>
               </div>
@@ -570,21 +642,26 @@
             <!-- Slot 2: Main Design Foreground -->
             <div id="pbSlotDesign" onclick="selectPbSlot('design'); triggerPbFileInput('design');"
               class="border border-dashed border-zinc-200 dark:border-zinc-800 hover:border-indigo-500/80 dark:hover:border-indigo-500/80 rounded-2xl p-6 text-center cursor-pointer flex flex-col items-center justify-center bg-zinc-50/50 dark:bg-zinc-900/20 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/40 transition-all relative group">
-              <input type="file" id="pbDesignInput" accept="image/*" onchange="handlePbFileSelect(event, 'design')" class="hidden">
-              
+              <input type="file" id="pbDesignInput" accept="image/*" onchange="handlePbFileSelect(event, 'design')"
+                class="hidden">
+
               <h4 class="text-base font-semibold text-zinc-800 dark:text-zinc-200">2. Desain Utama (Overlay)</h4>
               <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Klik atau Paste (Ctrl+V)</p>
-              
+
               <!-- Active Badge -->
-              <span id="pbBadgeDesign" class="absolute bottom-4 px-2.5 py-0.5 rounded-full text-xs font-medium transition-all bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
+              <span id="pbBadgeDesign"
+                class="absolute bottom-4 px-2.5 py-0.5 rounded-full text-xs font-medium transition-all bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
                 Nonaktif
               </span>
 
               <!-- Image Thumbnail (Overlay if loaded) -->
-              <div id="pbThumbDesignWrapper" onclick="event.stopPropagation(); selectPbSlot('design')" class="hidden absolute inset-0 bg-white dark:bg-zinc-900 rounded-2xl p-4 flex flex-col items-center justify-center">
+              <div id="pbThumbDesignWrapper" onclick="event.stopPropagation(); selectPbSlot('design')"
+                class="hidden absolute inset-0 bg-white dark:bg-zinc-900 rounded-2xl p-4 flex flex-col items-center justify-center">
                 <img id="pbThumbDesign" class="max-h-32 max-w-full object-contain rounded-xl shadow-xs mb-3">
-                <span class="text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[180px]" id="pbNameDesign">Desain loaded</span>
-                <button onclick="event.stopPropagation(); resetPbSlot('design')" class="mt-2 text-rose-500 hover:text-rose-600 text-xs font-semibold flex items-center gap-1">
+                <span class="text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[180px]" id="pbNameDesign">Desain
+                  loaded</span>
+                <button onclick="event.stopPropagation(); resetPbSlot('design')"
+                  class="mt-2 text-rose-500 hover:text-rose-600 text-xs font-semibold flex items-center gap-1">
                   <i class="fa-solid fa-trash-can"></i> Hapus
                 </button>
               </div>
@@ -593,16 +670,19 @@
           </div>
 
           <!-- Canvas Preview (Shown when both images loaded) -->
-          <div id="pbCanvasWrapper" class="hidden w-full h-full relative flex flex-col items-center justify-center animate-fade-in">
+          <div id="pbCanvasWrapper"
+            class="hidden w-full h-full relative flex flex-col items-center justify-center animate-fade-in">
             <div class="absolute top-2 left-2 z-10 flex space-x-2">
-              <button onclick="resetPbAll()" id="pbResetBtn" title="Reset Semua" class="px-3 py-1.5 bg-white/90 dark:bg-zinc-800/90 hover:bg-white dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold text-zinc-700 dark:text-zinc-200 shadow-xs transition-all flex items-center space-x-1">
+              <button onclick="resetPbAll()" id="pbResetBtn" title="Reset Semua"
+                class="px-3 py-1.5 bg-white/90 dark:bg-zinc-800/90 hover:bg-white dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold text-zinc-700 dark:text-zinc-200 shadow-xs transition-all flex items-center space-x-1">
                 <i class="fa-solid fa-rotate-left text-xs"></i>
                 <span>Mulai Ulang</span>
               </button>
             </div>
-            
+
             <div class="w-full h-full flex items-center justify-center min-h-0 relative p-1">
-              <canvas id="pbCanvas" class="max-w-full max-h-full object-contain rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800 cursor-move"></canvas>
+              <canvas id="pbCanvas"
+                class="max-w-full max-h-full object-contain rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800 cursor-move"></canvas>
             </div>
 
             <div class="text-xs text-zinc-400 mt-1.5 flex items-center gap-1 shrink-0">
@@ -614,22 +694,28 @@
         </div>
 
         <!-- Right Column: Settings Panel -->
-        <div class="w-full md:w-80 shrink-0 bg-zinc-50/70 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 flex flex-col justify-between space-y-3 overflow-y-auto max-h-full h-auto md:h-full">
-          
+        <div
+          class="w-full md:w-80 shrink-0 bg-zinc-50/70 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 flex flex-col justify-between space-y-3 overflow-y-auto max-h-full h-auto md:h-full">
+
           <div class="space-y-3">
-            <span class="text-base font-bold text-zinc-800 dark:text-zinc-100 pb-1.5 block border-b border-zinc-200/60 dark:border-zinc-700/60">Pengaturan Blender</span>
+            <span
+              class="text-base font-bold text-zinc-800 dark:text-zinc-100 pb-1.5 block border-b border-zinc-200/60 dark:border-zinc-700/60">Pengaturan
+              Blender</span>
 
             <!-- GROUP 1: PENGATURAN LAYOUT -->
-            <div class="p-3 bg-white dark:bg-zinc-800/20 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 space-y-3">
-              <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">1. Layout Utama</span>
-              
+            <div
+              class="p-3 bg-white dark:bg-zinc-800/20 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 space-y-3">
+              <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">1. Layout
+                Utama</span>
+
               <!-- Tipe Layout -->
               <div>
                 <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Mode Layout</label>
-                <select id="pbLayoutMode" onchange="changePbLayoutMode(this.value)" class="w-full px-3 py-2 text-base bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium cursor-pointer focus:ring-2 focus:ring-indigo-500">
+                <select id="pbLayoutMode" onchange="changePbLayoutMode(this.value)"
+                  class="w-full px-3 py-2 text-base bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium cursor-pointer focus:ring-2 focus:ring-indigo-500">
                   <option value="overlay">Overlay (Desain di atas Mockup)</option>
-                  <option value="side_by_side_h">Kolase Horisontal (Berdampingan)</option>
-                  <option value="side_by_side_v">Kolase Vertikal (Atas-Bawah)</option>
+                  <option value="side_by_side_h"> Horisontal (Berdampingan)</option>
+                  <option value="side_by_side_v"> Vertikal (Atas-Bawah)</option>
                 </select>
               </div>
 
@@ -638,20 +724,25 @@
                 <div>
                   <div class="flex justify-between items-center mb-1">
                     <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Skala Desain</label>
-                    <span id="pbValScale" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">80%</span>
+                    <span id="pbValScale"
+                      class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">80%</span>
                   </div>
-                  <input type="range" id="pbRangeScale" min="5" max="300" value="80" oninput="updatePbVal('Scale'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                  <input type="range" id="pbRangeScale" min="5" max="300" value="80"
+                    oninput="updatePbVal('Scale'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
                 </div>
               </div>
 
               <!-- Status Slot Active untuk Paste -->
               <div class="pt-2.5 border-t border-zinc-100 dark:border-zinc-800/60">
-                <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500 block mb-1">Target Paste Clipboard (Ctrl+V)</span>
+                <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500 block mb-1">Target Paste Clipboard
+                  (Ctrl+V)</span>
                 <div class="flex gap-2">
-                  <button type="button" id="pbTargetMockupBtn" onclick="selectPbSlot('mockup')" class="flex-1 py-1.5 px-3 border rounded-xl text-xs font-bold text-center transition-all bg-indigo-50 border-indigo-200 dark:bg-indigo-950/60 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400">
-                    Mockup (Aktif)
+                  <button type="button" id="pbTargetMockupBtn" onclick="selectPbSlot('mockup')"
+                    class="flex-1 py-1.5 px-3 border rounded-xl text-xs font-bold text-center transition-all bg-indigo-50 border-indigo-200 dark:bg-indigo-950/60 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400">
+                    Mockup
                   </button>
-                  <button type="button" id="pbTargetDesignBtn" onclick="selectPbSlot('design')" class="flex-1 py-1.5 px-3 border rounded-xl text-xs font-bold text-center transition-all bg-white border-zinc-200 dark:bg-zinc-900 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
+                  <button type="button" id="pbTargetDesignBtn" onclick="selectPbSlot('design')"
+                    class="flex-1 py-1.5 px-3 border rounded-xl text-xs font-bold text-center transition-all bg-white border-zinc-200 dark:bg-zinc-900 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
                     Desain Utama
                   </button>
                 </div>
@@ -659,35 +750,47 @@
             </div>
 
             <!-- GROUP 2: PENGATURAN DETAIL (ADVANCED OVERLAY SETTINGS) -->
-            <div id="pbAdvancedGroup" class="p-3 bg-white dark:bg-zinc-800/20 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 space-y-2">
+            <div id="pbAdvancedGroup"
+              class="p-3 bg-white dark:bg-zinc-800/20 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 space-y-2">
               <div class="w-full flex items-center justify-between py-0.5">
-                <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider text-left">2. Pengaturan Lanjutan</span>
-                <button type="button" onclick="togglePbAdvancedOverlay();" class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none" title="Toggle Detail">
-                  <i id="pbAdvancedToggleIcon" class="fa-solid fa-chevron-down text-xs text-zinc-400 dark:text-zinc-500 transition-transform duration-300"></i>
+                <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider text-left">2.
+                  Pengaturan Lanjutan</span>
+                <button type="button" onclick="togglePbAdvancedOverlay();"
+                  class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none"
+                  title="Toggle Detail">
+                  <i id="pbAdvancedToggleIcon"
+                    class="fa-solid fa-chevron-down text-xs text-zinc-400 dark:text-zinc-500 transition-transform duration-300"></i>
                 </button>
               </div>
 
               <!-- Collapsible Advanced positioning container (hidden by default) -->
-              <div id="pbAdvancedOverlaySettings" class="hidden space-y-3.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/40">
-                
+              <div id="pbAdvancedOverlaySettings"
+                class="hidden space-y-3.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/40">
+
                 <!-- Radius and Opacity in 2 Columns Grid -->
                 <div class="grid grid-cols-2 gap-4">
                   <!-- Corner Radius Slider -->
                   <div>
                     <div class="flex justify-between items-center mb-1">
                       <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Radius</label>
-                      <span id="pbValRadius" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">0px</span>
+                      <span id="pbValRadius"
+                        class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">0px</span>
                     </div>
-                    <input type="range" id="pbRangeRadius" min="0" max="150" value="0" oninput="updatePbVal('Radius'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                    <input type="range" id="pbRangeRadius" min="0" max="150" value="0"
+                      oninput="updatePbVal('Radius'); updatePbCanvas();"
+                      class="w-full accent-indigo-600 cursor-pointer">
                   </div>
 
                   <!-- Opasitas Slider -->
                   <div>
                     <div class="flex justify-between items-center mb-1">
                       <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Opacity</label>
-                      <span id="pbValOpacity" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">100%</span>
+                      <span id="pbValOpacity"
+                        class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">100%</span>
                     </div>
-                    <input type="range" id="pbRangeOpacity" min="10" max="100" value="100" oninput="updatePbVal('Opacity'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                    <input type="range" id="pbRangeOpacity" min="10" max="100" value="100"
+                      oninput="updatePbVal('Opacity'); updatePbCanvas();"
+                      class="w-full accent-indigo-600 cursor-pointer">
                   </div>
                 </div>
 
@@ -696,20 +799,29 @@
                   <!-- Stroke Color Picker Swatch & Checkbox -->
                   <div>
                     <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Stroke</label>
-                    <div class="flex items-center space-x-2 bg-white dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 h-[42px] overflow-hidden">
-                      <input type="checkbox" id="pbEnableStroke" onchange="updatePbCanvas()" checked class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 h-4.5 w-4.5 cursor-pointer shrink-0">
-                      <div onclick="document.getElementById('pbStrokeColorPicker').click()" class="w-6 h-6 rounded-md border border-zinc-300 dark:border-zinc-700 cursor-pointer shadow-xs relative flex items-center justify-center bg-white shrink-0" id="pbStrokeColorSwatch" style="background-color: #ffffff;">
-                        <input type="color" id="pbStrokeColorPicker" value="#ffffff" oninput="updatePbStrokeColor(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                    <div
+                      class="flex items-center space-x-2 bg-white dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 h-[42px] overflow-hidden">
+                      <input type="checkbox" id="pbEnableStroke" onchange="updatePbCanvas()" checked
+                        class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 h-4.5 w-4.5 cursor-pointer shrink-0">
+                      <div onclick="document.getElementById('pbStrokeColorPicker').click()"
+                        class="w-6 h-6 rounded-md border border-zinc-300 dark:border-zinc-700 cursor-pointer shadow-xs relative flex items-center justify-center bg-white shrink-0"
+                        id="pbStrokeColorSwatch" style="background-color: #ffffff;">
+                        <input type="color" id="pbStrokeColorPicker" value="#ffffff"
+                          oninput="updatePbStrokeColor(this.value)"
+                          class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
                         <i class="fa-solid fa-palette text-xs text-zinc-400"></i>
                       </div>
-                      <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 font-mono truncate" id="pbStrokeColorText">#ffffff</span>
+                      <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 font-mono truncate"
+                        id="pbStrokeColorText">#ffffff</span>
                     </div>
                   </div>
 
                   <!-- Blend Mode Dropdown -->
                   <div>
-                    <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Mockup Blend</label>
-                    <select id="pbBlendMode" onchange="updatePbCanvas()" class="w-full px-2 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium focus:ring-2 focus:ring-indigo-500 h-[42px] cursor-pointer">
+                    <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Mockup
+                      Blend</label>
+                    <select id="pbBlendMode" onchange="updatePbCanvas()"
+                      class="w-full px-2 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium focus:ring-2 focus:ring-indigo-500 h-[42px] cursor-pointer">
                       <option value="source-over">Normal</option>
                       <option value="multiply">Multiply</option>
                       <option value="screen">Screen</option>
@@ -725,54 +837,73 @@
               </div>
 
               <!-- Panel Pengaturan Kolase (Only visible in collage mode) -->
-              <div id="pbCollageSettings" class="hidden space-y-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/40">
+              <div id="pbCollageSettings"
+                class="hidden space-y-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/40">
                 <!-- Gap Slider -->
                 <div>
                   <div class="flex justify-between items-center mb-1">
                     <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Batas / Gap</label>
-                    <span id="pbValGap" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">10px</span>
+                    <span id="pbValGap"
+                      class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">10px</span>
                   </div>
-                  <input type="range" id="pbRangeGap" min="0" max="200" value="10" oninput="updatePbVal('Gap'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                  <input type="range" id="pbRangeGap" min="0" max="200" value="10"
+                    oninput="updatePbVal('Gap'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
                 </div>
 
                 <!-- Background Color -->
                 <div>
-                  <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Warna Latar Batas</label>
-                  <div class="flex items-center space-x-3 bg-white dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700">
-                    <div onclick="document.getElementById('pbBgColorPicker').click()" class="w-8 h-8 rounded-lg border border-zinc-300 dark:border-zinc-700 cursor-pointer shadow-xs relative flex items-center justify-center bg-white" id="pbBgColorSwatch" style="background-color: #ffffff;">
-                      <input type="color" id="pbBgColorPicker" value="#ffffff" oninput="updatePbBgColor(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                  <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Warna Latar
+                    Batas</label>
+                  <div
+                    class="flex items-center space-x-3 bg-white dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                    <div onclick="document.getElementById('pbBgColorPicker').click()"
+                      class="w-8 h-8 rounded-lg border border-zinc-300 dark:border-zinc-700 cursor-pointer shadow-xs relative flex items-center justify-center bg-white"
+                      id="pbBgColorSwatch" style="background-color: #ffffff;">
+                      <input type="color" id="pbBgColorPicker" value="#ffffff" oninput="updatePbBgColor(this.value)"
+                        class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
                       <i class="fa-solid fa-palette text-xs text-zinc-400"></i>
                     </div>
-                    <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-400 font-mono" id="pbBgColorText">#ffffff</span>
+                    <span class="text-sm font-semibold text-zinc-600 dark:text-zinc-400 font-mono"
+                      id="pbBgColorText">#ffffff</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- GROUP 3: PENGATURAN WATERMARK -->
-            <div class="p-3 bg-white dark:bg-zinc-800/20 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 space-y-2">
+            <div
+              class="p-3 bg-white dark:bg-zinc-800/20 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/50 space-y-2">
               <div class="w-full flex items-center justify-between py-0.5">
                 <div class="flex items-center space-x-2.5">
-                  <input type="checkbox" id="pbEnableWm" onchange="updatePbCanvas();" class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 h-4.5 w-4.5 cursor-pointer">
-                  <label for="pbEnableWm" class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider cursor-pointer">3. Watermark Teks</label>
+                  <input type="checkbox" id="pbEnableWm" onchange="updatePbCanvas();"
+                    class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 h-4.5 w-4.5 cursor-pointer">
+                  <label for="pbEnableWm"
+                    class="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider cursor-pointer">3.
+                    Watermark Teks</label>
                 </div>
-                <button type="button" onclick="togglePbWmPanel();" class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none" title="Toggle Detail Watermark">
-                  <i id="pbWmToggleIcon" class="fa-solid fa-chevron-down text-xs text-zinc-400 dark:text-zinc-500 transition-transform duration-300"></i>
+                <button type="button" onclick="togglePbWmPanel();"
+                  class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none"
+                  title="Toggle Detail Watermark">
+                  <i id="pbWmToggleIcon"
+                    class="fa-solid fa-chevron-down text-xs text-zinc-400 dark:text-zinc-500 transition-transform duration-300"></i>
                 </button>
               </div>
 
               <!-- Panel Settings Watermark (hidden by default) -->
-              <div id="pbWmPanel" class="hidden space-y-3.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/40 animate-fade-in">
+              <div id="pbWmPanel"
+                class="hidden space-y-3.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/40 animate-fade-in">
                 <div>
                   <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Isi Teks</label>
-                  <input type="text" id="pbWmText" value="FPManager - Confidential" oninput="updatePbCanvas()" class="w-full px-3 py-2 text-base bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium focus:ring-2 focus:ring-indigo-500">
+                  <input type="text" id="pbWmText" value="FPManager - Confidential" oninput="updatePbCanvas()"
+                    class="w-full px-3 py-2 text-base bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Posisi</label>
-                    <select id="pbWmPosition" onchange="updatePbCanvas()" class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium cursor-pointer focus:ring-2 focus:ring-indigo-500 h-[42px]">
-                      <option value="tile" selected>Diagonal (Full)</option>
+                    <select id="pbWmPosition" onchange="updatePbCanvas()"
+                      class="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium cursor-pointer focus:ring-2 focus:ring-indigo-500 h-[42px]">
+                      <option value="tile" selected>Full</option>
                       <option value="center">Tengah</option>
                       <option value="bottom_right">Kanan Bawah</option>
                       <option value="bottom_left">Kiri Bawah</option>
@@ -780,12 +911,17 @@
                   </div>
                   <div>
                     <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Warna</label>
-                    <div class="flex items-center space-x-2 bg-white dark:bg-zinc-800/40 px-2 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 h-[42px] overflow-hidden">
-                      <div onclick="document.getElementById('pbWmColorPicker').click()" class="w-7 h-7 rounded-lg border border-zinc-300 dark:border-zinc-700 cursor-pointer shadow-xs relative flex items-center justify-center bg-white" id="pbWmColorSwatch" style="background-color: #ffffff;">
-                        <input type="color" id="pbWmColorPicker" value="#ffffff" oninput="updatePbWmColor(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                    <div
+                      class="flex items-center space-x-2 bg-white dark:bg-zinc-800/40 px-2 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 h-[42px] overflow-hidden">
+                      <div onclick="document.getElementById('pbWmColorPicker').click()"
+                        class="w-7 h-7 rounded-lg border border-zinc-300 dark:border-zinc-700 cursor-pointer shadow-xs relative flex items-center justify-center bg-white"
+                        id="pbWmColorSwatch" style="background-color: #ffffff;">
+                        <input type="color" id="pbWmColorPicker" value="#ffffff" oninput="updatePbWmColor(this.value)"
+                          class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
                         <i class="fa-solid fa-palette text-xs text-zinc-400"></i>
                       </div>
-                      <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-400 font-mono truncate" id="pbWmColorText">#ffffff</span>
+                      <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-400 font-mono truncate"
+                        id="pbWmColorText">#ffffff</span>
                     </div>
                   </div>
                 </div>
@@ -796,18 +932,24 @@
                   <div>
                     <div class="flex justify-between items-center mb-1">
                       <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Ukuran</label>
-                      <span id="pbValWmSize" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">30px</span>
+                      <span id="pbValWmSize"
+                        class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">30px</span>
                     </div>
-                    <input type="range" id="pbRangeWmSize" min="10" max="100" value="30" oninput="updatePbVal('WmSize'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                    <input type="range" id="pbRangeWmSize" min="10" max="100" value="30"
+                      oninput="updatePbVal('WmSize'); updatePbCanvas();"
+                      class="w-full accent-indigo-600 cursor-pointer">
                   </div>
 
                   <!-- Jarak Spacing Watermark -->
                   <div>
                     <div class="flex justify-between items-center mb-1">
                       <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Jarak</label>
-                      <span id="pbValWmSpacing" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">120px</span>
+                      <span id="pbValWmSpacing"
+                        class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">120px</span>
                     </div>
-                    <input type="range" id="pbRangeWmSpacing" min="40" max="300" value="120" oninput="updatePbVal('WmSpacing'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                    <input type="range" id="pbRangeWmSpacing" min="40" max="300" value="120"
+                      oninput="updatePbVal('WmSpacing'); updatePbCanvas();"
+                      class="w-full accent-indigo-600 cursor-pointer">
                   </div>
                 </div>
 
@@ -815,9 +957,12 @@
                 <div>
                   <div class="flex justify-between items-center mb-1">
                     <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Transparansi</label>
-                    <span id="pbValWmOpacity" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">30%</span>
+                    <span id="pbValWmOpacity"
+                      class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">30%</span>
                   </div>
-                  <input type="range" id="pbRangeWmOpacity" min="10" max="100" value="30" oninput="updatePbVal('WmOpacity'); updatePbCanvas();" class="w-full accent-indigo-600 cursor-pointer">
+                  <input type="range" id="pbRangeWmOpacity" min="10" max="100" value="30"
+                    oninput="updatePbVal('WmOpacity'); updatePbCanvas();"
+                    class="w-full accent-indigo-600 cursor-pointer">
                 </div>
               </div>
             </div>
@@ -828,11 +973,13 @@
 
           <!-- Bottom Actions (Salin & Unduh) -->
           <div class="space-y-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60 mt-auto">
-            <button onclick="copyPbImage()" id="pbCopyBtn" disabled class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+            <button onclick="copyPbImage()" id="pbCopyBtn" disabled
+              class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Gambar</span>
             </button>
-            <button onclick="downloadPbImage()" id="pbDownloadBtn" disabled class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+            <button onclick="downloadPbImage()" id="pbDownloadBtn" disabled
+              class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
               <i class="fa-solid fa-download"></i>
               <span>Unduh (PNG)</span>
             </button>
@@ -846,74 +993,92 @@
   </div>
 
   <!-- Modal Watermark Generator (Tanpa Permission - Dashboard 2 Kolom Sejajar) -->
-  <div id="watermarkGeneratorModal" onclick="if(event.target === this) closeWatermarkModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
+  <div id="watermarkGeneratorModal" onclick="if(event.target === this) closeWatermarkModal()"
+    style="background-color: rgba(9, 9, 11, 0.45);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
-      
+    <div
+      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+
       <!-- Modal Header -->
-      <div class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
+      <div
+        class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
         <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+          <div
+            class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
             <i class="fa-solid fa-stamp text-sm"></i>
           </div>
           <div>
-            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">Watermark Generator</h3>
-            <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Upload/Paste gambar, beri watermark, lalu salin/unduh</p>
+            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">Watermark
+              Generator</h3>
+            <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Upload/Paste gambar, beri watermark, lalu
+              salin/unduh</p>
           </div>
         </div>
-        <button onclick="closeWatermarkModal()" class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
+        <button onclick="closeWatermarkModal()"
+          class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <!-- Main Modal Content: Side-by-Side 2 Columns (No Scroll) -->
       <div class="p-4 flex flex-col md:flex-row gap-4 flex-1 min-h-0 overflow-hidden">
-        
+
         <!-- Left Column: Upload Dropzone & Live Canvas Preview -->
-        <div class="flex-1 min-h-[260px] md:min-h-0 flex flex-col justify-center items-center relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 overflow-hidden p-2">
-          
+        <div
+          class="flex-1 min-h-[260px] md:min-h-0 flex flex-col justify-center items-center relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 overflow-hidden p-2">
+
           <!-- Dropzone (Shown when no image loaded) -->
-          <div id="wmDropzone" onclick="triggerWmFileInput()" 
-            class="w-full h-full border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-xl p-6 text-center cursor-pointer flex flex-col items-center justify-center bg-white/40 dark:bg-zinc-900/40 transition-all group">
+          <div id="wmDropzone" onclick="triggerWmFileInput()"
+            class="w-full h-full border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-xl p-6 text-center cursor-pointer flex flex-col items-center justify-center bg-white/40 dark:bg-zinc-900/40 transition-all group">
             <input type="file" id="wmFileInput" accept="image/*" onchange="handleWmFileSelect(event)" class="hidden">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform mb-3 shadow-xs">
+            <div
+              class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform mb-3 shadow-xs">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
             <p class="text-xs md:text-sm font-bold text-zinc-800 dark:text-zinc-200">
               Klik untuk upload gambar atau drag & drop
             </p>
-            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
-              <i class="fa-regular fa-paste mr-1"></i> Langsung tekan <kbd class="px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded text-[10px] font-mono">Ctrl + V</kbd> untuk paste
+            <p class="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold mt-1">
+              <i class="fa-regular fa-paste mr-1"></i> Langsung tekan <kbd
+                class="px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded text-[10px] font-mono">Ctrl + V</kbd> untuk
+              paste
             </p>
           </div>
 
           <!-- Canvas Preview & Top Floating Reset (Active when image loaded) -->
           <div id="wmPreviewWrapper" class="hidden w-full h-full relative flex items-center justify-center">
-            <button onclick="resetWmImage()" id="wmResetBtn" title="Ganti Gambar" class="absolute top-2 left-2 z-10 px-2.5 py-1 bg-white/90 dark:bg-zinc-800/90 hover:bg-white dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-lg text-[11px] font-bold text-zinc-700 dark:text-zinc-200 shadow-sm transition-all flex items-center space-x-1">
+            <button onclick="resetWmImage()" id="wmResetBtn" title="Ganti Gambar"
+              class="absolute top-2 left-2 z-10 px-2.5 py-1 bg-white/90 dark:bg-zinc-800/90 hover:bg-white dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-lg text-[11px] font-bold text-zinc-700 dark:text-zinc-200 shadow-sm transition-all flex items-center space-x-1">
               <i class="fa-solid fa-rotate-left text-[10px]"></i>
               <span>Ganti Gambar</span>
             </button>
-            <canvas id="wmCanvas" class="max-w-full max-h-full object-contain rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800"></canvas>
+            <canvas id="wmCanvas"
+              class="max-w-full max-h-full object-contain rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800"></canvas>
           </div>
 
         </div>
 
         <!-- Right Column: Settings Panel -->
-        <div class="w-full md:w-80 shrink-0 bg-zinc-50/70 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 flex flex-col justify-between space-y-3 overflow-y-auto max-h-full">
-          
+        <div
+          class="w-full md:w-80 shrink-0 bg-zinc-50/70 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 flex flex-col justify-between space-y-3 overflow-y-auto max-h-full">
+
           <div class="space-y-3">
-            <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200/60 dark:border-zinc-700/60 pb-1.5 block">Pengaturan Watermark</span>
+            <span
+              class="text-xs font-bold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200/60 dark:border-zinc-700/60 pb-1.5 block">Pengaturan
+              Watermark</span>
 
             <!-- Teks WM -->
             <div>
               <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Teks Watermark</label>
-              <input type="text" id="wmText" value="FPManager - Confidential" oninput="updateWmCanvas()" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-zinc-800 dark:text-zinc-100 font-medium">
+              <input type="text" id="wmText" value="FPManager - Confidential" oninput="updateWmCanvas()"
+                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-zinc-800 dark:text-zinc-100 font-medium">
             </div>
 
             <!-- Posisi / Pola -->
             <div>
               <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Posisi / Pola</label>
-              <select id="wmPosition" onchange="updateWmCanvas()" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-medium">
+              <select id="wmPosition" onchange="updateWmCanvas()"
+                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-medium">
                 <option value="tile">Pola Ulang Diagonal (Grid Proofing)</option>
                 <option value="center">Tengah (Center)</option>
                 <option value="bottom_right">Pojok Kanan Bawah</option>
@@ -925,7 +1090,8 @@
             <!-- Warna Teks -->
             <div>
               <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Warna Teks</label>
-              <select id="wmColor" onchange="updateWmCanvas()" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-medium">
+              <select id="wmColor" onchange="updateWmCanvas()"
+                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-medium">
                 <option value="white">Putih (White)</option>
                 <option value="black">Hitam (Black)</option>
                 <option value="red">Merah (Red)</option>
@@ -937,37 +1103,48 @@
             <div>
               <div class="flex justify-between items-center mb-1">
                 <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Transparansi</label>
-                <span id="wmOpacityVal" class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">30%</span>
+                <span id="wmOpacityVal"
+                  class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">30%</span>
               </div>
-              <input type="range" id="wmOpacity" min="10" max="100" value="30" oninput="document.getElementById('wmOpacityVal').textContent = this.value + '%'; updateWmCanvas();" class="w-full accent-emerald-600 cursor-pointer">
+              <input type="range" id="wmOpacity" min="10" max="100" value="30"
+                oninput="document.getElementById('wmOpacityVal').textContent = this.value + '%'; updateWmCanvas();"
+                class="w-full accent-indigo-600 cursor-pointer">
             </div>
 
             <!-- Ukuran Slider -->
             <div>
               <div class="flex justify-between items-center mb-1">
                 <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ukuran Teks</label>
-                <span id="wmSizeVal" class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">32px</span>
+                <span id="wmSizeVal"
+                  class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">32px</span>
               </div>
-              <input type="range" id="wmSize" min="14" max="100" value="32" oninput="document.getElementById('wmSizeVal').textContent = this.value + 'px'; updateWmCanvas();" class="w-full accent-emerald-600 cursor-pointer">
+              <input type="range" id="wmSize" min="14" max="100" value="32"
+                oninput="document.getElementById('wmSizeVal').textContent = this.value + 'px'; updateWmCanvas();"
+                class="w-full accent-indigo-600 cursor-pointer">
             </div>
 
             <!-- Rotasi Slider -->
             <div>
               <div class="flex justify-between items-center mb-1">
                 <label class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Sudut Kemiringan</label>
-                <span id="wmRotateVal" class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">-30°</span>
+                <span id="wmRotateVal"
+                  class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">-30°</span>
               </div>
-              <input type="range" id="wmRotate" min="-90" max="90" value="-30" oninput="document.getElementById('wmRotateVal').textContent = this.value + '°'; updateWmCanvas();" class="w-full accent-emerald-600 cursor-pointer">
+              <input type="range" id="wmRotate" min="-90" max="90" value="-30"
+                oninput="document.getElementById('wmRotateVal').textContent = this.value + '°'; updateWmCanvas();"
+                class="w-full accent-indigo-600 cursor-pointer">
             </div>
           </div>
 
           <!-- Bottom Actions (Salin & Unduh) -->
           <div class="space-y-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/60 mt-auto">
-            <button onclick="copyWatermarkedImage()" id="wmCopyBtn" disabled class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+            <button onclick="copyWatermarkedImage()" id="wmCopyBtn" disabled
+              class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Gambar</span>
             </button>
-            <button onclick="downloadWatermarkedImage()" id="wmDownloadBtn" disabled class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
+            <button onclick="downloadWatermarkedImage()" id="wmDownloadBtn" disabled
+              class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs md:text-sm shadow-sm transition-all flex items-center justify-center space-x-2">
               <i class="fa-solid fa-download"></i>
               <span>Unduh (PNG)</span>
             </button>
@@ -981,39 +1158,52 @@
   </div>
 
   <!-- Modal Panduan Ukuran & Konversi Satuan (Tanpa Permission - Clean UI) -->
-  <div id="sizeCheatSheetModal" onclick="if(event.target === this) closeSizeCheatSheetModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
+  <div id="sizeCheatSheetModal" onclick="if(event.target === this) closeSizeCheatSheetModal()"
+    style="background-color: rgba(9, 9, 11, 0.45);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 overflow-y-auto backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
-      
+    <div
+      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+
       <!-- Modal Header (Clean Minimalist) -->
-      <div class="px-6 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
+      <div
+        class="px-6 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
         <div class="flex items-center space-x-3">
-          <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+          <div
+            class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
             <i class="fa-solid fa-ruler-combined text-base"></i>
           </div>
           <div>
-            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">Panduan & Ukuran Media</h3>
-            <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Klik nilai ukuran untuk menyalin langsung ke clipboard</p>
+            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">Panduan & Ukuran
+              Media</h3>
+            <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Klik nilai ukuran untuk menyalin langsung ke
+              clipboard</p>
           </div>
         </div>
-        <button onclick="closeSizeCheatSheetModal()" class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
+        <button onclick="closeSizeCheatSheetModal()"
+          class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <!-- Controls Header: Single Row Search Bar (Left) + Compact Unit Switcher (Right) -->
-      <div class="px-6 py-3.5 border-b border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50 shrink-0">
+      <div
+        class="px-6 py-3.5 border-b border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50 shrink-0">
         <div class="flex items-center gap-2.5">
           <!-- Search Bar (Flex-1) -->
           <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
-            <input type="text" id="sizeSearchInput" oninput="onSizeSearchInput(this.value)" placeholder="Cari ukuran (A4, Feed, Story, YouTube)..." class="w-full pl-9 pr-4 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800/90 border border-zinc-200/70 dark:border-zinc-700/60 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-zinc-800 dark:text-zinc-100 transition-all shadow-2xs">
+            <i
+              class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+            <input type="text" id="sizeSearchInput" oninput="onSizeSearchInput(this.value)"
+              placeholder="Cari ukuran (A4, Feed, Story, YouTube)..."
+              class="w-full pl-9 pr-4 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800/90 border border-zinc-200/70 dark:border-zinc-700/60 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-zinc-800 dark:text-zinc-100 transition-all shadow-2xs">
           </div>
 
           <!-- Compact Unit Selector Dropdown (Placed on Right) -->
-          <div class="flex items-center space-x-1.5 bg-white dark:bg-zinc-800/90 px-3 py-2 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60 shadow-2xs shrink-0">
+          <div
+            class="flex items-center space-x-1.5 bg-white dark:bg-zinc-800/90 px-3 py-2 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60 shadow-2xs shrink-0">
             <i class="fa-solid fa-sliders text-xs text-indigo-500 shrink-0"></i>
-            <select id="sizeUnitSelect" onchange="changeSizeUnit(this.value)" class="bg-transparent text-xs md:text-sm font-bold text-zinc-800 dark:text-zinc-100 outline-none cursor-pointer pr-1">
+            <select id="sizeUnitSelect" onchange="changeSizeUnit(this.value)"
+              class="bg-transparent text-xs md:text-sm font-bold text-zinc-800 dark:text-zinc-100 outline-none cursor-pointer pr-1">
               <option value="px_300">px (300 DPI)</option>
               <option value="px_72">px (72 DPI)</option>
               <option value="cm">cm</option>
@@ -1030,77 +1220,96 @@
       </div>
 
       <!-- Footer Info -->
-      <div class="px-6 py-3 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center text-[11px] text-zinc-400 shrink-0">
+      <div
+        class="px-6 py-3 bg-zinc-50 dark:bg-zinc-900/80 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center text-[11px] text-zinc-400 shrink-0">
         <span>* Nilai pixel dihitung otomatis berdasarkan rasio DPI</span>
-        <button onclick="closeSizeCheatSheetModal()" class="px-3 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 font-semibold rounded-lg text-zinc-600 dark:text-zinc-300 transition-colors">Tutup</button>
+        <button onclick="closeSizeCheatSheetModal()"
+          class="px-3 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 font-semibold rounded-lg text-zinc-600 dark:text-zinc-300 transition-colors">Tutup</button>
       </div>
 
     </div>
   </div>
 
   <!-- Modal AI Generator Filosofi Logo & Brand Story -->
-  <div id="logoPhilosophyModal" onclick="if(event.target === this) closeLogoPhilosophyModal()" style="background-color: rgba(9, 9, 11, 0.45);" 
+  <div id="logoPhilosophyModal" onclick="if(event.target === this) closeLogoPhilosophyModal()"
+    style="background-color: rgba(9, 9, 11, 0.45);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
-      
+    <div
+      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+
       <!-- Modal Header -->
-      <div class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
+      <div
+        class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
         <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+          <div
+            class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
             <i class="fa-solid fa-lightbulb text-sm"></i>
           </div>
           <div>
-            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">AI Generator Filosofi Logo &amp; Brand Story</h3>
-            <p class="text-[11px] text-zinc-400 dark:text-zinc-500 italic">Buat makna, filosofi warna, simbol, dan narasi brand profesional dari logo Anda</p>
+            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">AI Generator
+              Filosofi Logo </h3>
+            <p class="text-[11px] text-zinc-400 dark:text-zinc-500 italic">Buat makna, filosofi warna, simbol, dan
+              narasi brand profesional dari logo Anda</p>
           </div>
         </div>
-        <button onclick="closeLogoPhilosophyModal()" class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
+        <button onclick="closeLogoPhilosophyModal()"
+          class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <!-- Main Content Area: 2 Column Side-by-Side -->
       <div class="p-4 flex flex-col md:flex-row gap-4 flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
-        
+
         <!-- Left Column: Upload Dropzone & Form Controls -->
         <div class="w-full md:w-80 shrink-0 flex flex-col space-y-3 overflow-y-auto">
-          
+
           <!-- Dropzone Upload Logo -->
-          <div class="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 p-3 min-h-[140px] flex flex-col items-center justify-center">
-            
-            <div id="logoDropzone" onclick="triggerLogoFileInput()" class="cursor-pointer flex flex-col items-center justify-center w-full text-center py-3 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl hover:border-indigo-500 transition-all">
-              <input type="file" id="logoFileInput" accept="image/*" onchange="handleLogoFileSelect(event)" class="hidden">
-              <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg mb-1.5">
+          <div
+            class="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 p-3 min-h-[140px] flex flex-col items-center justify-center">
+
+            <div id="logoDropzone" onclick="triggerLogoFileInput()"
+              class="cursor-pointer flex flex-col items-center justify-center w-full text-center py-3 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl hover:border-indigo-500 transition-all">
+              <input type="file" id="logoFileInput" accept="image/*" onchange="handleLogoFileSelect(event)"
+                class="hidden">
+              <div
+                class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg mb-1.5">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
               </div>
               <p class="text-xs font-bold text-zinc-700 dark:text-zinc-200">Upload / Paste Gambar Logo</p>
-              <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5"><kbd class="px-1 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded font-mono">Ctrl + V</kbd> untuk paste</p>
+              <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5"><kbd
+                  class="px-1 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded font-mono">Ctrl + V</kbd> </p>
             </div>
 
             <!-- Logo Preview Container -->
             <div id="logoPreviewWrapper" class="hidden relative w-full h-32 flex items-center justify-center">
-              <button onclick="resetLogoImage()" title="Ganti Logo" class="absolute top-1 left-1 z-10 px-2 py-0.5 bg-white/90 dark:bg-zinc-800/90 hover:bg-white border border-zinc-200 dark:border-zinc-700 rounded text-[10px] font-bold text-zinc-700 dark:text-zinc-200 shadow-xs flex items-center gap-1">
+              <button onclick="resetLogoImage()" title="Ganti Logo"
+                class="absolute top-1 left-1 z-10 px-2 py-0.5 bg-white/90 dark:bg-zinc-800/90 hover:bg-white border border-zinc-200 dark:border-zinc-700 rounded text-[10px] font-bold text-zinc-700 dark:text-zinc-200 shadow-xs flex items-center gap-1">
                 <i class="fa-solid fa-rotate-left"></i> Ganti
               </button>
-              <img id="logoDisplayImg" src="" alt="Logo Preview" class="max-h-full max-w-full object-contain rounded-lg shadow-sm">
+              <img id="logoDisplayImg" src="" alt="Logo Preview"
+                class="max-h-full max-w-full object-contain rounded-lg shadow-sm">
             </div>
 
           </div>
 
           <!-- Form Options -->
           <div class="space-y-3">
-            
+
             <!-- Opsi Bidang / Catatan Usaha (Pilih Salah Satu) -->
             <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Bidang / Catatan Usaha</label>
-              
+              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Bidang / Catatan
+                Usaha</label>
+
               <!-- Tab Choice: Pilih salah satu -->
               <div class="grid grid-cols-2 gap-2 mb-2">
-                <button type="button" id="lblModeSelect" onclick="setLogoIndustryMode('select')" class="px-3 py-1.5 rounded-xl border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-normal text-xs flex items-center justify-center gap-1.5 transition-all">
+                <button type="button" id="lblModeSelect" onclick="setLogoIndustryMode('select')"
+                  class="px-3 py-1.5 rounded-xl border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-normal text-xs flex items-center justify-center gap-1.5 transition-all">
                   <i class="fa-solid fa-list-check"></i>
                   <span>Pilih Bidang</span>
                 </button>
-                <button type="button" id="lblModeText" onclick="setLogoIndustryMode('text')" class="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-normal text-xs flex items-center justify-center gap-1.5 transition-all">
+                <button type="button" id="lblModeText" onclick="setLogoIndustryMode('text')"
+                  class="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-normal text-xs flex items-center justify-center gap-1.5 transition-all">
                   <i class="fa-solid fa-pen-to-square"></i>
                   <span>Tulis Catatan</span>
                 </button>
@@ -1109,10 +1318,14 @@
               <!-- Mode A: Dropdown Select -->
               <div id="logoIndustrySelectWrapper" class="space-y-1.5">
                 <div class="relative">
-                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400"></i>
-                  <input type="text" id="logoIndustrySearch" oninput="filterLogoIndustries(this.value)" placeholder="Cari bidang / industri..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                  <i
+                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400"></i>
+                  <input type="text" id="logoIndustrySearch" oninput="filterLogoIndustries(this.value)"
+                    placeholder="Cari bidang / industri..."
+                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
                 </div>
-                <select id="logoIndustry" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
+                <select id="logoIndustry"
+                  class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
                   <option value="fnb">FNB (Kuliner, Cafe, Kopi &amp; Bakery)</option>
                   <option value="tech">TECH (IT, Web, Startup &amp; Software)</option>
                   <option value="fashion">FASHION (Pakaian, Muslim &amp; Hijab)</option>
@@ -1130,76 +1343,92 @@
 
               <!-- Mode B: Custom Text Notes -->
               <div id="logoIndustryTextWrapper" class="hidden">
-                <textarea id="logoIndustryCustomText" rows="3" placeholder="Tuliskan catatan / deskripsi bidang usaha Anda secara bebas..." class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
+                <textarea id="logoIndustryCustomText" rows="3"
+                  placeholder="Tuliskan catatan / deskripsi bidang usaha Anda secara bebas..."
+                  class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
               </div>
             </div>
 
             <!-- Versi Model Gemini AI -->
             <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Versi Engine AI / Gemini Model</label>
-              <select id="logoGeminiModel" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                <option value="auto" selected>✨ Otomatis Terbaru (Gemini 3.0 / 2.0 Flash)</option>
-                <option value="gemini-3.0-flash">🚀 Gemini 3.0 Flash (Next-Gen Ultrafast)</option>
-                <option value="gemini-3.0-pro">🧠 Gemini 3.0 Pro (Deep Reasoning)</option>
-                <option value="gemini-2.0-flash">⚡ Gemini 2.0 Flash (Fast Multimodal)</option>
-                <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro (Creative Analysis)</option>
-                <option value="gemini-1.5-flash">🛡️ Gemini 1.5 Flash (Standard Stable)</option>
+              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">V Gemini
+                Model</label>
+              <select id="logoGeminiModel"
+                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                <option value="auto" selected> Terbaru (Gemini 3.0 / 2.0 Flash)</option>
+                <option value="gemini-3.0-flash"> Gemini 3.0 Flash (Next-Gen Ultrafast)</option>
+                <option value="gemini-3.0-pro">Gemini 3.0 Pro (Deep Reasoning)</option>
+                <option value="gemini-2.0-flash"> Gemini 2.0 Flash (Fast Multimodal)</option>
+                <option value="gemini-1.5-pro"> Gemini 1.5 Pro (Creative Analysis)</option>
+                <option value="gemini-1.5-flash"> Gemini 1.5 Flash (Standard Stable)</option>
               </select>
             </div>
 
             <!-- Banyaknya Kalimat / Kata -->
             <div>
               <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Panjang Analisis</label>
-              <select id="logoLength" class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
-                <option value="short">Singkat (~100 Kata)</option>
-                <option value="medium" selected>Sedang (~200 Kata)</option>
-                <option value="long">Panjang (~350 Kata)</option>
-                <option value="verylong">Sangat Detail (~600+ Kata)</option>
+              <select id="logoLength"
+                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
+                <option value="short">Singkat (100 Kata)</option>
+                <option value="medium" selected>Sedang (200 Kata)</option>
+                <option value="long">Panjang (350 Kata)</option>
+                <option value="verylong">Sangat Detail (600+ Kata)</option>
               </select>
             </div>
 
             <!-- Catatan Opsional -->
             <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Catatan <span class="font-normal text-zinc-400">(Opsional)</span></label>
-              <textarea id="logoCatatan" rows="2" placeholder='Contoh: "Ingin terlihat premium", "Logo terinspirasi dari gunung", "Target anak muda"' class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
+              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Catatan <span
+                  class="font-normal text-zinc-400">(Opsional)</span></label>
+              <textarea id="logoCatatan" rows="2"
+                placeholder='Contoh: "Ingin terlihat premium", "Logo terinspirasi dari gunung", "Target anak muda"'
+                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
             </div>
 
             <!-- Action Generate Button -->
-            <button onclick="generateLogoPhilosophy()" id="btnGeneratePhilosophy" class="w-full py-2.5 rounded-xl text-xs md:text-sm font-normal transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-md flex items-center justify-center space-x-2 border border-indigo-300/30 mt-2">
+            <button onclick="generateLogoPhilosophy()" id="btnGeneratePhilosophy"
+              class="w-full py-2.5 rounded-xl text-xs md:text-sm font-normal transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-md flex items-center justify-center space-x-2 border border-indigo-300/30 mt-2">
               <i class="fa-solid fa-wand-magic-sparkles text-indigo-200"></i>
-              <span id="labelGeneratePhilosophy">✨ Generate Filosofi Logo</span>
+              <span id="labelGeneratePhilosophy">Generate Filosofi Logo</span>
             </button>
           </div>
 
         </div>
 
         <!-- Right Column: Results Display Box -->
-        <div class="flex-1 min-w-0 min-h-0 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/80 overflow-hidden">
-          
+        <div
+          class="flex-1 min-w-0 min-h-0 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/80 overflow-hidden">
+
           <!-- Result Header -->
-          <div class="px-4 py-2.5 bg-white dark:bg-zinc-900 border-b border-zinc-200/60 dark:border-zinc-800 flex justify-between items-center shrink-0">
+          <div
+            class="px-4 py-2.5 bg-white dark:bg-zinc-900 border-b border-zinc-200/60 dark:border-zinc-800 flex justify-between items-center shrink-0">
             <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
               <i class="fa-solid fa-book-open text-xs"></i> Hasil Filosofi &amp; Narasi Brand
             </span>
             <div class="flex items-center space-x-1.5">
-              <button onclick="copyPhilosophyText()" id="btnCopyPhilosophy" disabled class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-200/60 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-indigo-600 hover:text-white disabled:opacity-40 transition-colors flex items-center gap-1">
+              <button onclick="copyPhilosophyText()" id="btnCopyPhilosophy" disabled
+                class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-200/60 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-indigo-600 hover:text-white disabled:opacity-40 transition-colors flex items-center gap-1">
                 <i class="fa-regular fa-copy"></i> Salin
               </button>
-              <button onclick="downloadPhilosophyDoc()" id="btnDownloadPhilosophy" disabled class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-200/60 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-indigo-600 hover:text-white disabled:opacity-40 transition-colors flex items-center gap-1">
+              <button onclick="downloadPhilosophyDoc()" id="btnDownloadPhilosophy" disabled
+                class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-200/60 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-indigo-600 hover:text-white disabled:opacity-40 transition-colors flex items-center gap-1">
                 <i class="fa-solid fa-download"></i> Unduh
               </button>
             </div>
           </div>
 
           <!-- Result Content Body -->
-          <div id="philosophyResultBox" class="p-4 md:p-6 overflow-y-auto flex-1 text-zinc-800 dark:text-zinc-200 leading-relaxed text-xs md:text-sm space-y-4">
-            
+          <div id="philosophyResultBox"
+            class="p-4 md:p-6 overflow-y-auto flex-1 text-zinc-800 dark:text-zinc-200 leading-relaxed text-xs md:text-sm space-y-4">
+
             <div class="flex flex-col items-center justify-center h-full text-center text-zinc-400 py-12">
-              <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 flex items-center justify-center text-xl mb-3">
+              <div
+                class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 flex items-center justify-center text-xl mb-3">
                 <i class="fa-solid fa-lightbulb"></i>
               </div>
               <p class="font-bold text-zinc-700 dark:text-zinc-300">Belum Ada Filosofi Dibuat</p>
-              <p class="text-xs max-w-xs mt-1 text-zinc-400">Upload logo Anda dan klik tombol "Generate Filosofi Logo" untuk melihat makna & narasi brand otomatis.</p>
+              <p class="text-xs max-w-xs mt-1 text-zinc-400">Upload logo Anda dan klik tombol "Generate Filosofi Logo"
+                untuk melihat makna & narasi brand otomatis.</p>
             </div>
 
           </div>

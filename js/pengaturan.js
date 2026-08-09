@@ -206,8 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof APICache !== 'undefined' && typeof APICache.clear === 'function') {
           APICache.clear();
         }
-        // Remove mock data remnants in localStorage
-        ['mock_users', 'mock_proyek', 'mock_keuangan', 'mock_tools', 'mock_shortcuts', 'cfg_mock_mode'].forEach(k => localStorage.removeItem(k));
+
 
         showToast({
           title: 'Cache & Session Dibersihkan',

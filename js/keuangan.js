@@ -146,7 +146,7 @@ function initTable(data) {
         defaultContent: 'USR-001',
         render: function (data) {
           const uid = data || 'USR-001';
-          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">${uid}</span>`;
+          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${uid}</span>`;
         }
       },
       { data: 'tanggal' },
@@ -155,7 +155,7 @@ function initTable(data) {
         render: function (data) {
           if (data === 'Pemasukan') {
             const labelText = isEn ? 'Income' : 'Pemasukan';
-            return `<span class="inline-flex items-center text-xs font-semibold text-emerald-600"><i class="fa-solid fa-arrow-turn-down mr-1"></i> ${labelText}</span>`;
+            return `<span class="inline-flex items-center text-xs font-semibold text-green-600"><i class="fa-solid fa-arrow-turn-down mr-1"></i> ${labelText}</span>`;
           }
           const labelText = isEn ? 'Expense' : 'Pengeluaran';
           return `<span class="inline-flex items-center text-xs font-semibold text-rose-600"><i class="fa-solid fa-arrow-turn-up mr-1"></i> ${labelText}</span>`;
@@ -167,7 +167,7 @@ function initTable(data) {
         render: function (data, type, row) {
           const formatted = formatRupiah(Number(data) || 0);
           if (row.jenis === 'Pemasukan') {
-            return `<span class="text-emerald-600 font-semibold">+ ${formatted}</span>`;
+            return `<span class="text-green-600 font-semibold">+ ${formatted}</span>`;
           }
           return `<span class="text-rose-600 font-semibold">- ${formatted}</span>`;
         }
