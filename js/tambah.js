@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Ambil element form
   const form = document.getElementById('proyekForm');
   const namaProyekInput = document.getElementById('namaProyek');
+  const namaProyekPreview = document.getElementById('namaProyekPreview');
   const pelangganInput = document.getElementById('pelanggan');
   const waInput = document.getElementById('wa');
   const produkInput = document.getElementById('produk');
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const manualGDriveContainer = document.getElementById('manualGDriveContainer');
   const deadlineWarning = document.getElementById('deadlineWarning');
   const submitBtn = document.getElementById('submitBtn');
+
 
   // Toggle visibilitas input link manual berdasarkan status checkbox
   if (createDriveFolderCheckbox && manualGDriveContainer) {
@@ -185,6 +187,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         checkDeadline(proyek.deadline);
         kalkulasiNominalDanSisa();
+        if (typeof updateNamaProyekPreview === 'function') {
+          updateNamaProyekPreview();
+        }
       } else {
 
         showToast({
@@ -260,6 +265,122 @@ document.addEventListener('DOMContentLoaded', async () => {
   jumlahInput.addEventListener('input', kalkulasiNominalDanSisa);
   hargaSatuanInput.addEventListener('input', kalkulasiNominalDanSisa);
   dpInput.addEventListener('input', kalkulasiNominalDanSisa);
+
+  // Auto-deduction helper of category from project name
+  // Auto-deduction helper of category and client name from project name
+  function autoDeductCategoryAndClient(projectName) {
+    if (!projectName || !projectName.trim()) {
+      return {
+        category: "",
+        client: ""
+      };
+    }
+    const name = projectName.toLowerCase();
+    
+    const categories = [
+      { label: "Banner", keywords: ["banner", "spanduk", "baliho", "backdrop", "mmt", "x-banner", "y-banner", "roll-up banner"] },
+      { label: "Poster/Brosur", keywords: ["poster", "flyer", "brosur", "leaflet", "pamflet", "brosur a5", "brosur a4"] },
+      { label: "Kartu Nama", keywords: ["kartu nama", "id card", "kartunama", "nametag", "id-card"] },
+      { label: "Stiker", keywords: ["stiker", "sticker", "label", "decal"] },
+      { label: "Merchandise", keywords: ["kaos", "baju", "jersey", "tshirt", "t-shirt", "mug", "gantungan", "sablon", "pin", "topi", "totebag"] },
+      { label: "Desain", keywords: ["desain", "logo", "branding", "desain logo", "sertifikat", "feeds", "feed"] }
+    ];
+
+    let matchedCategory = "Lainnya";
+    let matchedKeyword = "";
+
+    for (const cat of categories) {
+      for (const kw of cat.keywords) {
+        if (name.includes(kw)) {
+          matchedCategory = cat.label;
+          matchedKeyword = kw;
+          break;
+        }
+      }
+      if (matchedKeyword) break;
+    }
+
+    // Extract client name
+    let clientName = projectName;
+    if (matchedKeyword) {
+      const regex = new RegExp(`\\b(${matchedKeyword}|cetak|buat|desain|print|custom)\\b`, 'gi');
+      clientName = projectName.replace(regex, '').replace(/\s+/g, ' ').trim();
+    } else {
+      const regex = new RegExp(`\\b(cetak|buat|desain|print|custom)\\b`, 'gi');
+      clientName = projectName.replace(regex, '').replace(/\s+/g, ' ').trim();
+    }
+
+    // Capitalize first letter of each word
+    if (clientName) {
+      clientName = clientName.split(' ')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+    } else {
+      clientName = "Klien";
+    }
+
+    return {
+      category: matchedCategory,
+      client: clientName
+    };
+  }
+
+  let userManuallyEditedProduct = false;
+  let userManuallyEditedClient = false;
+
+  function updateNamaProyekPreview() {
+    if (!namaProyekInput || !produkInput || !pelangganInput || !namaProyekPreview) return;
+    
+    let prefix = "PRJ-XXX";
+    if (isEditMode) {
+      const prefixMatch = proyekId.match(/^(PRJ-\d+)/i);
+      prefix = prefixMatch ? prefixMatch[1] : proyekId;
+    }
+    
+    const cleanProd = (produkInput.value || '').trim().toLowerCase().replace(/\s+/g, '');
+    const cleanPel = (pelangganInput.value || '').trim().toLowerCase().replace(/\s+/g, '');
+    const suffix = (cleanProd + cleanPel) || '';
+    
+    const generatedId = prefix + (suffix ? '-' + suffix : '');
+    namaProyekPreview.textContent = `ID Proyek Preview: ${generatedId}`;
+  }
+
+  function handleNamaProyekInput() {
+    if (!namaProyekInput) return;
+    const rawVal = namaProyekInput.value;
+    
+    if (!isEditMode) {
+      const deduction = autoDeductCategoryAndClient(rawVal);
+      if (!userManuallyEditedProduct && produkInput) {
+        produkInput.value = deduction.category;
+      }
+      if (!userManuallyEditedClient && pelangganInput) {
+        pelangganInput.value = deduction.client;
+      }
+    }
+    
+    updateNamaProyekPreview();
+  }
+
+  if (namaProyekInput) {
+    namaProyekInput.addEventListener('input', handleNamaProyekInput);
+  }
+
+  if (produkInput) {
+    produkInput.addEventListener('input', () => {
+      userManuallyEditedProduct = true;
+      updateNamaProyekPreview();
+    });
+  }
+  if (pelangganInput) {
+    pelangganInput.addEventListener('input', () => {
+      userManuallyEditedClient = true;
+      updateNamaProyekPreview();
+    });
+  }
+  
+  // Call initial preview setup
+  updateNamaProyekPreview();
   // Cek Tanggal Deadline
   deadlineInput.addEventListener('change', (e) => {
     checkDeadline(e.target.value);
