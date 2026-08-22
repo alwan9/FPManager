@@ -25,3 +25,7 @@ yarn-error.log*
 
 # 6. Kecualikan node_modules jika nanti memakai npm
 node_modules/
+
+# 7. Kecualikan dokumentasi markdown agar tidak terupload ke GitHub
+README.md
+20_recommendations.md

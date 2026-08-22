@@ -187,30 +187,32 @@ const Toast = (() => {
 
 })();
 
-function showToast({
-    title = "",
-    message = "",
-    type = "info"
-}) {
+function showToast(opt, type = "info") {
+    let title = "";
+    let message = "";
+    let toastType = type;
 
-    switch (type) {
+    if (opt && typeof opt === "object" && !Array.isArray(opt)) {
+        title = opt.title || "";
+        message = opt.message || "";
+        toastType = opt.type || "info";
+    } else if (typeof opt === "string") {
+        message = opt;
+        title = toastType.charAt(0).toUpperCase() + toastType.slice(1);
+    }
 
+    switch (toastType) {
         case "success":
             Toast.success(title, message);
             break;
-
         case "error":
             Toast.error(title, message);
             break;
-
         case "warning":
             Toast.warning(title, message);
             break;
-
         default:
             Toast.info(title, message);
-
     }
-
 }
 

@@ -338,10 +338,14 @@ const Auth = {
   }
 };
 
+let resizeTimeout;
 window.addEventListener("resize", () => {
-  if (typeof Auth !== "undefined" && Auth.applyMenuPermissions) {
-    Auth.applyMenuPermissions();
-  }
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    if (typeof Auth !== "undefined" && Auth.applyMenuPermissions) {
+      Auth.applyMenuPermissions();
+    }
+  }, 150);
 });
 
 document.addEventListener("DOMContentLoaded", () => {

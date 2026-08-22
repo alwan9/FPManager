@@ -234,6 +234,10 @@ async function handleAddTransaksi(e) {
   }
   const submitBtn = document.getElementById('submitBtn');
   if (submitBtn.disabled) return;
+  submitBtn.disabled = true;
+  const origBtnText = submitBtn.textContent;
+  submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
+
   const tanggal = document.getElementById('tanggal').value;
   const jenis = document.getElementById('jenis').value;
   const keterangan = document.getElementById('keterangan').value;
@@ -246,8 +250,14 @@ async function handleAddTransaksi(e) {
     nominal: Number(nominal)
   };
 
+  const resetSubmitBtn = () => {
+    submitBtn.disabled = false;
+    submitBtn.textContent = origBtnText;
+  };
+
   if (!payload.tanggal) {
     alert(isEn ? "Date is required!" : "Tanggal wajib diisi!");
+    resetSubmitBtn();
     return;
   }
 
@@ -257,21 +267,25 @@ async function handleAddTransaksi(e) {
   todayDate.setHours(0,0,0,0);
   if (!editModeId && inputDate < todayDate) {
     alert(isEn ? "Transaction date cannot be in the past!" : "Tanggal transaksi tidak boleh sebelum hari ini!");
+    resetSubmitBtn();
     return;
   }
 
   if (!payload.jenis) {
     alert(isEn ? "Transaction type is required!" : "Jenis transaksi wajib dipilih!");
+    resetSubmitBtn();
     return;
   }
 
   if (!payload.keterangan) {
     alert(isEn ? "Description is required!" : "Keterangan wajib diisi!");
+    resetSubmitBtn();
     return;
   }
 
   if (!Number.isFinite(payload.nominal) || payload.nominal <= 0) {
     alert(isEn ? "Amount must be greater than 0!" : "Nominal harus lebih dari 0!");
+    resetSubmitBtn();
     return;
   }
 
@@ -288,14 +302,12 @@ async function handleAddTransaksi(e) {
 
     if (payload.nominal > currentSaldo) {
       alert(isEn ? `Expense cannot exceed available balance (${formatRupiah(currentSaldo)})!` : `Pengeluaran tidak boleh melebihi saldo yang tersedia (${formatRupiah(currentSaldo)})!`);
+      resetSubmitBtn();
       return;
     }
   }
 
   try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
-
     let res;
     if (editModeId) {
       res = await API.updateKeuangan(editModeId, payload);

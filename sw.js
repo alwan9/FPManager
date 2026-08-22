@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v82';
+const CACHE_NAME = 'fpmanager-v83';
 
 
 
@@ -28,6 +28,7 @@ const urlsToCache = [
   './manifest.json',
   './css/style.css',
   './css/darkmode.css',
+  './css/tailwind.min.css',
   './js/config.js',
   './js/i18n.js',
   './js/api.js',
@@ -50,6 +51,12 @@ const urlsToCache = [
   './assets/img/icon-192.png',
   './assets/img/icon-512.png',
   './assets/img/logo.png',
+  './assets/img/mockups/tshirt_mockup.jpg',
+  './assets/img/mockups/businesscard_mockup.jpg',
+  './assets/img/mockups/mug_mockup.jpg',
+  './assets/img/mockups/billboard_mockup.jpg',
+  './assets/img/mockups/officesign_mockup.jpg',
+  './assets/img/mockups/laptop_mockup.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
 ];
 

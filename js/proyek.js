@@ -146,8 +146,19 @@ function initTable(data) {
         }
       },
       { data: 'tanggal', visible: false },
-      { data: 'namaProyek' },
-      { data: 'namaPelanggan', className: 'hidden md:table-cell' },
+      {
+        data: 'namaProyek',
+        render: function (data) {
+          return escapeHtml(data || '');
+        }
+      },
+      {
+        data: 'namaPelanggan',
+        className: 'hidden md:table-cell',
+        render: function (data) {
+          return escapeHtml(data || '');
+        }
+      },
       {
         data: 'nomorWA',
         render: function (data) {
@@ -325,7 +336,7 @@ function initTable(data) {
               </a>
               ` : ''}
               ${canDelete ? `
-              <button onclick="hapusProyek('${data.iDProyek}', '${data.namaProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Proyek">
+              <button onclick="hapusProyek('${data.iDProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Proyek">
                 <i class="fa-solid fa-trash"></i>
               </button>
               ` : ''}
@@ -728,9 +739,16 @@ async function hapusProyek(id, name) {
     });
     return;
   }
+  
+  let prjName = name || '';
+  if (!prjName && window.allProyekList) {
+    const prj = window.allProyekList.find(p => String(p.iDProyek) === String(id));
+    if (prj) prjName = prj.namaProyek || '';
+  }
+
   const confirmMsg = isEn 
-    ? `Are you sure you want to delete project "${id} - ${name}"? This action cannot be undone.` 
-    : `Apakah Anda yakin ingin menghapus projek "${id} - ${name}"? Tindakan ini tidak dapat dibatalkan.`;
+    ? `Are you sure you want to delete project "${id} - ${prjName}"? This action cannot be undone.` 
+    : `Apakah Anda yakin ingin menghapus projek "${id} - ${prjName}"? Tindakan ini tidak dapat dibatalkan.`;
   if (confirm(confirmMsg)) {
     try {
       const res = await API.deleteProyek(id);

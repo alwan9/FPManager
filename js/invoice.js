@@ -57,8 +57,14 @@ const Invoice = {
         document.getElementById("previewInvoiceNo").innerText =
             data.iDProyek;
         const dateLocale = isEn ? "en-US" : "id-ID";
-        document.getElementById("previewTanggal").innerText =
-            new Date().toLocaleDateString(dateLocale);
+        const dateRaw = new Date();
+        const formatter = new Intl.DateTimeFormat(dateLocale, {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            timeZone: "Asia/Jakarta"
+        });
+        document.getElementById("previewTanggal").innerText = formatter.format(dateRaw);
         // ==========================
         // CUSTOMER
         // ==========================

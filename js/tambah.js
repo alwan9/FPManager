@@ -428,6 +428,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Submit Handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (submitBtn.disabled) return;
+    submitBtn.disabled = true;
+    const origBtnText = submitBtn.innerHTML;
+    submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
+
     // Validasi WA
     let cleanWA = waInput.value.replace(/\D/g, ''); // bersihkan non-angka
     if (cleanWA.startsWith('0')) {
@@ -448,6 +453,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       todayDate.setHours(0, 0, 0, 0);
       if (inputDate < todayDate) {
         alert(isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnText;
         return;
       }
     }
@@ -471,8 +478,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       userId: displayUserIdEl ? displayUserIdEl.textContent : (currUser ? currUser.id : 'USR-001')
     };
     try {
-      submitBtn.disabled = true;
-      submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
       let result;
       if (isEditMode) {
         result = await API.updateProyek(proyekId, payload);

@@ -11,11 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (infoForm) {
     infoForm.addEventListener('submit', handleSaveProfileInfo);
   }
-
-  const passForm = document.getElementById('profilePasswordForm');
-  if (passForm) {
-    passForm.addEventListener('submit', handleChangePassword);
-  }
 });
 
 // Load User Data into Profile UI
@@ -49,7 +44,7 @@ function loadProfileData() {
     if (avatar) {
       avatarEl.innerHTML = `<img src="${sanitizeUrl(avatar)}" class="w-full h-full rounded-full object-cover">`;
     } else {
-      avatarEl.textContent = name.charAt(0).toUpperCase();
+      avatarEl.textContent = (name || 'A').charAt(0).toUpperCase();
     }
   }
 
@@ -85,10 +80,6 @@ function loadProfileData() {
   }
 }
 
-function usernameIsSuper(un) {
-  return un === 'wansmin';
-}
-
 // Handle Avatar File Upload with Image Resizing
 function handleAvatarFileSelect(e) {
   const file = e.target.files && e.target.files[0];
@@ -97,6 +88,13 @@ function handleAvatarFileSelect(e) {
   if (!file.type.startsWith('image/')) {
     if (typeof Toast !== 'undefined') Toast.error('Error', 'Harap pilih file gambar valid!');
     else if (typeof showToast === 'function') showToast('Harap pilih file gambar valid!', 'error');
+    return;
+  }
+
+  // Limit file size to 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    if (typeof Toast !== 'undefined') Toast.error('Error', 'Ukuran foto maksimal adalah 5MB!');
+    else if (typeof showToast === 'function') showToast('Ukuran foto maksimal adalah 5MB!', 'error');
     return;
   }
 
@@ -150,7 +148,14 @@ async function handleSaveProfileInfo(e) {
 
   const name = document.getElementById('profName').value.trim();
   const email = document.getElementById('profEmail').value.trim();
-  const phone = document.getElementById('profPhone').value.trim();
+  const rawPhone = document.getElementById('profPhone').value.trim();
+  let cleanPhone = rawPhone.replace(/[^\d]/g, '');
+  if (cleanPhone.startsWith('0')) {
+    cleanPhone = '62' + cleanPhone.slice(1);
+  } else if (cleanPhone && !cleanPhone.startsWith('62')) {
+    cleanPhone = '62' + cleanPhone;
+  }
+  const phone = cleanPhone;
   const avatar = document.getElementById('profAvatarUrl') ? document.getElementById('profAvatarUrl').value.trim() : '';
 
   if (!name) {
@@ -168,10 +173,44 @@ async function handleSaveProfileInfo(e) {
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Spreadsheet...';
   }
 
+  let finalAvatar = avatar;
+  if (avatar.startsWith('data:image/')) {
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah foto ke Google Drive...';
+    }
+    try {
+      const ext = avatar.split(';')[0].split('/')[1] || 'jpg';
+      const uploadRes = await API.uploadFile(`avatar-${user.id || 'usr'}.${ext}`, `image/${ext}`, avatar);
+      if (uploadRes && uploadRes.success && uploadRes.url) {
+        finalAvatar = uploadRes.url;
+      } else {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origBtnText;
+        }
+        const errMsg = (uploadRes && uploadRes.message) ? uploadRes.message : 'Gagal mengunggah foto ke Google Drive.';
+        if (typeof Toast !== 'undefined') Toast.error('Upload Gagal', errMsg);
+        else alert(errMsg);
+        return;
+      }
+    } catch (uploadErr) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origBtnText;
+      }
+      if (typeof Toast !== 'undefined') Toast.error('Upload Error', 'Terjadi kesalahan saat mengunggah foto.');
+      return;
+    }
+  }
+
+  if (submitBtn) {
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Spreadsheet...';
+  }
+
   try {
     let res = { success: false, message: 'Gagal menghubungkan ke Spreadsheet' };
     if (typeof API !== 'undefined' && typeof API.updateUser === 'function' && user.id) {
-      res = await API.updateUser(user.id, { name, email, phone, avatar });
+      res = await API.updateUser(user.id, { name, email, phone, avatar: finalAvatar });
     } else if (typeof CONFIG !== 'undefined' && CONFIG.API_URL) {
       const body = new URLSearchParams();
       body.append('action', 'updateUser');
@@ -179,7 +218,7 @@ async function handleSaveProfileInfo(e) {
       body.append('userId', user.id || 'USR-001');
       body.append('role', user.role || 'service');
       body.append('token', typeof Auth !== 'undefined' && Auth.getToken ? Auth.getToken() : '');
-      body.append('data', JSON.stringify({ name, email, phone, avatar }));
+      body.append('data', JSON.stringify({ name, email, phone, avatar: finalAvatar }));
       body.append('apiKey', CONFIG.API_KEY);
       const response = await fetch(CONFIG.API_URL, { method: 'POST', body });
       res = await response.json();
@@ -190,7 +229,7 @@ async function handleSaveProfileInfo(e) {
       user.name = name;
       user.email = email;
       user.phone = phone;
-      user.avatar = avatar;
+      user.avatar = finalAvatar;
 
       sessionStorage.setItem('user', JSON.stringify(user));
       if (localStorage.getItem('user')) {
@@ -224,94 +263,3 @@ async function handleSaveProfileInfo(e) {
   }
 }
 
-// Handle Change Password
-async function handleChangePassword(e) {
-  e.preventDefault();
-
-  const currPass = document.getElementById('profCurrPassword').value;
-  const newPass = document.getElementById('profNewPassword').value;
-  const confPass = document.getElementById('profConfirmPassword').value;
-
-  if (newPass.length < 6) {
-    if (typeof Toast !== 'undefined') Toast.error('Error', 'Password baru minimal 6 karakter!');
-    else if (typeof showToast === 'function') showToast('Password baru minimal 6 karakter!', 'error');
-    return;
-  }
-
-  if (newPass !== confPass) {
-    if (typeof Toast !== 'undefined') Toast.error('Error', 'Konfirmasi password baru tidak cocok!');
-    else if (typeof showToast === 'function') showToast('Konfirmasi password baru tidak cocok!', 'error');
-    return;
-  }
-
-  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
-
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  const origBtnText = submitBtn ? submitBtn.innerHTML : 'Ubah Password';
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memperbarui Password...';
-  }
-
-  try {
-    let res = { success: false, message: 'Gagal mengubah password' };
-    if (typeof API !== 'undefined' && typeof API.updateUser === 'function' && user.id) {
-      res = await API.updateUser(user.id, { password: newPass });
-    } else if (typeof CONFIG !== 'undefined' && CONFIG.API_URL) {
-      const body = new URLSearchParams();
-      body.append('action', 'updateUser');
-      body.append('id', user.id || 'USR-001');
-      body.append('userId', user.id || 'USR-001');
-      body.append('role', user.role || 'service');
-      body.append('token', typeof Auth !== 'undefined' && Auth.getToken ? Auth.getToken() : '');
-      body.append('data', JSON.stringify({ password: newPass }));
-      body.append('apiKey', CONFIG.API_KEY);
-      const response = await fetch(CONFIG.API_URL, { method: 'POST', body });
-      res = await response.json();
-    }
-
-    if (res && res.success) {
-      document.getElementById('profilePasswordForm').reset();
-      if (typeof Toast !== 'undefined') {
-        Toast.success('Berhasil', 'Password berhasil diperbarui langsung di Spreadsheet.');
-      } else if (typeof showToast === 'function') {
-        showToast('Password berhasil diperbarui di Spreadsheet!', 'success');
-      } else {
-        alert('Password berhasil diperbarui di Spreadsheet!');
-      }
-    } else {
-      const errMsg = (res && res.message) ? res.message : 'Gagal memperbarui password di Spreadsheet.';
-      if (typeof Toast !== 'undefined') Toast.error('Gagal', errMsg);
-      else alert(errMsg);
-    }
-  } catch (err) {
-    console.error(err);
-    if (typeof Toast !== 'undefined') Toast.error('Error', 'Gagal terhubung ke Spreadsheet.');
-    else alert('Gagal terhubung ke Spreadsheet.');
-  } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = origBtnText;
-    }
-  }
-}
-
-// Password Eye Toggle
-function togglePassVisibility(inputId, btn) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  const icon = btn.querySelector('i');
-  if (input.type === 'password') {
-    input.type = 'text';
-    if (icon) {
-      icon.classList.remove('fa-eye');
-      icon.classList.add('fa-eye-slash');
-    }
-  } else {
-    input.type = 'password';
-    if (icon) {
-      icon.classList.remove('fa-eye-slash');
-      icon.classList.add('fa-eye');
-    }
-  }
-}

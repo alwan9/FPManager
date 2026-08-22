@@ -14,10 +14,10 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <!-- Tailwind CSS v2 CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="css/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=83">
   <link rel="stylesheet" href="css/darkmode.css">
 
 </head>
@@ -559,6 +559,7 @@
       </button>
     </div>
 
+
     <!-- Go to Top Floating Button -->
     <div class="relative flex items-center group">
       <span
@@ -894,7 +895,7 @@
                 class="hidden space-y-3.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/40 animate-fade-in">
                 <div>
                   <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Isi Teks</label>
-                  <input type="text" id="pbWmText" value="FPManager - Confidential" oninput="updatePbCanvas()"
+                  <input type="text" id="pbWmText" value="Premium Desain" oninput="updatePbCanvas()"
                     class="w-full px-3 py-2 text-base bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium focus:ring-2 focus:ring-indigo-500">
                 </div>
 
@@ -1070,7 +1071,7 @@
             <!-- Teks WM -->
             <div>
               <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Teks Watermark</label>
-              <input type="text" id="wmText" value="FPManager - Confidential" oninput="updateWmCanvas()"
+              <input type="text" id="wmText" value="Premium Desain" oninput="updateWmCanvas()"
                 class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-zinc-800 dark:text-zinc-100 font-medium">
             </div>
 
@@ -1438,138 +1439,137 @@
       </div>
 
     </div>
-  </div>
 
-  <!-- Load Global Scripts -->
-  <script src="js/toast.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/pwa.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/api.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <script src="js/tools.js"></script>
+    <!-- Load Global Scripts -->
+    <script src="js/toast.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/pwa.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="js/tools.js?v=83"></script>
 
 
-  <script>
-    // Global array for calc items
-    let kalkulatorItems = [];
+    <script>
+      // Global array for calc items
+      let kalkulatorItems = [];
 
-    // format currency helper
-    function formatRupiah(number) {
-      return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-      }).format(number);
-    }
+      // format currency helper
+      function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0
+        }).format(number);
+      }
 
-    // Dynamic dropdown translation
-    document.addEventListener('DOMContentLoaded', () => {
-      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-      if (isEn) {
-        const select = document.getElementById('calcLayanan');
-        if (select) {
-          const serviceNamesEn = {
-            'Feed Instagram Single': 'Social Feed Single',
-            'Feed Instagram Carousel': 'Social Feed Carousel',
-            'Instagram Story': 'Instagram Story',
-            'Banner YouTube/Web': 'YouTube/Web Banner',
-            'Desain Banner/Spanduk': 'Banner/Billboard Design',
-            'Desain Brosur A5': 'A5 Brochure Design',
-            'Desain Poster': 'Poster Design',
-            'Desain Kartu Nama': 'Business Card Design',
-            'Desain Logo Standar': 'Standard Logo Design',
-            'Desain Logo Premium': 'Premium Logo Design',
-            'Brand Guidelines Lengkap': 'Complete Brand Guidelines',
-            'Desain Kemasan/Label': 'Packaging/Label Design',
-            'UI Landing Page Figma': 'Figma UI Landing Page',
-            'Landing Page Website': 'Website Landing Page'
-          };
-          Array.from(select.options).forEach(opt => {
-            const originalName = opt.getAttribute('data-name');
-            const englishName = serviceNamesEn[originalName] || originalName;
-            const price = parseFloat(opt.value);
-            opt.textContent = `${englishName} (${formatRupiah(price)})`;
-            opt.setAttribute('data-name', englishName);
-          });
+      // Dynamic dropdown translation
+      document.addEventListener('DOMContentLoaded', () => {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        if (isEn) {
+          const select = document.getElementById('calcLayanan');
+          if (select) {
+            const serviceNamesEn = {
+              'Feed Instagram Single': 'Social Feed Single',
+              'Feed Instagram Carousel': 'Social Feed Carousel',
+              'Instagram Story': 'Instagram Story',
+              'Banner YouTube/Web': 'YouTube/Web Banner',
+              'Desain Banner/Spanduk': 'Banner/Billboard Design',
+              'Desain Brosur A5': 'A5 Brochure Design',
+              'Desain Poster': 'Poster Design',
+              'Desain Kartu Nama': 'Business Card Design',
+              'Desain Logo Standar': 'Standard Logo Design',
+              'Desain Logo Premium': 'Premium Logo Design',
+              'Brand Guidelines Lengkap': 'Complete Brand Guidelines',
+              'Desain Kemasan/Label': 'Packaging/Label Design',
+              'UI Landing Page Figma': 'Figma UI Landing Page',
+              'Landing Page Website': 'Website Landing Page'
+            };
+            Array.from(select.options).forEach(opt => {
+              const originalName = opt.getAttribute('data-name');
+              const englishName = serviceNamesEn[originalName] || originalName;
+              const price = parseFloat(opt.value);
+              opt.textContent = `${englishName} (${formatRupiah(price)})`;
+              opt.setAttribute('data-name', englishName);
+            });
+          }
         }
-      }
-    });
+      });
 
-    // Direct project registration helper
-    window.buatProjek = function (namaLayanan, harga) {
-      const url = `tambah-proyek.html?produk=${encodeURIComponent(namaLayanan)}&harga=${harga}`;
-      window.location.href = url;
-    };
+      // Direct project registration helper
+      window.buatProjek = function (namaLayanan, harga) {
+        const url = `tambah-proyek.html?produk=${encodeURIComponent(namaLayanan)}&harga=${harga}`;
+        window.location.href = url;
+      };
 
-    // Add item to calculator lists
-    window.tambahItemKalkulator = function () {
-      const select = document.getElementById('calcLayanan');
-      const selectedOption = select.options[select.selectedIndex];
-      const harga = parseFloat(selectedOption.value);
-      const nama = selectedOption.getAttribute('data-name');
-      const qty = parseInt(document.getElementById('calcQty').value) || 1;
+      // Add item to calculator lists
+      window.tambahItemKalkulator = function () {
+        const select = document.getElementById('calcLayanan');
+        const selectedOption = select.options[select.selectedIndex];
+        const harga = parseFloat(selectedOption.value);
+        const nama = selectedOption.getAttribute('data-name');
+        const qty = parseInt(document.getElementById('calcQty').value) || 1;
 
-      // Check if already in list
-      const existing = kalkulatorItems.find(item => item.nama === nama);
-      if (existing) {
-        existing.qty += qty;
-      } else {
-        kalkulatorItems.push({ nama, harga, qty });
-      }
+        // Check if already in list
+        const existing = kalkulatorItems.find(item => item.nama === nama);
+        if (existing) {
+          existing.qty += qty;
+        } else {
+          kalkulatorItems.push({ nama, harga, qty });
+        }
 
-      // Reset qty input to 1
-      document.getElementById('calcQty').value = 1;
+        // Reset qty input to 1
+        document.getElementById('calcQty').value = 1;
 
-      // render table
-      renderKalkulatorTable();
-    };
+        // render table
+        renderKalkulatorTable();
+      };
 
-    // Delete item from calculator
-    window.hapusItemKalkulator = function (namaItem) {
-      kalkulatorItems = kalkulatorItems.filter(item => item.nama !== namaItem);
-      renderKalkulatorTable();
-    };
+      // Delete item from calculator
+      window.hapusItemKalkulator = function (namaItem) {
+        kalkulatorItems = kalkulatorItems.filter(item => item.nama !== namaItem);
+        renderKalkulatorTable();
+      };
 
-    // Reset estimator calculator
-    window.resetKalkulator = function () {
-      kalkulatorItems = [];
-      renderKalkulatorTable();
-    };
+      // Reset estimator calculator
+      window.resetKalkulator = function () {
+        kalkulatorItems = [];
+        renderKalkulatorTable();
+      };
 
-    // Render estimator Table data
-    function renderKalkulatorTable() {
-      const tbody = document.getElementById('calcListBody');
-      const btnCreate = document.getElementById('btnCreateFromCalc');
-      tbody.innerHTML = '';
-      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+      // Render estimator Table data
+      function renderKalkulatorTable() {
+        const tbody = document.getElementById('calcListBody');
+        const btnCreate = document.getElementById('btnCreateFromCalc');
+        tbody.innerHTML = '';
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
-      if (kalkulatorItems.length === 0) {
-        tbody.innerHTML = `
+        if (kalkulatorItems.length === 0) {
+          tbody.innerHTML = `
           <tr>
             <td colspan="5" class="p-6 text-center text-zinc-400 italic">${isEn ? 'No items added to calculator yet.' : 'Belum ada item ditambahkan ke kalkulator.'}</td>
           </tr>
         `;
-        document.getElementById('calcUniqueItems').textContent = '0';
-        document.getElementById('calcTotalQty').textContent = '0';
-        document.getElementById('calcGrandTotal').textContent = 'Rp0';
-        btnCreate.disabled = true;
-        return;
-      }
+          document.getElementById('calcUniqueItems').textContent = '0';
+          document.getElementById('calcTotalQty').textContent = '0';
+          document.getElementById('calcGrandTotal').textContent = 'Rp0';
+          btnCreate.disabled = true;
+          return;
+        }
 
-      let grandTotal = 0;
-      let totalQty = 0;
+        let grandTotal = 0;
+        let totalQty = 0;
 
-      kalkulatorItems.forEach((item, index) => {
-        const subtotal = item.harga * item.qty;
-        grandTotal += subtotal;
-        totalQty += item.qty;
+        kalkulatorItems.forEach((item, index) => {
+          const subtotal = item.harga * item.qty;
+          grandTotal += subtotal;
+          totalQty += item.qty;
 
-        const row = document.createElement('tr');
-        row.className = 'border-b border-zinc-100 hover:bg-zinc-50/50';
-        row.innerHTML = `
+          const row = document.createElement('tr');
+          row.className = 'border-b border-zinc-100 hover:bg-zinc-50/50';
+          row.innerHTML = `
           <td class="p-3 font-semibold text-zinc-800">${item.nama}</td>
           <td class="p-3 text-center text-zinc-600">${formatRupiah(item.harga)}</td>
           <td class="p-3 text-center text-zinc-800 font-bold">${item.qty}</td>
@@ -1580,32 +1580,32 @@
             </button>
           </td>
         `;
-        tbody.appendChild(row);
-      });
+          tbody.appendChild(row);
+        });
 
-      // Update summaries
-      document.getElementById('calcUniqueItems').textContent = kalkulatorItems.length;
-      document.getElementById('calcTotalQty').textContent = totalQty;
-      document.getElementById('calcGrandTotal').textContent = formatRupiah(grandTotal);
-      btnCreate.disabled = false;
-    }
+        // Update summaries
+        document.getElementById('calcUniqueItems').textContent = kalkulatorItems.length;
+        document.getElementById('calcTotalQty').textContent = totalQty;
+        document.getElementById('calcGrandTotal').textContent = formatRupiah(grandTotal);
+        btnCreate.disabled = false;
+      }
 
-    // Redirect to tambah-proyek prefilled with total calculated sum
-    window.buatProjekDariKalkulator = function () {
-      if (kalkulatorItems.length === 0) return;
+      // Redirect to tambah-proyek prefilled with total calculated sum
+      window.buatProjekDariKalkulator = function () {
+        if (kalkulatorItems.length === 0) return;
 
-      let total = 0;
-      let names = [];
-      kalkulatorItems.forEach(item => {
-        total += item.harga * item.qty;
-        names.push(`${item.nama} (x${item.qty})`);
-      });
+        let total = 0;
+        let names = [];
+        kalkulatorItems.forEach(item => {
+          total += item.harga * item.qty;
+          names.push(`${item.nama} (x${item.qty})`);
+        });
 
-      const productName = `Paket: ${names.join(', ')}`;
-      const url = `tambah-proyek.html?produk=${encodeURIComponent(productName)}&harga=${total}`;
-      window.location.href = url;
-    };
-  </script>
+        const productName = `Paket: ${names.join(', ')}`;
+        const url = `tambah-proyek.html?produk=${encodeURIComponent(productName)}&harga=${total}`;
+        window.location.href = url;
+      };
+    </script>
 </body>
 
 </html>

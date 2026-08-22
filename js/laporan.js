@@ -12,9 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const printDateEl = document.getElementById('printDate');
   if (printDateEl) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
     const localeCode = isEn ? 'en-US' : 'id-ID';
-    printDateEl.textContent = new Date().toLocaleDateString(localeCode, options);
+    const formatter = new Intl.DateTimeFormat(localeCode, options);
+    printDateEl.textContent = formatter.format(new Date());
   }
 
   // Load Laporan Data

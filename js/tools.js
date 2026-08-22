@@ -154,10 +154,10 @@ function renderTools(query = '') {
     el.innerHTML = `
       <div class="flex-1 w-full min-w-0">
         <div class="flex items-center justify-between flex-wrap gap-2 mb-1">
-          <h4 class="font-normal text-zinc-900 dark:text-zinc-100 text-lg truncate">${tool.title}</h4>
-          <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">${tool.userId || 'USR-001'}</span>
+          <h4 class="font-normal text-zinc-900 dark:text-zinc-100 text-lg truncate">${escapeHtml(tool.title)}</h4>
+          <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">${escapeHtml(tool.userId || 'USR-001')}</span>
         </div>
-        <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-2">${tool.prompt}</div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-2">${escapeHtml(tool.prompt)}</div>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0 justify-end shrink-0">
         <button onclick="copyPrompt('${tool.id}', 'id')" class="flex-1 md:flex-none px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 font-normal rounded-xl transition-colors flex items-center justify-center space-x-1 text-base" title="Salin Prompt (ID)">
@@ -924,7 +924,7 @@ function updateWmCanvas() {
   ctx.drawImage(currentWmImage, 0, 0, imgW, imgH);
 
   // Read controls
-  const wmText = document.getElementById('wmText').value || 'Watermark';
+  const wmText = document.getElementById('wmText').value || 'Premium Desain';
   const position = document.getElementById('wmPosition').value;
   const colorName = document.getElementById('wmColor').value;
   const opacity = parseFloat(document.getElementById('wmOpacity').value) / 100;
@@ -1302,54 +1302,42 @@ async function _generateWithGeminiVisionAPI(apiKey, brandName, industry, tone, l
   const base64Data  = tempCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
 
   const lengthMap = {
-    short:    'Mode Singkat: tulis sekitar 100 kata. Satu paragraf padat.',
-    medium:   'Mode Sedang: tulis sekitar 200 kata. Dua hingga tiga paragraf mengalir.',
-    long:     'Mode Panjang: tulis sekitar 350 kata. Analisis mendalam dengan beberapa paragraf.',
-    verylong: 'Mode Sangat Detail: tulis 600 kata atau lebih. Uraikan setiap elemen secara komprehensif.'
+    short:    'Tulis sekitar 100 kata dalam satu hingga dua paragraf padat.',
+    medium:   'Tulis sekitar 200 kata dalam dua hingga tiga paragraf yang mengalir.',
+    long:     'Tulis sekitar 350 kata dalam beberapa paragraf mendalam.',
+    verylong: 'Tulis 600 kata atau lebih. Uraikan setiap elemen secara komprehensif dan mendetail.'
   };
   const lengthInstruction = lengthMap[length] || lengthMap.medium;
-  const catatanSection = catatan ? `\nCatatan dari klien: "${catatan}"` : '';
+  const catatanSection = catatan ? `\nCatatan tambahan dari klien: "${catatan}"` : '';
 
-  const promptText = `
-Kamu adalah seorang Senior Brand Strategist, Logo Analyst, dan Creative Director dengan pengalaman lebih dari 20 tahun di bidang branding, identitas visual, psikologi warna, semiotika desain, dan strategi merek.
+  const promptText = `Kamu adalah seorang konsultan branding senior yang sedang presentasi kepada klien. Klien baru saja menunjukkan logo mereka dan meminta kamu menjelaskan makna serta filosofi di balik desain visual logo tersebut.
 
-Tugasmu bukan hanya mendeskripsikan logo, tetapi menganalisis makna visual secara mendalam layaknya seorang konsultan branding profesional.
+Konteks:
+- Bidang usaha: ${industry}${catatanSection}
 
-INPUT:
-- Bidang Usaha: ${industry}
-- Nama Brand: ${brandName || 'tidak disebutkan'}${catatanSection}
+Tugas utamamu:
+LIHAT BAIK-BAIK gambar logo yang diberikan. Deskripsikan secara SPESIFIK dan AKURAT apa yang benar-benar terlihat pada logo — bentuk konkret, objek, simbol, huruf, ikon, garis, dan elemen visual lainnya. Jangan mengarang elemen yang tidak ada.
 
-ANALISIS:
-Amati logo yang diberikan dan analisis seluruh aspek berikut dengan mendalam:
-1. Bentuk utama logo: jelaskan bentuk, simbol, ikon, atau elemen visual yang terlihat dan makna psikologisnya.
-2. Warna: identifikasi semua warna yang ada, jelaskan psikologi warna, emosi, kesan, dan relevansinya dengan bidang usaha.
-3. Tipografi: jika ada teks/tulisan, jelaskan karakter font dan kesan yang dibangunnya (modern, elegan, friendly, dll).
-4. Komposisi: jelaskan keseimbangan visual, fokus utama, dan proporsi elemen.
-5. Kesesuaian dengan bidang usaha: hubungkan elemen visual dengan nilai-nilai yang relevan dengan ${industry}.
-6. Nilai brand: hubungkan dengan kepercayaan, inovasi, profesionalisme, kualitas, dan pelayanan.
-7. Makna keseluruhan: buat kesimpulan yang kuat dan menginspirasi.
+Setelah mendeskripsikan elemen visual, jelaskan:
+- Makna dan filosofi di balik setiap elemen yang terlihat
+- Warna-warna yang digunakan beserta psikologi dan emosi yang dipancarkan
+- Jika ada tipografi/teks, jelaskan karakter dan kesan dari font yang dipilih
+- Bagaimana keseluruhan desain ini merepresentasikan nilai dan karakter brand di bidang ${industry}
 
-GAYA PENULISAN:
-- Natural, elegan, dan profesional.
-- Tulis dalam paragraf mengalir, JANGAN menggunakan poin atau bullet.
-- Tidak terdengar seperti robot atau template.
-- Jangan menggunakan kata: "Mungkin", "Kemungkinan", "Sepertinya", "Tampaknya", "Asumsi".
-- Fokus pada analisis desain, jangan mengarang sejarah atau visi perusahaan.
-- DILARANG MENGGUNAKAN EMOJI.
+ATURAN PENULISAN WAJIB:
+1. Tulis sebagai narasi esai yang mengalir natural — seperti sedang berbicara langsung kepada klien dalam meeting
+2. DILARANG menggunakan heading, judul section, sub-judul, format "###", atau pembagian bagian apapun. Tulis sebagai paragraf-paragraf yang saling terhubung
+3. DILARANG menggunakan bullet point, daftar bernomor, atau format list apapun
+4. DILARANG menggunakan emoji
+5. DILARANG menggunakan kata: "mungkin", "kemungkinan", "sepertinya", "tampaknya", "bisa jadi", "asumsi"
+6. DILARANG mengarang sejarah perusahaan, visi misi, atau fakta yang tidak terlihat dari gambar
+7. Setiap analisis harus UNIK berdasarkan apa yang benar-benar terlihat — bukan template generik yang bisa dipakai untuk logo manapun
+8. Gunakan bahasa Indonesia yang elegan, profesional, dan meyakinkan
+9. Variasikan pembuka paragraf — jangan selalu memulai dengan pola yang sama
 
-PANJANG OUTPUT: ${lengthInstruction}
+Panjang: ${lengthInstruction}
 
-FORMAT OUTPUT:
-
-### Filosofi & Identitas Visual
-(Analisis bentuk, simbol, elemen visual, warna, tipografi, dan komposisi dalam paragraf mengalir)
-
-### Makna & Relevansi Brand
-(Hubungkan elemen visual dengan bidang usaha dan nilai brand dalam paragraf mengalir)
-
-### Esensi & Karakter Merek
-(Kesimpulan kuat tentang karakter, positioning, dan kesan yang dibangun logo ini)
-`;
+Langsung tulis narasi filosofinya tanpa pembuka seperti "Berikut analisis..." atau "Tentu, mari kita bahas...". Mulai langsung dengan deskripsi elemen visual logo.`;
 
   let modelsToTry = [
     'gemini-3.0-flash',
@@ -1376,7 +1364,12 @@ FORMAT OUTPUT:
               { text: promptText },
               { inline_data: { mime_type: "image/jpeg", data: base64Data } }
             ]
-          }]
+          }],
+          generationConfig: {
+            temperature: 0.95,
+            topP: 0.95,
+            topK: 40
+          }
         })
       });
 
@@ -1394,211 +1387,182 @@ FORMAT OUTPUT:
 }
 
 /**
- * Smart Color & Industry Pattern Local Philosophy Generator (Offline / Smart Fallback)
+ * Smart Local Philosophy Generator (Offline Fallback)
+ * Uses canvas pixel analysis + varied sentence construction
  */
 function _generateLocalSmartPhilosophy(brandName, industryKey, toneKey, lengthKey, imgObj) {
-  const details = _extractLogoImageDetails(imgObj, industryKey);
+  const colorAnalysis = _analyzeLogoColors(imgObj);
+  const shapeAnalysis = _analyzeLogoShape(imgObj);
 
-  const industryDict = {
-    fnb: { name: 'Kuliner & Minuman (F&B)', vibe: 'kehangatan, cita rasa lezat, dan kebersamaan', vision: 'menyajikan pengalaman rasa terbaik yang mempererat silaturahmi sesama' },
-    snack: { name: 'Makanan Ringan & Bakery', vibe: 'kelezatan camilan berkualitas, keceriaan santai, dan kehangatan', vision: 'menghadirkan kelezatan camilan di setiap momen kebahagiaan' },
-    coffee: { name: 'Kedai Kopi & Coffee Shop', vibe: 'aroma khas seduhan kopi, ketenangan ruang kumpul, dan inspirasi', vision: 'menjadi tempat singgah favorit yang menyajikan kopi nikmat bertaraf tinggi' },
-    tech: { name: 'Teknologi & Digital Startup', vibe: 'inovasi masa depan, efisiensi cerdas, dan konektivitas modern', vision: 'menciptakan solusi pintar berteknologi tinggi yang mempermudah kehidupan' },
-    software: { name: 'Software & Aplikasi', vibe: 'presisi kode, fungsionalitas cerdas, dan keandalan sistem', vision: 'menghadirkan perangkat lunak yang andal, aman, dan siap tumbuh' },
-    fashion: { name: 'Fashion & Apparel', vibe: 'gaya hidup berkelas, ekspresi diri, dan estetika memikat', vision: 'menghadirkan identitas gaya yang memancarkan rasa percaya diri' },
-    hijab: { name: 'Hijab & Busana Muslim', vibe: 'keanggunan syari, kesopanan, dan kelembutan bahan', vision: 'menghadirkan busana muslimah yang anggun, nyaman, dan bernilai luhur' },
-    beauty: { name: 'Kecantikan & Skincare', vibe: 'kemurnian, kesegaran alami, dan keindahan terpancar', vision: 'merawat keindahan alami dan memberikan kenyamanan sejati' },
-    salon: { name: 'Barbershop & Spa', vibe: 'kesegaran penampilan, relaksasi raga, dan perawatan berkelas', vision: 'memberikan transformasi gaya dan kesegaran raga secara maksimal' },
-    property: { name: 'Properti & Kontraktor', vibe: 'kekuatan struktur, kenyamanan hunian, dan jaminan investasi', vision: 'membangun ruang hunian yang kokoh, nyaman, dan berwibawa' },
-    architecture: { name: 'Arsitektur & Desain Interior', vibe: 'keharmonisan bentuk, tata ruang presisi, dan estetika', vision: 'merancang karya arsitektural yang fungsional dan bernilai seni tinggi' },
-    automotive: { name: 'Otomotif & Bengkel', vibe: 'kecepatan performa, keandalan mesin, dan ketegasan karakter', vision: 'menjadi jaminan keamanan dan kenyamanan berkendara di setiap perjalanan' },
-    creative: { name: 'Studio Kreatif & Desain', vibe: 'imajinasi tanpa batas, visualisasi memukau, dan keunikan seni', vision: 'mengubah ide abstrak menjadi karya visual yang menginspirasi' },
-    media: { name: 'Media & Production House', vibe: 'narasi mendalam, sinematografi memikat, dan jangkauan pesan', vision: 'menyajikan konten audio-visual berkualitas tinggi yang mengedukasi' },
-    finance: { name: 'Keuangan & Fintech', vibe: 'kepercayaan mutlak, transparansi transaksi, dan pertumbuhan aset', vision: 'menjadi mitra terpercaya dalam mengelola potensi keuangan' },
-    consultant: { name: 'Konsultan Bisnis & Hukum', vibe: 'kebijaksanaan strategi, kepastian hukum, dan pemikiran solutif', vision: 'memberikan panduan navigasi bisnis yang tepat sasaran' },
-    health: { name: 'Kesehatan & Klinik', vibe: 'kepedulian tulus, pemulihan vitalitas, dan higienitas medis', vision: 'memberikan layanan kesehatan terbaik dengan dedikasi penuh' },
-    sports: { name: 'Olahraga & E-Sports', vibe: 'daya tahan stamina, kompetisi sportif, dan pencapaian juara', vision: 'membangun semangat pantang menyerah dalam setiap tantangan' },
-    agri: { name: 'Pertanian & Agribisnis', vibe: 'kesuburan bumi, hasil alam murni, dan keberlanjutan pangan', vision: 'mengembangkan potensi hasil bumi yang menyejahterakan' },
-    logistics: { name: 'Logistik & Ekspedisi', vibe: 'ketepatan waktu pengiriman, jangkauan luas, dan ketertiban', vision: 'menghubungkan setiap sudut tujuan secara aman meyakinkan' },
-    education: { name: 'Pendidikan & Kursus', vibe: 'penerangan wawasan, keahlian masa depan, dan kecerdasan', vision: 'membuka gerbang pengetahuan dan mencetak generasi unggul' },
-    event: { name: 'Event Organizer & Wedding', vibe: 'momen berkesan, koordinasi sempurna, dan kemeriahan suasana', vision: 'merancang perayaan impian yang tak terlupakan dan penuh kenangan' },
-    community: { name: 'Komunitas & Yayasan', vibe: 'kebersamaan solidaritas, kepedulian sosial, dan dampak nyata', vision: 'menjadi wadah kolaborasi positif yang membawa perubahan' },
-    retail: { name: 'UMKM & Toko Online', vibe: 'kemudahan belanja, kualitas terjamin, dan pelayanan ramah', vision: 'menyediakan produk-produk pilihan yang memenuhi kebutuhan konsumen' },
-    general: { name: 'Bisnis & Jasa Profesional', vibe: 'integritas tinggi, kualitas utama, dan komitmen pelayanan', vision: 'menghadirkan standar keunggulan yang konsisten dan berkelanjutan' }
+  const industryNames = {
+    fnb: 'kuliner dan food & beverage', snack: 'makanan ringan dan bakery',
+    coffee: 'kedai kopi', tech: 'teknologi dan digital', software: 'software dan aplikasi',
+    fashion: 'fashion dan apparel', hijab: 'hijab dan busana muslim',
+    beauty: 'kecantikan dan skincare', salon: 'barbershop dan spa',
+    property: 'properti dan kontraktor', architecture: 'arsitektur dan desain interior',
+    automotive: 'otomotif', creative: 'studio kreatif dan desain',
+    media: 'media dan production house', finance: 'keuangan dan fintech',
+    consultant: 'konsultan bisnis', health: 'kesehatan dan klinik',
+    sports: 'olahraga', agri: 'pertanian dan agribisnis',
+    logistics: 'logistik dan ekspedisi', education: 'pendidikan dan edukasi',
+    event: 'event organizer', community: 'komunitas dan yayasan',
+    retail: 'UMKM dan retail', general: 'bisnis profesional'
   };
+  const indName = industryNames[industryKey] || industryKey || 'bisnis profesional';
 
-  const ind = industryDict[industryKey] || { name: industryKey || 'Bisnis & Jasa Profesional', vibe: 'integritas tinggi dan kualitas utama', vision: 'menghadirkan pelayanan terbaik' };
+  // Build varied paragraphs based on actual detected colors and shape
+  const openers = [
+    `Identitas visual logo ini dibangun di atas ${shapeAnalysis.desc}`,
+    `Pada pandangan pertama, logo ini memperlihatkan ${shapeAnalysis.desc}`,
+    `Desain logo ini menampilkan ${shapeAnalysis.desc}`,
+    `Karakter visual yang ditampilkan logo ini berupa ${shapeAnalysis.desc}`
+  ];
+  const opener = openers[Math.floor(Math.random() * openers.length)];
 
-  const mainParagraph = `Logo ini menggambarkan bentuk ${details.shapeDesc} dengan perpaduan warna ${details.colorDesc} yang memiliki arti ${details.meaningDesc}. Kehadiran elemen visual ini sangat selaras dengan usaha ${ind.name}, memberikan kesan ${ind.vibe} yang siap membangun rasa percaya bagi siapapun yang melihatnya.`;
+  const colorSentences = [
+    `Pemilihan warna ${colorAnalysis.primary} sebagai warna dominan memberikan nuansa ${colorAnalysis.primaryMeaning}, sementara kehadiran ${colorAnalysis.secondary} sebagai aksen menciptakan ${colorAnalysis.secondaryMeaning}.`,
+    `Dominasi warna ${colorAnalysis.primary} pada logo ini memancarkan ${colorAnalysis.primaryMeaning}. Aksen ${colorAnalysis.secondary} yang menyertainya turut memperkuat kesan ${colorAnalysis.secondaryMeaning}.`,
+    `Warna ${colorAnalysis.primary} yang mendominasi logo membawa pesan ${colorAnalysis.primaryMeaning}, dilengkapi sentuhan ${colorAnalysis.secondary} yang menghadirkan ${colorAnalysis.secondaryMeaning}.`
+  ];
+  const colorSentence = colorSentences[Math.floor(Math.random() * colorSentences.length)];
 
-  const visionParagraph = `Perpaduan simbol dan nuansa warna tersebut menegaskan identitas usaha sebagai brand yang profesional, berkarakter, serta berdedikasi penuh untuk ${ind.vision}.`;
+  const closers = [
+    `Secara keseluruhan, kombinasi elemen visual dan warna pada logo ini membangun identitas yang kuat dan relevan untuk bidang ${indName}. Desain ini mengkomunikasikan profesionalisme sekaligus karakter yang mudah diingat oleh audiens.`,
+    `Perpaduan komposisi dan palet warna tersebut membentuk identitas visual yang tepat untuk brand di bidang ${indName}. Logo ini berhasil menyampaikan kesan profesional dan berkarakter secara bersamaan.`,
+    `Keseluruhan elemen desain ini bekerja secara harmonis untuk merepresentasikan brand di bidang ${indName}. Identitas visual yang terbangun menunjukkan brand yang matang, konsisten, dan siap bersaing.`
+  ];
+  const closer = closers[Math.floor(Math.random() * closers.length)];
 
-  return `### Filosofi & Makna Logo
-${mainParagraph}
+  // Compose based on length
+  let paragraphs;
+  if (lengthKey === 'short') {
+    paragraphs = `${opener}. ${colorSentence}`;
+  } else if (lengthKey === 'verylong') {
+    const extraDetail = `Proporsi ${shapeAnalysis.proportionDesc} menunjukkan perhatian terhadap keseimbangan estetika. Setiap elemen ditempatkan dengan pertimbangan yang menunjukkan pemahaman mendalam terhadap prinsip desain. Dalam konteks bidang ${indName}, pendekatan visual seperti ini sangat efektif untuk membangun kesan pertama yang kuat dan profesional di mata calon klien maupun mitra bisnis.`;
+    paragraphs = `${opener}. ${colorSentence}\n\n${extraDetail}\n\n${closer}`;
+  } else {
+    paragraphs = `${opener}. ${colorSentence}\n\n${closer}`;
+  }
 
----
-
-### Esensi & Visi Brand
-${visionParagraph}`;
+  return paragraphs;
 }
 
-function _extractLogoImageDetails(imgObj, industryKey) {
-  const defaultObjectHints = {
-    fnb: 'lambang kehangatan sajian dan resep warisan',
-    coffee: 'lambang cangkir seduhan kopi hangat',
-    snack: 'lambang camilan lezat dan kebahagiaan rasa',
-    tech: 'lambang sirkuit digital dan konektivitas cerdas',
-    software: 'lambang inisial presisi dan modul terintegrasi',
-    fashion: 'lambang lekukan gaya estetis dan keanggunan',
-    hijab: 'lambang lekukan pita keanggunan syari',
-    beauty: 'lambang helai daun alami dan kemurnian',
-    salon: 'lambang mahkota gaya dan kesegaran raga',
-    property: 'lambang hunian kokoh dan pilar investasi',
-    architecture: 'lambang tata ruang presisi dan keharmonisan bentuk',
-    automotive: 'lambang garis dinamis dan kecepatan performa',
-    health: 'lambang perisai kepedulian tulus dan kesehatan',
-    sports: 'lambang mahkota juara dan daya tahan stamina',
-    agri: 'lambang tunas tanaman murni dan kesuburan bumi',
-    logistics: 'lambang panah pengiriman dan jangkauan luas',
-    education: 'lambang buku penerangan wawasan dan simbol ilmu',
-    general: 'lambang ikonik berimbang yang berwibawa'
+function _analyzeLogoColors(imgObj) {
+  const defaultResult = {
+    primary: 'biru', primaryMeaning: 'kepercayaan dan stabilitas',
+    secondary: 'putih', secondaryMeaning: 'kesederhanaan dan kejernihan'
   };
-
-  const defaultHint = defaultObjectHints[industryKey] || 'lambang simbol visual yang berimbang';
-
-  if (!imgObj) {
-    return {
-      shapeDesc: defaultHint,
-      colorDesc: 'warna biru utama dan aksen putih bersih',
-      meaningDesc: 'keseimbangan, integritas, dan profesionalitas brand',
-    };
-  }
+  if (!imgObj) return defaultResult;
 
   try {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const w = imgObj.width || 100;
-    const h = imgObj.height || 100;
-
-    canvas.width = 60;
-    canvas.height = 60;
+    canvas.width = 60; canvas.height = 60;
     ctx.drawImage(imgObj, 0, 0, 60, 60);
+    const data = ctx.getImageData(0, 0, 60, 60).data;
 
-    const imgData = ctx.getImageData(0, 0, 60, 60).data;
+    const counts = { dark: 0, white: 0, red: 0, green: 0, blue: 0, gold: 0, orange: 0, purple: 0, pink: 0, teal: 0, brown: 0 };
+    let total = 0;
 
-    let totalPixels = 0;
-    let nonTransparent = 0;
-    let colorCounts = { dark: 0, white: 0, red: 0, green: 0, blue: 0, gold: 0, orange: 0, purple: 0 };
-
-    for (let i = 0; i < imgData.length; i += 4) {
-      const r = imgData[i];
-      const g = imgData[i + 1];
-      const b = imgData[i + 2];
-      const a = imgData[i + 3];
-
-      totalPixels++;
-      if (a > 30) {
-        nonTransparent++;
-
-        if (r < 50 && g < 50 && b < 50) colorCounts.dark++;
-        else if (r > 200 && g > 200 && b > 200) colorCounts.white++;
-        else if (r > g + 35 && r > b + 35) colorCounts.red++;
-        else if (g > r + 25 && g > b + 25) colorCounts.green++;
-        else if (b > r + 25 && b > g + 25) colorCounts.blue++;
-        else if (r > 150 && g > 120 && b < 100) colorCounts.gold++;
-        else if (r > 150 && g > 70 && b < 70) colorCounts.orange++;
-        else if (r > 110 && b > 110 && g < 90) colorCounts.purple++;
-      }
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] < 30) continue;
+      const r = data[i], g = data[i+1], b = data[i+2];
+      total++;
+      if (r < 50 && g < 50 && b < 50) counts.dark++;
+      else if (r > 200 && g > 200 && b > 200) counts.white++;
+      else if (r > 180 && g < 100 && b > 130) counts.pink++;
+      else if (r > g + 40 && r > b + 40) counts.red++;
+      else if (g > r + 25 && g > b + 25 && b > 100) counts.teal++;
+      else if (g > r + 25 && g > b + 25) counts.green++;
+      else if (b > r + 25 && b > g + 25) counts.blue++;
+      else if (r > 150 && g > 120 && b < 100) counts.gold++;
+      else if (r > 140 && g > 70 && g < 110 && b < 70) counts.orange++;
+      else if (r > 100 && g < 70 && b < 70) counts.brown++;
+      else if (r > 110 && b > 110 && g < 90) counts.purple++;
     }
 
-    const fillRatio = nonTransparent / totalPixels;
-    const ratio = w / h;
+    if (total === 0) return defaultResult;
 
-    let shapeDesc = '';
-    let meaningDesc = '';
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).filter(e => e[1] > 0);
+    if (sorted.length === 0) return defaultResult;
 
-    if (ratio > 1.4) {
-      shapeDesc = 'lambang monogram ikonik yang elegan';
-      meaningDesc = 'keluwesan, kemudahan mengenali identitas brand, serta konektivitas yang luas';
-    } else if (ratio < 0.7) {
-      shapeDesc = 'lambang simbolik vertikal yang berwibawa';
-      meaningDesc = 'ketegasan, pondasi usaha yang kokoh, dan nilai wibawa tinggi';
-    } else if (fillRatio < 0.25) {
-      shapeDesc = 'lukisan garis minimalis yang modern dan bersih';
-      meaningDesc = 'kejernihan ide, keanggunan, dan efisiensi masa depan';
-    } else {
-      shapeDesc = defaultHint;
-      meaningDesc = 'keharmonisan, profesionalisme, dan komitmen keunggulan yang konsisten';
-    }
-
-    const sortedColors = Object.keys(colorCounts).sort((a, b) => colorCounts[b] - colorCounts[a]);
-    const colorNames = {
-      blue: 'biru yang menenangkan',
-      red: 'merah bergelora dan berani',
-      green: 'hijau alami yang segar',
-      gold: 'kuning keemasan yang hangat dan bernilai',
-      purple: 'ungu yang elegan dan mewah',
-      dark: 'hitam solid yang berwibawa dan kuat',
-      orange: 'oranye yang penuh energi dan optimisme',
-      white: 'putih murni'
+    const colorInfo = {
+      dark:   { name: 'hitam', meaning: 'kewibawaan, kekuatan, dan eksklusivitas' },
+      white:  { name: 'putih', meaning: 'kemurnian, kesederhanaan, dan keterbukaan' },
+      red:    { name: 'merah', meaning: 'keberanian, semangat, dan energi tinggi' },
+      green:  { name: 'hijau', meaning: 'pertumbuhan, kesegaran, dan keseimbangan alam' },
+      blue:   { name: 'biru', meaning: 'kepercayaan, ketenangan, dan profesionalisme' },
+      gold:   { name: 'emas', meaning: 'kemewahan, kehangatan, dan nilai premium' },
+      orange: { name: 'oranye', meaning: 'kreativitas, optimisme, dan antusiasme' },
+      purple: { name: 'ungu', meaning: 'keanggunan, kreativitas, dan kesan mewah' },
+      pink:   { name: 'pink', meaning: 'kelembutan, keramahan, dan sentuhan feminin' },
+      teal:   { name: 'teal', meaning: 'keseimbangan modern, kesegaran, dan keunikan' },
+      brown:  { name: 'cokelat', meaning: 'kehangatan, kestabilan, dan nuansa natural' }
     };
 
-    const c1 = colorNames[sortedColors[0]] || 'biru yang menenangkan';
-    const c2 = colorNames[sortedColors[1]] || 'putih murni';
-
-    const colorDesc = `${c1} dipadukan dengan aksen ${c2}`;
+    const pri = colorInfo[sorted[0][0]] || colorInfo.blue;
+    const sec = sorted.length > 1 ? (colorInfo[sorted[1][0]] || colorInfo.white) : colorInfo.white;
 
     return {
-      shapeDesc,
-      colorDesc,
-      meaningDesc
+      primary: pri.name, primaryMeaning: pri.meaning,
+      secondary: sec.name, secondaryMeaning: sec.meaning
     };
   } catch (e) {
-    return {
-      shapeDesc: defaultHint,
-      colorDesc: 'warna hangat yang harmonis',
-      meaningDesc: 'keharmonisan dan profesionalitas brand'
-    };
+    return defaultResult;
   }
 }
 
-/**
- * Extract main color theme from image using canvas
- */
-function _extractDominantColorCategory(imgObj) {
-  if (!imgObj) return 'blue';
+function _analyzeLogoShape(imgObj) {
+  const defaultShape = {
+    desc: 'komposisi visual yang seimbang dan terstruktur',
+    proportionDesc: 'yang seimbang antara elemen-elemen desain'
+  };
+  if (!imgObj) return defaultShape;
+
   try {
+    const w = imgObj.width || 100, h = imgObj.height || 100;
+    const ratio = w / h;
+
     const canvas = document.createElement('canvas');
-    const ctx    = canvas.getContext('2d');
-    canvas.width  = 40;
-    canvas.height = 40;
-    ctx.drawImage(imgObj, 0, 0, 40, 40);
-    const data   = ctx.getImageData(0, 0, 40, 40).data;
+    const ctx = canvas.getContext('2d');
+    canvas.width = 60; canvas.height = 60;
+    ctx.drawImage(imgObj, 0, 0, 60, 60);
+    const data = ctx.getImageData(0, 0, 60, 60).data;
 
-    let rSum = 0, gSum = 0, bSum = 0, count = 0;
-    for (let i = 0; i < data.length; i += 16) {
-      const alpha = data[i + 3];
-      if (alpha > 50) {
-        rSum += data[i];
-        gSum += data[i + 1];
-        bSum += data[i + 2];
-        count++;
-      }
+    let filled = 0, total = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      total++;
+      if (data[i + 3] > 30) filled++;
     }
-    if (count === 0) return 'blue';
-    const r = rSum / count, g = gSum / count, b = bSum / count;
+    const fillRatio = filled / total;
 
-    if (r < 50 && g < 50 && b < 50) return 'dark';
-    if (r > 200 && g > 200 && b > 200) return 'white';
-    if (r > g + 40 && r > b + 40) return 'red';
-    if (g > r + 30 && g > b + 30) return 'green';
-    if (b > r + 30 && b > g + 30) return 'blue';
-    if (r > 160 && g > 130 && b < 100) return 'gold';
-    if (r > 160 && g > 70 && b < 70) return 'orange';
-    if (r > 120 && b > 120 && g < 100) return 'purple';
-    return 'blue';
+    let desc, proportionDesc;
+    if (ratio > 1.6) {
+      desc = 'bentuk horizontal yang melebar, memberikan kesan terbuka dan luas';
+      proportionDesc = 'horizontal yang lebar';
+    } else if (ratio > 1.2) {
+      desc = 'komposisi landscape dengan keseimbangan yang dinamis';
+      proportionDesc = 'landscape yang proporsional';
+    } else if (ratio < 0.6) {
+      desc = 'orientasi vertikal yang tegak, memancarkan kesan kokoh dan berwibawa';
+      proportionDesc = 'vertikal yang tegak';
+    } else if (ratio < 0.85) {
+      desc = 'format portrait dengan proporsi yang memberikan kesan kuat dan stabil';
+      proportionDesc = 'portrait yang solid';
+    } else if (fillRatio < 0.2) {
+      desc = 'garis-garis tipis dan ruang kosong yang luas, menciptakan kesan minimalis dan modern';
+      proportionDesc = 'minimalis dengan banyak ruang bernafas';
+    } else if (fillRatio > 0.7) {
+      desc = 'bentuk solid dan padat yang menunjukkan karakter tegas dan kuat';
+      proportionDesc = 'padat dan solid';
+    } else {
+      desc = 'komposisi visual yang seimbang dengan distribusi elemen yang proporsional';
+      proportionDesc = 'yang seimbang antara elemen dan ruang kosong';
+    }
+
+    return { desc, proportionDesc };
   } catch (e) {
-    return 'blue';
+    return defaultShape;
   }
 }
 
@@ -1612,16 +1576,16 @@ function _renderPhilosophyResult(mdText, brandName) {
   if (dlBtn)   dlBtn.disabled   = false;
 
   if (box) {
-    // Simple markdown to HTML formatter with text-xl/text-2xl headers & text-base body (no bold font)
+    // Convert markdown to flowing HTML prose — supports headings if present but doesn't require them
     let html = mdText
-      .replace(/^### (.*$)/gim, '<h4 class="text-xl md:text-2xl font-normal text-indigo-600 dark:text-indigo-400 mt-4 mb-2 flex items-center gap-2">$1</h4>')
-      .replace(/^---\s*$/gim, '<hr class="border-zinc-200 dark:border-zinc-800 my-3"/>')
-      .replace(/\*\*(.*?)\*\*/g, '<span class="font-normal text-zinc-900 dark:text-zinc-100">$1</span>')
-      .replace(/\*(.*?)\*/g, '<em class="italic font-normal">$1</em>')
-      .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc text-zinc-700 dark:text-zinc-300 my-1 text-base font-normal">$1</li>')
-      .replace(/\n\n/g, '</p><p class="my-2 leading-relaxed text-base font-normal text-zinc-700 dark:text-zinc-300">');
+      .replace(/^### (.*$)/gim, '<h4 class="text-lg md:text-xl font-semibold text-indigo-600 dark:text-indigo-400 mt-5 mb-2">$1</h4>')
+      .replace(/^## (.*$)/gim, '<h3 class="text-xl md:text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mt-5 mb-2">$1</h3>')
+      .replace(/^---\s*$/gim, '<hr class="border-zinc-200 dark:border-zinc-800 my-4"/>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-zinc-900 dark:text-zinc-100">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+      .replace(/\n\n/g, '</p><p class="my-3 leading-relaxed text-[15px] text-zinc-700 dark:text-zinc-300">');
 
-    box.innerHTML = `<div class="prose dark:prose-invert max-w-none text-base font-normal font-sans text-zinc-800 dark:text-zinc-100"><p class="my-2 leading-relaxed text-base font-normal">${html}</p></div>`;
+    box.innerHTML = `<div class="prose dark:prose-invert max-w-none font-sans text-zinc-800 dark:text-zinc-100"><p class="my-3 leading-relaxed text-[15px] text-zinc-700 dark:text-zinc-300">${html}</p></div>`;
   }
 }
 
@@ -1911,7 +1875,7 @@ function resetPbAll() {
   if (enableWm) enableWm.checked = false;
   
   const wmText = document.getElementById('pbWmText');
-  if (wmText) wmText.value = 'FPManager - Confidential';
+  if (wmText) wmText.value = 'Premium Desain';
   
   const wmPicker = document.getElementById('pbWmColorPicker');
   if (wmPicker) wmPicker.value = '#ffffff';
@@ -2159,7 +2123,7 @@ function updatePbCanvas() {
   // Apply Watermark if enabled (on top of final resized canvas)
   const enableWmCheckbox = document.getElementById('pbEnableWm');
   if (enableWmCheckbox && enableWmCheckbox.checked) {
-    const wmText = document.getElementById('pbWmText').value || 'Watermark';
+    const wmText = document.getElementById('pbWmText').value || 'Premium Desain';
     const position = document.getElementById('pbWmPosition').value;
     const opacity = pbParams.WmOpacity / 100;
     const fontSize = pbParams.WmSize;

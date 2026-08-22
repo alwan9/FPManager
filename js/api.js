@@ -1,3 +1,20 @@
+// Safely handle JSON parsing issues (e.g. offline, timeout, non-JSON response crash prevention)
+(function() {
+  const originalJson = Response.prototype.json;
+  Response.prototype.json = async function() {
+    if (!this.ok) {
+      throw new Error(`HTTP Error: ${this.status} ${this.statusText}`);
+    }
+    const contentType = this.headers.get("content-type");
+    if (!contentType || !contentType.toLowerCase().includes("application/json")) {
+      const textVal = await this.text();
+      console.error("Non-JSON Response received:", textVal);
+      throw new Error("Format respon server tidak valid (Bukan JSON).");
+    }
+    return originalJson.apply(this);
+  };
+})();
+
 // Helper HTML Escaper for XSS Prevention
 const escapeHtml = (str) => {
   if (!str) return '';
@@ -266,6 +283,43 @@ const API = {
   addProyek: async (proyekData) => {
     APICache.clear();
     const currUser = API.getCurrentUser();
+
+    // Check if offline
+    if (!navigator.onLine) {
+      const offlineId = "OFFLINE-PRJ-" + Date.now();
+      const localProyek = {
+        iDProyek: offlineId,
+        tanggal: new Date().toISOString().split('T')[0],
+        namaProyek: proyekData.namaProyek || "",
+        namaPelanggan: proyekData.pelanggan || "",
+        nomorWA: proyekData.wa || "",
+        produk: proyekData.produk || "",
+        jumlah: Number(proyekData.jumlah) || 1,
+        satuan: proyekData.satuan || "pcs",
+        hargaSatuan: Number(proyekData.hargaSatuan) || 0,
+        nominalProyek: Number(proyekData.nominal) || 0,
+        dP: Number(proyekData.dp) || 0,
+        sisaPembayaran: Number(proyekData.sisa) || 0,
+        deadline: proyekData.deadline || "",
+        status: proyekData.status || "Menunggu",
+        catatan: proyekData.catatan || "",
+        gdriveLink: proyekData.gdriveLink || "",
+        userId: currUser ? currUser.id : "USR-001",
+        lastUpdated: Date.now(),
+        isOfflineCreated: true
+      };
+
+      await FPManagerDB.saveOne('proyek', localProyek);
+      await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData });
+
+      return {
+        success: true,
+        isOffline: true,
+        message: "Projek disimpan secara lokal karena koneksi luring.",
+        idProyek: offlineId
+      };
+    }
+
     try {
       const body = new URLSearchParams();
       body.append("action", "addProyek");
@@ -279,12 +333,61 @@ const API = {
         body
       });
       const result = await response.json();
+      if (result.success) {
+        const addedProyek = {
+          iDProyek: result.idProyek,
+          tanggal: new Date().toISOString().split('T')[0],
+          namaProyek: proyekData.namaProyek,
+          namaPelanggan: proyekData.pelanggan,
+          nomorWA: proyekData.wa,
+          produk: proyekData.produk,
+          jumlah: proyekData.jumlah,
+          satuan: proyekData.satuan,
+          hargaSatuan: proyekData.hargaSatuan,
+          nominalProyek: proyekData.nominal,
+          dP: proyekData.dp,
+          sisaPembayaran: proyekData.sisa,
+          deadline: proyekData.deadline,
+          status: proyekData.status,
+          catatan: proyekData.catatan,
+          gdriveLink: result.gdriveLink || proyekData.gdriveLink,
+          userId: currUser ? currUser.id : "USR-001",
+          lastUpdated: Date.now()
+        };
+        await FPManagerDB.saveOne('proyek', addedProyek);
+      }
       return result;
     } catch (error) {
       console.error(error);
+      const offlineId = "OFFLINE-PRJ-" + Date.now();
+      const localProyek = {
+        iDProyek: offlineId,
+        tanggal: new Date().toISOString().split('T')[0],
+        namaProyek: proyekData.namaProyek,
+        namaPelanggan: proyekData.pelanggan,
+        nomorWA: proyekData.wa,
+        produk: proyekData.produk,
+        jumlah: proyekData.jumlah,
+        satuan: proyekData.satuan,
+        hargaSatuan: proyekData.hargaSatuan,
+        nominalProyek: proyekData.nominal,
+        dP: proyekData.dp,
+        sisaPembayaran: proyekData.sisa,
+        deadline: proyekData.deadline,
+        status: proyekData.status,
+        catatan: proyekData.catatan,
+        gdriveLink: proyekData.gdriveLink,
+        userId: currUser ? currUser.id : "USR-001",
+        lastUpdated: Date.now(),
+        isOfflineCreated: true
+      };
+      await FPManagerDB.saveOne('proyek', localProyek);
+      await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData });
       return {
-        success: false,
-        message: error.message
+        success: true,
+        isOffline: true,
+        message: "Terjadi gangguan jaringan. Projek disimpan offline.",
+        idProyek: offlineId
       };
     }
   },
@@ -293,7 +396,49 @@ const API = {
   updateProyek: async (id, proyekData) => {
     APICache.clear();
     const currUser = API.getCurrentUser();
+    const isTempId = String(id).startsWith("OFFLINE-PRJ-");
+
+    if (!navigator.onLine || isTempId) {
+      const allLocal = await FPManagerDB.getAll('proyek');
+      const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
+
+      const localUpdated = {
+        ...(oldLocal || {}),
+        iDProyek: id,
+        namaProyek: proyekData.namaProyek !== undefined ? proyekData.namaProyek : (oldLocal ? oldLocal.namaProyek : ""),
+        namaPelanggan: proyekData.pelanggan !== undefined ? proyekData.pelanggan : (oldLocal ? oldLocal.namaPelanggan : ""),
+        nomorWA: proyekData.wa !== undefined ? proyekData.wa : (oldLocal ? oldLocal.nomorWA : ""),
+        produk: proyekData.produk !== undefined ? proyekData.produk : (oldLocal ? oldLocal.produk : ""),
+        jumlah: proyekData.jumlah !== undefined ? Number(proyekData.jumlah) : (oldLocal ? oldLocal.jumlah : 1),
+        satuan: proyekData.satuan !== undefined ? proyekData.satuan : (oldLocal ? oldLocal.satuan : "pcs"),
+        hargaSatuan: proyekData.hargaSatuan !== undefined ? Number(proyekData.hargaSatuan) : (oldLocal ? oldLocal.hargaSatuan : 0),
+        nominalProyek: proyekData.nominal !== undefined ? Number(proyekData.nominal) : (oldLocal ? oldLocal.nominalProyek : 0),
+        dP: proyekData.dp !== undefined ? Number(proyekData.dp) : (oldLocal ? oldLocal.dP : 0),
+        sisaPembayaran: proyekData.sisa !== undefined ? Number(proyekData.sisa) : (oldLocal ? oldLocal.sisaPembayaran : 0),
+        deadline: proyekData.deadline !== undefined ? proyekData.deadline : (oldLocal ? oldLocal.deadline : ""),
+        status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
+        catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
+        gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
+        userId: currUser ? currUser.id : "USR-001",
+        lastUpdated: Date.now()
+      };
+
+      await FPManagerDB.saveOne('proyek', localUpdated);
+      await FPManagerDB.addToQueue('updateProyek', { id, proyekData, lastUpdated: localUpdated.lastUpdated });
+
+      return {
+        success: true,
+        isOffline: true,
+        message: "Perubahan projek disimpan secara lokal.",
+        idProyek: id
+      };
+    }
+
     try {
+      const allLocal = await FPManagerDB.getAll('proyek');
+      const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
+      const clientLastUpdated = oldLocal ? (oldLocal.lastUpdated || 0) : 0;
+
       const body = new URLSearchParams();
       body.append("action", "updateProyek");
       body.append("token", API.getToken());
@@ -301,17 +446,59 @@ const API = {
       body.append("role", currUser.role);
       body.append("userId", currUser.id);
       body.append("id", id);
-      body.append("data", JSON.stringify(proyekData));
+
+      const payload = { ...proyekData, lastUpdated: clientLastUpdated };
+      body.append("data", JSON.stringify(payload));
+
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body
       });
-      return await response.json();
+      const result = await response.json();
+      if (result.success) {
+        const newId = result.idProyek || id;
+        if (newId !== id) {
+          await FPManagerDB.removeOne('proyek', id);
+        }
+
+        const localUpdated = {
+          ...(oldLocal || {}),
+          iDProyek: newId,
+          namaProyek: proyekData.namaProyek || (oldLocal ? oldLocal.namaProyek : ""),
+          namaPelanggan: proyekData.pelanggan || (oldLocal ? oldLocal.namaPelanggan : ""),
+          nomorWA: proyekData.wa || (oldLocal ? oldLocal.nomorWA : ""),
+          produk: proyekData.produk || (oldLocal ? oldLocal.produk : ""),
+          jumlah: proyekData.jumlah !== undefined ? proyekData.jumlah : (oldLocal ? oldLocal.jumlah : 1),
+          satuan: proyekData.satuan || (oldLocal ? oldLocal.satuan : "pcs"),
+          hargaSatuan: proyekData.hargaSatuan !== undefined ? proyekData.hargaSatuan : (oldLocal ? oldLocal.hargaSatuan : 0),
+          nominalProyek: proyekData.nominal !== undefined ? proyekData.nominal : (oldLocal ? oldLocal.nominalProyek : 0),
+          dP: proyekData.dp !== undefined ? proyekData.dp : (oldLocal ? oldLocal.dP : 0),
+          sisaPembayaran: proyekData.sisa !== undefined ? proyekData.sisa : (oldLocal ? oldLocal.sisaPembayaran : 0),
+          deadline: proyekData.deadline || (oldLocal ? oldLocal.deadline : ""),
+          status: proyekData.status || (oldLocal ? oldLocal.status : "Menunggu"),
+          catatan: proyekData.catatan || (oldLocal ? oldLocal.catatan : ""),
+          gdriveLink: proyekData.gdriveLink || (oldLocal ? oldLocal.gdriveLink : ""),
+          lastUpdated: Date.now()
+        };
+        await FPManagerDB.saveOne('proyek', localUpdated);
+      }
+      return result;
     } catch (error) {
       console.error(error);
+      const allLocal = await FPManagerDB.getAll('proyek');
+      const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
+      const localUpdated = {
+        ...(oldLocal || {}),
+        iDProyek: id,
+        lastUpdated: Date.now()
+      };
+      await FPManagerDB.saveOne('proyek', localUpdated);
+      await FPManagerDB.addToQueue('updateProyek', { id, proyekData, lastUpdated: localUpdated.lastUpdated });
       return {
-        success: false,
-        message: "Terjadi kesalahan saat menghubungi server."
+        success: true,
+        isOffline: true,
+        message: "Gangguan jaringan. Perubahan disimpan offline.",
+        idProyek: id
       };
     }
   },
@@ -320,6 +507,20 @@ const API = {
   deleteProyek: async (id) => {
     APICache.clear();
     const currUser = API.getCurrentUser();
+
+    if (!navigator.onLine) {
+      const idsToDelete = Array.isArray(id) ? id : [id];
+      for (const singleId of idsToDelete) {
+        await FPManagerDB.removeOne('proyek', singleId);
+        await FPManagerDB.addToQueue('deleteProyek', { id: singleId });
+      }
+      return {
+        success: true,
+        isOffline: true,
+        message: "Data dihapus secara lokal."
+      };
+    }
+
     try {
       const body = new URLSearchParams();
       body.append("action", "deleteProyek");
@@ -337,12 +538,24 @@ const API = {
       }
       const result = await response.json();
       if (handleUnauthorized(result)) return result;
+      if (result.success) {
+        const idsToDelete = Array.isArray(id) ? id : [id];
+        for (const singleId of idsToDelete) {
+          await FPManagerDB.removeOne('proyek', singleId);
+        }
+      }
       return result;
     } catch (error) {
       console.error(error);
+      const idsToDelete = Array.isArray(id) ? id : [id];
+      for (const singleId of idsToDelete) {
+        await FPManagerDB.removeOne('proyek', singleId);
+        await FPManagerDB.addToQueue('deleteProyek', { id: singleId });
+      }
       return {
-        success: false,
-        message: "Terjadi kesalahan saat menghubungi server."
+        success: true,
+        isOffline: true,
+        message: "Gangguan jaringan. Penghapusan disimpan offline."
       };
     }
   },
@@ -925,37 +1138,106 @@ const API = {
     } catch (e) { return { success: false, message: e.message }; }
   },
 
-  // Synchronize offline queue to server/mock
+  // Upload file to Google Drive folder parent (stores link in cell instead of massive base64)
+  uploadFile: async (fileName, fileType, base64Data) => {
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "uploadFile");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("data", JSON.stringify({ fileName, fileType, base64Data }));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      return await res.json();
+    } catch (e) {
+      return { success: false, message: e.message };
+    }
+  },
+
+  // Synchronize offline queue to server/mock with conflict detection and temporary ID mapping
   syncOfflineData: async () => {
     if (!navigator.onLine) return { success: false, message: "Masih offline" };
     const queue = await FPManagerDB.getQueue();
     if (!queue || queue.length === 0) return { success: true, count: 0 };
     
     let successCount = 0;
+    const idMap = {};
+
     for (const item of queue) {
       try {
+        let actionSuccess = false;
+
         if (item.action === 'addProyek') {
-          await API.addProyek(item.data);
+          const res = await API.addProyek(item.data.proyekData);
+          if (res && res.success) {
+            actionSuccess = true;
+            if (item.data.offlineId && res.idProyek) {
+              idMap[item.data.offlineId] = res.idProyek;
+              await FPManagerDB.removeOne('proyek', item.data.offlineId);
+            }
+          }
+        } 
+        else if (item.action === 'updateProyek') {
+          let targetId = item.data.id;
+          if (idMap[targetId]) {
+            targetId = idMap[targetId];
+          }
+
+          const res = await API.updateProyek(targetId, item.data.proyekData);
+          if (res && res.success) {
+            actionSuccess = true;
+            if (res.idProyek && res.idProyek !== targetId) {
+              if (idMap[item.data.id]) {
+                idMap[item.data.id] = res.idProyek;
+              }
+            }
+          } else if (res && res.message && res.message.includes("Konflik Sinkronisasi")) {
+            console.warn("Conflict detected for offline update. Client data skipped:", item, res.message);
+            actionSuccess = true; // Mark as success to clear it from queue so it does not block subsequent actions
+            if (typeof Toast !== 'undefined') {
+              Toast.warning('Konflik Sinkronisasi', `Perubahan proyek diabaikan karena data di server telah diperbarui.`);
+            }
+          }
+        } 
+        else if (item.action === 'deleteProyek') {
+          let targetId = item.data.id;
+          if (idMap[targetId]) {
+            targetId = idMap[targetId];
+          }
+          const res = await API.deleteProyek(targetId);
+          if (res && res.success) {
+            actionSuccess = true;
+          }
+        }
+        else if (item.action === 'addKeuangan') {
+          const res = await API.addKeuangan(item.data);
+          if (res && res.success) {
+            actionSuccess = true;
+          }
+        }
+
+        if (actionSuccess) {
+          if (item.queueId) {
+            await FPManagerDB.removeOne('offline_queue', item.queueId);
+          }
           successCount++;
-        } else if (item.action === 'updateProyek') {
-          await API.updateProyek(item.data.id, item.data.proyekData);
-          successCount++;
-        } else if (item.action === 'deleteProyek') {
-          await API.deleteProyek(item.data.id);
-          successCount++;
-        } else if (item.action === 'addKeuangan') {
-          await API.addKeuangan(item.data);
-          successCount++;
+        } else {
+          // Connection dropped or other fetch failure, break loop to preserve queue
+          break;
         }
       } catch (err) {
         console.error('Failed to sync queue item:', item, err);
+        break;
       }
     }
-    await FPManagerDB.clearQueue();
-    if (typeof Toast !== 'undefined' && successCount > 0) {
-      Toast.success('Sinkronisasi Otomatis', `${successCount} perubahan data offline telah tersinkronisasi ke server.`);
+
+    if (successCount > 0) {
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Sinkronisasi Otomatis', `${successCount} perubahan data offline telah tersinkronisasi ke server.`);
+      }
+      APICache.clear();
+      await API.getProyek(); // Reload latest data from server
     }
     return { success: true, count: successCount };
-  }
+  },
 };
 
