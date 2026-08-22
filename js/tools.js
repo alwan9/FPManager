@@ -276,7 +276,6 @@ function closeAllModals() {
   const m2 = document.getElementById('addShortcutModal');
   const m3 = document.getElementById('sizeCheatSheetModal');
   const m4 = document.getElementById('watermarkGeneratorModal');
-  const m5 = document.getElementById('imageUpscalerModal');
   const m6 = document.getElementById('logoPhilosophyModal');
   const m7 = document.getElementById('projectPreviewBlenderModal');
   const m8 = document.getElementById('referencesModal');
@@ -342,11 +341,32 @@ async function copyPrompt(id, lang = 'id') {
     }
   }
 
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    if (typeof Toast !== 'undefined') Toast.success('Tersalin', `Prompt (${lang.toUpperCase()}) berhasil disalin!`);
-  }).catch(err => {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      if (typeof Toast !== 'undefined') Toast.success('Tersalin', `Prompt (${lang.toUpperCase()}) berhasil disalin!`);
+    }).catch(() => {
+      _fallbackCopyPrompt(textToCopy, lang);
+    });
+  } else {
+    _fallbackCopyPrompt(textToCopy, lang);
+  }
+}
+
+function _fallbackCopyPrompt(textToCopy, lang) {
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = textToCopy;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    if (typeof Toast !== 'undefined') Toast.success('Tersalin', `Prompt (${(lang || 'ID').toUpperCase()}) berhasil disalin!`);
+  } catch (err) {
+    console.error('Fallback copy failed: ', err);
     if (typeof Toast !== 'undefined') Toast.error('Gagal', 'Gagal menyalin prompt.');
-  });
+  }
 }
 
 // =====================================
@@ -1132,6 +1152,13 @@ function setLogoIndustryMode(mode) {
     if (btnSelect) btnSelect.className = 'px-3 py-1.5 rounded-xl border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-normal text-xs flex items-center justify-center gap-1.5 transition-all';
     if (btnText) btnText.className = 'px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-normal text-xs flex items-center justify-center gap-1.5 transition-all';
   }
+}
+
+function getGeminiApiKey() {
+  if (typeof CONFIG !== 'undefined' && CONFIG.GEMINI_API_KEY) {
+    return CONFIG.GEMINI_API_KEY;
+  }
+  return localStorage.getItem('cfg_gemini_api_key') || localStorage.getItem('GEMINI_API_KEY') || '';
 }
 
 /**
@@ -2347,171 +2374,6 @@ function downloadPbImage() {
   a.click();
   
   if (typeof Toast !== 'undefined') Toast.success('Diunduh!', 'Gambar mockup berhasil diunduh.');
-}
-
-// =====================================
-// CRUD REFERENCES
-// =====================================
-
-function searchReferences(query) {
-  renderReferences(query.toLowerCase());
-}
-
-function renderReferences(query = '') {
-  const tableBody = document.getElementById('refTableBody');
-  if (!tableBody) return;
-  tableBody.innerHTML = '';
-
-  let filtered = referencesData || [];
-  if (query) {
-    filtered = filtered.filter(r => 
-      (r.title || '').toLowerCase().includes(query) || 
-      (r.source || '').toLowerCase().includes(query)
-    );
-  }
-
-  if (filtered.length === 0) {
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="3" class="text-center py-8 text-zinc-400 dark:text-zinc-500">
-          <i class="fa-solid fa-bookmark text-2xl mb-1.5 block"></i>
-          Tidak ada referensi ditemukan.
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const sourceIcons = {
-    'Pinterest': '<i class="fa-brands fa-pinterest text-red-600 text-base"></i>',
-    'Freepik': '<i class="fa-solid fa-vector-square text-blue-500 text-base"></i>',
-    'Behance': '<i class="fa-brands fa-behance text-blue-600 text-base"></i>',
-    'Dribbble': '<i class="fa-brands fa-dribbble text-pink-500 text-base"></i>',
-    'Lainnya': '<i class="fa-solid fa-bookmark text-zinc-500 text-base"></i>'
-  };
-
-  filtered.forEach(ref => {
-    const icon = sourceIcons[ref.source] || sourceIcons['Lainnya'];
-    
-    const tr = document.createElement('tr');
-    tr.className = 'bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50';
-    tr.innerHTML = `
-      <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-100">${escapeHtml(ref.title)}</td>
-      <td class="px-4 py-3">
-        <a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-md font-bold transition" title="Buka tautan referensi">
-          ${icon}
-          <span>${escapeHtml(ref.source)}</span>
-        </a>
-      </td>
-      <td class="px-4 py-3 text-right">
-        <div class="flex items-center justify-end space-x-1.5">
-          ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
-          <button onclick="editReference('${ref.id}')" class="p-1 text-zinc-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition" title="Edit">
-            <i class="fa-solid fa-pen text-xs"></i>
-          </button>
-          ` : ''}
-          ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
-          <button onclick="deleteReference('${ref.id}')" class="p-1 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded transition" title="Hapus">
-            <i class="fa-solid fa-trash-can text-xs"></i>
-          </button>
-          ` : ''}
-        </div>
-      </td>
-    `;
-    tableBody.appendChild(tr);
-  });
-}
-
-function openReferencesModal() {
-  const modal = document.getElementById('referencesModal');
-  if (modal) modal.classList.remove('hidden');
-  resetRefForm();
-  renderReferences();
-}
-
-function closeReferencesModal() {
-  const modal = document.getElementById('referencesModal');
-  if (modal) modal.classList.add('hidden');
-}
-
-function resetRefForm() {
-  const title = document.getElementById('refFormTitle');
-  const idInput = document.getElementById('refFormId');
-  const titleInput = document.getElementById('refFormTitleInput');
-  const urlInput = document.getElementById('refFormUrlInput');
-  const sourceInput = document.getElementById('refFormSourceInput');
-  const cancelBtn = document.getElementById('refCancelEditBtn');
-
-  if (title) title.textContent = 'Tambah Referensi';
-  if (idInput) idInput.value = '';
-  if (titleInput) titleInput.value = '';
-  if (urlInput) urlInput.value = '';
-  if (sourceInput) sourceInput.value = 'Pinterest';
-  if (cancelBtn) cancelBtn.classList.add('hidden');
-}
-
-async function saveReference() {
-  const idInput = document.getElementById('refFormId').value;
-  const requiredPerm = idInput ? 'tools:update' : 'tools:create';
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola Referensi.');
-    return;
-  }
-
-  const btnSubmit = document.querySelector('#refSubmitForm button[type="submit"]');
-  if (btnSubmit) {
-    if (btnSubmit.disabled) return;
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-  }
-
-  const title = document.getElementById('refFormTitleInput').value;
-  const url = document.getElementById('refFormUrlInput').value;
-  const source = document.getElementById('refFormSourceInput').value;
-
-  const loader = document.getElementById('globalLoader');
-  if (loader) loader.classList.remove('hidden');
-
-  let res;
-  try {
-    if (idInput) {
-      res = await API.updateReference(idInput, { title, url, source });
-    } else {
-      res = await API.addReference({ title, url, source });
-    }
-  } catch (err) {
-    console.error(err);
-    res = { success: false, message: 'Terjadi kesalahan sistem' };
-  }
-
-  if (loader) loader.classList.add('hidden');
-
-  if (btnSubmit) {
-    btnSubmit.disabled = false;
-    btnSubmit.innerHTML = 'Simpan Data Referensi';
-  }
-
-  if (res.success) {
-    if (typeof Toast !== 'undefined') Toast.success('Berhasil', res.message || 'Referensi berhasil disimpan');
-    resetRefForm();
-    
-    // Reload references
-    try {
-      const references = await API.getReferences();
-      const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-      if (currUser && currUser.role !== 'super_admin') {
-        referencesData = (references || []).filter(r => !r.userId || r.userId === 'USR-001' || r.userId === 'super_admin' || r.userId === currUser.id);
-      } else {
-        referencesData = references || [];
-      }
-      renderReferences();
-    } catch(err) {
-      console.error(err);
-    }
-  } else {
-    if (typeof Toast !== 'undefined') Toast.error('Gagal', res.message || 'Gagal menyimpan referensi');
-  }
 }
 
 // =====================================

@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tools & Prompts - FPManager</title>
   <!-- meta informasi -->
-  <meta name="title" content="Layanan & Harga - FPManager">
-  <meta name="description" content="Daftar harga resmi jasa desain grafis, branding, media sosial, dan UI/UX.">
+  <meta name="title" content="Tools & Prompts - FPManager">
+  <meta name="description" content="Koleksi shortcut prompt AI desain, preview & gabung mockup blender, watermark generator, dan panduan ukuran standar desain.">
   <meta name="author" content="Alwan">
   <meta name="theme-color" content="#2563EB">
 
@@ -1352,16 +1352,15 @@
 
             <!-- Versi Model Gemini AI -->
             <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">V Gemini
-                Model</label>
+              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Model AI Gemini</label>
               <select id="logoGeminiModel"
                 class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                <option value="auto" selected> Terbaru (Gemini 3.0 / 2.0 Flash)</option>
-                <option value="gemini-3.0-flash"> Gemini 3.0 Flash (Next-Gen Ultrafast)</option>
+                <option value="auto" selected>Terbaru (Gemini 3.0 / 2.0 Flash)</option>
+                <option value="gemini-3.0-flash">Gemini 3.0 Flash (Next-Gen Ultrafast)</option>
                 <option value="gemini-3.0-pro">Gemini 3.0 Pro (Deep Reasoning)</option>
-                <option value="gemini-2.0-flash"> Gemini 2.0 Flash (Fast Multimodal)</option>
-                <option value="gemini-1.5-pro"> Gemini 1.5 Pro (Creative Analysis)</option>
-                <option value="gemini-1.5-flash"> Gemini 1.5 Flash (Standard Stable)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast Multimodal)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Creative Analysis)</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Standard Stable)</option>
               </select>
             </div>
 
@@ -1453,158 +1452,11 @@
 
 
     <script>
-      // Global array for calc items
-      let kalkulatorItems = [];
-
-      // format currency helper
-      function formatRupiah(number) {
-        return new Intl.NumberFormat('id-ID', {
-          style: 'currency',
-          currency: 'IDR',
-          minimumFractionDigits: 0
-        }).format(number);
-      }
-
-      // Dynamic dropdown translation
+      // Populate footer current year
       document.addEventListener('DOMContentLoaded', () => {
-        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-        if (isEn) {
-          const select = document.getElementById('calcLayanan');
-          if (select) {
-            const serviceNamesEn = {
-              'Feed Instagram Single': 'Social Feed Single',
-              'Feed Instagram Carousel': 'Social Feed Carousel',
-              'Instagram Story': 'Instagram Story',
-              'Banner YouTube/Web': 'YouTube/Web Banner',
-              'Desain Banner/Spanduk': 'Banner/Billboard Design',
-              'Desain Brosur A5': 'A5 Brochure Design',
-              'Desain Poster': 'Poster Design',
-              'Desain Kartu Nama': 'Business Card Design',
-              'Desain Logo Standar': 'Standard Logo Design',
-              'Desain Logo Premium': 'Premium Logo Design',
-              'Brand Guidelines Lengkap': 'Complete Brand Guidelines',
-              'Desain Kemasan/Label': 'Packaging/Label Design',
-              'UI Landing Page Figma': 'Figma UI Landing Page',
-              'Landing Page Website': 'Website Landing Page'
-            };
-            Array.from(select.options).forEach(opt => {
-              const originalName = opt.getAttribute('data-name');
-              const englishName = serviceNamesEn[originalName] || originalName;
-              const price = parseFloat(opt.value);
-              opt.textContent = `${englishName} (${formatRupiah(price)})`;
-              opt.setAttribute('data-name', englishName);
-            });
-          }
-        }
+        const yr = document.getElementById('currentYear');
+        if (yr) yr.textContent = new Date().getFullYear();
       });
-
-      // Direct project registration helper
-      window.buatProjek = function (namaLayanan, harga) {
-        const url = `tambah-proyek.html?produk=${encodeURIComponent(namaLayanan)}&harga=${harga}`;
-        window.location.href = url;
-      };
-
-      // Add item to calculator lists
-      window.tambahItemKalkulator = function () {
-        const select = document.getElementById('calcLayanan');
-        const selectedOption = select.options[select.selectedIndex];
-        const harga = parseFloat(selectedOption.value);
-        const nama = selectedOption.getAttribute('data-name');
-        const qty = parseInt(document.getElementById('calcQty').value) || 1;
-
-        // Check if already in list
-        const existing = kalkulatorItems.find(item => item.nama === nama);
-        if (existing) {
-          existing.qty += qty;
-        } else {
-          kalkulatorItems.push({ nama, harga, qty });
-        }
-
-        // Reset qty input to 1
-        document.getElementById('calcQty').value = 1;
-
-        // render table
-        renderKalkulatorTable();
-      };
-
-      // Delete item from calculator
-      window.hapusItemKalkulator = function (namaItem) {
-        kalkulatorItems = kalkulatorItems.filter(item => item.nama !== namaItem);
-        renderKalkulatorTable();
-      };
-
-      // Reset estimator calculator
-      window.resetKalkulator = function () {
-        kalkulatorItems = [];
-        renderKalkulatorTable();
-      };
-
-      // Render estimator Table data
-      function renderKalkulatorTable() {
-        const tbody = document.getElementById('calcListBody');
-        const btnCreate = document.getElementById('btnCreateFromCalc');
-        tbody.innerHTML = '';
-        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-
-        if (kalkulatorItems.length === 0) {
-          tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="p-6 text-center text-zinc-400 italic">${isEn ? 'No items added to calculator yet.' : 'Belum ada item ditambahkan ke kalkulator.'}</td>
-          </tr>
-        `;
-          document.getElementById('calcUniqueItems').textContent = '0';
-          document.getElementById('calcTotalQty').textContent = '0';
-          document.getElementById('calcGrandTotal').textContent = 'Rp0';
-          btnCreate.disabled = true;
-          return;
-        }
-
-        let grandTotal = 0;
-        let totalQty = 0;
-
-        kalkulatorItems.forEach((item, index) => {
-          const subtotal = item.harga * item.qty;
-          grandTotal += subtotal;
-          totalQty += item.qty;
-
-          const row = document.createElement('tr');
-          row.className = 'border-b border-zinc-100 hover:bg-zinc-50/50';
-          row.innerHTML = `
-          <td class="p-3 font-semibold text-zinc-800">${item.nama}</td>
-          <td class="p-3 text-center text-zinc-600">${formatRupiah(item.harga)}</td>
-          <td class="p-3 text-center text-zinc-800 font-bold">${item.qty}</td>
-          <td class="p-3 text-right text-indigo-600 font-bold">${formatRupiah(subtotal)}</td>
-          <td class="p-3 text-center">
-            <button onclick="hapusItemKalkulator('${item.nama}')" class="text-rose-500 hover:text-rose-700 transition-colors">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        `;
-          tbody.appendChild(row);
-        });
-
-        // Update summaries
-        document.getElementById('calcUniqueItems').textContent = kalkulatorItems.length;
-        document.getElementById('calcTotalQty').textContent = totalQty;
-        document.getElementById('calcGrandTotal').textContent = formatRupiah(grandTotal);
-        btnCreate.disabled = false;
-      }
-
-      // Redirect to tambah-proyek prefilled with total calculated sum
-      window.buatProjekDariKalkulator = function () {
-        if (kalkulatorItems.length === 0) return;
-
-        let total = 0;
-        let names = [];
-        kalkulatorItems.forEach(item => {
-          total += item.harga * item.qty;
-          names.push(`${item.nama} (x${item.qty})`);
-        });
-
-        const productName = `Paket: ${names.join(', ')}`;
-        const url = `tambah-proyek.html?produk=${encodeURIComponent(productName)}&harga=${total}`;
-        window.location.href = url;
-      };
     </script>
 </body>
 

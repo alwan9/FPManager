@@ -209,6 +209,10 @@ const TRANSLATIONS = {
     "add-label-dp": "Uang Muka / DP (Rp)*",
     "add-label-debt": "Sisa Pembayaran (Rp)",
     "add-label-deadline": "Deadline / Target Selesai*",
+    "add-btn-today": "Hari Ini",
+    "add-btn-tomorrow": "Besok",
+    "add-btn-3days": "+3 Hari",
+    "add-deadline-warning": "Peringatan: Deadline kurang dari 24 jam!",
     "add-label-status": "Status Projek*",
     "add-label-gdrive": "Link Google Drive (Opsional)",
     "add-label-createdrive": "Buat Folder Google Drive Otomatis?",
@@ -506,6 +510,10 @@ const TRANSLATIONS = {
     "add-label-dp": "Down Payment / DP (Rp)*",
     "add-label-debt": "Remaining Balance (Rp)",
     "add-label-deadline": "Deadline / Target Date*",
+    "add-btn-today": "Today",
+    "add-btn-tomorrow": "Tomorrow",
+    "add-btn-3days": "+3 Days",
+    "add-deadline-warning": "Warning: Deadline is less than 24 hours!",
     "add-label-status": "Project Status*",
     "add-label-gdrive": "Google Drive Link (Optional)",
     "add-label-createdrive": "Create Google Drive Folder Automatically?",
@@ -648,12 +656,20 @@ const i18n = {
       document.title = currentLang === 'en' ? 'Project List - FPManager' : 'Data Projek - Kelola FPManager';
     } else if (currentPath === 'tambah-proyek.html') {
       document.title = currentLang === 'en' ? 'Manage Project - FPManager' : 'Kelola Projek - Kelola FPManager';
+    } else if (currentPath === 'keuangan.html') {
+      document.title = currentLang === 'en' ? 'Cash & Finance - FPManager' : 'Kas & Keuangan - Kelola FPManager';
     } else if (currentPath === 'layanan.html') {
       document.title = currentLang === 'en' ? 'Services & Pricelist - FPManager' : 'Layanan & Pricelist Jasa - FPManager';
     } else if (currentPath === 'laporan.html') {
       document.title = currentLang === 'en' ? 'Financial Reports - FPManager' : 'Laporan Keuangan & Statistik - FPManager';
     } else if (currentPath === 'invoice.html') {
       document.title = currentLang === 'en' ? 'Invoice Preview - FPManager' : 'Preview Invoice - FPManager';
+    } else if (currentPath === 'tools.html') {
+      document.title = currentLang === 'en' ? 'Tools & Prompts - FPManager' : 'Tools & Prompts - FPManager';
+    } else if (currentPath === 'profil.html') {
+      document.title = currentLang === 'en' ? 'User Profile - FPManager' : 'Profil Pengguna - FPManager';
+    } else if (currentPath === 'user-management.html') {
+      document.title = currentLang === 'en' ? 'User Management - FPManager' : 'Manajemen User - Kelola FPManager';
     }
   }
 };

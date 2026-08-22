@@ -695,46 +695,6 @@
     </div>
   </div>
 
-  <div id="aiResultCard" class="hidden mt-5 bg-zinc-50 rounded-xl border" style="z-index: 100;">
-
-    <div class="p-4">
-
-      <div class="flex justify-between mb-3">
-
-        <h5 class="font-semibold">
-          Hasil AI
-        </h5>
-
-        <button onclick="copyAIResult()" class="text-indigo-600 text-xs">
-
-          Copy
-
-        </button>
-
-      </div>
-
-      <textarea id="aiResult" rows="8"
-        class="w-full h-8 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 rounded-lg p-3 text-sm"></textarea>
-
-      <div class="grid grid-cols-2 gap-2 mt-3">
-
-        <button onclick="copyAIResult()" class="bg-indigo-600 text-white rounded-lg py-2">
-
-          Copy
-
-        </button>
-
-        <button onclick="sendAIWhatsapp()" class="bg-green-600 text-white rounded-lg py-2">
-
-          Kirim WA
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
   <!-- Export Excel Modal -->
 
   <div id="exportModal" onclick="if(event.target === this) closeExportModal()"
