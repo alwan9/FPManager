@@ -335,12 +335,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (usersRes.status === "fulfilled" && Array.isArray(usersRes.value) && usersRes.value.length > 0) {
         serviceUsersList = usersRes.value.filter(u => {
-          const r = String(u.role || '').toLowerCase();
-          return r === "service" || r.includes("service") || r.includes("admin") || u.username === "wansmin";
+          const r = String(u.role || '').toLowerCase().trim();
+          const username = String(u.username || '').toLowerCase().trim();
+          return (r === "service" || r.includes("service")) && r !== "super_admin" && r !== "superadmin" && username !== "wansmin";
         });
       } else {
         serviceUsersList = [
-          { id: "USR-001", username: "wansmin", name: "Super Admin", role: "super_admin" },
           { id: "USR-002", username: "service", name: "Admin Service", role: "service" }
         ];
       }
