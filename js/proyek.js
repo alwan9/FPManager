@@ -605,7 +605,11 @@ async function viewDetail(id) {
       // WA Button
       const waText = encodeURIComponent(CONFIG.WA_TEMPLATE);
       const waUrl = `https://api.whatsapp.com/send?phone=${proyek.nomorWA}&text=${waText}`;
-      document.getElementById('modalWaBtn').href = waUrl;
+      const waBtnEl = document.getElementById('modalWaBtn');
+      if (waBtnEl) {
+        waBtnEl.href = waUrl;
+        waBtnEl.target = 'FPManager_WhatsAppTab';
+      }
       // Show Modal
       document.getElementById('detailModal').classList.remove('hidden');
 
@@ -916,7 +920,10 @@ function sendAIWhatsapp() {
 
   const waText = encodeURIComponent(text);
   const waUrl = `https://api.whatsapp.com/send?phone=${currentProyek.nomorWA}&text=${waText}`;
-  window.open(waUrl, '_blank');
+  const win = window.open(waUrl, 'FPManager_WhatsAppTab');
+  if (win && typeof win.focus === 'function') {
+    try { win.focus(); } catch (e) {}
+  }
 }
 
 // Format Rupiah Helper

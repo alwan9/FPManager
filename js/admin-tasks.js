@@ -231,6 +231,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     return "_blank";
   }
 
+  // Global Smart Link Opener that focuses existing tab
+  window.openSmartLink = (url) => {
+    if (!url) return;
+    const clean = sanitizeTaskLink(url);
+    const target = getSmartLinkTarget(clean);
+    
+    if (target === "_self") {
+      window.location.href = clean;
+      return;
+    }
+
+    const win = window.open(clean, target);
+    if (win && typeof win.focus === "function") {
+      try {
+        win.focus();
+      } catch (e) {}
+    }
+  };
+
   // Web Audio API Synthesized Crystal Chime
   function playNotificationChime(isDoneChime = false) {
     try {
@@ -608,7 +627,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cleanLink = sanitizeTaskLink(task.link);
       const linkTarget = getSmartLinkTarget(cleanLink);
       const linkHtml = (task.link && cleanLink !== "#") ? `
-        <a href="${cleanLink}" target="${linkTarget}" rel="noopener noreferrer"
+        <a href="${cleanLink}" target="${linkTarget}" onclick="event.preventDefault(); openSmartLink('${escapeHtmlSafe(cleanLink)}');" rel="noopener noreferrer"
           class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition-colors shadow-xs"
           title="Buka Tautan: ${escapeHtmlSafe(task.link)}">
           <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
