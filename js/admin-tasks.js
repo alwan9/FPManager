@@ -1,8 +1,9 @@
 /**
  * FREELANCE PROJEK MANAGER (FPManager)
  * Modul: Aktivitas & Checklist Harian Admin (Admin Tasks)
- * Fitur: Multi-Admin Assignment, Kustomisasi Tugas Per Admin, SOP Preset Templates,
- *        Multi-Filter & Workload Distribution Matrix, Auto-Reset Harian, Timer Notifikasi Berkala
+ * Khusus: Role Service & Super Admin
+ * Fitur: Checklist Tindakan Harian, Interval Notifikasi Global, Template SOP Cepat,
+ *        Auto-Reset Harian 00:00 WIB, Audio Chime & In-App Reminder
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -14,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
           <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
           <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (admin_tasks:read) untuk melihat tugas admin.</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (admin_tasks:read) untuk melihat aktivitas admin.</p>
         </div>
       `;
     }
@@ -53,19 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const taskIdInput = document.getElementById("taskIdInput");
   const taskTemplateSelect = document.getElementById("taskTemplateSelect");
   const taskNameInput = document.getElementById("taskNameInput");
-  const taskAdminSelect = document.getElementById("taskAdminSelect");
-  const singleAdminSelectContainer = document.getElementById("singleAdminSelectContainer");
-  const multiAdminChecklistContainer = document.getElementById("multiAdminChecklistContainer");
-  const multiAdminCheckboxList = document.getElementById("multiAdminCheckboxList");
-  const multiAssignRadioWrapper = document.getElementById("multiAssignRadioWrapper");
-
   const taskPrioritySelect = document.getElementById("taskPrioritySelect");
-  const taskScheduleTypeSelect = document.getElementById("taskScheduleTypeSelect");
-  const taskIntervalHoursSelect = document.getElementById("taskIntervalHoursSelect");
-  const taskSpecificTimeInput = document.getElementById("taskSpecificTimeInput");
-  const intervalHoursContainer = document.getElementById("intervalHoursContainer");
-  const specificTimeContainer = document.getElementById("specificTimeContainer");
-  const intervalAdminOnlyBadge = document.getElementById("intervalAdminOnlyBadge");
   const taskTotalInput = document.getElementById("taskTotalInput");
   const taskStatusSelect = document.getElementById("taskStatusSelect");
   const taskLinkInput = document.getElementById("taskLinkInput");
@@ -92,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // State
   let tasksData = [];
-  let usersList = [];
+  let serviceUsersList = [];
   let currentActiveAdminTab = "all";
   let isWorkloadExpanded = true;
 
@@ -153,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return clean;
   }
 
-  // Web Audio API Synthesized Chime (Rich crystal chime without external MP3 files)
+  // Web Audio API Synthesized Crystal Chime
   function playNotificationChime(isDoneChime = false) {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -203,11 +192,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const today = getTodayDateString();
     let hasReset = false;
 
-    // Check settings last reset date
     const savedLastReset = localStorage.getItem("fpmanager_admin_tasks_last_reset") || settingsData.lastResetDate;
 
     if (savedLastReset && savedLastReset !== today && settingsData.autoDailyReset !== false) {
-      console.log(`[Auto-Reset Harian] Pergantian tanggal terdeteksi (${savedLastReset} -> ${today}). Me-reset checklist tugas.`);
+      console.log(`[Auto-Reset Harian] Pergantian tanggal terdeteksi (${savedLastReset} -> ${today}). Me-reset status checklist.`);
       
       tasksData = tasksData.map(task => {
         return {
@@ -223,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       hasReset = true;
       if (typeof Toast !== "undefined") {
-        Toast.info("✨ Hari Baru Dimulai!", "Status seluruh checklist tugas harian admin telah di-reset otomatis ke 'Belum Selesai'.");
+        Toast.info("✨ Hari Baru Dimulai!", "Seluruh checklist tugas harian admin telah di-reset otomatis ke 'Belum Selesai'.");
       }
     } else {
       localStorage.setItem("fpmanager_admin_tasks_last_reset", today);
@@ -243,14 +231,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       taskTableBody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center py-10 text-zinc-400">
+          <td colspan="8" class="text-center py-10 text-zinc-400">
             <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-indigo-500"></i>
-            <p class="font-medium">Memuat data aktivitas tugas admin...</p>
+            <p class="font-medium">Memuat data aktivitas tindakan admin...</p>
           </td>
         </tr>
       `;
 
-      // Load Settings & Users in parallel
+      // Load Settings, Users, Tasks in parallel
       const [tasksRes, settingsRes, usersRes] = await Promise.allSettled([
         API.getAdminTasks(),
         API.getAdminTaskSettings(),
@@ -262,13 +250,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (usersRes.status === "fulfilled" && Array.isArray(usersRes.value) && usersRes.value.length > 0) {
-        usersList = usersRes.value;
+        // Filter: Hanya user dengan role "service" dan super_admin
+        serviceUsersList = usersRes.value.filter(u => {
+          const r = String(u.role || '').toLowerCase();
+          return r === "service" || r.includes("service") || r.includes("admin") || u.username === "wansmin";
+        });
       } else {
-        // Fallback default users if API returns empty
-        usersList = [
+        serviceUsersList = [
           { id: "USR-001", username: "wansmin", name: "Super Admin", role: "super_admin" },
-          { id: "USR-002", username: "service", name: "Admin Customer Service", role: "service" },
-          { id: "USR-003", username: "desainer", name: "Tim Desainer", role: "desainer" }
+          { id: "USR-002", username: "service", name: "Admin Service", role: "service" }
         ];
       }
 
@@ -295,110 +285,55 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.loadAdminTasks = loadAdminTasks;
 
   function populateUserDropdowns() {
-    // 1. Populate filter dropdown
-    let filterOptionsHtml = `
-      <option value="all">Semua Admin (Semua Tugas)</option>
-      <option value="mine">Tugas Saya Saja (@${escapeHtmlSafe(currentUser.username)})</option>
-      <option value="shared">Shared Task (SOP Bersama)</option>
-    `;
+    if (filterAdminSelect) {
+      let filterOptionsHtml = `
+        <option value="all">Semua Admin Service</option>
+        <option value="mine">Tugas Saya Saja (@${escapeHtmlSafe(currentUser.username)})</option>
+      `;
 
-    usersList.forEach(u => {
-      if (u.username) {
-        const roleLabel = (u.role || 'Admin').toUpperCase();
-        filterOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)} - ${roleLabel})</option>`;
-      }
-    });
-    filterAdminSelect.innerHTML = filterOptionsHtml;
-
-    // 2. Populate modal single assignment dropdown
-    let modalOptionsHtml = `<option value="all">👥 Semua Admin (Shared SOP Bersama)</option>`;
-    if (!isSuperAdmin) {
-      // Non-super admin can only assign to themselves or shared
-      modalOptionsHtml += `<option value="${escapeHtmlSafe(currentUser.username)}" selected>👤 ${escapeHtmlSafe(currentUser.name || currentUser.username)} (@${escapeHtmlSafe(currentUser.username)})</option>`;
-    } else {
-      usersList.forEach(u => {
-        const roleLabel = (u.role || 'Admin').toUpperCase();
-        modalOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">👤 ${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)} - ${roleLabel})</option>`;
+      serviceUsersList.forEach(u => {
+        if (u.username) {
+          filterOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">👤 ${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)})</option>`;
+        }
       });
-      // Ensure current user is in list if not yet
-      if (!usersList.some(u => u.username === currentUser.username)) {
-        modalOptionsHtml += `<option value="${escapeHtmlSafe(currentUser.username)}">👤 ${escapeHtmlSafe(currentUser.name || currentUser.username)} (@${escapeHtmlSafe(currentUser.username)})</option>`;
-      }
+      filterAdminSelect.innerHTML = filterOptionsHtml;
     }
-    taskAdminSelect.innerHTML = modalOptionsHtml;
 
-    // 3. Populate modal multi-admin checkboxes
-    let multiCheckboxesHtml = "";
-    usersList.forEach(u => {
-      if (u.username) {
-        const roleLabel = (u.role || 'Admin').toUpperCase();
-        multiCheckboxesHtml += `
-          <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 cursor-pointer text-xs">
-            <input type="checkbox" name="multiAdminUser" value="${escapeHtmlSafe(u.username)}" class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-            <span class="font-medium text-zinc-800 dark:text-zinc-200 truncate">${escapeHtmlSafe(u.name || u.username)} <span class="text-[10px] text-zinc-400">(@${escapeHtmlSafe(u.username)})</span></span>
-          </label>
-        `;
-      }
-    });
-    multiAdminCheckboxList.innerHTML = multiCheckboxesHtml;
-
-    // Update admin count badge
     if (adminCountBadge) {
-      adminCountBadge.innerText = `${usersList.length} Admin Terdaftar`;
+      adminCountBadge.innerText = `${serviceUsersList.length} Admin Service Aktif`;
     }
 
-    // Render Tab Pills and Workload Cards
     renderAdminFilterTabs();
     renderAdminWorkloadCards();
   }
 
   // ==========================================
-  // ADMIN FILTER TABS & WORKLOAD MATRIX
+  // ADMIN FILTER TABS & WORKLOAD MATRIX (SERVICE ONLY)
   // ==========================================
   function renderAdminFilterTabs() {
     if (!adminFilterTabsContainer) return;
 
     const totalAll = tasksData.length;
-    const myTasks = tasksData.filter(t => t.adminUser === currentUser.username || t.adminUser === "all");
-    const myDone = myTasks.filter(t => t.status === "Selesai").length;
-    const sharedTasks = tasksData.filter(t => t.adminUser === "all");
+    const myDone = tasksData.filter(t => t.status === "Selesai").length;
 
     let tabsHtml = `
       <button onclick="setFilterAdmin('all')"
         class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center space-x-1.5 ${currentActiveAdminTab === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'}">
-        <i class="fa-solid fa-list-ul text-[10px]"></i>
-        <span>Semua Admin</span>
-        <span class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full ${currentActiveAdminTab === 'all' ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}">${totalAll}</span>
-      </button>
-
-      <button onclick="setFilterAdmin('mine')"
-        class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center space-x-1.5 ${currentActiveAdminTab === 'mine' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'}">
-        <i class="fa-solid fa-user-check text-[10px]"></i>
-        <span>Tugas Saya</span>
-        <span class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full ${currentActiveAdminTab === 'mine' ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}">${myDone}/${myTasks.length}</span>
-      </button>
-
-      <button onclick="setFilterAdmin('shared')"
-        class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center space-x-1.5 ${currentActiveAdminTab === 'shared' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'}">
-        <i class="fa-solid fa-users text-[10px]"></i>
-        <span>Shared SOP</span>
-        <span class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full ${currentActiveAdminTab === 'shared' ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}">${sharedTasks.length}</span>
+        <i class="fa-solid fa-list-check text-[10px]"></i>
+        <span>Checklist Admin Service</span>
+        <span class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full ${currentActiveAdminTab === 'all' ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}">${myDone}/${totalAll}</span>
       </button>
     `;
 
-    // Dynamic Tab per registered user
-    usersList.forEach(u => {
+    // Tab per registered service user
+    serviceUsersList.forEach(u => {
       if (u.username) {
-        const uTasks = tasksData.filter(t => t.adminUser === u.username);
-        const uDone = uTasks.filter(t => t.status === "Selesai").length;
         const isActive = currentActiveAdminTab === u.username;
-
         tabsHtml += `
           <button onclick="setFilterAdmin('${escapeHtmlSafe(u.username)}')"
             class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center space-x-1.5 ${isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'}">
-            <span class="h-2 w-2 rounded-full ${uDone === uTasks.length && uTasks.length > 0 ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
+            <i class="fa-solid fa-headset text-[10px]"></i>
             <span>${escapeHtmlSafe(u.name || u.username)}</span>
-            <span class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}">${uDone}/${uTasks.length}</span>
           </button>
         `;
       }
@@ -409,7 +344,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   window.setFilterAdmin = (adminKey) => {
     currentActiveAdminTab = adminKey;
-    filterAdminSelect.value = adminKey;
+    if (filterAdminSelect) filterAdminSelect.value = adminKey;
     renderAdminFilterTabs();
     renderTasks();
   };
@@ -417,67 +352,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   function renderAdminWorkloadCards() {
     if (!adminWorkloadContainer) return;
 
-    if (usersList.length === 0) {
-      adminWorkloadContainer.innerHTML = `<div class="col-span-full text-center py-4 text-xs text-zinc-400">Tidak ada admin terdaftar.</div>`;
+    if (serviceUsersList.length === 0) {
+      adminWorkloadContainer.innerHTML = `<div class="col-span-full text-center py-4 text-xs text-zinc-400">Tidak ada admin bertipe service.</div>`;
       return;
     }
 
-    let cardsHtml = "";
+    const total = tasksData.length;
+    const done = tasksData.filter(t => t.status === "Selesai").length;
+    const pending = total - done;
+    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
-    // 1. Shared SOP Card
-    const sharedTasks = tasksData.filter(t => t.adminUser === "all");
-    const sharedDone = sharedTasks.filter(t => t.status === "Selesai").length;
-    const sharedPercent = sharedTasks.length > 0 ? Math.round((sharedDone / sharedTasks.length) * 100) : 0;
-
-    cardsHtml += `
-      <div class="p-3.5 rounded-xl border border-purple-200 dark:border-purple-900/60 bg-gradient-to-br from-purple-50/50 to-indigo-50/30 dark:from-purple-950/20 dark:to-zinc-900/40 hover:shadow-md transition-all">
+    let cardsHtml = `
+      <!-- Card Checklist Umum Tim Service -->
+      <div class="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/30 dark:to-zinc-900/50 shadow-xs">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center space-x-2.5">
-            <div class="h-8 w-8 rounded-xl bg-purple-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
-              <i class="fa-solid fa-users"></i>
+            <div class="h-8 w-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
+              <i class="fa-solid fa-clipboard-list"></i>
             </div>
             <div>
-              <div class="font-bold text-xs text-zinc-900 dark:text-white">Shared SOP Bersama</div>
-              <div class="text-[10px] text-purple-600 dark:text-purple-400 font-semibold uppercase">Semua Admin</div>
+              <div class="font-bold text-xs text-zinc-900 dark:text-white">Checklist Tim Admin Service</div>
+              <div class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold uppercase">Notifikasi Tiap ${settingsData.defaultIntervalHours || 1} Jam</div>
             </div>
           </div>
-          <button onclick="setFilterAdmin('shared')" class="p-1.5 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg text-xs" title="Filter checklist shared SOP">
-            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-          </button>
+          <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 font-mono">${done}/${total} (${percent}%)</span>
         </div>
         
-        <div class="space-y-1.5 mt-2.5">
-          <div class="flex justify-between items-center text-[11px]">
-            <span class="text-zinc-500 dark:text-zinc-400 font-medium">Progres Selesai:</span>
-            <span class="font-bold text-purple-700 dark:text-purple-300 font-mono">${sharedDone}/${sharedTasks.length} (${sharedPercent}%)</span>
-          </div>
+        <div class="space-y-1.5 mt-2">
           <div class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
-            <div class="bg-purple-600 h-1.5 rounded-full transition-all duration-500" style="width: ${sharedPercent}%"></div>
+            <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
           </div>
         </div>
 
-        <div class="mt-3 pt-2.5 border-t border-purple-100 dark:border-purple-900/40 flex justify-between items-center text-[11px]">
-          <span class="text-zinc-400">${sharedTasks.length - sharedDone} Belum Selesai</span>
+        <div class="mt-3 pt-2 border-t border-indigo-100 dark:border-indigo-900/40 flex justify-between items-center text-[11px]">
+          <span class="${pending > 0 ? 'text-rose-500 font-semibold' : 'text-emerald-600 font-semibold'}">${pending} Belum Selesai</span>
           ${canCreateTask ? `
-            <button onclick="openAddTaskModal('all')" class="text-purple-600 dark:text-purple-400 hover:underline font-bold text-[10px]">
-              + Tambah SOP
+            <button onclick="openAddTaskModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold text-[10px] flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[9px]"></i> Tambah Tindakan
             </button>
           ` : ''}
         </div>
       </div>
     `;
 
-    // 2. Individual Admin Cards
-    usersList.forEach(u => {
-      const uTasks = tasksData.filter(t => t.adminUser === u.username);
-      const uDone = uTasks.filter(t => t.status === "Selesai").length;
-      const uPending = uTasks.length - uDone;
-      const uPercent = uTasks.length > 0 ? Math.round((uDone / uTasks.length) * 100) : 0;
+    // Cards for each Service Admin User
+    serviceUsersList.forEach(u => {
       const isMe = u.username === currentUser.username;
-      const roleLabel = (u.role || 'Admin').toUpperCase();
+      const roleLabel = (u.role || 'Service').toUpperCase();
 
       cardsHtml += `
-        <div class="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 hover:shadow-md transition-all ${isMe ? 'ring-1 ring-indigo-500/50' : ''}">
+        <div class="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:shadow-md transition-all ${isMe ? 'ring-1 ring-indigo-500/50' : ''}">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center space-x-2.5 min-w-0">
               <div class="h-8 w-8 rounded-xl ${isMe ? 'bg-indigo-600 text-white' : 'bg-zinc-700 text-zinc-100'} flex items-center justify-center text-xs font-bold shadow-xs flex-shrink-0">
@@ -491,30 +415,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div class="text-[10px] text-zinc-400 font-mono truncate">@${escapeHtmlSafe(u.username)} • ${roleLabel}</div>
               </div>
             </div>
-            <button onclick="setFilterAdmin('${escapeHtmlSafe(u.username)}')" class="p-1.5 text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg text-xs" title="Lihat tugas @${escapeHtmlSafe(u.username)}">
-              <i class="fa-solid fa-filter text-[11px]"></i>
-            </button>
-          </div>
-          
-          <div class="space-y-1.5 mt-2.5">
-            <div class="flex justify-between items-center text-[11px]">
-              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Capaian Hari Ini:</span>
-              <span class="font-bold ${uPercent === 100 && uTasks.length > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'} font-mono">
-                ${uDone}/${uTasks.length} (${uPercent}%)
-              </span>
-            </div>
-            <div class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
-              <div class="h-1.5 rounded-full transition-all duration-500 ${uPercent === 100 ? 'bg-emerald-500' : 'bg-indigo-600'}" style="width: ${uPercent}%"></div>
-            </div>
+            <span class="h-2 w-2 rounded-full bg-emerald-400" title="Aktif"></span>
           </div>
 
-          <div class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-700/80 flex justify-between items-center text-[11px]">
-            <span class="${uPending > 0 ? 'text-rose-500 font-semibold' : 'text-zinc-400'}">${uPending} Belum Selesai</span>
-            ${canCreateTask ? `
-              <button onclick="openAddTaskModal('${escapeHtmlSafe(u.username)}')" class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold text-[10px] flex items-center gap-1">
-                <i class="fa-solid fa-plus text-[9px]"></i> Beri Tugas
-              </button>
-            ` : ''}
+          <div class="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-700/80 flex justify-between items-center text-[11px]">
+            <span class="text-zinc-500 dark:text-zinc-400">Pelaksana Tugas Service</span>
+            <span class="text-indigo-600 dark:text-indigo-400 font-semibold font-mono">${done}/${total} Selesai</span>
           </div>
         </div>
       `;
@@ -540,41 +446,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // ==========================================
-  // TABLE RENDERING WITH INLINE ADMIN REASSIGN
+  // TABLE RENDERING
   // ==========================================
   function renderTasks() {
     const searchQuery = (taskSearchInput.value || "").toLowerCase().trim();
-    const adminFilter = filterAdminSelect.value || "all";
-    const statusFilter = filterStatusSelect.value || "all";
-    const scheduleFilter = filterScheduleSelect.value || "all";
+    const statusFilter = filterStatusSelect ? filterStatusSelect.value : "all";
 
     const filtered = tasksData.filter(task => {
-      // Search
+      // Search query
       if (searchQuery) {
         const matchName = (task.taskName || "").toLowerCase().includes(searchQuery);
-        const matchAdmin = (task.adminName || "").toLowerCase().includes(searchQuery) || (task.adminUser || "").toLowerCase().includes(searchQuery);
         const matchNotes = (task.notes || "").toLowerCase().includes(searchQuery);
         const matchTotal = (task.total || "").toLowerCase().includes(searchQuery);
-        if (!matchName && !matchAdmin && !matchNotes && !matchTotal) return false;
-      }
-
-      // Filter Admin
-      if (adminFilter === "mine") {
-        if (task.adminUser !== currentUser.username && task.adminUser !== "all") return false;
-      } else if (adminFilter === "shared") {
-        if (task.adminUser !== "all") return false;
-      } else if (adminFilter !== "all") {
-        if (task.adminUser !== adminFilter) return false;
+        if (!matchName && !matchNotes && !matchTotal) return false;
       }
 
       // Filter Status
       if (statusFilter !== "all" && task.status !== statusFilter) {
         return false;
-      }
-
-      // Filter Schedule
-      if (scheduleFilter !== "all") {
-        if (task.scheduleType !== scheduleFilter) return false;
       }
 
       return true;
@@ -583,14 +472,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (filtered.length === 0) {
       taskTableBody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center py-12 text-zinc-400">
+          <td colspan="7" class="text-center py-12 text-zinc-400">
             <div class="max-w-sm mx-auto space-y-2">
               <i class="fa-solid fa-clipboard-check text-4xl text-zinc-300 dark:text-zinc-600 block mb-1"></i>
-              <p class="font-bold text-zinc-600 dark:text-zinc-300">Tidak ada tugas yang sesuai.</p>
-              <p class="text-xs text-zinc-400">Silakan sesuaikan filter pencarian atau buat checklist tugas baru.</p>
+              <p class="font-bold text-zinc-600 dark:text-zinc-300">Tidak ada tindakan yang sesuai.</p>
+              <p class="text-xs text-zinc-400">Silakan sesuaikan filter pencarian atau buat tindakan baru.</p>
               ${canCreateTask ? `
                 <button onclick="openAddTaskModal()" class="mt-2 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all">
-                  <i class="fa-solid fa-plus mr-1"></i> Tambah Tugas Baru
+                  <i class="fa-solid fa-plus mr-1"></i> Tambah Tindakan Baru
                 </button>
               ` : ''}
             </div>
@@ -609,63 +498,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Status Badge Style
       let statusBadgeClass = "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border-rose-200 dark:border-rose-800";
-      let statusIcon = "fa-clock";
       if (isDone) {
         statusBadgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
-        statusIcon = "fa-check";
       } else if (isProgress) {
         statusBadgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-200 dark:border-amber-800";
-        statusIcon = "fa-spinner fa-spin";
-      }
-
-      // Schedule Badge
-      let scheduleLabel = "Rutin Harian";
-      let scheduleIcon = "fa-calendar-day";
-      if (task.scheduleType === "hourly") {
-        scheduleLabel = `Tiap ${task.intervalHours || 1} Jam`;
-        scheduleIcon = "fa-clock-rotate-left";
-      } else if (task.scheduleType === "specific") {
-        scheduleLabel = `Pukul ${task.specificTime || '09:00'} WIB`;
-        scheduleIcon = "fa-bell";
       }
 
       // Priority Indicator
-      let priorityPill = `<span class="h-2 w-2 rounded-full bg-amber-400 mr-1.5 flex-shrink-0" title="Prioritas Sedang"></span>`;
+      let priorityPill = `<span class="h-2 w-2 rounded-full bg-amber-400 mr-2 flex-shrink-0" title="Prioritas Sedang"></span>`;
       if (task.priority === "high") {
-        priorityPill = `<span class="h-2 w-2 rounded-full bg-rose-500 mr-1.5 flex-shrink-0" title="Prioritas Tinggi"></span>`;
+        priorityPill = `<span class="h-2 w-2 rounded-full bg-rose-500 mr-2 flex-shrink-0" title="Prioritas Tinggi"></span>`;
       } else if (task.priority === "low") {
-        priorityPill = `<span class="h-2 w-2 rounded-full bg-emerald-400 mr-1.5 flex-shrink-0" title="Prioritas Rendah"></span>`;
-      }
-
-      // Admin Label & Assignment Pill
-      const adminName = task.adminName || (task.adminUser === "all" ? "Semua Admin" : `@${task.adminUser}`);
-      const isAdminMine = task.adminUser === currentUser.username;
-      const isShared = task.adminUser === "all";
-
-      // Inline Admin Switcher for Super Admin
-      let adminSelectorHtml = "";
-      if (isSuperAdmin) {
-        let adminOptions = `<option value="all" ${task.adminUser === 'all' ? 'selected' : ''}>👥 Semua Admin (Shared)</option>`;
-        usersList.forEach(u => {
-          if (u.username) {
-            adminOptions += `<option value="${escapeHtmlSafe(u.username)}" ${task.adminUser === u.username ? 'selected' : ''}>👤 ${escapeHtmlSafe(u.name || u.username)}</option>`;
-          }
-        });
-        adminSelectorHtml = `
-          <select onchange="quickReassignTask('${task.id}', this.value)"
-            class="text-[11px] font-bold py-0.5 px-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer shadow-xs"
-            title="Ubah Penanggung Jawab Admin">
-            ${adminOptions}
-          </select>
-        `;
-      } else {
-        adminSelectorHtml = `
-          <div class="font-bold text-zinc-900 dark:text-white text-xs flex items-center gap-1">
-            <span>${escapeHtmlSafe(adminName)}</span>
-            ${isAdminMine ? '<span class="text-[9px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.2 rounded font-semibold">Anda</span>' : ''}
-          </div>
-          <div class="text-[10px] text-zinc-400 font-mono">${isShared ? 'Shared Task' : `@${escapeHtmlSafe(task.adminUser)}`}</div>
-        `;
+        priorityPill = `<span class="h-2 w-2 rounded-full bg-emerald-400 mr-2 flex-shrink-0" title="Prioritas Ringan"></span>`;
       }
 
       // Link Button
@@ -691,34 +535,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             </button>
           </td>
 
-          <!-- User Admin -->
-          <td class="px-4 py-3.5 whitespace-nowrap">
-            <div class="flex items-center space-x-2">
-              <div class="h-7 w-7 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${isShared ? 'bg-purple-600' : isAdminMine ? 'bg-indigo-600' : 'bg-zinc-600'}">
-                ${isShared ? '<i class="fa-solid fa-users text-[10px]"></i>' : escapeHtmlSafe(adminName.charAt(0).toUpperCase())}
-              </div>
-              <div>
-                ${adminSelectorHtml}
-              </div>
-            </div>
-          </td>
-
-          <!-- Nama Tugas -->
-          <td class="px-4 py-3.5 min-w-[200px]">
+          <!-- Nama Tugas & Prioritas -->
+          <td class="px-4 py-3.5 min-w-[220px]">
             <div class="flex items-center">
               ${priorityPill}
               <span class="font-bold text-zinc-800 dark:text-zinc-100 ${isDone ? 'line-through text-zinc-400 dark:text-zinc-500' : ''}">
                 ${escapeHtmlSafe(task.taskName)}
               </span>
             </div>
-          </td>
-
-          <!-- Jadwal / Interval -->
-          <td class="px-4 py-3.5 whitespace-nowrap">
-            <span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-700/60 text-zinc-700 dark:text-zinc-300 text-xs font-semibold border border-zinc-200 dark:border-zinc-600/50">
-              <i class="fa-solid ${scheduleIcon} text-indigo-500 text-[11px]"></i>
-              <span>${escapeHtmlSafe(scheduleLabel)}</span>
-            </span>
           </td>
 
           <!-- Status Dropdown / Badge -->
@@ -731,7 +555,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </select>
           </td>
 
-          <!-- Total / Metrik -->
+          <!-- Total / Target Metrik (Opsional) -->
           <td class="px-4 py-3.5 whitespace-nowrap">
             ${task.total ? `
               <span class="px-2.5 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-bold text-xs">
@@ -740,14 +564,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             ` : `<span class="text-zinc-400 text-xs">-</span>`}
           </td>
 
-          <!-- Catatan -->
-          <td class="px-4 py-3.5 max-w-[240px]">
+          <!-- Catatan / SOP (Opsional) -->
+          <td class="px-4 py-3.5 max-w-[260px]">
             <p class="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2" title="${escapeHtmlSafe(task.notes || '-')}">
               ${escapeHtmlSafe(task.notes || '-')}
             </p>
           </td>
 
-          <!-- Link -->
+          <!-- Link (Opsional) -->
           <td class="px-4 py-3.5 text-center whitespace-nowrap">
             ${linkHtml}
           </td>
@@ -758,7 +582,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               <!-- Edit Button (CRU) -->
               <button onclick="openEditTaskModal('${task.id}')"
                 class="p-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
-                title="Edit Tugas / Catatan">
+                title="Edit Tugas">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
 
@@ -778,33 +602,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }).join("");
   }
 
-  // Inline quick reassign from table
-  window.quickReassignTask = async (taskId, newAdminUser) => {
-    const task = tasksData.find(t => t.id === taskId);
-    if (!task) return;
-
-    let newAdminName = "Semua Admin";
-    if (newAdminUser !== "all") {
-      const u = usersList.find(x => x.username === newAdminUser);
-      newAdminName = u ? (u.name || u.username) : `@${newAdminUser}`;
-    }
-
-    task.adminUser = newAdminUser;
-    task.adminName = newAdminName;
-
-    renderTasks();
-    updateStats();
-
-    try {
-      await API.updateAdminTask(taskId, { adminUser: newAdminUser, adminName: newAdminName });
-      if (typeof Toast !== "undefined") {
-        Toast.success("Admin Ditugaskan", `Tugas "${task.taskName}" berhasil ditugaskan ke ${newAdminName}.`);
-      }
-    } catch(e) {
-      console.warn("Gagal update admin penugasan:", e);
-    }
-  };
-
   function updateStats() {
     const total = tasksData.length;
     const done = tasksData.filter(t => t.status === "Selesai").length;
@@ -819,10 +616,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     progressBarFill.style.width = `${percent}%`;
     progressBarText.innerText = `${done}/${total} Selesai (${percent}%)`;
 
-    // Default interval display
+    // Global interval display
     statActiveInterval.innerText = `Tiap ${settingsData.defaultIntervalHours || 1} Jam`;
 
-    // Refresh Tab counter and Workload cards
     renderAdminFilterTabs();
     renderAdminWorkloadCards();
   }
@@ -833,13 +629,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     settingBrowserNotifToggle.checked = settingsData.browserNotification !== false;
     settingToastToggle.checked = settingsData.toastReminder !== false;
     settingAutoResetToggle.checked = settingsData.autoDailyReset !== false;
-
-    // Lock interval configuration in task modal if not super admin
-    if (!isSuperAdmin) {
-      intervalAdminOnlyBadge.classList.remove("hidden");
-    } else {
-      intervalAdminOnlyBadge.classList.add("hidden");
-    }
   }
 
   // ==========================================
@@ -848,154 +637,62 @@ document.addEventListener("DOMContentLoaded", async () => {
   const SOP_TEMPLATES = {
     cs_wa: {
       taskName: "Follow-up Chat WhatsApp Klien",
-      adminRole: "service",
-      scheduleType: "hourly",
-      intervalHours: 1,
       total: "15 Chat",
       link: "https://web.whatsapp.com",
-      notes: "Balas semua chat calon klien dan tanyakan kelanjutan kebutuhan portofolio atau estimasi biaya."
+      notes: "Balas semua chat calon klien dan tanyakan kelanjutan kebutuhan desain."
     },
     cs_inquiry: {
       taskName: "Respon Pesan & Tanya Jawab Masuk",
-      adminRole: "service",
-      scheduleType: "hourly",
-      intervalHours: 2,
       total: "10 Pesan",
       link: "https://mail.google.com",
-      notes: "Cek email masuk, inquiry form website, dan direct message sosial media."
+      notes: "Cek email masuk, inquiry formulir website, dan direct message."
     },
     cs_invoice: {
       taskName: "Kirim Tagihan & Invoice ke Klien",
-      adminRole: "service",
-      scheduleType: "specific",
-      specificTime: "10:00",
       total: "5 Invoice",
       link: "invoice.html",
-      notes: "Kirim invoice DP bagi projek baru dan invoice pelunasan bagi projek yang telah selesai."
+      notes: "Kirim invoice DP bagi projek baru dan pelunasan bagi projek selesai."
     },
     cs_review: {
       taskName: "Minta Review / Testimoni Klien Selesai",
-      adminRole: "service",
-      scheduleType: "daily",
-      intervalHours: 24,
       total: "3 Review",
       link: "proyek.html",
-      notes: "Kirim pesan ucapan terima kasih dan form review bintang 5 ke klien yang telah tuntas."
+      notes: "Kirim pesan terima kasih dan form review bintang 5 ke klien yang telah tuntas."
     },
     fin_mutasi: {
       taskName: "Cek Mutasi & Rekening Pembayaran Masuk",
-      adminRole: "super_admin",
-      scheduleType: "specific",
-      specificTime: "09:00",
       total: "100% Cocok",
       link: "keuangan.html",
-      notes: "Cek rekening bank dan verifikasi bukti transfer DP/pelunasan sebelum pengerjaan dimulai."
+      notes: "Cek rekening bank dan verifikasi bukti transfer pembayaran."
     },
     fin_kas: {
       taskName: "Rekap Arus Kas & Pengeluaran Harian",
-      adminRole: "super_admin",
-      scheduleType: "specific",
-      specificTime: "17:00",
       total: "Rp 1.000.000",
       link: "keuangan.html",
-      notes: "Input seluruh struk pengeluaran harian dan hitung total saldo kas penutupan."
+      notes: "Input struk pengeluaran harian dan hitung total saldo kas penutupan."
     },
     fin_laporan: {
       taskName: "Verifikasi Pembukuan & Laporan Mingguan",
-      adminRole: "super_admin",
-      scheduleType: "daily",
-      intervalHours: 24,
       link: "laporan.html",
       total: "100%",
       notes: "Periksa grafik omzet dan ekspor laporan keuangan ke format Excel."
     },
-    des_update: {
-      taskName: "Update Progress Desain di Trello/Drive",
-      adminRole: "desainer",
-      scheduleType: "hourly",
-      intervalHours: 3,
-      total: "5 Projek",
-      link: "tools.html",
-      notes: "Upload progres revisi dan preview desain ke folder Google Drive klien masing-masing."
-    },
-    des_preview: {
-      taskName: "Kirim Preview Desain / Draft Revisi ke Klien",
-      adminRole: "desainer",
-      scheduleType: "specific",
-      specificTime: "14:00",
-      total: "3 Draft",
-      link: "proyek.html",
-      notes: "Kirim mockup ber-watermark untuk review klien dan catat poin-poin feedback."
-    },
-    des_final: {
-      taskName: "Ekspor & Kirim File Final Projek",
-      adminRole: "desainer",
-      scheduleType: "specific",
-      specificTime: "16:00",
-      total: "2 Master",
-      link: "tools.html",
-      notes: "Pastikan font ter-convert outlines/curves, warna CMYK/RGB sesuai, dan resolusi 300 DPI."
-    },
-    des_backup: {
-      taskName: "Backup File Mentah / Master Desain ke Cloud",
-      adminRole: "desainer",
-      scheduleType: "daily",
-      intervalHours: 24,
-      link: "tools.html",
-      total: "100%",
-      notes: "Arsipkan file .AI, .PSD, atau .EPS ke Google Drive Cloud Storage."
-    },
     soc_post: {
-      taskName: "Posting Feed / Reel Instagram & TikTok",
-      adminRole: "all",
-      scheduleType: "specific",
-      specificTime: "11:00",
+      taskName: "Posting Konten Feed / Story Harian",
       total: "1 Konten",
       link: "https://instagram.com",
-      notes: "Posting konten edukasi desain beserta caption menarik dan hashtag yang relevan."
-    },
-    soc_story: {
-      taskName: "Update Story & Engagement Interaktif",
-      adminRole: "all",
-      scheduleType: "hourly",
-      intervalHours: 4,
-      total: "3 Story",
-      link: "https://instagram.com",
-      notes: "Posting cuplikan behind-the-scenes pengerjaan desain dan polling interaktif."
-    },
-    soc_analytics: {
-      taskName: "Rekap Insight & Jangkauan Konten",
-      adminRole: "all",
-      scheduleType: "daily",
-      intervalHours: 24,
-      total: "100%",
-      notes: "Catat pertambahan followers, jangkauan akun, dan interaksi komentar harian."
+      notes: "Posting konten edukasi desain beserta caption & hashtag yang relevan."
     },
     adm_briefing: {
-      taskName: "Briefing Harian & Review Antrean Projek",
-      adminRole: "super_admin",
-      scheduleType: "specific",
-      specificTime: "08:30",
+      taskName: "Review Antrean Projek & Update Status",
       total: "10 Projek",
       link: "proyek.html",
-      notes: "Cek deadline projek aktif dan delegasikan ke desainer yang tersedia."
-    },
-    adm_backup: {
-      taskName: "Backup Spreadsheet & Verifikasi Akun Baru",
-      adminRole: "super_admin",
-      scheduleType: "daily",
-      intervalHours: 24,
-      link: "pengaturan.html",
-      total: "100%",
-      notes: "Pastikan seluruh data projek dan kas tersinkronisasi aman di Google Sheets."
+      notes: "Cek deadline projek aktif dan pastikan status pengerjaan ter-update."
     },
     adm_eval: {
-      taskName: "Evaluasi Capaian Harian & SOP Tim",
-      adminRole: "super_admin",
-      scheduleType: "specific",
-      specificTime: "17:30",
+      taskName: "Evaluasi Capaian Harian Admin",
       total: "100%",
-      notes: "Evaluasi checklist tindakan yang belum selesai dan siapkan target untuk esok hari."
+      notes: "Evaluasi checklist tindakan yang belum selesai dan siapkan target besok."
     }
   };
 
@@ -1004,90 +701,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tpl = SOP_TEMPLATES[templateKey];
 
     taskNameInput.value = tpl.taskName || "";
-    taskScheduleTypeSelect.value = tpl.scheduleType || "hourly";
-    if (tpl.intervalHours) taskIntervalHoursSelect.value = String(tpl.intervalHours);
-    if (tpl.specificTime) taskSpecificTimeInput.value = tpl.specificTime;
     taskTotalInput.value = tpl.total || "";
     taskLinkInput.value = tpl.link || "";
     taskNotesInput.value = tpl.notes || "";
 
-    // Suggest matching admin
-    if (isSuperAdmin) {
-      if (tpl.adminRole === "all") {
-        taskAdminSelect.value = "all";
-      } else {
-        const matchingUser = usersList.find(u => (u.role || '').toLowerCase().includes(tpl.adminRole) || u.username.toLowerCase().includes(tpl.adminRole));
-        if (matchingUser) {
-          taskAdminSelect.value = matchingUser.username;
-        } else {
-          taskAdminSelect.value = "all";
-        }
-      }
-    }
-
-    toggleScheduleInputs();
     if (typeof Toast !== "undefined") {
       Toast.info("Template Diterapkan", `Formulir otomatis terisi dengan template "${tpl.taskName}".`);
     }
   };
 
   // ==========================================
-  // ASSIGNMENT MODE (SINGLE / MULTI / SHARED)
-  // ==========================================
-  window.toggleAssignMode = (mode) => {
-    if (mode === "single") {
-      singleAdminSelectContainer.classList.remove("hidden");
-      multiAdminChecklistContainer.classList.add("hidden");
-      taskAdminSelect.required = true;
-    } else if (mode === "shared") {
-      singleAdminSelectContainer.classList.remove("hidden");
-      multiAdminChecklistContainer.classList.add("hidden");
-      taskAdminSelect.value = "all";
-      taskAdminSelect.required = true;
-    } else if (mode === "multi") {
-      singleAdminSelectContainer.classList.add("hidden");
-      multiAdminChecklistContainer.classList.remove("hidden");
-      taskAdminSelect.required = false;
-    }
-  };
-
-  window.selectAllMultiAdmins = (check) => {
-    const checkboxes = document.querySelectorAll('input[name="multiAdminUser"]');
-    checkboxes.forEach(cb => cb.checked = check);
-  };
-
-  // ==========================================
   // TASK CRUD ACTIONS
   // ==========================================
-  window.openAddTaskModal = (preSelectedAdmin = null) => {
+  window.openAddTaskModal = () => {
     taskForm.reset();
     taskIdInput.value = "";
     taskModalTitle.innerHTML = `<i class="fa-solid fa-plus-circle text-indigo-600 mr-1.5"></i><span>Tambah Tindakan / Tugas Baru</span>`;
     
-    // Default values
     taskStatusSelect.value = "Belum Selesai";
     taskPrioritySelect.value = "medium";
-    taskScheduleTypeSelect.value = "hourly";
-    taskIntervalHoursSelect.value = String(settingsData.defaultIntervalHours || 1);
-    taskSpecificTimeInput.value = "09:00";
-    taskTemplateSelect.value = "";
+    if (taskTemplateSelect) taskTemplateSelect.value = "";
     
-    // Reset Assignment Mode
-    const singleRadio = document.querySelector('input[name="assignMode"][value="single"]');
-    if (singleRadio) singleRadio.checked = true;
-    toggleAssignMode("single");
-    selectAllMultiAdmins(false);
-
-    // Auto-select admin
-    if (preSelectedAdmin) {
-      taskAdminSelect.value = preSelectedAdmin;
-    } else if (!isSuperAdmin) {
-      taskAdminSelect.value = currentUser.username || "all";
-    } else {
-      taskAdminSelect.value = "all";
-    }
-
-    toggleScheduleInputs();
     taskModal.classList.remove("hidden");
   };
 
@@ -1097,24 +731,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     taskIdInput.value = task.id;
     taskNameInput.value = task.taskName || "";
-    taskAdminSelect.value = task.adminUser || "all";
     taskPrioritySelect.value = task.priority || "medium";
-    taskScheduleTypeSelect.value = task.scheduleType || "hourly";
-    taskIntervalHoursSelect.value = String(task.intervalHours || 1);
-    taskSpecificTimeInput.value = task.specificTime || "09:00";
     taskTotalInput.value = task.total || "";
     taskStatusSelect.value = task.status || "Belum Selesai";
     taskLinkInput.value = task.link || "";
     taskNotesInput.value = task.notes || "";
-    taskTemplateSelect.value = "";
-
-    // Edit mode only supports single/shared
-    const singleRadio = document.querySelector('input[name="assignMode"][value="single"]');
-    if (singleRadio) singleRadio.checked = true;
-    toggleAssignMode("single");
+    if (taskTemplateSelect) taskTemplateSelect.value = "";
 
     taskModalTitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600 mr-1.5"></i><span>Edit Tindakan: ${escapeHtmlSafe(task.taskName)}</span>`;
-    toggleScheduleInputs();
     taskModal.classList.remove("hidden");
   };
 
@@ -1131,24 +755,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function toggleScheduleInputs() {
-    const type = taskScheduleTypeSelect.value;
-    if (type === "hourly") {
-      intervalHoursContainer.classList.remove("hidden");
-      specificTimeContainer.classList.add("hidden");
-    } else if (type === "specific") {
-      intervalHoursContainer.classList.add("hidden");
-      specificTimeContainer.classList.remove("hidden");
-    } else {
-      // Daily
-      intervalHoursContainer.classList.add("hidden");
-      specificTimeContainer.classList.add("hidden");
-    }
-  }
-
-  taskScheduleTypeSelect.addEventListener("change", toggleScheduleInputs);
-
-  // Form Submit (Create / Multi-Create / Update)
+  // Form Submit (Create / Update)
   taskForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -1159,111 +766,37 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const assignMode = (document.querySelector('input[name="assignMode"]:checked') || {}).value || "single";
     const saveBtn = document.getElementById("saveTaskBtn");
     const origHtml = saveBtn.innerHTML;
     saveBtn.disabled = true;
     saveBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Menyimpan...`;
 
     try {
+      const taskPayload = {
+        taskName,
+        adminUser: "service",
+        adminName: "Admin Service",
+        priority: taskPrioritySelect.value,
+        scheduleType: "hourly",
+        intervalHours: Number(settingsData.defaultIntervalHours) || 1,
+        total: taskTotalInput.value.trim(),
+        status: taskStatusSelect.value,
+        link: taskLinkInput.value.trim(),
+        notes: taskNotesInput.value.trim(),
+        lastResetDate: getTodayDateString()
+      };
+
       if (id) {
         // Update existing task
-        const adminUser = taskAdminSelect.value;
-        let adminName = "Semua Admin";
-        if (adminUser !== "all") {
-          const u = usersList.find(x => x.username === adminUser);
-          adminName = u ? (u.name || u.username) : `@${adminUser}`;
-        }
-
-        const taskPayload = {
-          taskName,
-          adminUser,
-          adminName,
-          priority: taskPrioritySelect.value,
-          scheduleType: taskScheduleTypeSelect.value,
-          intervalHours: Number(taskIntervalHoursSelect.value) || 1,
-          specificTime: taskSpecificTimeInput.value || "09:00",
-          total: taskTotalInput.value.trim(),
-          status: taskStatusSelect.value,
-          link: taskLinkInput.value.trim(),
-          notes: taskNotesInput.value.trim(),
-          lastResetDate: getTodayDateString()
-        };
-
         await API.updateAdminTask(id, taskPayload);
         tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
         if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
       } else {
-        // Create new task(s)
-        if (assignMode === "multi") {
-          // Multi-Admin Batch Creation
-          const selectedCheckboxes = document.querySelectorAll('input[name="multiAdminUser"]:checked');
-          if (selectedCheckboxes.length === 0) {
-            if (typeof Toast !== "undefined") Toast.warning("Peringatan", "Silakan centang setidaknya 1 admin untuk penugasan.");
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = origHtml;
-            return;
-          }
-
-          let createdCount = 0;
-          for (const cb of selectedCheckboxes) {
-            const adminUser = cb.value;
-            const u = usersList.find(x => x.username === adminUser);
-            const adminName = u ? (u.name || u.username) : `@${adminUser}`;
-
-            const taskPayload = {
-              taskName,
-              adminUser,
-              adminName,
-              priority: taskPrioritySelect.value,
-              scheduleType: taskScheduleTypeSelect.value,
-              intervalHours: Number(taskIntervalHoursSelect.value) || 1,
-              specificTime: taskSpecificTimeInput.value || "09:00",
-              total: taskTotalInput.value.trim(),
-              status: taskStatusSelect.value,
-              link: taskLinkInput.value.trim(),
-              notes: taskNotesInput.value.trim(),
-              lastResetDate: getTodayDateString()
-            };
-
-            const res = await API.addAdminTask(taskPayload);
-            const createdTask = res.data || { ...taskPayload, id: "TSK-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4) };
-            tasksData.unshift(createdTask);
-            createdCount++;
-          }
-
-          if (typeof Toast !== "undefined") {
-            Toast.success("Multi-Penugasan Berhasil! 👥", `Berhasil membuat ${createdCount} tugas untuk admin terpilih.`);
-          }
-        } else {
-          // Single / Shared Task Creation
-          const adminUser = assignMode === "shared" ? "all" : taskAdminSelect.value;
-          let adminName = "Semua Admin";
-          if (adminUser !== "all") {
-            const u = usersList.find(x => x.username === adminUser);
-            adminName = u ? (u.name || u.username) : `@${adminUser}`;
-          }
-
-          const taskPayload = {
-            taskName,
-            adminUser,
-            adminName,
-            priority: taskPrioritySelect.value,
-            scheduleType: taskScheduleTypeSelect.value,
-            intervalHours: Number(taskIntervalHoursSelect.value) || 1,
-            specificTime: taskSpecificTimeInput.value || "09:00",
-            total: taskTotalInput.value.trim(),
-            status: taskStatusSelect.value,
-            link: taskLinkInput.value.trim(),
-            notes: taskNotesInput.value.trim(),
-            lastResetDate: getTodayDateString()
-          };
-
-          const res = await API.addAdminTask(taskPayload);
-          const createdTask = res.data || { ...taskPayload, id: "TSK-" + Date.now() };
-          tasksData.unshift(createdTask);
-          if (typeof Toast !== "undefined") Toast.success("Berhasil!", `Tugas baru berhasil ditugaskan ke ${adminName}.`);
-        }
+        // Create new task for service team
+        const res = await API.addAdminTask(taskPayload);
+        const createdTask = res.data || { ...taskPayload, id: "TSK-" + Date.now() };
+        tasksData.unshift(createdTask);
+        if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
       }
 
       closeTaskModal();
@@ -1391,7 +924,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ==========================================
-  // SUPER ADMIN SETTINGS MODAL
+  // SUPER ADMIN SETTINGS MODAL (GLOBAL INTERVAL & NOTIF)
   // ==========================================
   function openSettingsModal() {
     if (!isSuperAdmin) {
@@ -1435,7 +968,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         await API.saveAdminTaskSettings(settingsData);
-        if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", "Setelan notifikasi dan interval tugas berhasil diperbarui.");
+        if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", `Interval pengingat global berhasil diatur ke Tiap ${settingsData.defaultIntervalHours} Jam.`);
         closeSettingsModal();
         updateStats();
       } catch (err) {
@@ -1469,7 +1002,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
         new Notification("FPManager Notifikasi Aktif", {
-          body: "Pengingat berkala tugas admin telah diizinkan pada browser ini.",
+          body: `Pengingat tugas admin aktif tiap ${settingsData.defaultIntervalHours || 1} jam.`,
           icon: "./assets/img/icon-192.png"
         });
         if (typeof Toast !== "undefined") Toast.success("Izin Diberikan", "Notifikasi browser aktif!");
@@ -1485,7 +1018,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let lastNotificationTriggerTime = Date.now();
 
   function scheduleNotificationChecker() {
-    // Check every 60 seconds
     setInterval(() => {
       checkPeriodicReminders();
     }, 60000);
@@ -1496,13 +1028,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const intervalMs = intervalHours * 60 * 60 * 1000;
     const now = Date.now();
 
-    // Pending tasks assigned to current user or shared
-    const pendingTasks = tasksData.filter(t => {
-      if (t.status === "Selesai") return false;
-      if (t.adminUser === "all" || t.adminUser === currentUser.username || isSuperAdmin) return true;
-      return false;
-    });
-
+    const pendingTasks = tasksData.filter(t => t.status !== "Selesai");
     if (pendingTasks.length === 0) return;
 
     if (now - lastNotificationTriggerTime >= intervalMs) {
@@ -1513,22 +1039,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function triggerReminderAlert(pendingList) {
     const count = pendingList.length;
-    const msg = `Ada ${count} tugas checklist harian admin yang belum selesai dikerjakan.`;
+    const msg = `Ada ${count} tindakan checklist admin service yang belum selesai hari ini.`;
 
-    // 1. Play Audio Chime
+    // 1. Audio Chime
     if (settingsData.soundNotification !== false) {
       playNotificationChime(false);
     }
 
-    // 2. In-App Floating Toast / Banner
+    // 2. Floating In-App Reminder
     if (settingsData.toastReminder !== false && floatingReminderPopup) {
       floatingReminderMessage.innerText = `${msg} Silakan periksa daftar tugas Anda.`;
       floatingReminderPopup.classList.remove("hidden");
     }
 
-    // 3. Browser System Notification (PWA)
+    // 3. Browser Push/System Notification
     if (settingsData.browserNotification !== false && "Notification" in window && Notification.permission === "granted") {
-      new Notification("Pengingat Tugas Admin FPManager", {
+      new Notification("Pengingat Tindakan Admin FPManager", {
         body: msg,
         icon: "./assets/img/icon-192.png",
         badge: "./assets/img/icon-192.png",
@@ -1543,7 +1069,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   window.focusPendingTasks = () => {
     if (floatingReminderPopup) floatingReminderPopup.classList.add("hidden");
-    filterStatusSelect.value = "Belum Selesai";
+    if (filterStatusSelect) filterStatusSelect.value = "Belum Selesai";
     renderTasks();
     const tableEl = document.querySelector("#taskTableBody");
     if (tableEl) tableEl.scrollIntoView({ behavior: "smooth" });
@@ -1551,13 +1077,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Search & Filter event listeners
   taskSearchInput.addEventListener("input", renderTasks);
-  filterAdminSelect.addEventListener("change", (e) => {
-    currentActiveAdminTab = e.target.value;
-    renderAdminFilterTabs();
-    renderTasks();
-  });
-  filterStatusSelect.addEventListener("change", renderTasks);
-  filterScheduleSelect.addEventListener("change", renderTasks);
+  if (filterAdminSelect) {
+    filterAdminSelect.addEventListener("change", (e) => {
+      currentActiveAdminTab = e.target.value;
+      renderAdminFilterTabs();
+      renderTasks();
+    });
+  }
+  if (filterStatusSelect) filterStatusSelect.addEventListener("change", renderTasks);
+  if (filterScheduleSelect) filterScheduleSelect.addEventListener("change", renderTasks);
 
   // Initial Load
   loadAdminTasks();

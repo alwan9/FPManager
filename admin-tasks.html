@@ -411,12 +411,10 @@
               <thead class="bg-zinc-50 dark:bg-zinc-900/80 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase border-b border-zinc-200 dark:border-zinc-700 select-none">
                 <tr>
                   <th class="px-4 py-3.5 text-center w-14">Cek</th>
-                  <th class="px-4 py-3.5">User Admin</th>
                   <th class="px-4 py-3.5">Nama Tindakan / Tugas</th>
-                  <th class="px-4 py-3.5">Jadwal / Interval</th>
                   <th class="px-4 py-3.5 text-center">Status</th>
-                  <th class="px-4 py-3.5">Total / Metrik</th>
-                  <th class="px-4 py-3.5">Catatan</th>
+                  <th class="px-4 py-3.5">Total / Target</th>
+                  <th class="px-4 py-3.5">Catatan / SOP</th>
                   <th class="px-4 py-3.5 text-center">Tautan</th>
                   <th class="px-4 py-3.5 text-center w-24">Aksi</th>
                 </tr>
@@ -424,7 +422,7 @@
               <tbody id="taskTableBody" class="divide-y divide-zinc-200 dark:divide-zinc-700/80 font-normal">
                 <!-- Loaded via JS -->
                 <tr>
-                  <td colspan="9" class="text-center py-10 text-zinc-400">
+                  <td colspan="7" class="text-center py-10 text-zinc-400">
                     <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-indigo-500"></i>
                     <p class="font-medium">Memuat data aktivitas tugas admin...</p>
                   </td>
@@ -464,48 +462,37 @@
       <form id="taskForm" class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-grow text-xs sm:text-sm">
         <input type="hidden" id="taskIdInput">
 
-        <!-- Quick SOP Template Picker -->
+        <!-- Quick SOP Template Picker (Opsional) -->
         <div class="p-3 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/50 space-y-1.5">
           <div class="flex items-center justify-between">
             <label class="block font-bold text-purple-950 dark:text-purple-200 text-xs">
-              <i class="fa-solid fa-wand-magic-sparkles mr-1 text-purple-600"></i> Template SOP & Rekomendasi Tugas:
+              <i class="fa-solid fa-wand-magic-sparkles mr-1 text-purple-600"></i> Template SOP / Tindakan Standar:
             </label>
-            <span class="text-[10px] text-purple-600 dark:text-purple-400">Otomatis isi form & jadwal</span>
+            <span class="text-[10px] text-purple-600 dark:text-purple-400">Opsional: isi otomatis</span>
           </div>
           <select id="taskTemplateSelect" onchange="applyTaskTemplate(this.value)"
             class="w-full px-3 py-2 rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:outline-none text-xs font-semibold">
-            <option value="">-- Pilih Template SOP / Tindakan Standar --</option>
+            <option value="">-- Pilih Template Standar (Opsional) --</option>
             <optgroup label="🎧 Admin Customer Service & Chat">
-              <option value="cs_wa">Follow-up Chat WhatsApp Klien (Tiap 1 Jam)</option>
-              <option value="cs_inquiry">Respon Pesan & Tanya Jawab Masuk (Tiap 2 Jam)</option>
-              <option value="cs_invoice">Kirim Tagihan & Invoice ke Klien (Pukul 10:00 WIB)</option>
-              <option value="cs_review">Minta Review / Testimoni Klien Selesai (Rutin Harian)</option>
+              <option value="cs_wa">Follow-up Chat WhatsApp Klien</option>
+              <option value="cs_inquiry">Respon Pesan & Tanya Jawab Masuk</option>
+              <option value="cs_invoice">Kirim Tagihan & Invoice ke Klien</option>
+              <option value="cs_review">Minta Review / Testimoni Klien Selesai</option>
             </optgroup>
             <optgroup label="💰 Admin Keuangan & Kas">
-              <option value="fin_mutasi">Cek Mutasi & Rekening Pembayaran (Pukul 09:00 WIB)</option>
-              <option value="fin_kas">Rekap Arus Kas & Pengeluaran Harian (Pukul 17:00 WIB)</option>
+              <option value="fin_mutasi">Cek Mutasi & Rekening Pembayaran Masuk</option>
+              <option value="fin_kas">Rekap Arus Kas & Pengeluaran Harian</option>
               <option value="fin_laporan">Verifikasi Pembukuan & Laporan Mingguan</option>
             </optgroup>
-            <optgroup label="🎨 Admin Desain & Produksi">
-              <option value="des_update">Update Progress Desain di Trello/Drive (Tiap 3 Jam)</option>
-              <option value="des_preview">Kirim Preview Desain / Draft Revisi ke Klien (Pukul 14:00 WIB)</option>
-              <option value="des_final">Ekspor & Kirim File Final Projek (Pukul 16:00 WIB)</option>
-              <option value="des_backup">Backup File Mentah / Master Desain ke Cloud</option>
-            </optgroup>
-            <optgroup label="📢 Admin Sosmed & Konten">
-              <option value="soc_post">Posting Feed / Reel Instagram & TikTok (Pukul 11:00 WIB)</option>
-              <option value="soc_story">Update Story & Engagement Interaktif (Tiap 4 Jam)</option>
-              <option value="soc_analytics">Rekap Insight & Jangkauan Konten</option>
-            </optgroup>
-            <optgroup label="⚙️ Super Admin & Operasional">
-              <option value="adm_briefing">Briefing Harian & Review Antrean Projek (Pukul 08:30 WIB)</option>
-              <option value="adm_backup">Backup Spreadsheet & Verifikasi Akun Baru</option>
-              <option value="adm_eval">Evaluasi Capaian Harian & SOP Tim</option>
+            <optgroup label="📢 Operasional & Sosmed">
+              <option value="soc_post">Posting Konten Feed / Story Harian</option>
+              <option value="adm_briefing">Review Antrean Projek & Update Status</option>
+              <option value="adm_eval">Evaluasi Capaian Harian Admin</option>
             </optgroup>
           </select>
         </div>
 
-        <!-- Nama Tugas -->
+        <!-- Nama Tugas (Wajib) -->
         <div>
           <label for="taskNameInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
             Nama Tindakan / Tugas <span class="text-rose-500">*</span>
@@ -514,123 +501,18 @@
             class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
         </div>
 
-        <!-- Mode Penugasan Admin (Single / Multi / Shared) -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <label class="block font-semibold text-zinc-700 dark:text-zinc-300">
-              Penugasan User Admin <span class="text-rose-500">*</span>
-            </label>
-            <div id="assignModeToggleContainer" class="flex items-center space-x-2 text-xs">
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" name="assignMode" value="single" checked onchange="toggleAssignMode('single')" class="text-indigo-600 focus:ring-indigo-500">
-                <span class="ml-1 text-zinc-600 dark:text-zinc-400 font-medium">1 Admin</span>
-              </label>
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="radio" name="assignMode" value="shared" onchange="toggleAssignMode('shared')" class="text-indigo-600 focus:ring-indigo-500">
-                <span class="ml-1 text-zinc-600 dark:text-zinc-400 font-medium">Shared (Semua)</span>
-              </label>
-              <label id="multiAssignRadioWrapper" class="inline-flex items-center cursor-pointer">
-                <input type="radio" name="assignMode" value="multi" onchange="toggleAssignMode('multi')" class="text-indigo-600 focus:ring-indigo-500">
-                <span class="ml-1 text-indigo-600 dark:text-indigo-400 font-bold">Multi-Assign 👥</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Single Admin Select Box -->
-          <div id="singleAdminSelectContainer">
-            <select id="taskAdminSelect" required
-              class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
-              <option value="all">Semua Admin (Umum / Shared SOP)</option>
-              <!-- Populated dynamically via JS -->
-            </select>
-          </div>
-
-          <!-- Multi-Admin Checkbox List (Shown when Multi-Assign is chosen) -->
-          <div id="multiAdminChecklistContainer" class="hidden p-3 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-2">
-            <div class="text-[11px] font-bold text-indigo-900 dark:text-indigo-200 flex items-center justify-between">
-              <span>Pilih admin mana saja yang ditugaskan (akan dibuatkan tugas per admin):</span>
-              <button type="button" onclick="selectAllMultiAdmins(true)" class="text-indigo-600 dark:text-indigo-400 hover:underline">Pilih Semua</button>
-            </div>
-            <div id="multiAdminCheckboxList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto pr-1">
-              <!-- Populated via JS -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Prioritas Tindakan -->
-        <div>
-          <label for="taskPrioritySelect" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-            Prioritas Tindakan
-          </label>
-          <select id="taskPrioritySelect"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
-            <option value="high">🔴 Tinggi / Mendesak (Penting)</option>
-            <option value="medium" selected>🟡 Sedang / Standar</option>
-            <option value="low">🟢 Ringan / Rutin</option>
-          </select>
-        </div>
-
-        <!-- Jadwal & Interval Notifikasi -->
-        <div class="p-3.5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 space-y-3">
-          <div class="flex items-center justify-between">
-            <label class="block font-bold text-indigo-950 dark:text-indigo-200">
-              <i class="fa-solid fa-clock-rotate-left mr-1"></i> Jadwal & Interval Pengingat
-            </label>
-            <span id="intervalAdminOnlyBadge" class="text-[10px] bg-indigo-200/80 dark:bg-indigo-800/80 text-indigo-900 dark:text-indigo-200 px-2 py-0.5 rounded-md font-semibold hidden">
-              Super Admin Config
-            </span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label for="taskScheduleTypeSelect" class="block font-medium text-zinc-600 dark:text-zinc-400 mb-1 text-xs">
-                Tipe Frekuensi
-              </label>
-              <select id="taskScheduleTypeSelect"
-                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs font-semibold">
-                <option value="hourly">Setiap Beberapa Jam (Berkala)</option>
-                <option value="specific">Jam Tertentu (Spesifik)</option>
-                <option value="daily">Rutin Harian (1x Sehari)</option>
-              </select>
-            </div>
-
-            <!-- Interval Hours (If Hourly) -->
-            <div id="intervalHoursContainer">
-              <label for="taskIntervalHoursSelect" class="block font-medium text-zinc-600 dark:text-zinc-400 mb-1 text-xs">
-                Interval Pengingat
-              </label>
-              <select id="taskIntervalHoursSelect"
-                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs font-semibold">
-                <option value="1">Setiap 1 Jam Sekali</option>
-                <option value="2">Setiap 2 Jam Sekali</option>
-                <option value="3">Setiap 3 Jam Sekali</option>
-                <option value="4">Setiap 4 Jam Sekali</option>
-                <option value="6">Setiap 6 Jam Sekali</option>
-                <option value="8">Setiap 8 Jam Sekali</option>
-                <option value="12">Setiap 12 Jam Sekali</option>
-                <option value="24">Setiap 24 Jam (Harian)</option>
-              </select>
-            </div>
-
-            <!-- Specific Time (If Specific) -->
-            <div id="specificTimeContainer" class="hidden">
-              <label for="taskSpecificTimeInput" class="block font-medium text-zinc-600 dark:text-zinc-400 mb-1 text-xs">
-                Pukul Berapa (WIB)
-              </label>
-              <input type="time" id="taskSpecificTimeInput" value="09:00"
-                class="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none text-xs font-semibold">
-            </div>
-          </div>
-        </div>
-
-        <!-- Kolom Total / Target Metrik & Status (2 Cols) -->
+        <!-- Prioritas & Status (2 Cols) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label for="taskTotalInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-              Total / Target Capaian
+            <label for="taskPrioritySelect" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+              Prioritas Tindakan
             </label>
-            <input type="text" id="taskTotalInput" placeholder="Misal: 15 Chat, Rp 2.500.000, 5 Projek"
+            <select id="taskPrioritySelect"
               class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
+              <option value="high">🔴 Tinggi / Mendesak</option>
+              <option value="medium" selected>🟡 Sedang / Standar</option>
+              <option value="low">🟢 Ringan / Rutin</option>
+            </select>
           </div>
 
           <div>
@@ -646,24 +528,36 @@
           </div>
         </div>
 
-        <!-- Kolom Link -->
+        <!-- Kolom Total / Target Capaian (Opsional) -->
         <div>
-          <label for="taskLinkInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-            Kolom Tautan / URL Terkait (Link)
+          <label for="taskTotalInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+            <span>Total / Target Capaian</span>
+            <span class="text-[10px] text-zinc-400 font-normal">Opsional</span>
+          </label>
+          <input type="text" id="taskTotalInput" placeholder="Misal: 15 Chat, Rp 2.500.000, 5 Projek (Opsional)"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
+        </div>
+
+        <!-- Kolom Link (Opsional) -->
+        <div>
+          <label for="taskLinkInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+            <span>Kolom Tautan / URL Terkait (Link)</span>
+            <span class="text-[10px] text-zinc-400 font-normal">Opsional</span>
           </label>
           <div class="relative">
             <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
-            <input type="url" id="taskLinkInput" placeholder="https://web.whatsapp.com atau invoice.html"
+            <input type="url" id="taskLinkInput" placeholder="https://web.whatsapp.com atau invoice.html (Opsional)"
               class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono text-xs">
           </div>
         </div>
 
-        <!-- Kolom Catatan -->
+        <!-- Kolom Catatan / SOP (Opsional) -->
         <div>
-          <label for="taskNotesInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-            Kolom Catatan / Instruksi SOP
+          <label for="taskNotesInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+            <span>Kolom Catatan / Instruksi SOP</span>
+            <span class="text-[10px] text-zinc-400 font-normal">Opsional</span>
           </label>
-          <textarea id="taskNotesInput" rows="2.5" placeholder="Tuliskan catatan pengerjaan, pedoman, atau detail tindakan..."
+          <textarea id="taskNotesInput" rows="2.5" placeholder="Tuliskan catatan pengerjaan atau instruksi SOP (Opsional)..."
             class="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"></textarea>
         </div>
 
