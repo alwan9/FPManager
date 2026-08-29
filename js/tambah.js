@@ -220,8 +220,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const qty = parseFloat(jumlahInput.value) || 0;
     const price = parseFloat(hargaSatuanInput.value) || 0;
     const dp = parseFloat(dpInput.value) || 0;
-    const nominal = qty * price;
-    const sisa = nominal - dp;
+    const nominal = Math.round(qty * price);
+    const sisa = Math.round(nominal - dp);
     nominalInput.value = formatRupiah(nominal);
     sisaInput.value = formatRupiah(sisa);
 
@@ -443,8 +443,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const qty = parseFloat(jumlahInput.value) || 0;
     const price = parseFloat(hargaSatuanInput.value) || 0;
     const dp = parseFloat(dpInput.value) || 0;
-    const nominal = qty * price;
-    const sisa = nominal - dp;
+    const nominal = Math.round(qty * price);
+    const sisa = Math.round(nominal - dp);
 
     if (!isEditMode) {
       const inputDate = new Date(deadlineInput.value);

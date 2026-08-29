@@ -7,6 +7,7 @@ const TRANSLATIONS = {
     "nav-keuangan": "Keuangan",
     "nav-laporan": "Laporan",
     "nav-layanan": "Layanan",
+    "nav-admin-tasks": "Aktivitas Admin",
     "nav-pengaturan": "Pengaturan",
     "nav-logout": "Logout",
     "nav-install": "Install Aplikasi",
@@ -307,6 +308,7 @@ const TRANSLATIONS = {
     "nav-keuangan": "Finance",
     "nav-laporan": "Reports",
     "nav-layanan": "Services",
+    "nav-admin-tasks": "Admin Tasks",
     "nav-pengaturan": "Settings",
     "nav-logout": "Logout",
     "nav-install": "Install App",
@@ -668,6 +670,8 @@ const i18n = {
       document.title = currentLang === 'en' ? 'Tools & Prompts - FPManager' : 'Tools & Prompts - FPManager';
     } else if (currentPath === 'profil.html') {
       document.title = currentLang === 'en' ? 'User Profile - FPManager' : 'Profil Pengguna - FPManager';
+    } else if (currentPath === 'admin-tasks.html') {
+      document.title = currentLang === 'en' ? 'Admin Daily Tasks & SOP - FPManager' : 'Aktivitas & Checklist Harian Admin - FPManager';
     } else if (currentPath === 'user-management.html') {
       document.title = currentLang === 'en' ? 'User Management - FPManager' : 'Manajemen User - Kelola FPManager';
     }

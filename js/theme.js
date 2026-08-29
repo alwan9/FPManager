@@ -29,11 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
       if (isDark) {
-        toggleIcon.classList.remove('fa-moon');
-        toggleIcon.classList.add('fa-sun');
+        if (toggleIcon) {
+          toggleIcon.classList.remove('fa-moon');
+          toggleIcon.classList.add('fa-sun');
+        }
       } else {
-        toggleIcon.classList.remove('fa-sun');
-        toggleIcon.classList.add('fa-moon');
+        if (toggleIcon) {
+          toggleIcon.classList.remove('fa-sun');
+          toggleIcon.classList.add('fa-moon');
+        }
       }
 
       // Update Chart.js if exists

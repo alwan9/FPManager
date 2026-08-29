@@ -109,12 +109,23 @@ const Auth = {
           "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
           "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
           "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
-          "laporan:read", "laporan:export"
+          "laporan:read", "laporan:export",
+          "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
         ],
         desainer: [
           "proyek:read", "proyek:create", "proyek:update",
           "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
-          "tools:read", "tools:create", "tools:update", "tools:delete"
+          "tools:read", "tools:create", "tools:update", "tools:delete",
+          "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
+        ],
+        super_admin: [
+          "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
+          "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
+          "laporan:read", "laporan:export",
+          "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
+          "tools:read", "tools:create", "tools:update", "tools:delete",
+          "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
+          "users:read", "users:create", "users:update", "users:delete"
         ]
       };
       const defs = roleDefaults[user.role] || [];
@@ -127,7 +138,7 @@ const Auth = {
 
   checkLogin: () => {
     const token = Auth.getToken();
-    const isLoginPage = window.location.pathname.endsWith("login.html");
+    const isLoginPage = /(^|\/)login(\.html)?$/i.test(window.location.pathname);
     
     if (!token && !isLoginPage) {
       window.location.href = "login.html";
@@ -156,13 +167,14 @@ const Auth = {
     const path = window.location.pathname.toLowerCase();
 
     let isDenied = false;
-    if (path.endsWith("proyek.html") && !Auth.hasPermission("proyek:read")) isDenied = true;
-    if (path.endsWith("tambah-proyek.html") && !Auth.hasPermission("proyek:create")) isDenied = true;
-    if (path.endsWith("keuangan.html") && !Auth.hasPermission("keuangan:read")) isDenied = true;
-    if (path.endsWith("laporan.html") && !Auth.hasPermission("laporan:read")) isDenied = true;
-    if (path.endsWith("layanan.html") && !Auth.hasPermission("layanan:read")) isDenied = true;
-    if (path.endsWith("tools.html") && !Auth.hasPermission("tools:read")) isDenied = true;
-    if (path.endsWith("user-management.html")) isDenied = true; // User Biasa Tidak Boleh Akses Halaman User Manager
+    if (/(^|\/)proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
+    if (/(^|\/)tambah-proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:create")) isDenied = true;
+    if (/(^|\/)keuangan(\.html)?$/i.test(path) && !Auth.hasPermission("keuangan:read")) isDenied = true;
+    if (/(^|\/)laporan(\.html)?$/i.test(path) && !Auth.hasPermission("laporan:read")) isDenied = true;
+    if (/(^|\/)layanan(\.html)?$/i.test(path) && !Auth.hasPermission("layanan:read")) isDenied = true;
+    if (/(^|\/)tools(\.html)?$/i.test(path) && !Auth.hasPermission("tools:read")) isDenied = true;
+    if (/(^|\/)admin-tasks(\.html)?$/i.test(path) && !Auth.hasPermission("admin_tasks:read")) isDenied = true;
+    if (/(^|\/)user-management(\.html)?$/i.test(path)) isDenied = true; // User Biasa Tidak Boleh Akses Halaman User Manager
 
     if (isDenied) {
       sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman tersebut.");
@@ -198,6 +210,7 @@ const Auth = {
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
         else if (href.endsWith("layanan.html")) permNeeded = "layanan:read";
         else if (href.endsWith("tools.html")) permNeeded = "tools:read";
+        else if (href.endsWith("admin-tasks.html")) permNeeded = "admin_tasks:read";
         else if (href.endsWith("user-management.html")) permNeeded = "users:read";
       }
 
@@ -206,18 +219,18 @@ const Auth = {
       if (isAllowed) {
         if (isMobile) {
           // On mobile bottom navbar:
-          // For Desainer role: show Home, Projek, Tambah, Layanan, Tools
-          // For Service/Admin/Other roles: show Home, Projek, Tambah, Keuangan, Laporan
+          // For Desainer role: show Home, Projek, Tambah, Layanan, Tools, Tugas Admin
+          // For Service/Admin/Other roles: show Home, Projek, Tambah, Keuangan, Laporan, Tugas Admin
           let showOnMobile = false;
           if (href.endsWith("index.html") || href.endsWith("proyek.html") || href.endsWith("tambah-proyek.html")) {
             showOnMobile = true;
           } else if (isDesainer) {
-            if (href.endsWith("layanan.html") || href.endsWith("tools.html")) {
+            if (href.endsWith("layanan.html") || href.endsWith("tools.html") || href.endsWith("admin-tasks.html")) {
               showOnMobile = true;
             }
           } else {
-            // Service staff / Default roles show Keuangan & Laporan on bottom navbar
-            if (href.endsWith("keuangan.html") || href.endsWith("laporan.html")) {
+            // Service staff / Default roles show Keuangan, Laporan & Tugas Admin on bottom navbar
+            if (href.endsWith("keuangan.html") || href.endsWith("laporan.html") || href.endsWith("admin-tasks.html")) {
               showOnMobile = true;
             }
           }
@@ -253,6 +266,7 @@ const Auth = {
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
         else if (href.endsWith("layanan.html")) permNeeded = "layanan:read";
         else if (href.endsWith("tools.html")) permNeeded = "tools:read";
+        else if (href.endsWith("admin-tasks.html")) permNeeded = "admin_tasks:read";
         else if (href.endsWith("user-management.html")) permNeeded = "users:read";
       }
 

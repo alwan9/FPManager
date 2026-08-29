@@ -67,6 +67,11 @@
           <i class="fa-solid fa-file-invoice-dollar text-lg md:text-base md:w-5"></i>
           <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
         </a>
+        <a href="admin-tasks.html" data-permission-allow="admin_tasks:read"
+          class="sidebar-link flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-clipboard-check text-lg md:text-base md:w-5"></i>
+          <span class="text-[10px] md:text-sm font-medium" data-i18n="nav-admin-tasks">Aktivitas Admin</span>
+        </a>
         <a href="layanan.html" data-permission-allow="layanan:read" data-mobile-hide="true"
           class="hidden md:flex sidebar-link flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-3 px-1 py-1.5 md:px-4 md:py-3 rounded-xl flex-1 justify-center md:justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-tags text-lg md:text-base md:w-5"></i>
@@ -113,27 +118,36 @@
             title="Buka / Tutup Sidebar">
             <i class="fa-solid fa-bars text-xl"></i>
           </button>
-          <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
-            <i class="fa-solid fa-user-circle text-indigo-600"></i>
-            <span><span class="hidden md:inline">Profil Pengguna</span><span class="inline md:hidden">Profil Saya</span></span>
-          </h2>
+          <div>
+            <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
+              <i class="fa-solid fa-user-circle text-indigo-600"></i>
+              <span>Profil Pengguna</span>
+            </h2>
+            <p class="text-xs text-zinc-500 hidden md:block">Kelola identitas, foto profil, dan informasi akun Anda.</p>
+          </div>
         </div>
         <div class="flex items-center space-x-4">
           <button id="pwaInstallBtnMobile"
             class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
-            title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button>
-          <button id="darkModeToggle"
-            class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors" title="Toggle Dark Mode">
+            title="Install Aplikasi">
+            <i class="fa-solid fa-download text-lg"></i>
+          </button>
+          <button id="darkModeToggle" class="text-zinc-500 hover:text-indigo-600 focus:outline-none transition-colors"
+            title="Toggle Dark Mode">
             <i class="fa-solid fa-moon text-xl" id="darkModeIcon"></i>
           </button>
-          <span class="text-sm text-zinc-500 hidden lg:inline-block">Status:</span>
+          <span class="text-sm text-zinc-500 hidden lg:inline-block" data-i18n="api-status">Status:</span>
           <span id="apiStatusBadge"
-            class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+            class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" data-i18n="api-live">
             Live Google Sheets
+          </span>
+          <span id="headerUserRoleBadge"
+            class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            ADMIN
           </span>
           <div class="relative">
             <button id="profileDropdownBtn"
-              class="h-8 w-8 bg-zinc-200 rounded-full flex items-center justify-center font-bold text-zinc-600 text-sm shadow hover:bg-zinc-300 transition-colors focus:outline-none"
+              class="h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow hover:bg-indigo-700 transition-colors focus:outline-none"
               title="Menu Profil">
               A
             </button>
@@ -153,6 +167,11 @@
                 class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-file-invoice-dollar w-4 text-zinc-500"></i>
                 <span data-i18n="nav-laporan">Laporan</span>
+              </a>
+              <a href="admin-tasks.html" data-permission-allow="admin_tasks:read"
+                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-clipboard-check w-4 text-zinc-500"></i>
+                <span>Aktivitas Admin</span>
               </a>
               <a href="layanan.html" data-permission-allow="layanan:read"
                 class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">

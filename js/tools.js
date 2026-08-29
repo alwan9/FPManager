@@ -944,7 +944,7 @@ function updateWmCanvas() {
   ctx.drawImage(currentWmImage, 0, 0, imgW, imgH);
 
   // Read controls
-  const wmText = document.getElementById('wmText').value || 'Premium Desain';
+  const wmText = document.getElementById('wmText').value || '@premium_dz';
   const position = document.getElementById('wmPosition').value;
   const colorName = document.getElementById('wmColor').value;
   const opacity = parseFloat(document.getElementById('wmOpacity').value) / 100;
@@ -1902,7 +1902,7 @@ function resetPbAll() {
   if (enableWm) enableWm.checked = false;
   
   const wmText = document.getElementById('pbWmText');
-  if (wmText) wmText.value = 'Premium Desain';
+  if (wmText) wmText.value = '@premium_dz';
   
   const wmPicker = document.getElementById('pbWmColorPicker');
   if (wmPicker) wmPicker.value = '#ffffff';
@@ -2150,7 +2150,7 @@ function updatePbCanvas() {
   // Apply Watermark if enabled (on top of final resized canvas)
   const enableWmCheckbox = document.getElementById('pbEnableWm');
   if (enableWmCheckbox && enableWmCheckbox.checked) {
-    const wmText = document.getElementById('pbWmText').value || 'Premium Desain';
+    const wmText = document.getElementById('pbWmText').value || '@premium_dz';
     const position = document.getElementById('pbWmPosition').value;
     const opacity = pbParams.WmOpacity / 100;
     const fontSize = pbParams.WmSize;

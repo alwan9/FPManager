@@ -29,12 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
       "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
       "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
       "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
-      "laporan:read", "laporan:export"
+      "laporan:read", "laporan:export",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
     ],
     desainer: [
       "proyek:read", "proyek:create", "proyek:update",
       "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
-      "tools:read", "tools:create", "tools:update", "tools:delete"
+      "tools:read", "tools:create", "tools:update", "tools:delete",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
     ],
     super_admin: [
       "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
@@ -42,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "laporan:read", "laporan:export",
       "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
       "tools:read", "tools:create", "tools:update", "tools:delete",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
       "users:read", "users:create", "users:update", "users:delete"
     ]
   };
@@ -115,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export"] },
       { key: "layanan", label: "Layanan", actions: ["layanan:read", "layanan:create", "layanan:update", "layanan:delete"] },
       { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete"] },
+      { key: "admin_tasks", label: "Tugas Admin", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete"] },
       { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
     ];
 

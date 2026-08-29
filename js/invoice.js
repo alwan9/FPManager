@@ -219,7 +219,7 @@ const Invoice = {
         const recalculateSisa = () => {
             const total = parseCurrency(previewTotal.innerText);
             const dp = parseCurrency(previewDP.innerText);
-            const sisa = total - dp;
+            const sisa = Math.round(total - dp);
             if (document.activeElement !== previewSisa) {
                 previewSisa.innerText = formatCurrency(sisa);
             }
@@ -296,7 +296,7 @@ const Invoice = {
             sisaHtml: previewSisa ? previewSisa.innerHTML : '',
             catatanHtml: previewCatatan ? previewCatatan.innerHTML : '',
             signTitle: previewSignTitle ? previewSignTitle.innerText : 'Hormat Kami,',
-            signName: previewSignName ? previewSignName.innerText : 'Premium Desain',
+            signName: previewSignName ? previewSignName.innerText : '@premium_dz',
             showSignature: chkShowSignature ? chkShowSignature.checked : true,
             docType: this.docType || 'invoice'
         };

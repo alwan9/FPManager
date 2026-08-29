@@ -1233,10 +1233,266 @@ const API = {
       if (typeof Toast !== 'undefined') {
         Toast.success('Sinkronisasi Otomatis', `${successCount} perubahan data offline telah tersinkronisasi ke server.`);
       }
-      APICache.clear();
-      await API.getProyek(); // Reload latest data from server
     }
-    return { success: true, count: successCount };
   },
+
+  // ===================================
+  // API AKTIVITAS & TUGAS ADMIN (ADMIN TASKS)
+  // ===================================
+  getAdminTasks: async () => {
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "service";
+    const userId = currUser.id || "USR-001";
+    try {
+      const response = await fetch(`${CONFIG.API_URL}?action=getAdminTasks&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${encodeURIComponent(role)}&userId=${encodeURIComponent(userId)}&_t=${Date.now()}`);
+      const result = await response.json();
+      if (handleUnauthorized(result)) return [];
+      if (result.success && Array.isArray(result.data)) {
+        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(result.data));
+        return result.data;
+      }
+    } catch (e) {
+      console.warn("getAdminTasks fetch failed, using local cache:", e);
+    }
+    // Fallback Local Storage
+    try {
+      const local = localStorage.getItem("fpmanager_admin_tasks");
+      if (local) return JSON.parse(local);
+    } catch(e) {}
+    
+    // Default initial seed data if totally empty
+    const initialTasks = [
+      {
+        id: "TSK-001",
+        adminUser: "wansmin",
+        adminName: "Super Admin",
+        taskName: "Cek & Follow-up Chat WhatsApp Klien",
+        scheduleType: "hourly",
+        intervalHours: 1,
+        specificTime: "09:00",
+        status: "Belum Selesai",
+        notes: "Pastikan semua pertanyaan klien mengenai estimasi biaya dan portofolio dibalas dengan ramah.",
+        link: "https://web.whatsapp.com",
+        total: "15 Chat",
+        priority: "high",
+        createdAt: new Date().toISOString(),
+        lastResetDate: new Date().toISOString().split("T")[0]
+      },
+      {
+        id: "TSK-002",
+        adminUser: "service",
+        adminName: "Admin Service",
+        taskName: "Rekap Pembayaran DP & Kirim Invoice",
+        scheduleType: "hourly",
+        intervalHours: 2,
+        specificTime: "11:00",
+        status: "Belum Selesai",
+        notes: "Cek mutasi bank dan input transaksi pemasukan ke menu Keuangan serta kirim invoice PDF ke klien.",
+        link: "invoice.html",
+        total: "Rp 2.500.000",
+        priority: "high",
+        createdAt: new Date().toISOString(),
+        lastResetDate: new Date().toISOString().split("T")[0]
+      },
+      {
+        id: "TSK-003",
+        adminUser: "desainer",
+        adminName: "Tim Desainer",
+        taskName: "Review Revisi & Serah Terima File Desain Final",
+        scheduleType: "hourly",
+        intervalHours: 3,
+        specificTime: "15:00",
+        status: "Belum Selesai",
+        notes: "Periksa watermark dan resolusi file export sebelum dikirimkan ke link Google Drive klien.",
+        link: "tools.html",
+        total: "5 Projek",
+        priority: "medium",
+        createdAt: new Date().toISOString(),
+        lastResetDate: new Date().toISOString().split("T")[0]
+      },
+      {
+        id: "TSK-004",
+        adminUser: "all",
+        adminName: "Semua Admin",
+        taskName: "Laporan Harian & Evaluasi Sore",
+        scheduleType: "daily",
+        intervalHours: 24,
+        specificTime: "17:00",
+        status: "Belum Selesai",
+        notes: "Pastikan seluruh status projek hari ini ter-update dan catat kendala operasional.",
+        link: "laporan.html",
+        total: "100%",
+        priority: "medium",
+        createdAt: new Date().toISOString(),
+        lastResetDate: new Date().toISOString().split("T")[0]
+      }
+    ];
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(initialTasks));
+    return initialTasks;
+  },
+
+  addAdminTask: async (taskData) => {
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "service";
+    const userId = currUser.id || "USR-001";
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "addAdminTask");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", role);
+      body.append("userId", userId);
+      body.append("data", JSON.stringify(taskData));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      const result = await res.json();
+      if (result && result.success) {
+        // Also update local cache
+        const local = await API.getAdminTasks();
+        local.unshift(result.data || taskData);
+        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+        return result;
+      }
+    } catch (e) {
+      console.warn("addAdminTask remote failed, using local save:", e);
+    }
+    
+    // Local fallback creation
+    let local = [];
+    try {
+      local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
+    } catch(e) {}
+    const newId = "TSK-" + String(Date.now()).slice(-5);
+    const newTask = {
+      ...taskData,
+      id: newId,
+      createdAt: new Date().toISOString(),
+      lastResetDate: new Date().toISOString().split("T")[0]
+    };
+    local.unshift(newTask);
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+    return { success: true, message: "Tugas admin berhasil ditambahkan.", data: newTask };
+  },
+
+  updateAdminTask: async (id, taskData) => {
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "service";
+    const userId = currUser.id || "USR-001";
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "updateAdminTask");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", role);
+      body.append("userId", userId);
+      body.append("data", JSON.stringify(taskData));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      const result = await res.json();
+      if (result && result.success) {
+        let local = await API.getAdminTasks();
+        local = local.map(t => (t.id === id ? { ...t, ...taskData } : t));
+        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+        return result;
+      }
+    } catch (e) {
+      console.warn("updateAdminTask remote failed, updating local:", e);
+    }
+
+    // Local fallback update
+    let local = [];
+    try {
+      local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
+    } catch(e) {}
+    local = local.map(t => (t.id === id ? { ...t, ...taskData } : t));
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+    return { success: true, message: "Tugas admin berhasil diperbarui.", id };
+  },
+
+  deleteAdminTask: async (id) => {
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "super_admin";
+    const userId = currUser.id || "USR-001";
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "deleteAdminTask");
+      body.append("id", id);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", role);
+      body.append("userId", userId);
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      const result = await res.json();
+      if (result && result.success) {
+        let local = await API.getAdminTasks();
+        local = local.filter(t => t.id !== id);
+        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+        return result;
+      }
+    } catch (e) {
+      console.warn("deleteAdminTask remote failed, deleting local:", e);
+    }
+
+    // Local fallback delete
+    let local = [];
+    try {
+      local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
+    } catch(e) {}
+    local = local.filter(t => t.id !== id);
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+    return { success: true, message: "Tugas admin berhasil dihapus." };
+  },
+
+  getAdminTaskSettings: async () => {
+    try {
+      const currUser = API.getCurrentUser();
+      const role = currUser.role || "service";
+      const response = await fetch(`${CONFIG.API_URL}?action=getAdminTaskSettings&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${encodeURIComponent(role)}&_t=${Date.now()}`);
+      const result = await response.json();
+      if (result && result.success && result.data) {
+        localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(result.data));
+        return result.data;
+      }
+    } catch(e) {}
+
+    try {
+      const local = localStorage.getItem("fpmanager_admin_task_settings");
+      if (local) return JSON.parse(local);
+    } catch(e) {}
+
+    return {
+      defaultIntervalHours: 1,
+      soundNotification: true,
+      browserNotification: true,
+      toastReminder: true,
+      autoDailyReset: true,
+      resetHour: "00:00",
+      lastResetDate: new Date().toISOString().split("T")[0]
+    };
+  },
+
+  saveAdminTaskSettings: async (settingsData) => {
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "super_admin";
+    const userId = currUser.id || "USR-001";
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "saveAdminTaskSettings");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", role);
+      body.append("userId", userId);
+      body.append("data", JSON.stringify(settingsData));
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      const result = await res.json();
+      if (result && result.success) {
+        localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
+        return result;
+      }
+    } catch(e) {}
+
+    localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
+    return { success: true, message: "Pengaturan pengingat tugas berhasil disimpan." };
+  }
 };
+
 
