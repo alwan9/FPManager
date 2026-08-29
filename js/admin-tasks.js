@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       this.syncQueue.push({ actionType, data, timestamp: Date.now() });
       updateSyncIndicator("syncing", "Menyinkronkan ke Cloud...");
       
-      // Execute asynchronously on idle/next tick
+      // Execute asynchronously on idle or next tick
       if (typeof window.requestIdleCallback === "function") {
         window.requestIdleCallback(() => this.processQueue());
       } else {
@@ -311,7 +311,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           renderTasks();
           updateStats();
         } catch(e) {}
-      } else {
+      } else if (taskTableBody) {
         taskTableBody.innerHTML = `
           <tr>
             <td colspan="7" class="text-center py-10 text-zinc-400">
@@ -334,7 +334,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (usersRes.status === "fulfilled" && Array.isArray(usersRes.value) && usersRes.value.length > 0) {
-        // Filter khusus role service dan super_admin
         serviceUsersList = usersRes.value.filter(u => {
           const r = String(u.role || '').toLowerCase();
           return r === "service" || r.includes("service") || r.includes("admin") || u.username === "wansmin";
@@ -517,11 +516,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const iconEl = document.getElementById("toggleWorkloadIcon");
 
     if (isWorkloadExpanded) {
-      adminWorkloadContainer.classList.remove("hidden");
+      if (adminWorkloadContainer) adminWorkloadContainer.classList.remove("hidden");
       if (textEl) textEl.innerText = "Sembunyikan Ringkasan";
       if (iconEl) iconEl.className = "fa-solid fa-chevron-up text-[10px]";
     } else {
-      adminWorkloadContainer.classList.add("hidden");
+      if (adminWorkloadContainer) adminWorkloadContainer.classList.add("hidden");
       if (textEl) textEl.innerText = "Tampilkan Ringkasan";
       if (iconEl) iconEl.className = "fa-solid fa-chevron-down text-[10px]";
     }
@@ -531,8 +530,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // TABLE RENDERING (HIGH-PERFORMANCE)
   // ==========================================
   function renderTasks() {
-    const searchQuery = (taskSearchInput.value || "").toLowerCase().trim();
-    const statusFilter = filterStatusSelect ? filterStatusSelect.value : "all";
+    if (!taskTableBody) return;
+    const searchQuery = (taskSearchInput && taskSearchInput.value) ? taskSearchInput.value.toLowerCase().trim() : "";
+    const statusFilter = (filterStatusSelect && filterStatusSelect.value) ? filterStatusSelect.value : "all";
 
     const filtered = tasksData.filter(task => {
       if (searchQuery) {
@@ -566,13 +566,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           </td>
         </tr>
       `;
-      tableRecordCount.innerText = "Menampilkan 0 tugas";
+      if (tableRecordCount) tableRecordCount.innerText = "Menampilkan 0 tugas";
       return;
     }
 
-    tableRecordCount.innerText = `Menampilkan ${filtered.length} dari ${tasksData.length} tugas`;
+    if (tableRecordCount) tableRecordCount.innerText = `Menampilkan ${filtered.length} dari ${tasksData.length} tugas`;
 
-    taskTableBody.innerHTML = filtered.map((task, idx) => {
+    taskTableBody.innerHTML = filtered.map((task) => {
       const isDone = task.status === "Selesai";
       const isProgress = task.status === "Sedang Dikerjakan";
 
@@ -685,26 +685,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     const pending = total - done;
     const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
-    statTotalTasks.innerText = total;
-    statDoneTasks.innerText = done;
-    statPendingTasks.innerText = pending;
-    statProgressPercent.innerText = `${percent}% tercapai`;
+    if (statTotalTasks) statTotalTasks.innerText = total;
+    if (statDoneTasks) statDoneTasks.innerText = done;
+    if (statPendingTasks) statPendingTasks.innerText = pending;
+    if (statProgressPercent) statProgressPercent.innerText = `${percent}% tercapai`;
 
-    progressBarFill.style.width = `${percent}%`;
-    progressBarText.innerText = `${done}/${total} Selesai (${percent}%)`;
+    if (progressBarFill) progressBarFill.style.width = `${percent}%`;
+    if (progressBarText) progressBarText.innerText = `${done}/${total} Selesai (${percent}%)`;
 
-    statActiveInterval.innerText = `Tiap ${settingsData.defaultIntervalHours || 1} Jam`;
+    if (statActiveInterval) statActiveInterval.innerText = `Tiap ${settingsData.defaultIntervalHours || 1} Jam`;
 
     renderAdminFilterTabs();
     renderAdminWorkloadCards();
   }
 
   function applySettingsToUI() {
-    settingDefaultInterval.value = String(settingsData.defaultIntervalHours || 1);
-    settingSoundToggle.checked = settingsData.soundNotification !== false;
-    settingBrowserNotifToggle.checked = settingsData.browserNotification !== false;
-    settingToastToggle.checked = settingsData.toastReminder !== false;
-    settingAutoResetToggle.checked = settingsData.autoDailyReset !== false;
+    if (settingDefaultInterval) settingDefaultInterval.value = String(settingsData.defaultIntervalHours || 1);
+    if (settingSoundToggle) settingSoundToggle.checked = settingsData.soundNotification !== false;
+    if (settingBrowserNotifToggle) settingBrowserNotifToggle.checked = settingsData.browserNotification !== false;
+    if (settingToastToggle) settingToastToggle.checked = settingsData.toastReminder !== false;
+    if (settingAutoResetToggle) settingAutoResetToggle.checked = settingsData.autoDailyReset !== false;
   }
 
   // ==========================================
@@ -776,10 +776,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!templateKey || !SOP_TEMPLATES[templateKey]) return;
     const tpl = SOP_TEMPLATES[templateKey];
 
-    taskNameInput.value = tpl.taskName || "";
-    taskTotalInput.value = tpl.total || "";
-    taskLinkInput.value = tpl.link || "";
-    taskNotesInput.value = tpl.notes || "";
+    if (taskNameInput) taskNameInput.value = tpl.taskName || "";
+    if (taskTotalInput) taskTotalInput.value = tpl.total || "";
+    if (taskLinkInput) taskLinkInput.value = tpl.link || "";
+    if (taskNotesInput) taskNotesInput.value = tpl.notes || "";
 
     if (typeof Toast !== "undefined") {
       Toast.info("Template Diterapkan", `Formulir otomatis terisi dengan template "${tpl.taskName}".`);
@@ -790,36 +790,36 @@ document.addEventListener("DOMContentLoaded", async () => {
   // TASK CRUD ACTIONS (OPTIMISTIC & DECOUPLED)
   // ==========================================
   window.openAddTaskModal = () => {
-    taskForm.reset();
-    taskIdInput.value = "";
-    taskModalTitle.innerHTML = `<i class="fa-solid fa-plus-circle text-indigo-600 mr-1.5"></i><span>Tambah Tindakan / Tugas Baru</span>`;
+    if (taskForm) taskForm.reset();
+    if (taskIdInput) taskIdInput.value = "";
+    if (taskModalTitle) taskModalTitle.innerHTML = `<i class="fa-solid fa-plus-circle text-indigo-600 mr-1.5"></i><span>Tambah Tindakan / Tugas Baru</span>`;
     
-    taskStatusSelect.value = "Belum Selesai";
-    taskPrioritySelect.value = "medium";
+    if (taskStatusSelect) taskStatusSelect.value = "Belum Selesai";
+    if (taskPrioritySelect) taskPrioritySelect.value = "medium";
     if (taskTemplateSelect) taskTemplateSelect.value = "";
     
-    taskModal.classList.remove("hidden");
+    if (taskModal) taskModal.classList.remove("hidden");
   };
 
   window.openEditTaskModal = (id) => {
     const task = tasksData.find(t => t.id === id);
     if (!task) return;
 
-    taskIdInput.value = task.id;
-    taskNameInput.value = task.taskName || "";
-    taskPrioritySelect.value = task.priority || "medium";
-    taskTotalInput.value = task.total || "";
-    taskStatusSelect.value = task.status || "Belum Selesai";
-    taskLinkInput.value = task.link || "";
-    taskNotesInput.value = task.notes || "";
+    if (taskIdInput) taskIdInput.value = task.id;
+    if (taskNameInput) taskNameInput.value = task.taskName || "";
+    if (taskPrioritySelect) taskPrioritySelect.value = task.priority || "medium";
+    if (taskTotalInput) taskTotalInput.value = task.total || "";
+    if (taskStatusSelect) taskStatusSelect.value = task.status || "Belum Selesai";
+    if (taskLinkInput) taskLinkInput.value = task.link || "";
+    if (taskNotesInput) taskNotesInput.value = task.notes || "";
     if (taskTemplateSelect) taskTemplateSelect.value = "";
 
-    taskModalTitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600 mr-1.5"></i><span>Edit Tindakan: ${escapeHtmlSafe(task.taskName)}</span>`;
-    taskModal.classList.remove("hidden");
+    if (taskModalTitle) taskModalTitle.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600 mr-1.5"></i><span>Edit Tindakan: ${escapeHtmlSafe(task.taskName)}</span>`;
+    if (taskModal) taskModal.classList.remove("hidden");
   };
 
   function closeTaskModal() {
-    taskModal.classList.add("hidden");
+    if (taskModal) taskModal.classList.add("hidden");
   }
 
   if (openAddTaskModalBtn) openAddTaskModalBtn.addEventListener("click", () => window.openAddTaskModal());
@@ -832,48 +832,50 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Form Submit (Zero-latency optimistic update + Asynchronous Background Sync)
-  taskForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+  if (taskForm) {
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-    const id = taskIdInput.value;
-    const taskName = taskNameInput.value.trim();
-    if (!taskName) {
-      if (typeof Toast !== "undefined") Toast.warning("Peringatan", "Nama tindakan wajib diisi.");
-      return;
-    }
+      const id = taskIdInput ? taskIdInput.value : "";
+      const taskName = taskNameInput ? taskNameInput.value.trim() : "";
+      if (!taskName) {
+        if (typeof Toast !== "undefined") Toast.warning("Peringatan", "Nama tindakan wajib diisi.");
+        return;
+      }
 
-    const taskPayload = {
-      taskName,
-      adminUser: "service",
-      adminName: "Admin Service",
-      priority: taskPrioritySelect.value,
-      scheduleType: "hourly",
-      intervalHours: Number(settingsData.defaultIntervalHours) || 1,
-      total: taskTotalInput.value.trim(),
-      status: taskStatusSelect.value,
-      link: taskLinkInput.value.trim(),
-      notes: taskNotesInput.value.trim(),
-      lastResetDate: getTodayDateString()
-    };
+      const taskPayload = {
+        taskName,
+        adminUser: "service",
+        adminName: "Admin Service",
+        priority: taskPrioritySelect ? taskPrioritySelect.value : "medium",
+        scheduleType: "hourly",
+        intervalHours: Number(settingsData.defaultIntervalHours) || 1,
+        total: taskTotalInput ? taskTotalInput.value.trim() : "",
+        status: taskStatusSelect ? taskStatusSelect.value : "Belum Selesai",
+        link: taskLinkInput ? taskLinkInput.value.trim() : "",
+        notes: taskNotesInput ? taskNotesInput.value.trim() : "",
+        lastResetDate: getTodayDateString()
+      };
 
-    // 1. INSTANT LOCAL UPDATE (0ms)
-    if (id) {
-      tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
-      TaskSyncEngine.dispatch("updateTask", { id, payload: taskPayload });
-      if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
-    } else {
-      const newId = "TSK-" + Date.now();
-      const createdTask = { ...taskPayload, id: newId, createdAt: new Date().toISOString() };
-      tasksData.unshift(createdTask);
-      TaskSyncEngine.dispatch("addTask", { payload: createdTask });
-      if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
-    }
+      // 1. INSTANT LOCAL UPDATE (0ms)
+      if (id) {
+        tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
+        TaskSyncEngine.dispatch("updateTask", { id, payload: taskPayload });
+        if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
+      } else {
+        const newId = "TSK-" + Date.now();
+        const createdTask = { ...taskPayload, id: newId, createdAt: new Date().toISOString() };
+        tasksData.unshift(createdTask);
+        TaskSyncEngine.dispatch("addTask", { payload: createdTask });
+        if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
+      }
 
-    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
-    closeTaskModal();
-    renderTasks();
-    updateStats();
-  });
+      localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
+      closeTaskModal();
+      renderTasks();
+      updateStats();
+    });
+  }
 
   // Direct Status Toggle (0ms Optimistic UI + Background Sync)
   window.toggleTaskStatusDirectly = (id) => {
@@ -884,7 +886,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     task.status = newStatus;
 
     if (newStatus === "Selesai" && settingsData.soundNotification !== false) {
-      playNotificationChime(true); // Success chime
+      playNotificationChime(true);
     }
 
     // 1. Instant UI update
@@ -914,7 +916,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       playNotificationChime(true);
     }
 
-    // Instant local update
     localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
     renderTasks();
     updateStats();
@@ -923,7 +924,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       Toast.success("Status Diperbarui", `Status tugas "${task.taskName}" diubah ke ${newStatus}.`);
     }
 
-    // Background sync
     TaskSyncEngine.dispatch("updateStatus", { id, payload: { status: newStatus } });
   };
 
@@ -938,14 +938,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // 1. Instant local removal
     tasksData = tasksData.filter(t => t.id !== id);
     localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
     renderTasks();
     updateStats();
     if (typeof Toast !== "undefined") Toast.success("Terhapus", "Tugas berhasil dihapus.");
 
-    // 2. Background sync
     TaskSyncEngine.dispatch("deleteTask", { id });
   };
 
@@ -978,7 +976,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         Toast.success("Reset Berhasil", "Seluruh status tugas hari ini telah di-reset ke 'Belum Selesai'.");
       }
 
-      // Background sync
       TaskSyncEngine.dispatch("resetStatus", {});
     });
   }
@@ -992,11 +989,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
     applySettingsToUI();
-    settingsModal.classList.remove("hidden");
+    if (settingsModal) settingsModal.classList.remove("hidden");
   }
 
   function closeSettingsModal() {
-    settingsModal.classList.add("hidden");
+    if (settingsModal) settingsModal.classList.add("hidden");
   }
 
   if (openSettingsModalBtn) openSettingsModalBtn.addEventListener("click", openSettingsModal);
@@ -1013,22 +1010,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.preventDefault();
 
       settingsData = {
-        defaultIntervalHours: Number(settingDefaultInterval.value) || 1,
-        soundNotification: settingSoundToggle.checked,
-        browserNotification: settingBrowserNotifToggle.checked,
-        toastReminder: settingToastToggle.checked,
-        autoDailyReset: settingAutoResetToggle.checked,
+        defaultIntervalHours: Number(settingDefaultInterval ? settingDefaultInterval.value : 1) || 1,
+        soundNotification: settingSoundToggle ? settingSoundToggle.checked : true,
+        browserNotification: settingBrowserNotifToggle ? settingBrowserNotifToggle.checked : true,
+        toastReminder: settingToastToggle ? settingToastToggle.checked : true,
+        autoDailyReset: settingAutoResetToggle ? settingAutoResetToggle.checked : true,
         resetHour: "00:00",
         lastResetDate: getTodayDateString()
       };
 
-      // 1. Instant local update
       localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
       if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", `Interval pengingat global diatur ke Tiap ${settingsData.defaultIntervalHours} Jam.`);
       closeSettingsModal();
       updateStats();
 
-      // 2. Background sync
       TaskSyncEngine.dispatch("saveSettings", { payload: settingsData });
     });
   }
@@ -1098,7 +1093,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (settingsData.toastReminder !== false && floatingReminderPopup) {
-      floatingReminderMessage.innerText = `${msg} Silakan periksa daftar tugas Anda.`;
+      if (floatingReminderMessage) floatingReminderMessage.innerText = `${msg} Silakan periksa daftar tugas Anda.`;
       floatingReminderPopup.classList.remove("hidden");
     }
 
@@ -1125,7 +1120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // Search & Filter event listeners
-  taskSearchInput.addEventListener("input", renderTasks);
+  if (taskSearchInput) taskSearchInput.addEventListener("input", renderTasks);
   if (filterAdminSelect) {
     filterAdminSelect.addEventListener("change", (e) => {
       currentActiveAdminTab = e.target.value;
