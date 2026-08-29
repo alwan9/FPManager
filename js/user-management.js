@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (user.phone) {
         const cleanPhone = user.phone.replace(/[^0-9]/g, '');
         const waLink = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
-        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" rel="noopener noreferrer" class="hover:underline text-green-600 dark:text-green-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
+        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="FPManager_WhatsAppTab" rel="noopener noreferrer" class="hover:underline text-green-600 dark:text-green-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
       } else {
         detailPhone.innerHTML = `<span class="text-zinc-400">-</span>`;
       }

@@ -216,6 +216,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     return clean;
   }
 
+  function getSmartLinkTarget(link) {
+    if (!link) return "_blank";
+    const lower = String(link).toLowerCase().trim();
+    if (lower.includes("whatsapp.com") || lower.includes("wa.me")) {
+      return "FPManager_WhatsAppTab"; // Reuses the exact same running WhatsApp Web tab!
+    }
+    if (lower.includes("mail.google.com") || lower.includes("gmail.com")) {
+      return "FPManager_GmailTab"; // Reuses existing Gmail tab
+    }
+    if (!lower.startsWith("http://") && !lower.startsWith("https://") && !lower.startsWith("//")) {
+      return "_self";
+    }
+    return "_blank";
+  }
+
   // Web Audio API Synthesized Crystal Chime
   function playNotificationChime(isDoneChime = false) {
     try {
@@ -591,8 +606,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const cleanLink = sanitizeTaskLink(task.link);
+      const linkTarget = getSmartLinkTarget(cleanLink);
       const linkHtml = (task.link && cleanLink !== "#") ? `
-        <a href="${cleanLink}" target="_blank" rel="noopener noreferrer"
+        <a href="${cleanLink}" target="${linkTarget}" rel="noopener noreferrer"
           class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-600 dark:text-indigo-400 text-xs font-semibold transition-colors shadow-xs"
           title="Buka Tautan: ${escapeHtmlSafe(task.link)}">
           <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
