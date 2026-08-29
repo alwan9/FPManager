@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const tableRecordCount = document.getElementById("tableRecordCount");
   const progressBarFill = document.getElementById("progressBarFill");
   const progressBarText = document.getElementById("progressBarText");
-  const adminFilterTabsContainer = document.getElementById("adminFilterTabsContainer");
   const adminWorkloadContainer = document.getElementById("adminWorkloadContainer");
   const adminCountBadge = document.getElementById("adminCountBadge");
 
@@ -452,51 +451,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       adminCountBadge.innerText = `${serviceUsersList.length} Admin Service Aktif`;
     }
 
-    renderAdminFilterTabs();
     renderAdminWorkloadCards();
   }
 
   // ==========================================
-  // ADMIN FILTER TABS & WORKLOAD MATRIX (SERVICE ONLY)
+  // ADMIN WORKLOAD MATRIX (SERVICE ONLY)
   // ==========================================
-  function renderAdminFilterTabs() {
-    if (!adminFilterTabsContainer) return;
-
-    const totalAll = tasksData.length;
-    const myDone = tasksData.filter(t => t.status === "Selesai").length;
-
-    let tabsHtml = `
-      <button onclick="setFilterAdmin('all')"
-        class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center space-x-1.5 ${currentActiveAdminTab === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'}">
-        <i class="fa-solid fa-list-check text-[10px]"></i>
-        <span>Checklist Admin Service</span>
-        <span class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full ${currentActiveAdminTab === 'all' ? 'bg-white/20 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'}">${myDone}/${totalAll}</span>
-      </button>
-    `;
-
-    serviceUsersList.forEach(u => {
-      if (u.username) {
-        const isActive = currentActiveAdminTab === u.username;
-        tabsHtml += `
-          <button onclick="setFilterAdmin('${escapeHtmlSafe(u.username)}')"
-            class="admin-tab-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center space-x-1.5 ${isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'}">
-            <i class="fa-solid fa-headset text-[10px]"></i>
-            <span>${escapeHtmlSafe(u.name || u.username)}</span>
-          </button>
-        `;
-      }
-    });
-
-    adminFilterTabsContainer.innerHTML = tabsHtml;
-  }
-
-  window.setFilterAdmin = (adminKey) => {
-    currentActiveAdminTab = adminKey;
-    if (filterAdminSelect) filterAdminSelect.value = adminKey;
-    renderAdminFilterTabs();
-    renderTasks();
-  };
-
   function renderAdminWorkloadCards() {
     if (!adminWorkloadContainer) return;
 
@@ -809,7 +769,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (statActiveInterval) statActiveInterval.innerText = `Tiap ${settingsData.defaultIntervalHours || 1} Jam`;
 
-    renderAdminFilterTabs();
     renderAdminWorkloadCards();
   }
 
@@ -1262,9 +1221,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Search & Filter event listeners
   if (taskSearchInput) taskSearchInput.addEventListener("input", renderTasks);
   if (filterAdminSelect) {
-    filterAdminSelect.addEventListener("change", (e) => {
-      currentActiveAdminTab = e.target.value;
-      renderAdminFilterTabs();
+    filterAdminSelect.addEventListener("change", () => {
       renderTasks();
     });
   }
