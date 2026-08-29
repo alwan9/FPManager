@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export"] },
       { key: "layanan", label: "Layanan", actions: ["layanan:read", "layanan:create", "layanan:update", "layanan:delete"] },
       { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete"] },
-      { key: "admin_tasks", label: "Tugas Admin", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete"] },
+      { key: "admin_tasks", label: "Aktivitas Admin", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete"] },
       { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
     ];
 

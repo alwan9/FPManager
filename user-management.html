@@ -388,10 +388,10 @@
           <label for="roleSelect" class="block text-xs font-semibold text-zinc-500 uppercase mb-1">Role / Peran</label>
           <select id="roleSelect" required
             class="w-full px-4 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            <option value="service">Service (Proyek, Keuangan, Laporan)</option>
-            <option value="desainer">Desainer (Proyek, Layanan, Tools)</option>
-            <option value="super_admin">Super Admin (Akses Penuh)</option>
-            <option value="custom">Custom (Pilih Akses CRUD Manual)</option>
+            <option value="service">Service (Projek, Keuangan, Laporan, Aktivitas Admin)</option>
+            <option value="desainer">Desainer (Projek, Layanan, Tools, Aktivitas Admin)</option>
+            <option value="super_admin">Super Admin (Akses Penuh Seluruh Modul)</option>
+            <option value="custom">Custom (Pilih Hak Akses CRUD Manual)</option>
           </select>
         </div>
 
@@ -478,9 +478,9 @@
                   <td class="px-2 py-2 text-center"><input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-amber-600 rounded" data-perm="tools:update"></td>
                   <td class="px-2 py-2 text-center"><input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded" data-perm="tools:delete"></td>
                 </tr>
-                <!-- Tugas Admin -->
+                <!-- Aktivitas Admin -->
                 <tr>
-                  <td class="px-3 py-2 font-semibold">Tugas Admin</td>
+                  <td class="px-3 py-2 font-semibold">Aktivitas Admin</td>
                   <td class="px-2 py-2 text-center"><input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-emerald-600 rounded" data-perm="admin_tasks:read" checked></td>
                   <td class="px-2 py-2 text-center"><input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-emerald-600 rounded" data-perm="admin_tasks:create" checked></td>
                   <td class="px-2 py-2 text-center"><input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-emerald-600 rounded" data-perm="admin_tasks:update" checked></td>
