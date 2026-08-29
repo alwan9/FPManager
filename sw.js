@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v88';
+const CACHE_NAME = 'fpmanager-v89';
 
 
 

@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const cancelTaskModalBtn = document.getElementById("cancelTaskModalBtn");
 
   const taskIdInput = document.getElementById("taskIdInput");
+  const taskAdminSelect = document.getElementById("taskAdminSelect");
   const taskTemplateSelect = document.getElementById("taskTemplateSelect");
   const taskNameInput = document.getElementById("taskNameInput");
   const taskPrioritySelect = document.getElementById("taskPrioritySelect");
@@ -250,6 +251,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
+  // Authorization Checker: Super Admin & Assigned Admin can check/uncheck
+  function canUserCheckTask(task) {
+    if (isSuperAdmin) return true;
+    if (!currentUser || !currentUser.username) return false;
+
+    const myUsername = String(currentUser.username || "").toLowerCase().trim();
+    const assigned = String(task.adminUser || "").toLowerCase().trim();
+
+    // If assigned specifically to this user
+    if (assigned === myUsername) return true;
+
+    // If assigned to 'service', 'all', or empty: any admin with role 'service' can check it
+    if (!assigned || assigned === "service" || assigned === "all" || assigned === "tim_service") {
+      return userRole === "service" || userRole.includes("service");
+    }
+
+    return false;
+  }
+
   // Web Audio API Synthesized Crystal Chime
   function playNotificationChime(isDoneChime = false) {
     try {
@@ -404,7 +424,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function populateUserDropdowns() {
     if (filterAdminSelect) {
       let filterOptionsHtml = `
-        <option value="all">Semua Admin Service</option>
+        <option value="all">Semua Checklist Admin Service</option>
         <option value="mine">Tugas Saya Saja (@${escapeHtmlSafe(currentUser.username)})</option>
       `;
 
@@ -414,6 +434,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
       filterAdminSelect.innerHTML = filterOptionsHtml;
+    }
+
+    if (taskAdminSelect) {
+      let modalAdminOptionsHtml = `
+        <option value="service">👥 Semua Tim Admin Service</option>
+      `;
+      serviceUsersList.forEach(u => {
+        if (u.username) {
+          modalAdminOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">👤 ${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)})</option>`;
+        }
+      });
+      taskAdminSelect.innerHTML = modalAdminOptionsHtml;
     }
 
     if (adminCountBadge) {
@@ -586,7 +618,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (filtered.length === 0) {
       taskTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center py-12 text-zinc-400">
+          <td colspan="8" class="text-center py-12 text-zinc-400">
             <div class="max-w-sm mx-auto space-y-2">
               <i class="fa-solid fa-clipboard-check text-4xl text-zinc-300 dark:text-zinc-600 block mb-1"></i>
               <p class="font-bold text-zinc-600 dark:text-zinc-300">Tidak ada tindakan yang sesuai.</p>
@@ -607,6 +639,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (tableRecordCount) tableRecordCount.innerText = `Menampilkan ${filtered.length} dari ${tasksData.length} tugas`;
 
     taskTableBody.innerHTML = filtered.map((task) => {
+      const canCheck = canUserCheckTask(task);
       const isDone = task.status === "Selesai";
       const isProgress = task.status === "Sedang Dikerjakan";
 
@@ -635,20 +668,66 @@ document.addEventListener("DOMContentLoaded", async () => {
         </a>
       ` : `<span class="text-zinc-300 dark:text-zinc-600 text-xs">-</span>`;
 
+      // Admin Penugasan Badge
+      let adminBadgeHtml = `<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60"><i class="fa-solid fa-users text-[10px]"></i><span>Semua Tim Service</span></span>`;
+      if (task.adminUser && task.adminUser !== "service" && task.adminUser !== "all") {
+        const isMyTask = (currentUser.username || "").toLowerCase() === task.adminUser.toLowerCase();
+        adminBadgeHtml = `<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${isMyTask ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 ring-1 ring-emerald-400/30' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700'}"><i class="fa-solid fa-user-check text-[10px] text-indigo-500"></i><span>@${escapeHtmlSafe(task.adminUser)}</span></span>`;
+      }
+
+      // Checkbox button based on authorization
+      let checkBtnHtml = '';
+      if (canCheck) {
+        checkBtnHtml = `
+          <button onclick="toggleTaskStatusDirectly('${task.id}')"
+            class="h-7 w-7 rounded-xl flex items-center justify-center transition-all transform active:scale-90 ${isDone ? 'bg-emerald-500 text-white shadow-sm hover:bg-emerald-600' : 'border-2 border-zinc-300 dark:border-zinc-600 text-transparent hover:border-indigo-500 hover:text-indigo-400'}"
+            title="${isDone ? 'Klik untuk tandai Belum Selesai' : 'Klik untuk tandai Selesai'}">
+            <i class="fa-solid fa-check text-xs font-bold"></i>
+          </button>
+        `;
+      } else {
+        checkBtnHtml = `
+          <button onclick="toggleTaskStatusDirectly('${task.id}')"
+            class="h-7 w-7 rounded-xl flex items-center justify-center transition-all opacity-40 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-300 dark:border-zinc-600"
+            title="Tugas ini khusus untuk @${escapeHtmlSafe(task.adminUser || 'service')}. Hanya pelaksana terkait dan Super Admin yang dapat mencentang.">
+            <i class="fa-solid fa-lock text-[10px]"></i>
+          </button>
+        `;
+      }
+
+      // Status dropdown based on authorization
+      let statusSelectHtml = '';
+      if (canCheck) {
+        statusSelectHtml = `
+          <select onchange="updateTaskStatusValue('${task.id}', this.value)"
+            class="px-2.5 py-1 text-xs font-bold rounded-full border cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-400 ${statusBadgeClass}">
+            <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>🔴 Belum Selesai</option>
+            <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>🟡 Sedang Dikerjakan</option>
+            <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>🟢 Selesai</option>
+          </select>
+        `;
+      } else {
+        statusSelectHtml = `
+          <select disabled
+            class="px-2.5 py-1 text-xs font-bold rounded-full border opacity-60 cursor-not-allowed ${statusBadgeClass}"
+            title="Khusus @${escapeHtmlSafe(task.adminUser || 'service')} atau Super Admin">
+            <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>🔴 Belum Selesai</option>
+            <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>🟡 Sedang Dikerjakan</option>
+            <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>🟢 Selesai</option>
+          </select>
+        `;
+      }
+
       return `
         <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors ${isDone ? 'bg-emerald-50/20 dark:bg-emerald-950/10' : ''}">
           
           <!-- Checkbox Selesai Toggle -->
           <td class="px-4 py-3.5 text-center">
-            <button onclick="toggleTaskStatusDirectly('${task.id}')"
-              class="h-7 w-7 rounded-xl flex items-center justify-center transition-all transform active:scale-90 ${isDone ? 'bg-emerald-500 text-white shadow-sm hover:bg-emerald-600' : 'border-2 border-zinc-300 dark:border-zinc-600 text-transparent hover:border-indigo-500 hover:text-indigo-400'}"
-              title="${isDone ? 'Klik untuk tandai Belum Selesai' : 'Klik untuk tandai Selesai'}">
-              <i class="fa-solid fa-check text-xs font-bold"></i>
-            </button>
+            ${checkBtnHtml}
           </td>
 
           <!-- Nama Tugas & Prioritas -->
-          <td class="px-4 py-3.5 min-w-[220px]">
+          <td class="px-4 py-3.5 min-w-[200px]">
             <div class="flex items-center">
               ${priorityPill}
               <span class="font-bold text-zinc-800 dark:text-zinc-100 ${isDone ? 'line-through text-zinc-400 dark:text-zinc-500' : ''}">
@@ -657,14 +736,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
           </td>
 
+          <!-- Penugasan Admin Pelaksana -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            ${adminBadgeHtml}
+          </td>
+
           <!-- Status Dropdown / Badge -->
           <td class="px-4 py-3.5 text-center whitespace-nowrap">
-            <select onchange="updateTaskStatusValue('${task.id}', this.value)"
-              class="px-2.5 py-1 text-xs font-bold rounded-full border cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-400 ${statusBadgeClass}">
-              <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>🔴 Belum Selesai</option>
-              <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>🟡 Sedang Dikerjakan</option>
-              <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>🟢 Selesai</option>
-            </select>
+            ${statusSelectHtml}
           </td>
 
           <!-- Total / Target Metrik (Opsional) -->
@@ -829,6 +908,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (taskIdInput) taskIdInput.value = "";
     if (taskModalTitle) taskModalTitle.innerHTML = `<i class="fa-solid fa-plus-circle text-indigo-600 mr-1.5"></i><span>Tambah Tindakan / Tugas Baru</span>`;
     
+    if (taskAdminSelect) taskAdminSelect.value = "service";
     if (taskStatusSelect) taskStatusSelect.value = "Belum Selesai";
     if (taskPrioritySelect) taskPrioritySelect.value = "medium";
     if (taskTemplateSelect) taskTemplateSelect.value = "";
@@ -842,6 +922,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (taskIdInput) taskIdInput.value = task.id;
     if (taskNameInput) taskNameInput.value = task.taskName || "";
+    if (taskAdminSelect) taskAdminSelect.value = task.adminUser || "service";
     if (taskPrioritySelect) taskPrioritySelect.value = task.priority || "medium";
     if (taskTotalInput) taskTotalInput.value = task.total || "";
     if (taskStatusSelect) taskStatusSelect.value = task.status || "Belum Selesai";
@@ -878,10 +959,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      const selectedAdminUser = taskAdminSelect ? taskAdminSelect.value : "service";
+      let assignedName = "Semua Tim Service";
+      if (selectedAdminUser && selectedAdminUser !== "service" && selectedAdminUser !== "all") {
+        const foundUser = serviceUsersList.find(u => u.username === selectedAdminUser);
+        assignedName = foundUser ? (foundUser.name || foundUser.username) : selectedAdminUser;
+      }
+
       const taskPayload = {
         taskName,
-        adminUser: "service",
-        adminName: "Admin Service",
+        adminUser: selectedAdminUser,
+        adminName: assignedName,
         priority: taskPrioritySelect ? taskPrioritySelect.value : "medium",
         scheduleType: "hourly",
         intervalHours: Number(settingsData.defaultIntervalHours) || 1,
@@ -917,6 +1005,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const task = tasksData.find(t => t.id === id);
     if (!task) return;
 
+    if (!canUserCheckTask(task)) {
+      if (typeof Toast !== "undefined") {
+        const targetAdmin = task.adminName || task.adminUser || "admin lain";
+        Toast.warning("Akses Dibatasi", `Tugas ini ditugaskan untuk ${targetAdmin}. Hanya pelaksana terkait atau Super Admin yang dapat mencentang status.`);
+      }
+      return;
+    }
+
     const newStatus = task.status === "Selesai" ? "Belum Selesai" : "Selesai";
     task.status = newStatus;
 
@@ -945,6 +1041,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.updateTaskStatusValue = (id, newStatus) => {
     const task = tasksData.find(t => t.id === id);
     if (!task) return;
+
+    if (!canUserCheckTask(task)) {
+      if (typeof Toast !== "undefined") {
+        const targetAdmin = task.adminName || task.adminUser || "admin lain";
+        Toast.warning("Akses Dibatasi", `Tugas ini ditugaskan untuk ${targetAdmin}. Hanya pelaksana terkait atau Super Admin yang dapat mengubah status.`);
+      }
+      renderTasks();
+      return;
+    }
 
     task.status = newStatus;
     if (newStatus === "Selesai" && settingsData.soundNotification !== false) {
