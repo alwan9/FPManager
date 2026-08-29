@@ -210,9 +210,15 @@
         <!-- Top Welcome & Status Banner -->
         <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-5 md:p-6 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="space-y-1.5 z-10">
-            <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-indigo-200 border border-white/15">
-              <i class="fa-solid fa-rotate text-indigo-300 animate-spin" style="animation-duration: 8s;"></i>
-              <span id="bannerAutoResetDate">Auto-Reset: Aktif Tiap 00:00</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-indigo-200 border border-white/15">
+                <i class="fa-solid fa-rotate text-indigo-300 animate-spin" style="animation-duration: 8s;"></i>
+                <span id="bannerAutoResetDate">Auto-Reset: Aktif Tiap 00:00</span>
+              </div>
+              <div id="syncStatusBadge" class="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-emerald-300 border border-emerald-400/30 transition-all">
+                <span id="syncStatusDot" class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                <span id="syncStatusText">Sinkronisasi Cloud: Siap</span>
+              </div>
             </div>
             <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
               <span>Rutinitas Tindakan & SOP Admin</span>

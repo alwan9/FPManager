@@ -1,9 +1,9 @@
 /**
  * FREELANCE PROJEK MANAGER (FPManager)
  * Modul: Aktivitas & Checklist Harian Admin (Admin Tasks)
- * Khusus: Role Service & Super Admin
- * Fitur: Checklist Tindakan Harian, Interval Notifikasi Global, Template SOP Cepat,
- *        Auto-Reset Harian 00:00 WIB, Audio Chime & In-App Reminder
+ * Arsitektur: Pemisahan Total Antara Kinerja UI Operasional & Sinkronisasi Cloud (Decoupled Background Sync)
+ * Fitur: Zero-Latency Optimistic UI (0ms), Background Sync Queue, Auto-Reset 00:00 WIB,
+ *        Audio Crystal Chime, In-App Floating Reminder & Global Interval Timer
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -27,13 +27,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const taskSearchInput = document.getElementById("taskSearchInput");
   const filterAdminSelect = document.getElementById("filterAdminSelect");
   const filterStatusSelect = document.getElementById("filterStatusSelect");
-  const filterScheduleSelect = document.getElementById("filterScheduleSelect");
   const tableRecordCount = document.getElementById("tableRecordCount");
   const progressBarFill = document.getElementById("progressBarFill");
   const progressBarText = document.getElementById("progressBarText");
   const adminFilterTabsContainer = document.getElementById("adminFilterTabsContainer");
   const adminWorkloadContainer = document.getElementById("adminWorkloadContainer");
   const adminCountBadge = document.getElementById("adminCountBadge");
+
+  // Sync Status DOM
+  const syncStatusBadge = document.getElementById("syncStatusBadge");
+  const syncStatusDot = document.getElementById("syncStatusDot");
+  const syncStatusText = document.getElementById("syncStatusText");
 
   // Stats DOM
   const statTotalTasks = document.getElementById("statTotalTasks");
@@ -100,7 +104,77 @@ document.addEventListener("DOMContentLoaded", async () => {
   const isSuperAdmin = (currentUser.username === "wansmin" || userRole === "super_admin" || userRole === "superadmin" || userRole.includes("admin"));
   const canDeleteTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:delete"));
   const canCreateTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:create"));
-  const canUpdateTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:update"));
+
+  // ==========================================
+  // DECOUPLED SYNC STATUS MANAGER
+  // ==========================================
+  function updateSyncIndicator(state, message) {
+    if (!syncStatusBadge || !syncStatusText || !syncStatusDot) return;
+
+    if (state === "syncing") {
+      syncStatusBadge.className = "inline-flex items-center space-x-1.5 bg-amber-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-amber-300 border border-amber-400/30 transition-all";
+      syncStatusDot.className = "h-2 w-2 rounded-full bg-amber-400 animate-ping";
+      syncStatusText.innerText = message || "Menyinkronkan di Latar Belakang...";
+    } else if (state === "error") {
+      syncStatusBadge.className = "inline-flex items-center space-x-1.5 bg-rose-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-rose-300 border border-rose-400/30 transition-all";
+      syncStatusDot.className = "h-2 w-2 rounded-full bg-rose-400";
+      syncStatusText.innerText = message || "Tersimpan Lokal (Offline)";
+    } else {
+      // Synced / Ready
+      syncStatusBadge.className = "inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-emerald-300 border border-emerald-400/30 transition-all";
+      syncStatusDot.className = "h-2 w-2 rounded-full bg-emerald-400";
+      syncStatusText.innerText = message || "Cloud Tersinkronisasi";
+    }
+  }
+
+  // ==========================================
+  // DECOUPLED BACKGROUND SYNC ENGINE (NON-BLOCKING)
+  // ==========================================
+  const TaskSyncEngine = {
+    syncQueue: [],
+    isProcessing: false,
+
+    // Dispatch background sync without blocking main thread
+    dispatch: function(actionType, data) {
+      this.syncQueue.push({ actionType, data, timestamp: Date.now() });
+      updateSyncIndicator("syncing", "Menyinkronkan ke Cloud...");
+      
+      // Execute asynchronously on idle/next tick
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => this.processQueue());
+      } else {
+        setTimeout(() => this.processQueue(), 50);
+      }
+    },
+
+    processQueue: async function() {
+      if (this.isProcessing || this.syncQueue.length === 0) return;
+      this.isProcessing = true;
+
+      while (this.syncQueue.length > 0) {
+        const item = this.syncQueue.shift();
+        try {
+          if (item.actionType === "updateStatus" || item.actionType === "updateTask") {
+            await API.updateAdminTask(item.data.id, item.data.payload);
+          } else if (item.actionType === "addTask") {
+            await API.addAdminTask(item.data.payload);
+          } else if (item.actionType === "deleteTask") {
+            await API.deleteAdminTask(item.data.id);
+          } else if (item.actionType === "saveSettings") {
+            await API.saveAdminTaskSettings(item.data.payload);
+          } else if (item.actionType === "resetStatus") {
+            if (API.resetAdminTasksStatus) await API.resetAdminTasksStatus();
+          }
+        } catch (err) {
+          console.warn("[Background Sync] Gagal mengirim data ke server:", err);
+          updateSyncIndicator("error", "Tersimpan di Memori Lokal");
+        }
+      }
+
+      this.isProcessing = false;
+      updateSyncIndicator("synced", "Cloud Tersinkronisasi");
+    }
+  };
 
   // ==========================================
   // HELPER UTILITIES
@@ -225,20 +299,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ==========================================
-  // DATA LOAD & RENDER
+  // DATA LOAD & RENDER (OFFLINE-FIRST)
   // ==========================================
   async function loadAdminTasks() {
     try {
-      taskTableBody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-10 text-zinc-400">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-indigo-500"></i>
-            <p class="font-medium">Memuat data aktivitas tindakan admin...</p>
-          </td>
-        </tr>
-      `;
+      // 1. Fast Cache Render: Tampilkan data dari localStorage seketika (0ms) jika ada
+      const cachedTasks = localStorage.getItem("fpmanager_admin_tasks");
+      if (cachedTasks) {
+        try {
+          tasksData = JSON.parse(cachedTasks);
+          renderTasks();
+          updateStats();
+        } catch(e) {}
+      } else {
+        taskTableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-10 text-zinc-400">
+              <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-indigo-500"></i>
+              <p class="font-medium">Memuat data aktivitas tindakan admin...</p>
+            </td>
+          </tr>
+        `;
+      }
 
-      // Load Settings, Users, Tasks in parallel
+      // 2. Fetch server updates in parallel background thread
       const [tasksRes, settingsRes, usersRes] = await Promise.allSettled([
         API.getAdminTasks(),
         API.getAdminTaskSettings(),
@@ -250,7 +334,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (usersRes.status === "fulfilled" && Array.isArray(usersRes.value) && usersRes.value.length > 0) {
-        // Filter: Hanya user dengan role "service" dan super_admin
+        // Filter khusus role service dan super_admin
         serviceUsersList = usersRes.value.filter(u => {
           const r = String(u.role || '').toLowerCase();
           return r === "service" || r.includes("service") || r.includes("admin") || u.username === "wansmin";
@@ -266,6 +350,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (tasksRes.status === "fulfilled" && Array.isArray(tasksRes.value)) {
         tasksData = tasksRes.value;
+        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
       }
 
       // Check daily auto-reset
@@ -275,11 +360,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateStats();
       applySettingsToUI();
       scheduleNotificationChecker();
+      updateSyncIndicator("synced", "Cloud Tersinkronisasi");
     } catch (err) {
-      console.error("Gagal load admin tasks:", err);
-      if (typeof Toast !== "undefined") {
-        Toast.error("Gagal Memuat", "Terjadi kesalahan saat memuat checklist tugas admin.");
-      }
+      console.warn("Background load tasks issue:", err);
+      updateSyncIndicator("error", "Mode Offline / Tersimpan Lokal");
     }
   }
   window.loadAdminTasks = loadAdminTasks;
@@ -325,7 +409,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       </button>
     `;
 
-    // Tab per registered service user
     serviceUsersList.forEach(u => {
       if (u.username) {
         const isActive = currentActiveAdminTab === u.username;
@@ -363,7 +446,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
     let cardsHtml = `
-      <!-- Card Checklist Umum Tim Service -->
+      <!-- Card Checklist Tim Service -->
       <div class="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/30 dark:to-zinc-900/50 shadow-xs">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center space-x-2.5">
@@ -395,7 +478,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
 
-    // Cards for each Service Admin User
     serviceUsersList.forEach(u => {
       const isMe = u.username === currentUser.username;
       const roleLabel = (u.role || 'Service').toUpperCase();
@@ -446,14 +528,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // ==========================================
-  // TABLE RENDERING
+  // TABLE RENDERING (HIGH-PERFORMANCE)
   // ==========================================
   function renderTasks() {
     const searchQuery = (taskSearchInput.value || "").toLowerCase().trim();
     const statusFilter = filterStatusSelect ? filterStatusSelect.value : "all";
 
     const filtered = tasksData.filter(task => {
-      // Search query
       if (searchQuery) {
         const matchName = (task.taskName || "").toLowerCase().includes(searchQuery);
         const matchNotes = (task.notes || "").toLowerCase().includes(searchQuery);
@@ -461,7 +542,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!matchName && !matchNotes && !matchTotal) return false;
       }
 
-      // Filter Status
       if (statusFilter !== "all" && task.status !== statusFilter) {
         return false;
       }
@@ -496,7 +576,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const isDone = task.status === "Selesai";
       const isProgress = task.status === "Sedang Dikerjakan";
 
-      // Status Badge Style
       let statusBadgeClass = "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border-rose-200 dark:border-rose-800";
       if (isDone) {
         statusBadgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
@@ -504,7 +583,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         statusBadgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-200 dark:border-amber-800";
       }
 
-      // Priority Indicator
       let priorityPill = `<span class="h-2 w-2 rounded-full bg-amber-400 mr-2 flex-shrink-0" title="Prioritas Sedang"></span>`;
       if (task.priority === "high") {
         priorityPill = `<span class="h-2 w-2 rounded-full bg-rose-500 mr-2 flex-shrink-0" title="Prioritas Tinggi"></span>`;
@@ -512,7 +590,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         priorityPill = `<span class="h-2 w-2 rounded-full bg-emerald-400 mr-2 flex-shrink-0" title="Prioritas Ringan"></span>`;
       }
 
-      // Link Button
       const cleanLink = sanitizeTaskLink(task.link);
       const linkHtml = (task.link && cleanLink !== "#") ? `
         <a href="${cleanLink}" target="_blank" rel="noopener noreferrer"
@@ -616,7 +693,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     progressBarFill.style.width = `${percent}%`;
     progressBarText.innerText = `${done}/${total} Selesai (${percent}%)`;
 
-    // Global interval display
     statActiveInterval.innerText = `Tiap ${settingsData.defaultIntervalHours || 1} Jam`;
 
     renderAdminFilterTabs();
@@ -711,7 +787,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // ==========================================
-  // TASK CRUD ACTIONS
+  // TASK CRUD ACTIONS (OPTIMISTIC & DECOUPLED)
   // ==========================================
   window.openAddTaskModal = () => {
     taskForm.reset();
@@ -755,8 +831,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Form Submit (Create / Update)
-  taskForm.addEventListener("submit", async (e) => {
+  // Form Submit (Zero-latency optimistic update + Asynchronous Background Sync)
+  taskForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
     const id = taskIdInput.value;
@@ -766,53 +842,41 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const saveBtn = document.getElementById("saveTaskBtn");
-    const origHtml = saveBtn.innerHTML;
-    saveBtn.disabled = true;
-    saveBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Menyimpan...`;
+    const taskPayload = {
+      taskName,
+      adminUser: "service",
+      adminName: "Admin Service",
+      priority: taskPrioritySelect.value,
+      scheduleType: "hourly",
+      intervalHours: Number(settingsData.defaultIntervalHours) || 1,
+      total: taskTotalInput.value.trim(),
+      status: taskStatusSelect.value,
+      link: taskLinkInput.value.trim(),
+      notes: taskNotesInput.value.trim(),
+      lastResetDate: getTodayDateString()
+    };
 
-    try {
-      const taskPayload = {
-        taskName,
-        adminUser: "service",
-        adminName: "Admin Service",
-        priority: taskPrioritySelect.value,
-        scheduleType: "hourly",
-        intervalHours: Number(settingsData.defaultIntervalHours) || 1,
-        total: taskTotalInput.value.trim(),
-        status: taskStatusSelect.value,
-        link: taskLinkInput.value.trim(),
-        notes: taskNotesInput.value.trim(),
-        lastResetDate: getTodayDateString()
-      };
-
-      if (id) {
-        // Update existing task
-        await API.updateAdminTask(id, taskPayload);
-        tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
-        if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
-      } else {
-        // Create new task for service team
-        const res = await API.addAdminTask(taskPayload);
-        const createdTask = res.data || { ...taskPayload, id: "TSK-" + Date.now() };
-        tasksData.unshift(createdTask);
-        if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
-      }
-
-      closeTaskModal();
-      renderTasks();
-      updateStats();
-    } catch (err) {
-      console.error(err);
-      if (typeof Toast !== "undefined") Toast.error("Gagal", "Terjadi kesalahan saat menyimpan tugas.");
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = origHtml;
+    // 1. INSTANT LOCAL UPDATE (0ms)
+    if (id) {
+      tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
+      TaskSyncEngine.dispatch("updateTask", { id, payload: taskPayload });
+      if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
+    } else {
+      const newId = "TSK-" + Date.now();
+      const createdTask = { ...taskPayload, id: newId, createdAt: new Date().toISOString() };
+      tasksData.unshift(createdTask);
+      TaskSyncEngine.dispatch("addTask", { payload: createdTask });
+      if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
     }
+
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
+    closeTaskModal();
+    renderTasks();
+    updateStats();
   });
 
-  // Direct Status Toggle via Checkbox Click
-  window.toggleTaskStatusDirectly = async (id) => {
+  // Direct Status Toggle (0ms Optimistic UI + Background Sync)
+  window.toggleTaskStatusDirectly = (id) => {
     const task = tasksData.find(t => t.id === id);
     if (!task) return;
 
@@ -823,25 +887,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       playNotificationChime(true); // Success chime
     }
 
+    // 1. Instant UI update
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
     renderTasks();
     updateStats();
 
-    try {
-      await API.updateAdminTask(id, { status: newStatus });
-      if (typeof Toast !== "undefined") {
-        if (newStatus === "Selesai") {
-          Toast.success("Selesai! 🎉", `Tugas "${task.taskName}" ditandai selesai.`);
-        } else {
-          Toast.info("Status Diperbarui", `Tugas "${task.taskName}" kembali ke 'Belum Selesai'.`);
-        }
+    if (typeof Toast !== "undefined") {
+      if (newStatus === "Selesai") {
+        Toast.success("Selesai! 🎉", `Tugas "${task.taskName}" ditandai selesai.`);
+      } else {
+        Toast.info("Status Diperbarui", `Tugas "${task.taskName}" kembali ke 'Belum Selesai'.`);
       }
-    } catch (e) {
-      console.warn("Failed to sync status update to server:", e);
     }
+
+    // 2. Offload to non-blocking background sync queue
+    TaskSyncEngine.dispatch("updateStatus", { id, payload: { status: newStatus } });
   };
 
   // Status Change via Select Dropdown
-  window.updateTaskStatusValue = async (id, newStatus) => {
+  window.updateTaskStatusValue = (id, newStatus) => {
     const task = tasksData.find(t => t.id === id);
     if (!task) return;
 
@@ -850,21 +914,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       playNotificationChime(true);
     }
 
+    // Instant local update
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
     renderTasks();
     updateStats();
 
-    try {
-      await API.updateAdminTask(id, { status: newStatus });
-      if (typeof Toast !== "undefined") {
-        Toast.success("Status Diperbarui", `Status tugas "${task.taskName}" diubah ke ${newStatus}.`);
-      }
-    } catch (e) {
-      console.warn("Failed to sync status update:", e);
+    if (typeof Toast !== "undefined") {
+      Toast.success("Status Diperbarui", `Status tugas "${task.taskName}" diubah ke ${newStatus}.`);
     }
+
+    // Background sync
+    TaskSyncEngine.dispatch("updateStatus", { id, payload: { status: newStatus } });
   };
 
   // Delete Task (Super Admin Only)
-  window.deleteAdminTaskConfirm = async (id, name) => {
+  window.deleteAdminTaskConfirm = (id, name) => {
     if (!canDeleteTask) {
       if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Hanya Super Admin yang dapat menghapus tugas.");
       return;
@@ -874,21 +938,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    try {
-      await API.deleteAdminTask(id);
-      tasksData = tasksData.filter(t => t.id !== id);
-      renderTasks();
-      updateStats();
-      if (typeof Toast !== "undefined") Toast.success("Terhapus", "Tugas berhasil dihapus.");
-    } catch (err) {
-      console.error(err);
-      if (typeof Toast !== "undefined") Toast.error("Gagal", "Gagal menghapus tugas.");
-    }
+    // 1. Instant local removal
+    tasksData = tasksData.filter(t => t.id !== id);
+    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
+    renderTasks();
+    updateStats();
+    if (typeof Toast !== "undefined") Toast.success("Terhapus", "Tugas berhasil dihapus.");
+
+    // 2. Background sync
+    TaskSyncEngine.dispatch("deleteTask", { id });
   };
 
   // Manual Reset Status Button (Super Admin Only)
   if (manualResetBtn) {
-    manualResetBtn.addEventListener("click", async () => {
+    manualResetBtn.addEventListener("click", () => {
       if (!isSuperAdmin) {
         if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Hanya Super Admin yang dapat melakukan reset manual.");
         return;
@@ -911,15 +974,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderTasks();
       updateStats();
 
-      try {
-        if (API.resetAdminTasksStatus) {
-          await API.resetAdminTasksStatus();
-        }
-      } catch(e) {}
-
       if (typeof Toast !== "undefined") {
         Toast.success("Reset Berhasil", "Seluruh status tugas hari ini telah di-reset ke 'Belum Selesai'.");
       }
+
+      // Background sync
+      TaskSyncEngine.dispatch("resetStatus", {});
     });
   }
 
@@ -949,7 +1009,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (settingsForm) {
-    settingsForm.addEventListener("submit", async (e) => {
+    settingsForm.addEventListener("submit", (e) => {
       e.preventDefault();
 
       settingsData = {
@@ -962,22 +1022,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         lastResetDate: getTodayDateString()
       };
 
-      const saveBtn = document.getElementById("saveSettingsBtn");
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Menyimpan...`;
+      // 1. Instant local update
+      localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
+      if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", `Interval pengingat global diatur ke Tiap ${settingsData.defaultIntervalHours} Jam.`);
+      closeSettingsModal();
+      updateStats();
 
-      try {
-        await API.saveAdminTaskSettings(settingsData);
-        if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", `Interval pengingat global berhasil diatur ke Tiap ${settingsData.defaultIntervalHours} Jam.`);
-        closeSettingsModal();
-        updateStats();
-      } catch (err) {
-        console.error(err);
-        if (typeof Toast !== "undefined") Toast.error("Gagal", "Gagal menyimpan pengaturan notifikasi.");
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = `<i class="fa-solid fa-save mr-1"></i> Simpan Setelan`;
-      }
+      // 2. Background sync
+      TaskSyncEngine.dispatch("saveSettings", { payload: settingsData });
     });
   }
 
@@ -1041,18 +1093,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const count = pendingList.length;
     const msg = `Ada ${count} tindakan checklist admin service yang belum selesai hari ini.`;
 
-    // 1. Audio Chime
     if (settingsData.soundNotification !== false) {
       playNotificationChime(false);
     }
 
-    // 2. Floating In-App Reminder
     if (settingsData.toastReminder !== false && floatingReminderPopup) {
       floatingReminderMessage.innerText = `${msg} Silakan periksa daftar tugas Anda.`;
       floatingReminderPopup.classList.remove("hidden");
     }
 
-    // 3. Browser Push/System Notification
     if (settingsData.browserNotification !== false && "Notification" in window && Notification.permission === "granted") {
       new Notification("Pengingat Tindakan Admin FPManager", {
         body: msg,
@@ -1085,7 +1134,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
   if (filterStatusSelect) filterStatusSelect.addEventListener("change", renderTasks);
-  if (filterScheduleSelect) filterScheduleSelect.addEventListener("change", renderTasks);
 
   // Initial Load
   loadAdminTasks();
