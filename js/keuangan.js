@@ -239,21 +239,26 @@ function initTable(data) {
         data: null,
         render: function (data, type, row) {
           const total = Number(row.totalProyek) || Number(row.nominal) || 0;
-          return `<span class="font-bold text-zinc-800 dark:text-zinc-200">${formatRupiah(total)}</span>`;
-        }
-      },
-      {
-        data: null,
-        render: function (data, type, row) {
           const st = String(row.statusPembayaran || '').toLowerCase();
           const dpVal = Number(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal)) || 0;
+          
           if (row.jenis === 'Pengeluaran') {
-            return `<span class="text-rose-600 font-bold">- ${formatRupiah(Number(row.nominal) || 0)}</span>`;
+            return `
+              <div>
+                <div class="font-bold text-rose-600">- ${formatRupiah(Number(row.nominal) || 0)}</div>
+                <div class="text-[11px] text-zinc-400 font-medium">Pengeluaran Kas</div>
+              </div>
+            `;
           }
-          if (dpVal > 0) {
-            return `<span class="text-emerald-600 font-bold">+ ${formatRupiah(dpVal)}</span>`;
-          }
-          return `<span class="text-zinc-400 font-semibold italic">Rp0 (Belum)</span>`;
+
+          return `
+            <div>
+              <div class="font-bold text-zinc-900 dark:text-zinc-100">${formatRupiah(total)}</div>
+              <div class="text-xs ${dpVal > 0 ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-zinc-400'}">
+                ${dpVal > 0 ? `<i class="fa-solid fa-arrow-down mr-0.5"></i> DP: ${formatRupiah(dpVal)}` : 'Belum Ada DP'}
+              </div>
+            </div>
+          `;
         }
       },
       {
@@ -303,6 +308,34 @@ function initTable(data) {
               <option value="DP" ${currentStatus === 'DP' ? 'selected' : ''} class="bg-white text-amber-700 font-semibold">🟡 DP / Sebagian</option>
               <option value="Lunas" ${currentStatus === 'Lunas' ? 'selected' : ''} class="bg-white text-emerald-700 font-semibold">🟢 Lunas</option>
             </select>
+          `;
+        }
+      },
+      {
+        data: null,
+        orderable: false,
+        className: 'text-center',
+        render: function (data) {
+          const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+          const isSuperAdmin = currUser && (
+            currUser.username === 'wansmin' ||
+            (currUser.role || '').toLowerCase().includes('super_admin') ||
+            (currUser.role || '').toLowerCase().includes('superadmin') ||
+            (currUser.role || '').toLowerCase().includes('admin')
+          );
+          const canDelete = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
+
+          return `
+            <div class="flex space-x-1.5 justify-center">
+              <button onclick="openPaymentApprovalModal('${data.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all" title="Input & Approval Pembayaran">
+                <i class="fa-solid fa-sliders mr-1"></i> Approve
+              </button>
+              ${canDelete ? `
+              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Transaksi">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              ` : ''}
+            </div>
           `;
         }
       }
