@@ -161,6 +161,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>${isEn ? 'Add Project' : 'Tambah Projek'}</span>`;
     }
 
+    // Sembunyikan opsi buat folder otomatis saat mode Edit, tampilkan langsung input link Google Drive
+    const createDriveFolderRow = document.getElementById('createDriveFolderRow');
+    if (createDriveFolderRow) {
+      createDriveFolderRow.classList.add('hidden');
+    }
+    if (createDriveFolderCheckbox) {
+      createDriveFolderCheckbox.checked = false;
+    }
+    if (manualGDriveContainer) {
+      manualGDriveContainer.classList.remove('hidden', 'pt-3', 'border-t', 'border-indigo-100/80');
+    }
+
     // Populate data function
     const populateFormData = (proyek) => {
       if (!proyek) return;
@@ -202,10 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (gdriveLinkInput) {
         gdriveLinkInput.value = proyek.gdriveLink || "";
       }
-      // Jika mode edit dan projek sudah memiliki link drive, uncheck pembuat folder otomatis & tampilkan link
-      if (proyek.gdriveLink && createDriveFolderCheckbox && manualGDriveContainer) {
+      if (createDriveFolderCheckbox) {
         createDriveFolderCheckbox.checked = false;
-        manualGDriveContainer.classList.remove('hidden');
       }
       kalkulasiNominalDanSisa();
       if (typeof updateNamaProyekPreview === 'function') {
