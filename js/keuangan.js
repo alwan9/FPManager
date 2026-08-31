@@ -28,59 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', handleAddTransaksi);
   }
 
-  // Approval Form submit listener
-  const approvalForm = document.getElementById('approvalForm');
-  if (approvalForm) {
-    approvalForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('approvalTxId').value;
-      const status = document.getElementById('approvalStatusSelect').value;
-      const nominalIn = Number(document.getElementById('approvalNominalInput').value) || 0;
-      const total = Number(document.getElementById('approvalTotalNominal').value) || 0;
-      const metode = document.getElementById('approvalMetodeSelect').value;
-      const idProyek = document.getElementById('approvalIdProyek').value;
-      const sisa = Math.max(0, total - nominalIn);
-
-      const submitBtn = document.getElementById('approvalSubmitBtn');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1"></i> Menyimpan...';
-      }
-
-      try {
-        const payload = {
-          statusPembayaran: status,
-          nominal: nominalIn,
-          dp: nominalIn,
-          sisa: sisa,
-          totalProyek: total,
-          metodePembayaran: metode,
-          idProyek: idProyek
-        };
-
-        const res = await API.updateKeuangan(id, payload);
-        if (res && res.success) {
-          if (typeof Toast !== 'undefined') {
-            Toast.success('Berhasil', 'Pembayaran berhasil diapprove dan disinkronkan.');
-          }
-          closePaymentApprovalModal();
-          await loadKeuanganData();
-        } else {
-          if (typeof Toast !== 'undefined') {
-            Toast.error('Gagal', res ? res.message : 'Gagal memperbarui transaksi.');
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> <span>Simpan & Approve</span>';
-        }
-      }
-    });
-  }
-
   // Live nominal formatting preview
   const nominalInput = document.getElementById('nominal');
   const nominalPreview = document.getElementById('nominalPreview');
@@ -321,15 +268,18 @@ function initTable(data) {
             (currUser.role || '').toLowerCase().includes('superadmin') ||
             (currUser.role || '').toLowerCase().includes('admin')
           );
+          const canUpdate = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update'));
           const canDelete = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
 
           return `
             <div class="flex space-x-1.5 justify-center">
-              <button onclick="openPaymentApprovalModal('${data.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all" title="Input & Approval Pembayaran">
-                <i class="fa-solid fa-sliders mr-1"></i> Approve
+              ${canUpdate ? `
+              <button onclick="editTransaksi('${data.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Transaksi">
+                <i class="fa-solid fa-pen"></i>
               </button>
+              ` : ''}
               ${canDelete ? `
-              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Transaksi">
+              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Transaksi">
                 <i class="fa-solid fa-trash"></i>
               </button>
               ` : ''}
@@ -356,12 +306,6 @@ async function quickUpdatePaymentStatus(id, newStatus) {
 
   const totalNom = Number(tx.totalProyek) || Number(tx.nominal) || 0;
 
-  if (newStatus === 'DP') {
-    // Jika pilih DP, buka modal agar user bisa memasukkan nilai DP yang spesifik
-    openPaymentApprovalModal(id, 'DP');
-    return;
-  }
-
   let newDp = 0;
   let newSisa = totalNom;
   let newNominal = 0;
@@ -374,6 +318,18 @@ async function quickUpdatePaymentStatus(id, newStatus) {
     newDp = 0;
     newSisa = totalNom;
     newNominal = 0;
+  } else if (newStatus === 'DP') {
+    const currentDp = Number(tx.dp) || Math.round(totalNom / 2);
+    const inputVal = prompt(isEn ? `Enter received DP amount (Total: ${formatRupiah(totalNom)}):` : `Masukkan nominal DP yang diterima (Total: ${formatRupiah(totalNom)}):`, currentDp);
+    if (inputVal === null) {
+      await loadKeuanganData();
+      return;
+    }
+    newDp = Math.min(totalNom, Math.max(0, parseFloat(inputVal) || 0));
+    newSisa = Math.max(0, totalNom - newDp);
+    newNominal = newDp;
+    if (newDp >= totalNom && totalNom > 0) newStatus = 'Lunas';
+    else if (newDp <= 0) newStatus = 'Belum';
   }
 
   try {
@@ -426,89 +382,6 @@ async function quickUpdatePaymentMethod(id, newMethod) {
     }
   } catch (err) {
     console.error("quickUpdatePaymentMethod error:", err);
-  }
-}
-
-// Modal Approval / Input Pembayaran
-function openPaymentApprovalModal(id, defaultStatus = '') {
-  const tx = currentKeuanganList.find(k => String(k.id) === String(id));
-  if (!tx) return;
-
-  const total = Number(tx.totalProyek) || Number(tx.nominal) || 0;
-  const currentDp = Number(tx.dp !== undefined ? tx.dp : (tx.statusPembayaran === 'Belum' ? 0 : tx.nominal)) || 0;
-  const sisa = tx.sisa !== undefined ? Number(tx.sisa) : Math.max(0, total - currentDp);
-
-  const ket = String(tx.keterangan || '');
-  const match = ket.match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || String(tx.id || '').match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || (tx.idProyek ? String(tx.idProyek).match(/PRJ-\d+[-a-zA-Z0-9_]*/i) : null);
-  const prjId = match ? match[0] : (tx.idProyek || tx.id || '-');
-
-  document.getElementById('approvalTxId').value = tx.id;
-  document.getElementById('approvalIdProyek').value = prjId;
-  document.getElementById('approvalTotalNominal').value = total;
-
-  document.getElementById('modalPrjTitle').textContent = `Input & Approval: ${tx.keterangan || 'Pembayaran'}`;
-  document.getElementById('modalPrjSubtitle').textContent = `ID Projek: ${prjId}`;
-
-  document.getElementById('approvalDisplayTotal').textContent = formatRupiah(total);
-  document.getElementById('approvalDisplaySisa').textContent = formatRupiah(sisa);
-
-  const statusSelect = document.getElementById('approvalStatusSelect');
-  const targetStatus = defaultStatus || tx.statusPembayaran || (currentDp >= total && total > 0 ? 'Lunas' : (currentDp > 0 ? 'DP' : 'Belum'));
-  statusSelect.value = targetStatus;
-
-  const nominalInput = document.getElementById('approvalNominalInput');
-  nominalInput.value = targetStatus === 'Lunas' ? total : (targetStatus === 'Belum' ? 0 : currentDp);
-
-  const metodeSelect = document.getElementById('approvalMetodeSelect');
-  if (metodeSelect) {
-    metodeSelect.value = tx.metodePembayaran || 'Transfer Bank';
-  }
-
-  handleApprovalNominalInput();
-
-  const modal = document.getElementById('paymentApprovalModal');
-  if (modal) modal.classList.remove('hidden');
-}
-
-function closePaymentApprovalModal() {
-  const modal = document.getElementById('paymentApprovalModal');
-  if (modal) modal.classList.add('hidden');
-}
-
-function handleApprovalStatusChange(newStatus) {
-  const total = Number(document.getElementById('approvalTotalNominal').value) || 0;
-  const nominalInput = document.getElementById('approvalNominalInput');
-  if (newStatus === 'Lunas') {
-    nominalInput.value = total;
-  } else if (newStatus === 'Belum') {
-    nominalInput.value = 0;
-  } else if (newStatus === 'DP' && (!nominalInput.value || Number(nominalInput.value) === 0 || Number(nominalInput.value) >= total)) {
-    nominalInput.value = Math.round(total / 2);
-  }
-  handleApprovalNominalInput();
-}
-
-function handleApprovalNominalInput() {
-  const total = Number(document.getElementById('approvalTotalNominal').value) || 0;
-  const val = Number(document.getElementById('approvalNominalInput').value) || 0;
-  const preview = document.getElementById('approvalNominalPreview');
-  const sisaDisplay = document.getElementById('approvalDisplaySisa');
-  const statusSelect = document.getElementById('approvalStatusSelect');
-
-  const sisa = Math.max(0, total - val);
-  if (preview) {
-    preview.textContent = val > 0 ? formatRupiah(val) : 'Rp0 (Belum ada uang masuk)';
-  }
-  if (sisaDisplay) {
-    sisaDisplay.textContent = formatRupiah(sisa);
-  }
-
-  if (val >= total && total > 0) {
-    statusSelect.value = 'Lunas';
-  } else if (val > 0) {
-    statusSelect.value = 'DP';
-  } else {
-    statusSelect.value = 'Belum';
   }
 }
 
