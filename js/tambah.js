@@ -557,24 +557,81 @@ document.addEventListener('DOMContentLoaded', async () => {
       let result;
       if (isEditMode) {
         result = await API.updateProyek(proyekId, payload);
+
+        // Auto-sync ke Mutasi Keuangan saat Update / Edit Projek
+        if (result.success && (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update') || Auth.hasPermission('keuangan:create'))) {
+          try {
+            const keuanganList = await API.getKeuangan();
+            const rawTargetId = String(proyekId || '').trim();
+            const decodedTargetId = decodeURIComponent(rawTargetId).trim();
+            const clientName = String(payload.pelanggan || '').trim().toLowerCase();
+
+            // Cari transaksi keuangan yang terhubung dengan projek ini
+            const linkedTx = (keuanganList || []).find(k => {
+              if (!k || !k.keterangan) return false;
+              const ket = String(k.keterangan).trim();
+              const ketLower = ket.toLowerCase();
+              return (
+                ket.includes(rawTargetId) ||
+                ket.includes(decodedTargetId) ||
+                (clientName && ketLower.includes(clientName) && (ketLower.includes('dp') || ketLower.includes('pelunasan') || ketLower.includes('pembayaran')))
+              );
+            });
+
+            const isLunas = dp >= nominal;
+            const updatedDesc = isLunas
+              ? `Pembayaran Lunas - ${payload.pelanggan} (${proyekId})`
+              : `Pembayaran DP - ${payload.pelanggan} (${proyekId})`;
+
+            if (linkedTx) {
+              if (dp > 0) {
+                // Perbarui transaksi yang ada dengan nominal DP baru
+                await API.updateKeuangan(linkedTx.id, {
+                  nominal: dp,
+                  keterangan: updatedDesc,
+                  jenis: 'Pemasukan'
+                });
+              } else {
+                // Jika DP diubah jadi 0, hapus transaksi kas terkait
+                await API.deleteKeuangan(linkedTx.id);
+              }
+            } else if (dp > 0) {
+              // Jika sebelumnya belum ada mutasi keuangan tapi sekarang diinput DP
+              const newTx = {
+                tanggal: new Date().toISOString().split('T')[0],
+                jenis: 'Pemasukan',
+                keterangan: updatedDesc,
+                nominal: dp
+              };
+              await API.addKeuangan(newTx);
+            }
+          } catch (syncErr) {
+            console.warn("Gagal menyinkronkan data keuangan:", syncErr);
+          }
+        }
       } else {
         result = await API.addProyek(payload);
 
-        // Auto-insert ke Mutasi Keuangan jika ada DP
-        if (result.success && dp > 0) {
-          const isLunas = dp >= nominal;
-          const txDesc = isLunas
-            ? `Pembayaran Lunas - ${payload.pelanggan}`
-            : `Pembayaran DP - ${payload.pelanggan}`;
+        // Auto-insert ke Mutasi Keuangan jika ada DP saat Tambah Baru
+        if (result.success && dp > 0 && (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:create'))) {
+          try {
+            const createdId = result.idProyek || result.id || '';
+            const isLunas = dp >= nominal;
+            const txDesc = isLunas
+              ? `Pembayaran Lunas - ${payload.pelanggan}${createdId ? ` (${createdId})` : ''}`
+              : `Pembayaran DP - ${payload.pelanggan}${createdId ? ` (${createdId})` : ''}`;
 
-          const txPayload = {
-            tanggal: payload.tanggal || new Date().toISOString().split('T')[0],
-            jenis: 'Pemasukan',
-            keterangan: txDesc,
-            nominal: dp
-          };
+            const txPayload = {
+              tanggal: payload.tanggal || new Date().toISOString().split('T')[0],
+              jenis: 'Pemasukan',
+              keterangan: txDesc,
+              nominal: dp
+            };
 
-          await API.addKeuangan(txPayload);
+            await API.addKeuangan(txPayload);
+          } catch(syncErr) {
+            console.warn("Gagal menambahkan mutasi keuangan:", syncErr);
+          }
         }
       }
       if (result.success) {

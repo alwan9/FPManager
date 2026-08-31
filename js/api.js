@@ -340,6 +340,7 @@ const API = {
       };
     }
 
+    APICache.clear();
     try {
       const body = new URLSearchParams();
       API.appendAuthBody(body, "addProyek");
@@ -450,6 +451,7 @@ const API = {
       };
     }
 
+    APICache.clear();
     try {
       const allLocal = await FPManagerDB.getAll('proyek');
       const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
