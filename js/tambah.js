@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tomorrowBtn = document.getElementById('tomorrowBtn');
   const threeDaysBtn = document.getElementById('threeDaysBtn');
   const statusInput = document.getElementById('status');
+  const metodePembayaranInput = document.getElementById('metodePembayaran');
   const catatanInput = document.getElementById('catatan');
   const gdriveLinkInput = document.getElementById('gdriveLink');
   const createDriveFolderCheckbox = document.getElementById('createDriveFolder');
@@ -206,6 +207,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (statusInput && proyek.status) {
         statusInput.value = proyek.status;
+      }
+      if (metodePembayaranInput && proyek.metodePembayaran) {
+        metodePembayaranInput.value = proyek.metodePembayaran;
       }
       if (catatanInput) {
         catatanInput.value = proyek.catatan || "";
@@ -548,6 +552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       sisa: sisa,
       deadline: deadlineInput.value,
       status: statusInput.value,
+      metodePembayaran: metodePembayaranInput ? metodePembayaranInput.value : 'Transfer Bank',
       catatan: catatanInput.value,
       createDriveFolder: createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false,
       gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink,

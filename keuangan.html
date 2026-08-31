@@ -338,9 +338,12 @@
                     <th data-i18n="fin-th-id">ID Projek</th>
                     <th>User ID</th>
                     <th data-i18n="fin-th-date">Tanggal</th>
-                    <th data-i18n="fin-th-type">Jenis</th>
                     <th data-i18n="fin-th-desc">Keterangan</th>
-                    <th data-i18n="fin-th-amount">Nominal (Rp)</th>
+                    <th>Total (Rp)</th>
+                    <th>DP / Masuk (Rp)</th>
+                    <th>Sisa (Rp)</th>
+                    <th>Metode</th>
+                    <th>Status / Approval</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
@@ -354,6 +357,87 @@
         </div>
 
       </section>
+
+      <!-- Quick Approval / Edit Payment Modal -->
+      <div id="paymentApprovalModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+          <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-money-check-dollar"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-base" id="modalPrjTitle">Approval & Input Pembayaran</h3>
+                <p class="text-xs text-zinc-400" id="modalPrjSubtitle">PRJ-001</p>
+              </div>
+            </div>
+            <button onclick="closePaymentApprovalModal()" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-500 flex items-center justify-center transition-colors">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <form id="approvalForm" class="space-y-4">
+            <input type="hidden" id="approvalTxId">
+            <input type="hidden" id="approvalIdProyek">
+            <input type="hidden" id="approvalTotalNominal">
+
+            <!-- Info Card Ringkasan Total & Sisa -->
+            <div class="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl flex justify-between items-center text-xs">
+              <div>
+                <span class="text-zinc-500 block">Total Projek:</span>
+                <span id="approvalDisplayTotal" class="font-bold text-zinc-800 dark:text-zinc-100 text-sm">Rp0</span>
+              </div>
+              <div class="text-right">
+                <span class="text-zinc-500 block">Sisa Belum Dibayar:</span>
+                <span id="approvalDisplaySisa" class="font-bold text-rose-600 dark:text-rose-400 text-sm">Rp0</span>
+              </div>
+            </div>
+
+            <!-- Status Approval / Pembayaran -->
+            <div>
+              <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Status Pembayaran / Approval</label>
+              <select id="approvalStatusSelect" onchange="handleApprovalStatusChange(this.value)" class="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <option value="Belum">🔴 Belum Ada Pembayaran (Rp0)</option>
+                <option value="DP">🟡 Pembayaran Sebagian / DP</option>
+                <option value="Lunas">🟢 Pembayaran Lunas Penuh</option>
+              </select>
+            </div>
+
+            <!-- Nominal Uang Masuk / Pembayaran -->
+            <div>
+              <label for="approvalNominalInput" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nominal Uang Masuk (Rp)</label>
+              <div class="relative">
+                <input type="number" id="approvalNominalInput" min="0" required oninput="handleApprovalNominalInput()" class="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none pr-16" placeholder="0">
+                <button type="button" tabindex="-1" onclick="document.getElementById('approvalNominalInput').value = document.getElementById('approvalTotalNominal').value; handleApprovalNominalInput();" class="absolute inset-y-0 right-1 my-1 px-2.5 bg-indigo-50 dark:bg-indigo-900/50 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 font-bold rounded-lg text-xs transition border border-indigo-100 dark:border-indigo-800">
+                  Lunasi
+                </button>
+              </div>
+              <div id="approvalNominalPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
+            </div>
+
+            <!-- Metode Pembayaran -->
+            <div>
+              <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Metode Pembayaran</label>
+              <select id="approvalMetodeSelect" class="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <option value="Transfer Bank">Transfer Bank (BCA / Mandiri / BRI / BNI)</option>
+                <option value="QRIS">QRIS</option>
+                <option value="Tunai / Cash">Tunai / Cash</option>
+                <option value="E-Wallet">E-Wallet (Dana / GoPay / OVO / ShopeePay)</option>
+              </select>
+            </div>
+
+            <div class="pt-3 flex items-center justify-end space-x-2.5 border-t border-zinc-100 dark:border-zinc-800">
+              <button type="button" onclick="closePaymentApprovalModal()" class="px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition">
+                Batal
+              </button>
+              <button type="submit" id="approvalSubmitBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5">
+                <i class="fa-solid fa-check"></i>
+                <span>Simpan & Approve</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       <!-- Footer -->
       <footer class="bg-white border-t border-zinc-200 py-4 px-6 text-center text-xs text-zinc-500 mt-auto">

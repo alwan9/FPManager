@@ -700,24 +700,49 @@ async function lunasiProyek() {
       dp: nominalVal,
       sisa: 0,
       deadline: currentProyek.deadline,
-      status: currentProyek.status,
+      status: "Selesai",
       catatan: newCatatan,
       gdriveLink: currentProyek.gdriveLink
     };
     
     const updateRes = await API.updateProyek(currentProyek.iDProyek, payloadProyek);
     
-    // 2. Insert Mutasi Keuangan
+    // 2. Sync / Insert Mutasi Keuangan
     if (updateRes.success) {
-      const txPayload = {
-        tanggal: new Date().toISOString().split('T')[0],
-        jenis: 'Pemasukan',
-        keterangan: `Pelunasan - ${currentProyek.namaPelanggan}`,
-        nominal: sisa
-      };
-      
-      if (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:create')) {
-        await API.addKeuangan(txPayload);
+      try {
+        const keuanganList = await API.getKeuangan();
+        const prjId = currentProyek.iDProyek;
+        const linkedTx = (keuanganList || []).find(k => {
+          if (!k || !k.keterangan) return false;
+          const ket = String(k.keterangan);
+          return ket.includes(prjId) || (k.idProyek && k.idProyek === prjId);
+        });
+
+        if (linkedTx) {
+          await API.updateKeuangan(linkedTx.id, {
+            nominal: nominalVal,
+            dp: nominalVal,
+            sisa: 0,
+            totalProyek: nominalVal,
+            statusPembayaran: 'Lunas',
+            keterangan: `Pembayaran Lunas - ${currentProyek.namaPelanggan} (${prjId})`
+          });
+        } else {
+          const txPayload = {
+            tanggal: new Date().toISOString().split('T')[0],
+            jenis: 'Pemasukan',
+            keterangan: `Pembayaran Lunas - ${currentProyek.namaPelanggan} (${prjId})`,
+            nominal: nominalVal,
+            dp: nominalVal,
+            sisa: 0,
+            totalProyek: nominalVal,
+            statusPembayaran: 'Lunas',
+            idProyek: prjId
+          };
+          await API.addKeuangan(txPayload);
+        }
+      } catch(kErr) {
+        console.warn("Sync keuangan on lunasi error:", kErr);
       }
       
       showToast({
