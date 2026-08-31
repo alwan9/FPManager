@@ -142,77 +142,143 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     isEditMode = true;
-    document.getElementById('pageTitleHeader').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>${isEn ? 'Edit Project' : 'Edit Projek'} ${proyekId}</span>`;
-    document.getElementById('formTitle').textContent = isEn ? `Modify Project Details (${proyekId})` : `Ubah Rincian Projek (${proyekId})`;
+    const pageTitleEl = document.getElementById('pageTitle') || document.getElementById('pageTitleHeader');
+    if (pageTitleEl) {
+      pageTitleEl.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-600"></i> <span>${isEn ? 'Edit Project' : 'Edit Projek'} ${proyekId}</span>`;
+    }
+    const formTitleEl = document.getElementById('formTitle');
+    if (formTitleEl) {
+      formTitleEl.textContent = isEn ? `Modify Project Details (${proyekId})` : `Ubah Rincian Projek (${proyekId})`;
+    }
     document.title = isEn ? `Edit Project ${proyekId} - FPManager` : `Edit Projek ${proyekId} - FPManager`;
-    submitBtn.textContent = isEn ? 'Save Changes' : 'Simpan Perubahan';
+    if (submitBtn) {
+      submitBtn.textContent = isEn ? 'Save Changes' : 'Simpan Perubahan';
+    }
     // Ubah sidebar active link ke Data Proyek daripada Tambah Proyek
     const sidebarAddLink = document.getElementById('sidebarAddLink');
     if (sidebarAddLink) {
       sidebarAddLink.className = 'sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100';
       sidebarAddLink.innerHTML = `<i class="fa-solid fa-circle-plus w-5"></i><span>${isEn ? 'Add Project' : 'Tambah Projek'}</span>`;
     }
-    // Ambil data proyek untuk diisi ke form
+
+    // Populate data function
+    const populateFormData = (proyek) => {
+      if (!proyek) return;
+      if (displayUserIdEl) {
+        displayUserIdEl.textContent = proyek.userId || (currUser ? currUser.id : 'USR-001');
+      }
+      if (namaProyekInput) namaProyekInput.value = proyek.namaProyek || proyek.iDProyek || '';
+      if (pelangganInput) pelangganInput.value = proyek.namaPelanggan || proyek.pelanggan || '';
+      
+      const nomorWA = String(proyek.nomorWA || proyek.wa || '');
+      if (waInput) {
+        waInput.value = nomorWA.startsWith("62") ? nomorWA.slice(2) : nomorWA;
+      }
+      if (produkInput) produkInput.value = proyek.produk || '';
+      if (jumlahInput) jumlahInput.value = proyek.jumlah || 1;
+      if (satuanInput) satuanInput.value = proyek.satuan || 'pcs';
+      
+      const qty = parseFloat(proyek.jumlah) || 1;
+      const nominalVal = parseFloat(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0));
+      const priceVal = parseFloat(proyek.hargaSatuan !== undefined ? proyek.hargaSatuan : (qty > 0 ? Math.round(nominalVal / qty) : 0));
+      if (hargaSatuanInput) hargaSatuanInput.value = priceVal;
+      
+      const dpVal = parseFloat(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0));
+      if (dpInput) dpInput.value = dpVal;
+      
+      if (deadlineInput && proyek.deadline) {
+        let dl = String(proyek.deadline);
+        if (dl.indexOf('T') !== -1) dl = dl.split('T')[0];
+        deadlineInput.value = dl;
+        checkDeadline(dl);
+      }
+      if (statusInput && proyek.status) {
+        statusInput.value = proyek.status;
+      }
+      if (catatanInput) {
+        catatanInput.value = proyek.catatan || "";
+      }
+      currentGDriveLink = proyek.gdriveLink || "";
+      if (gdriveLinkInput) {
+        gdriveLinkInput.value = proyek.gdriveLink || "";
+      }
+      // Jika mode edit dan projek sudah memiliki link drive, uncheck pembuat folder otomatis & tampilkan link
+      if (proyek.gdriveLink && createDriveFolderCheckbox && manualGDriveContainer) {
+        createDriveFolderCheckbox.checked = false;
+        manualGDriveContainer.classList.remove('hidden');
+      }
+      kalkulasiNominalDanSisa();
+      if (typeof updateNamaProyekPreview === 'function') {
+        updateNamaProyekPreview();
+      }
+    };
+
+    // 1. Coba populate instan dari sessionStorage cache jika ada
+    let populated = false;
+    try {
+      const cached = sessionStorage.getItem('cached_edit_proyek');
+      if (cached) {
+        const cachedObj = JSON.parse(cached);
+        if (cachedObj) {
+          const pid = String(cachedObj.iDProyek || '').trim();
+          const rawTargetId = String(proyekId || '').trim();
+          const decodedTargetId = decodeURIComponent(rawTargetId).trim();
+          if (pid === rawTargetId || pid === decodedTargetId || pid.toLowerCase() === decodedTargetId.toLowerCase() || pid.startsWith(decodedTargetId + '-') || decodedTargetId.startsWith(pid + '-')) {
+            populateFormData(cachedObj);
+            populated = true;
+          }
+        }
+      }
+    } catch(err) {
+      console.warn("Gagal membaca cached edit proyek:", err);
+    }
+
+    // 2. Fetch fresh data dari API
     try {
       const projects = await API.getProyek();
-      const proyek = projects.find(p => p.iDProyek === proyekId);
-      if (proyek) {
-        if (displayUserIdEl) {
-          displayUserIdEl.textContent = proyek.userId || (currUser ? currUser.id : 'USR-001');
-        }
-        namaProyekInput.value = proyek.namaProyek;
-        pelangganInput.value = proyek.namaPelanggan;
-        const nomorWA = String(proyek.nomorWA);
-        waInput.value = nomorWA.startsWith("62")
-          ? nomorWA.slice(2)
-          : nomorWA;
-        produkInput.value = proyek.produk;
-        jumlahInput.value = proyek.jumlah;
-        satuanInput.value = proyek.satuan;
-        hargaSatuanInput.value = proyek.hargaSatuan;
-        nominalInput.value = proyek.nominalProyek;
-        dpInput.value = proyek.dP;
-        sisaInput.value = proyek.sisaPembayaran;
-        deadlineInput.value = proyek.deadline;
-        statusInput.value = proyek.status;
-        catatanInput.value = proyek.catatan || "";
-        currentGDriveLink = proyek.gdriveLink || "";
-        if (gdriveLinkInput) {
-          gdriveLinkInput.value = proyek.gdriveLink || "";
-        }
-        // Jika mode edit dan projek sudah memiliki link drive, uncheck pembuat folder otomatis & tampilkan link
-        if (proyek.gdriveLink && createDriveFolderCheckbox && manualGDriveContainer) {
-          createDriveFolderCheckbox.checked = false;
-          manualGDriveContainer.classList.remove('hidden');
-        }
-        checkDeadline(proyek.deadline);
-        kalkulasiNominalDanSisa();
-        if (typeof updateNamaProyekPreview === 'function') {
-          updateNamaProyekPreview();
-        }
-      } else {
-
-        showToast({
-          title: isEn ? "Project Data" : "Data Projek",
-          message: isEn ? "Project not found." : "Projek tidak ditemukan.",
-          type: "warning"
-        });
-
-        setTimeout(() => {
-          window.location.href = "proyek.html";
-        }, 1500);
-
-      }
-    } catch (e) {
-
-      console.error(e);
-
-      showToast({
-        title: "Error",
-        message: isEn ? "Failed to retrieve project details for editing." : "Gagal mengambil data projek untuk diedit.",
-        type: "error"
+      const rawTargetId = String(proyekId || '').trim();
+      const decodedTargetId = decodeURIComponent(rawTargetId).trim();
+      
+      const proyek = (projects || []).find(p => {
+        if (!p) return false;
+        const pid = String(p.iDProyek || '').trim();
+        const pNama = String(p.namaProyek || '').trim();
+        return (
+          pid === rawTargetId ||
+          pid === decodedTargetId ||
+          pid.toLowerCase() === decodedTargetId.toLowerCase() ||
+          pid.startsWith(decodedTargetId + '-') ||
+          decodedTargetId.startsWith(pid + '-') ||
+          (pNama && pNama.toLowerCase() === decodedTargetId.toLowerCase())
+        );
       });
 
+      if (proyek) {
+        populateFormData(proyek);
+      } else if (!populated) {
+        if (typeof Toast !== 'undefined' && Toast.error) {
+          Toast.error(isEn ? "Project Data" : "Data Projek", isEn ? "Project not found or unable to load." : "Data projek tidak ditemukan.");
+        } else if (typeof showToast === 'function') {
+          showToast({
+            title: isEn ? "Project Data" : "Data Projek",
+            message: isEn ? "Project not found." : "Projek tidak ditemukan.",
+            type: "warning"
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Gagal mengambil data proyek untuk diedit:", e);
+      if (!populated) {
+        if (typeof Toast !== 'undefined' && Toast.error) {
+          Toast.error("Error", isEn ? "Failed to retrieve project details for editing." : "Gagal mengambil data projek untuk diedit.");
+        } else if (typeof showToast === 'function') {
+          showToast({
+            title: "Error",
+            message: isEn ? "Failed to retrieve project details for editing." : "Gagal mengambil data projek untuk diedit.",
+            type: "error"
+          });
+        }
+      }
     }
   }
   // Hitung Nominal Proyek & Sisa secara Dinamis

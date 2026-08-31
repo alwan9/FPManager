@@ -339,7 +339,7 @@ function initTable(data) {
                 <i class="fa-solid fa-calendar-plus"></i>
               </button>
               ${canUpdate ? `
-              <a href="tambah-proyek.html?id=${data.iDProyek}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
+              <a href="tambah-proyek.html?id=${encodeURIComponent(data.iDProyek)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => p.iDProyek === '${data.iDProyek}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
                 <i class="fa-solid fa-pen"></i>
               </a>
               ` : ''}
@@ -598,7 +598,8 @@ async function viewDetail(id) {
       }
       // Edit Button
       document.getElementById('modalEditBtn').onclick = () => {
-        window.location.href = `tambah-proyek.html?id=${proyek.iDProyek}`;
+        try { sessionStorage.setItem('cached_edit_proyek', JSON.stringify(proyek)); } catch(e){}
+        window.location.href = `tambah-proyek.html?id=${encodeURIComponent(proyek.iDProyek)}`;
       };
       document.getElementById("modalInvoiceBtn").onclick = () => {
         window.location.href =
