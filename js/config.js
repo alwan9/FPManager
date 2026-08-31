@@ -126,13 +126,13 @@ const CONFIG = {
   ]
 };
 
-// Global Payment Accounts Modal & Copy Helper
+// Global Payment Accounts Modal & Copy Helper (Clean Minimal Design)
 function showPaymentAccountsModal(highlightName = '') {
   let modal = document.getElementById('globalPaymentModal');
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'globalPaymentModal';
-    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity';
+    modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-opacity';
     document.body.appendChild(modal);
   }
 
@@ -140,67 +140,59 @@ function showPaymentAccountsModal(highlightName = '') {
   const searchLower = String(highlightName || '').toLowerCase();
 
   modal.innerHTML = `
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
+      
       <!-- Header -->
-      <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3.5">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg shadow-sm border border-indigo-100 dark:border-indigo-900/50">
-            <i class="fa-solid fa-credit-card"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-base">Info Rekening & E-Wallet</h3>
-            <p class="text-xs text-zinc-400">Klik nomor untuk menyalin ke clipboard</p>
-          </div>
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+        <div>
+          <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-base">Info Rekening & E-Wallet</h3>
+          <p class="text-xs text-zinc-400 mt-0.5">Klik nomor untuk menyalin ke clipboard</p>
         </div>
-        <button onclick="document.getElementById('globalPaymentModal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-500 flex items-center justify-center transition-colors">
+        <button onclick="document.getElementById('globalPaymentModal').classList.add('hidden')" class="w-7 h-7 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
 
-      <!-- Clean Cards List -->
-      <div class="space-y-3">
+      <!-- Clean List -->
+      <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
         ${accounts.map(acc => {
           const isHighlighted = searchLower && (acc.name.toLowerCase().includes(searchLower) || acc.id.toLowerCase().includes(searchLower));
-          const highlightStyle = isHighlighted ? 'ring-2 ring-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/40' : 'bg-zinc-50/60 dark:bg-zinc-800/30 border border-zinc-200/70 dark:border-zinc-800';
+          const highlightBg = isHighlighted ? 'bg-indigo-50/50 dark:bg-indigo-950/30 -mx-2 px-2 rounded-xl' : '';
 
           return `
-            <div class="p-3.5 rounded-2xl ${highlightStyle} hover:border-indigo-300 dark:hover:border-indigo-700/80 transition-all shadow-xs flex flex-col gap-2.5">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2.5">
-                  <div class="w-8 h-8 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-center text-sm shadow-xs border border-zinc-200/60 dark:border-zinc-700/60 shrink-0">
-                    <i class="${acc.icon}"></i>
-                  </div>
-                  <div>
-                    <div class="font-bold text-zinc-900 dark:text-zinc-100 text-sm leading-tight">${acc.name}</div>
-                    <div class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">a.n. <strong class="text-zinc-700 dark:text-zinc-300 font-semibold">${acc.holder}</strong></div>
-                  </div>
+            <div class="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 ${highlightBg}">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-zinc-900 dark:text-zinc-100 text-sm">${acc.name}</span>
+                  <span class="text-[11px] text-zinc-400 font-medium">· ${acc.type}</span>
                 </div>
-                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider ${acc.badgeClass}">${acc.type}</span>
+                <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">a.n. ${acc.holder}</div>
+                <div onclick="copyTextToClipboard('${acc.number}', '${acc.name}')" class="font-mono font-bold text-sm text-zinc-800 dark:text-zinc-200 mt-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 tracking-wide select-all" title="Klik untuk salin">
+                  ${acc.number}
+                </div>
               </div>
 
-              <div class="flex items-center justify-between bg-white dark:bg-zinc-800/80 border border-zinc-200/70 dark:border-zinc-700/70 rounded-xl px-3 py-2 shadow-2xs">
-                <span onclick="copyTextToClipboard('${acc.number}', '${acc.name}')" class="font-mono font-bold text-sm text-zinc-900 dark:text-zinc-100 tracking-wide cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition select-all" title="Klik untuk salin nomor">${acc.number}</span>
-                <button onclick="copyTextToClipboard('${acc.number}', '${acc.name}')" class="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
-                  <i class="fa-regular fa-copy text-[11px]"></i>
-                  <span>Salin No</span>
-                </button>
-              </div>
+              <button onclick="copyTextToClipboard('${acc.number}', '${acc.name}')" class="px-3.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition flex items-center gap-1.5 active:scale-95 shrink-0">
+                <i class="fa-regular fa-copy text-xs"></i>
+                <span>Salin No</span>
+              </button>
             </div>
           `;
         }).join('')}
       </div>
 
-      <!-- Footer Buttons -->
-      <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
-        <button onclick="copyAllPaymentAccounts()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-xl transition flex items-center gap-1.5 active:scale-95 shadow-xs">
-          <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span>Salin Semua (WA)</span>
+      <!-- Footer -->
+      <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+        <button onclick="copyAllPaymentAccounts()" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1.5">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>Salin Format WA</span>
         </button>
 
         <button onclick="document.getElementById('globalPaymentModal').classList.add('hidden')" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition">
           Tutup
         </button>
       </div>
+
     </div>
   `;
 
