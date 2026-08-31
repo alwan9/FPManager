@@ -1537,13 +1537,41 @@ async function generateLogoPhilosophy() {
 
   try {
     const apiKey = typeof getGeminiApiKey === 'function' ? getGeminiApiKey() : '';
+    let textResult = null;
 
-    if (apiKey && currentLogoImage) {
-      // Use Gemini Vision AI with strict visual detection prompt
-      const textResult = await _generateWithGeminiVisionAPI(apiKey, brandName, industry, tone, length, userModelChoice, catatan);
+    if (currentLogoImage) {
+      if (apiKey) {
+        // 1. Direct Client-side Gemini API call
+        textResult = await _generateWithGeminiVisionAPI(apiKey, brandName, industry, tone, length, userModelChoice, catatan);
+      } else if (typeof API !== 'undefined' && typeof API.generateAI === 'function') {
+        // 2. Server-side Gemini API call via Apps Script Script Properties
+        try {
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCanvas.width = Math.min(600, currentLogoImage.width);
+          tempCanvas.height = Math.min(600, currentLogoImage.height);
+          tempCtx.drawImage(currentLogoImage, 0, 0, tempCanvas.width, tempCanvas.height);
+          const base64Data = tempCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+          const serverAiRes = await API.generateAI({
+            prompt: `Analisis visual dan filosofi logo untuk bidang usaha: ${industry}. ${catatan ? `Catatan klien: "${catatan}".` : ''} Buat narasi filosofi mendalam dalam Bahasa Indonesia elegan dan profesional tanpa heading, tanpa bullet point, dan mengalir natural.`,
+            image: base64Data,
+            model: userModelChoice !== 'auto' ? userModelChoice : 'gemini-1.5-flash'
+          });
+
+          if (serverAiRes && serverAiRes.success && serverAiRes.result) {
+            textResult = serverAiRes.result;
+          }
+        } catch (serverAiErr) {
+          console.warn('Server-side AI call failed, falling back to local engine:', serverAiErr);
+        }
+      }
+    }
+
+    if (textResult) {
       _renderPhilosophyResult(textResult, brandName);
     } else {
-      // Use Smart Color & Visual Detection Local AI Engine
+      // 3. Fallback to Local Smart Visual Detection AI Engine
       await new Promise(res => setTimeout(res, 600));
       const localResult = _generateLocalSmartPhilosophy(brandName, industry, tone, length, currentLogoImage);
       _renderPhilosophyResult(localResult, brandName);
