@@ -856,8 +856,6 @@ const API = {
   // API TOOLS (PROMPTS)
   // ===================================
   getTools: async () => {
-    const currUser = API.getCurrentUser();
-  getTools: async () => {
     try {
       const url = API.getAuthUrl("getTools");
       const response = await fetch(url);
