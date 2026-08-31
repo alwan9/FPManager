@@ -1,25 +1,34 @@
-// Dark Mode Toggle Logic
+// Instant Theme Check (Executes Immediately)
+(function initThemeImmediately() {
+  const savedTheme = localStorage.getItem('theme');
+  const isDark = savedTheme === 'dark' || !savedTheme;
+  if (isDark) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+})();
+
+// Dark Mode Toggle & UI Synchronizer
 document.addEventListener('DOMContentLoaded', () => {
   const toggleBtn = document.getElementById('darkModeToggle');
   const toggleIcon = document.getElementById('darkModeIcon');
   const htmlEl = document.documentElement;
 
-  // Check saved theme (default to light mode initially)
-  const savedTheme = localStorage.getItem('theme');
+  const updateIcons = (isDark) => {
+    if (toggleIcon) {
+      if (isDark) {
+        toggleIcon.classList.remove('fa-moon');
+        toggleIcon.classList.add('fa-sun');
+      } else {
+        toggleIcon.classList.remove('fa-sun');
+        toggleIcon.classList.add('fa-moon');
+      }
+    }
+  };
 
-  if (savedTheme === 'dark') {
-    htmlEl.classList.add('dark');
-    if (toggleIcon) {
-      toggleIcon.classList.remove('fa-moon');
-      toggleIcon.classList.add('fa-sun');
-    }
-  } else {
-    htmlEl.classList.remove('dark');
-    if (toggleIcon) {
-      toggleIcon.classList.remove('fa-sun');
-      toggleIcon.classList.add('fa-moon');
-    }
-  }
+  const isDarkInitial = htmlEl.classList.contains('dark');
+  updateIcons(isDarkInitial);
 
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {
@@ -27,25 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const isDark = htmlEl.classList.contains('dark');
 
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateIcons(isDark);
 
-      if (isDark) {
-        if (toggleIcon) {
-          toggleIcon.classList.remove('fa-moon');
-          toggleIcon.classList.add('fa-sun');
-        }
-      } else {
-        if (toggleIcon) {
-          toggleIcon.classList.remove('fa-sun');
-          toggleIcon.classList.add('fa-moon');
-        }
-      }
-
-      // Update Chart.js if exists
+      // Update Chart.js without expensive recalculations
       if (window.Chart) {
         Chart.defaults.color = isDark ? '#d4d4d8' : '#52525b';
         Chart.defaults.borderColor = isDark ? '#3f3f46' : '#e4e4e7';
         for (let id in Chart.instances) {
-          Chart.instances[id].update();
+          try {
+            Chart.instances[id].update('none');
+          } catch (e) { }
         }
       }
     });
@@ -103,5 +103,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-

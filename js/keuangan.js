@@ -177,33 +177,47 @@ function initTable(data) {
         orderable: false,
         className: 'text-center',
         render: function (data) {
-          const isProjectIncome = data.jenis === 'Pemasukan' && (data.keterangan.toLowerCase().includes('pembayaran dp') || data.keterangan.toLowerCase().includes('pelunasan'));
-          
-          if (isProjectIncome) {
+          const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+          const isSuperAdmin = currUser && (
+            currUser.username === 'wansmin' ||
+            (currUser.role || '').toLowerCase().includes('super_admin') ||
+            (currUser.role || '').toLowerCase().includes('superadmin') ||
+            (currUser.role || '').toLowerCase().includes('admin')
+          );
+
+          const isProjectIncome = data.jenis === 'Pemasukan' && (
+            data.keterangan.toLowerCase().includes('pembayaran dp') ||
+            data.keterangan.toLowerCase().includes('pelunasan')
+          );
+
+          const canUpdate = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update'));
+          const canDelete = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
+
+          // For automated project income:
+          // Super Admin CAN delete it to manage and clean transactions.
+          // Non-super-admins see disabled button with informative tooltip.
+          if (isProjectIncome && !isSuperAdmin) {
             return `
               <div class="flex space-x-1.5 justify-center">
-                <button disabled class="px-2 py-1 bg-zinc-100 text-zinc-400 rounded-md text-xs font-semibold cursor-not-allowed" title="Transaksi otomatis dari proyek tidak bisa diedit">
+                <button disabled class="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 rounded-md text-xs font-semibold cursor-not-allowed" title="Transaksi otomatis proyek tidak bisa diedit">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button disabled class="px-2 py-1 bg-zinc-100 text-zinc-400 rounded-md text-xs font-semibold cursor-not-allowed" title="Transaksi otomatis dari proyek tidak bisa dihapus">
+                <button disabled class="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 rounded-md text-xs font-semibold cursor-not-allowed" title="Hanya Super Admin yang dapat menghapus transaksi otomatis proyek">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
             `;
           }
 
-          const canUpdate = (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update'));
-          const canDelete = (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
-
           return `
             <div class="flex space-x-1.5 justify-center">
               ${canUpdate ? `
-              <button onclick="editTransaksi('${data.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Transaksi">
+              <button onclick="editTransaksi('${data.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Transaksi">
                 <i class="fa-solid fa-pen"></i>
               </button>
               ` : ''}
               ${canDelete ? `
-              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Transaksi">
+              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="${isProjectIncome ? 'Hapus Transaksi Proyek (Super Admin)' : 'Hapus Transaksi'}">
                 <i class="fa-solid fa-trash"></i>
               </button>
               ` : ''}
@@ -227,9 +241,21 @@ function sanitize(text) {
 async function handleAddTransaksi(e) {
   e.preventDefault();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+  const isSuperAdmin = currUser && (
+    currUser.username === 'wansmin' ||
+    (currUser.role || '').toLowerCase().includes('super_admin') ||
+    (currUser.role || '').toLowerCase().includes('superadmin') ||
+    (currUser.role || '').toLowerCase().includes('admin')
+  );
+
   const requiredPerm = editModeId ? 'keuangan:update' : 'keuangan:create';
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
-    alert(isEn ? "Access Denied: You do not have permission to manage finances." : "Akses Ditolak: Anda tidak memiliki izin untuk mengelola Keuangan.");
+  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to manage finances." : "Anda tidak memiliki izin untuk mengelola Keuangan.");
+    } else {
+      alert(isEn ? "Access Denied: You do not have permission to manage finances." : "Akses Ditolak: Anda tidak memiliki izin untuk mengelola Keuangan.");
+    }
     return;
   }
   const submitBtn = document.getElementById('submitBtn');
@@ -359,7 +385,24 @@ function formatRupiah(number) {
 
 function editTransaksi(id) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const tx = currentKeuanganList.find(k => k.id === id);
+  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+  const isSuperAdmin = currUser && (
+    currUser.username === 'wansmin' ||
+    (currUser.role || '').toLowerCase().includes('super_admin') ||
+    (currUser.role || '').toLowerCase().includes('superadmin') ||
+    (currUser.role || '').toLowerCase().includes('admin')
+  );
+
+  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:update')) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to edit financial records." : "Anda tidak memiliki izin untuk mengedit data Keuangan.");
+    } else {
+      alert(isEn ? "Access Denied: You do not have permission to edit financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk mengedit data Keuangan.");
+    }
+    return;
+  }
+
+  const tx = currentKeuanganList.find(k => String(k.id) === String(id));
   if (!tx) return;
 
   editModeId = tx.id;
@@ -387,35 +430,61 @@ function editTransaksi(id) {
 
 async function deleteTransaksi(id) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
-    alert(isEn ? "Access Denied: You do not have permission to delete financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk menghapus data Keuangan.");
+  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+  const isSuperAdmin = currUser && (
+    currUser.username === 'wansmin' ||
+    (currUser.role || '').toLowerCase().includes('super_admin') ||
+    (currUser.role || '').toLowerCase().includes('superadmin') ||
+    (currUser.role || '').toLowerCase().includes('admin')
+  );
+
+  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to delete financial records." : "Anda tidak memiliki izin untuk menghapus data Keuangan.");
+    } else {
+      alert(isEn ? "Access Denied: You do not have permission to delete financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk menghapus data Keuangan.");
+    }
     return;
   }
-  if (!confirm(isEn ? 'Are you sure you want to delete this transaction?' : 'Yakin ingin menghapus transaksi ini?')) return;
-  
+
+  const tx = currentKeuanganList.find(k => String(k.id) === String(id));
+  const desc = tx ? tx.keterangan : id;
+  const confirmMsg = isEn
+    ? `Are you sure you want to delete transaction "${desc}"?`
+    : `Yakin ingin menghapus transaksi "${desc}"?`;
+
+  if (!confirm(confirmMsg)) return;
+
+  const loader = document.getElementById('globalLoader');
+  if (loader) loader.classList.remove('hidden');
+
   try {
     const res = await API.deleteKeuangan(id);
-    if (res.success) {
-      showToast({
-        title: isEn ? "Success" : "Berhasil",
-        message: isEn ? "Transaction deleted successfully." : "Transaksi berhasil dihapus.",
-        type: "success"
-      });
+    if (loader) loader.classList.add('hidden');
+
+    if (res && res.success) {
+      if (typeof Toast !== 'undefined') {
+        Toast.success(isEn ? "Berhasil" : "Berhasil", isEn ? "Transaction deleted successfully." : "Transaksi berhasil dihapus.");
+      } else {
+        alert(isEn ? "Transaction deleted successfully." : "Transaksi berhasil dihapus.");
+      }
       await loadKeuanganData();
     } else {
-      showToast({
-        title: isEn ? "Failed" : "Gagal",
-        message: res.message,
-        type: "error"
-      });
+      const errMsg = res ? res.message : (isEn ? "Failed to delete transaction." : "Gagal menghapus transaksi.");
+      if (typeof Toast !== 'undefined') {
+        Toast.error(isEn ? "Gagal" : "Gagal", errMsg);
+      } else {
+        alert(errMsg);
+      }
     }
   } catch (error) {
-    console.error(error);
-    showToast({
-        title: isEn ? "Error" : "Error",
-        message: isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.",
-        type: "error"
-    });
+    if (loader) loader.classList.add('hidden');
+    console.error('Delete transaction error:', error);
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Error" : "Error", isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.");
+    } else {
+      alert(isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.");
+    }
   }
 }
 

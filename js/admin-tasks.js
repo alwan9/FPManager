@@ -135,10 +135,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     isProcessing: false,
 
     // Dispatch background sync without blocking main thread
-    dispatch: function(actionType, data) {
+    dispatch: function (actionType, data) {
       this.syncQueue.push({ actionType, data, timestamp: Date.now() });
       updateSyncIndicator("syncing", "Menyinkronkan ke Cloud...");
-      
+
       // Execute asynchronously on idle or next tick
       if (typeof window.requestIdleCallback === "function") {
         window.requestIdleCallback(() => this.processQueue());
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     },
 
-    processQueue: async function() {
+    processQueue: async function () {
       if (this.isProcessing || this.syncQueue.length === 0) return;
       this.isProcessing = true;
 
@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!url) return;
     const clean = sanitizeTaskLink(url);
     const target = getSmartLinkTarget(clean);
-    
+
     if (target === "_self") {
       window.location.href = clean;
       return;
@@ -246,7 +246,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (win && typeof win.focus === "function") {
       try {
         win.focus();
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (savedLastReset && savedLastReset !== today && settingsData.autoDailyReset !== false) {
       console.log(`[Auto-Reset Harian] Pergantian tanggal terdeteksi (${savedLastReset} -> ${today}). Me-reset status checklist.`);
-      
+
       tasksData = tasksData.map(task => {
         return {
           ...task,
@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           tasksData = JSON.parse(cachedTasks);
           renderTasks();
           updateStats();
-        } catch(e) {}
+        } catch (e) { }
       } else if (taskTableBody) {
         taskTableBody.innerHTML = `
           <tr>
@@ -866,12 +866,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (taskForm) taskForm.reset();
     if (taskIdInput) taskIdInput.value = "";
     if (taskModalTitle) taskModalTitle.innerHTML = `<i class="fa-solid fa-plus-circle text-indigo-600 mr-1.5"></i><span>Tambah Tindakan / Tugas Baru</span>`;
-    
+
     if (taskAdminSelect) taskAdminSelect.value = "service";
     if (taskStatusSelect) taskStatusSelect.value = "Belum Selesai";
     if (taskPrioritySelect) taskPrioritySelect.value = "medium";
     if (taskTemplateSelect) taskTemplateSelect.value = "";
-    
+
     if (taskModal) taskModal.classList.remove("hidden");
   };
 

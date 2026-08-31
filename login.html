@@ -36,18 +36,25 @@
   <link rel="apple-touch-icon" href="assets/img/favicon.png">
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark' || !theme) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
   <!-- Tailwind CSS v2 CDN -->
   <link href="css/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
-  <script>
-    // Force light mode on login page
-    document.documentElement.classList.remove('dark');
-  </script>
+  <link rel="stylesheet" href="css/darkmode.css">
 </head>
 
-<body class="bg-zinc-50 min-h-screen flex transition-all duration-300">
+<body class="bg-zinc-50 min-h-screen flex">
 
   <!-- Splash Screen Loader -->
   <div id="splashLoader"

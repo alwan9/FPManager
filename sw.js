@@ -1,16 +1,4 @@
-const CACHE_NAME = 'fpmanager-v90';
-
-
-
-
-
-
-
-
-
-
-
-
+const CACHE_NAME = 'fpmanager-v97';
 
 const urlsToCache = [
   './',
@@ -59,15 +47,22 @@ const urlsToCache = [
   './assets/img/mockups/businesscard_mockup.jpg',
   './assets/img/mockups/mug_mockup.jpg',
   './assets/img/mockups/billboard_mockup.jpg',
-  './assets/img/mockups/officesign_mockup.jpg',
-  './assets/img/mockups/laptop_mockup.jpg',
+  './assets/watermark/wm_white.png',
+  './assets/watermark/wm_black.png',
+  './assets/watermark/wm_warna.png',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache).catch(err => console.warn('Cache addAll warning:', err)))
+      .then(cache => {
+        return Promise.allSettled(
+          urlsToCache.map(url =>
+            cache.add(url).catch(err => console.warn('Cache add warning for:', url, err))
+          )
+        );
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -96,19 +91,18 @@ self.addEventListener('fetch', event => {
 
   const url = event.request.url || '';
 
-  // Only cache http/https schemes (ignore chrome-extension, etc.)
+  // Only cache http/https schemes (ignore chrome-extension, ws, etc.)
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     return;
   }
 
-  // Skip caching for external API calls and CDNs — let browser handle directly
+  // Skip caching for external API calls and dynamic CDNs — let browser handle directly
   if (
     url.includes('script.google.com') ||
     url.includes('action=') ||
     url.includes('apiKey=') ||
     url.includes('generativelanguage.googleapis.com') ||
     url.includes('googleapis.com') ||
-    url.includes('cdnjs.cloudflare.com') ||
     url.includes('cdn.jsdelivr.net') ||
     url.includes('unpkg.com')
   ) {
@@ -129,11 +123,11 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => {
-          return caches.match(event.request).then(cachedResponse => {
+          return caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            return new Response('Offline', { status: 503, statusText: 'Offline' });
+            return caches.match('./index.html', { ignoreSearch: true });
           });
         })
     );
@@ -142,7 +136,7 @@ self.addEventListener('fetch', event => {
 
   // Cache-first strategy for local static assets
   event.respondWith(
-    caches.match(event.request)
+    caches.match(event.request, { ignoreSearch: true })
       .then(cachedResponse => {
         if (cachedResponse) {
           return cachedResponse;
@@ -155,9 +149,6 @@ self.addEventListener('fetch', event => {
             });
           }
           return response;
-        }).catch(err => {
-          console.warn('SW fetch offline/error for:', url, err);
-          return new Response('Offline', { status: 503, statusText: 'Offline' });
         });
       })
   );
@@ -195,4 +186,3 @@ self.addEventListener('notificationclick', event => {
       })
   );
 });
-

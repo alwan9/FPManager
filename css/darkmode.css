@@ -1,52 +1,45 @@
-/* Real Dark Mode Overrides (Zinc Theme - FPManager) */
+/* High-Performance Dark Mode Theme (Zinc Theme - FPManager) */
+
+html.dark {
+  color-scheme: dark;
+}
 
 html.dark body,
 html.dark body.bg-zinc-50 {
   background-color: #09090b !important;
-  /* zinc-950 */
   color: #e4e4e7 !important;
-  /* zinc-200 */
 }
 
-/* 1. Global Container, Panel, Card, & Header Overrides */
+/* 1. Global Container, Panel, Card, Header, Footer */
 html.dark .bg-white,
+html.dark .bg-zinc-50,
+html.dark .bg-zinc-100,
 html.dark section .bg-zinc-50,
-html.dark div.bg-zinc-50,
 html.dark main .bg-white,
 html.dark article .bg-white,
 html.dark form.bg-white,
 html.dark footer.bg-white,
 html.dark header.bg-white {
   background-color: #18181b !important;
-  /* zinc-900 */
-  border-color: #27272a !important;
-  /* zinc-800 */
-  color: #e4e4e7 !important;
-}
-
-/* Wildcard Opacity Modifier Matchers (e.g. bg-zinc-50/50, bg-zinc-100/50, etc.) */
-html.dark [class*="bg-zinc-50"],
-html.dark [class*="bg-zinc-100"] {
-  background-color: #18181b !important;
   border-color: #27272a !important;
   color: #e4e4e7 !important;
 }
 
-html.dark [class*="bg-zinc-200"] {
+html.dark .bg-zinc-200 {
   background-color: #27272a !important;
   border-color: #3f3f46 !important;
   color: #f4f4f5 !important;
 }
 
-/* 2. Hover Utilities (including slash opacity variants) */
-html.dark [class*="hover:bg-zinc-50"]:hover,
-html.dark [class*="hover:bg-zinc-100"]:hover,
-html.dark [class*="hover:bg-zinc-200"]:hover {
+/* 2. Fast Hover Utilities */
+html.dark .hover\:bg-zinc-50:hover,
+html.dark .hover\:bg-zinc-100:hover,
+html.dark .hover\:bg-zinc-200:hover {
   background-color: #27272a !important;
 }
 
-html.dark [class*="hover:bg-zinc-300"]:hover,
-html.dark [class*="hover:bg-zinc-800"]:hover {
+html.dark .hover\:bg-zinc-300:hover,
+html.dark .hover\:bg-zinc-800:hover {
   background-color: #3f3f46 !important;
 }
 
@@ -57,15 +50,10 @@ html.dark .text-zinc-800,
 html.dark .text-zinc-700,
 html.dark .text-black {
   color: #f4f4f5 !important;
-  /* zinc-100 */
 }
 
 html.dark .text-zinc-600,
-html.dark .text-zinc-500 {
-  color: #a1a1aa !important;
-  /* zinc-400 */
-}
-
+html.dark .text-zinc-500,
 html.dark .text-zinc-400 {
   color: #a1a1aa !important;
 }
@@ -73,12 +61,8 @@ html.dark .text-zinc-400 {
 /* Border utilities */
 html.dark .border-zinc-300,
 html.dark .border-zinc-200,
-html.dark .border-zinc-100,
-html.dark [class*="border-zinc-100"],
-html.dark [class*="border-zinc-200"],
-html.dark [class*="border-zinc-300"] {
+html.dark .border-zinc-100 {
   border-color: #27272a !important;
-  /* zinc-800 */
 }
 
 /* 4. FontAwesome & SVG Icons in Dark Mode */
@@ -87,7 +71,6 @@ html.dark svg {
   color: inherit;
 }
 
-/* Explicit icon colors when parent or icon has dark text class */
 html.dark i.text-zinc-900,
 html.dark i.text-zinc-800,
 html.dark i.text-zinc-700,
@@ -110,44 +93,37 @@ html.dark i.text-indigo-600,
 html.dark i.text-indigo-700,
 html.dark i.text-indigo-500 {
   color: #818cf8 !important;
-  /* indigo-400 */
 }
 
 html.dark i.text-emerald-600,
 html.dark i.text-emerald-700,
 html.dark i.text-green-600 {
   color: #34d399 !important;
-  /* emerald-400 */
 }
 
 html.dark i.text-rose-600,
 html.dark i.text-rose-700,
 html.dark i.text-red-600 {
   color: #f87171 !important;
-  /* red-400 */
 }
 
 html.dark i.text-amber-600,
 html.dark i.text-amber-700,
 html.dark i.text-yellow-600 {
   color: #fbbf24 !important;
-  /* amber-400 */
 }
 
 html.dark i.text-blue-600,
 html.dark i.text-blue-700 {
   color: #60a5fa !important;
-  /* blue-400 */
 }
 
 html.dark i.text-purple-600,
 html.dark i.text-purple-700 {
   color: #c084fc !important;
-  /* purple-400 */
 }
 
-/* 5. Action Buttons in Table & Lists (Detail, Calendar, Edit, Hapus) */
-/* Detail / View Button (bg-zinc-100) */
+/* 5. Action Buttons in Table & Lists */
 html.dark button.bg-zinc-100,
 html.dark a.bg-zinc-100,
 html.dark .bg-zinc-100 button,
@@ -166,129 +142,124 @@ html.dark a.bg-zinc-100 i {
   color: #e4e4e7 !important;
 }
 
-/* Sync Calendar / Green Light Buttons (bg-emerald-50, bg-emerald-100, bg-green-50, bg-green-100) */
-html.dark [class*="bg-emerald-50"],
-html.dark [class*="bg-emerald-100"],
-html.dark [class*="bg-green-50"],
-html.dark [class*="bg-green-100"] {
+/* Action button tint colors */
+html.dark .bg-emerald-50,
+html.dark .bg-emerald-100,
+html.dark .bg-green-50,
+html.dark .bg-green-100 {
   background-color: rgba(6, 78, 59, 0.4) !important;
   color: #6ee7b7 !important;
   border-color: rgba(16, 185, 129, 0.3) !important;
 }
-html.dark [class*="bg-emerald-50"]:hover,
-html.dark [class*="bg-emerald-100"]:hover,
-html.dark [class*="bg-green-50"]:hover,
-html.dark [class*="bg-green-100"]:hover {
+html.dark .bg-emerald-50:hover,
+html.dark .bg-emerald-100:hover,
+html.dark .bg-green-50:hover,
+html.dark .bg-green-100:hover {
   background-color: rgba(6, 78, 59, 0.65) !important;
   color: #a7f3d0 !important;
 }
-html.dark [class*="bg-emerald-50"] *,
-html.dark [class*="bg-emerald-100"] *,
-html.dark [class*="bg-green-50"] *,
-html.dark [class*="bg-green-100"] * {
+html.dark .bg-emerald-50 i,
+html.dark .bg-emerald-100 i,
+html.dark .bg-green-50 i,
+html.dark .bg-green-100 i {
   color: #6ee7b7 !important;
 }
 
-/* Edit Proyek / Indigo Light Buttons (bg-indigo-50, bg-indigo-100) */
-html.dark [class*="bg-indigo-50"],
-html.dark [class*="bg-indigo-100"] {
+html.dark .bg-indigo-50,
+html.dark .bg-indigo-100 {
   background-color: rgba(49, 46, 129, 0.4) !important;
   color: #a5b4fc !important;
   border-color: rgba(99, 102, 241, 0.3) !important;
 }
-html.dark [class*="bg-indigo-50"]:hover,
-html.dark [class*="bg-indigo-100"]:hover {
+html.dark .bg-indigo-50:hover,
+html.dark .bg-indigo-100:hover {
   background-color: rgba(49, 46, 129, 0.65) !important;
   color: #c7d2fe !important;
 }
-html.dark [class*="bg-indigo-50"] *,
-html.dark [class*="bg-indigo-100"] * {
+html.dark .bg-indigo-50 i,
+html.dark .bg-indigo-100 i {
   color: #a5b4fc !important;
 }
 
-/* Hapus Proyek / Rose Light Buttons (bg-rose-50, bg-rose-100, bg-red-50, bg-red-100) */
-html.dark [class*="bg-rose-50"],
-html.dark [class*="bg-rose-100"],
-html.dark [class*="bg-red-50"],
-html.dark [class*="bg-red-100"] {
+html.dark .bg-rose-50,
+html.dark .bg-rose-100,
+html.dark .bg-red-50,
+html.dark .bg-red-100 {
   background-color: rgba(136, 19, 55, 0.4) !important;
   color: #fca5a5 !important;
   border-color: rgba(244, 63, 94, 0.3) !important;
 }
-html.dark [class*="bg-rose-50"]:hover,
-html.dark [class*="bg-rose-100"]:hover,
-html.dark [class*="bg-red-50"]:hover,
-html.dark [class*="bg-red-100"]:hover {
+html.dark .bg-rose-50:hover,
+html.dark .bg-rose-100:hover,
+html.dark .bg-red-50:hover,
+html.dark .bg-red-100:hover {
   background-color: rgba(136, 19, 55, 0.65) !important;
   color: #fecdd3 !important;
 }
-html.dark [class*="bg-rose-50"] *,
-html.dark [class*="bg-rose-100"] *,
-html.dark [class*="bg-red-50"] *,
-html.dark [class*="bg-red-100"] * {
+html.dark .bg-rose-50 i,
+html.dark .bg-rose-100 i,
+html.dark .bg-red-50 i,
+html.dark .bg-red-100 i {
   color: #fca5a5 !important;
 }
 
-/* Blue Light Buttons (bg-blue-50, bg-blue-100) */
-html.dark [class*="bg-blue-50"],
-html.dark [class*="bg-blue-100"] {
+html.dark .bg-blue-50,
+html.dark .bg-blue-100 {
   background-color: rgba(30, 58, 138, 0.4) !important;
   color: #93c5fd !important;
   border-color: rgba(59, 130, 246, 0.3) !important;
 }
-html.dark [class*="bg-blue-50"]:hover,
-html.dark [class*="bg-blue-100"]:hover {
+html.dark .bg-blue-50:hover,
+html.dark .bg-blue-100:hover {
   background-color: rgba(30, 58, 138, 0.65) !important;
   color: #bfdbfe !important;
 }
-html.dark [class*="bg-blue-50"] *,
-html.dark [class*="bg-blue-100"] * {
+html.dark .bg-blue-50 i,
+html.dark .bg-blue-100 i {
   color: #93c5fd !important;
 }
 
-/* Amber Light Buttons (bg-amber-50, bg-amber-100, bg-yellow-50, bg-yellow-100) */
-html.dark [class*="bg-amber-50"],
-html.dark [class*="bg-amber-100"],
-html.dark [class*="bg-yellow-50"],
-html.dark [class*="bg-yellow-100"] {
+html.dark .bg-amber-50,
+html.dark .bg-amber-100,
+html.dark .bg-yellow-50,
+html.dark .bg-yellow-100 {
   background-color: rgba(120, 53, 15, 0.4) !important;
   color: #fde68a !important;
   border-color: rgba(245, 158, 11, 0.3) !important;
 }
-html.dark [class*="bg-amber-50"]:hover,
-html.dark [class*="bg-amber-100"]:hover,
-html.dark [class*="bg-yellow-50"]:hover,
-html.dark [class*="bg-yellow-100"]:hover {
+html.dark .bg-amber-50:hover,
+html.dark .bg-amber-100:hover,
+html.dark .bg-yellow-50:hover,
+html.dark .bg-yellow-100:hover {
   background-color: rgba(120, 53, 15, 0.65) !important;
   color: #fef3c7 !important;
 }
-html.dark [class*="bg-amber-50"] *,
-html.dark [class*="bg-amber-100"] *,
-html.dark [class*="bg-yellow-50"] *,
-html.dark [class*="bg-yellow-100"] * {
+html.dark .bg-amber-50 i,
+html.dark .bg-amber-100 i,
+html.dark .bg-yellow-50 i,
+html.dark .bg-yellow-100 i {
   color: #fde68a !important;
 }
 
-/* Purple Light Buttons (bg-purple-50, bg-purple-100) */
-html.dark [class*="bg-purple-50"],
-html.dark [class*="bg-purple-100"] {
+html.dark .bg-purple-50,
+html.dark .bg-purple-100 {
   background-color: rgba(88, 28, 135, 0.4) !important;
   color: #d8b4fe !important;
   border-color: rgba(168, 85, 247, 0.3) !important;
 }
-html.dark [class*="bg-purple-50"]:hover,
-html.dark [class*="bg-purple-100"]:hover {
+html.dark .bg-purple-50:hover,
+html.dark .bg-purple-100:hover {
   background-color: rgba(88, 28, 135, 0.65) !important;
   color: #f3e8ff !important;
 }
-html.dark [class*="bg-purple-50"] *,
-html.dark [class*="bg-purple-100"] * {
+html.dark .bg-purple-50 i,
+html.dark .bg-purple-100 i {
   color: #d8b4fe !important;
 }
 
 /* 6. Disabled Buttons */
 html.dark button:disabled,
-html.dark [class*="disabled:bg-zinc-300"]:disabled {
+html.dark .disabled\:bg-zinc-300:disabled {
   background-color: #27272a !important;
   color: #71717a !important;
   border-color: #27272a !important;

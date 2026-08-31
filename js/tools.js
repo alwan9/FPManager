@@ -31,6 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTools(query);
     });
   }
+
+  // Apply Shortcut Visibility on initial load
+  applyShortcutsVisibility(isShortcutsVisible());
+
+  // Initialize Tools Hero Banner Slider
+  initToolBannerSlider();
 });
 
 async function loadData() {
@@ -457,6 +463,159 @@ function renderShortcuts(query = '') {
       }
     });
   }
+
+  // Ensure visibility state is respected after render
+  applyShortcutsVisibility(isShortcutsVisible());
+}
+
+// =====================================// =====================================
+// SHORTCUT VISIBILITY VIA COOKIE
+// =====================================
+function getShortcutCookie() {
+  const match = document.cookie.match(new RegExp('(^|;\\s*)show_shortcuts=([^;]*)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+function setShortcutCookie(val) {
+  const d = new Date();
+  d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+  document.cookie = `show_shortcuts=${encodeURIComponent(val)}; expires=${d.toUTCString()}; path=/; SameSite=Lax`;
+}
+
+function isShortcutsVisible() {
+  const cookieVal = getShortcutCookie();
+  // Default is ON (true) if cookie is not set or not 'off'
+  return cookieVal !== 'off';
+}
+
+function toggleShortcutsState() {
+  const currentVisible = isShortcutsVisible();
+  const nextVisible = !currentVisible;
+  setShortcutCookie(nextVisible ? 'on' : 'off');
+  applyShortcutsVisibility(nextVisible);
+  if (typeof Toast !== 'undefined') {
+    if (nextVisible) {
+      Toast.success('Shortcuts Ditampilkan', 'Web shortcuts aktif.');
+    } else {
+      Toast.info('Shortcuts Disembunyikan', 'Web shortcuts dinonaktifkan.');
+    }
+  }
+}
+
+function applyShortcutsVisibility(visible) {
+  const container = document.getElementById('shortcutsContainer');
+  const hr = document.getElementById('shortcutsHr');
+
+  const icon = document.getElementById('shortcutsToggleIcon');
+  const badge = document.getElementById('shortcutsToggleBadge');
+
+  const iconMobile = document.getElementById('shortcutsToggleIconMobile');
+  const badgeMobile = document.getElementById('shortcutsToggleBadgeMobile');
+
+  if (icon) {
+    icon.className = visible ? 'fa-solid fa-eye text-xs text-emerald-300' : 'fa-solid fa-eye-slash text-xs text-white/50';
+  }
+  if (badge) {
+    badge.textContent = visible ? 'ON' : 'OFF';
+    badge.className = visible
+      ? 'px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
+      : 'px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-white/10 text-white/50 border border-white/10';
+  }
+
+  if (iconMobile) {
+    iconMobile.className = visible ? 'fa-solid fa-eye text-emerald-500 text-xs' : 'fa-solid fa-eye-slash text-zinc-400 text-xs';
+  }
+  if (badgeMobile) {
+    badgeMobile.textContent = visible ? 'ON' : 'OFF';
+    badgeMobile.className = visible
+      ? 'text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-0.5'
+      : 'text-[10px] font-bold text-zinc-400 dark:text-zinc-500 ml-0.5';
+  }
+
+  if (container) {
+    if (visible) {
+      container.classList.remove('hidden');
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+
+  if (hr) {
+    if (visible) {
+      hr.classList.remove('hidden');
+    } else {
+      hr.classList.add('hidden');
+    }
+  }
+}
+
+// =====================================
+// TOOLS HERO BANNER SLIDER LOGIC
+// =====================================
+let currentToolSlide = 0;
+let toolSlideTimer = null;
+const toolSlideInterval = 7000;
+
+function showToolBannerSlide(index) {
+  const slides = document.querySelectorAll('.tool-banner-slide');
+  const dots = document.querySelectorAll('.tool-banner-dot');
+  if (slides.length === 0) return;
+
+  currentToolSlide = (index + slides.length) % slides.length;
+
+  slides.forEach((slide, i) => {
+    if (i === currentToolSlide) {
+      slide.classList.remove('opacity-0', 'translate-x-8', 'pointer-events-none', 'absolute');
+      slide.classList.add('opacity-100', 'translate-x-0', 'relative');
+    } else {
+      slide.classList.remove('opacity-100', 'translate-x-0', 'relative');
+      slide.classList.add('opacity-0', 'translate-x-8', 'pointer-events-none', 'absolute');
+    }
+  });
+
+  dots.forEach((dot, i) => {
+    if (i === currentToolSlide) {
+      dot.className = 'tool-banner-dot w-6 h-1.5 rounded-full bg-white transition-all duration-300 focus:outline-none';
+    } else {
+      dot.className = 'tool-banner-dot w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 focus:outline-none';
+    }
+  });
+}
+
+function nextToolBannerSlide() {
+  showToolBannerSlide(currentToolSlide + 1);
+}
+
+function prevToolBannerSlide() {
+  showToolBannerSlide(currentToolSlide - 1);
+}
+
+function goToToolBannerSlide(index) {
+  stopToolSlideShow();
+  showToolBannerSlide(index);
+  startToolSlideShow();
+}
+
+function startToolSlideShow() {
+  stopToolSlideShow();
+  toolSlideTimer = setInterval(nextToolBannerSlide, toolSlideInterval);
+}
+
+function stopToolSlideShow() {
+  if (toolSlideTimer) {
+    clearInterval(toolSlideTimer);
+    toolSlideTimer = null;
+  }
+}
+
+function initToolBannerSlider() {
+  const sliderEl = document.getElementById('toolsHeroSlider');
+  if (sliderEl) {
+    showToolBannerSlide(0);
+    startToolSlideShow();
+    sliderEl.addEventListener('mouseenter', stopToolSlideShow);
+    sliderEl.addEventListener('mouseleave', startToolSlideShow);
+  }
 }
 
 async function saveShortcut() {
@@ -845,10 +1004,36 @@ function fallbackCopyText(itemName, sideName, textToCopy, unitSuffix) {
 }
 
 // =====================================
-// WATERMARK GENERATOR TOOL (NO PERMISSION)
+// WATERMARK GENERATOR TOOL (IMAGE BASED & AUTO CONTRAST)
 // =====================================
 
 let currentWmImage = null;
+let selectedWmVariant = 'auto'; // 'auto' | 'white' | 'black' | 'warna' | 'custom'
+
+const WM_PRESETS = {
+  white: 'assets/watermark/wm_white.png',
+  black: 'assets/watermark/wm_black.png',
+  warna: 'assets/watermark/wm_warna.png'
+};
+
+const wmImages = {
+  white: new Image(),
+  black: new Image(),
+  warna: new Image(),
+  custom: null
+};
+
+// Preload watermark images
+wmImages.white.src = WM_PRESETS.white;
+wmImages.black.src = WM_PRESETS.black;
+wmImages.warna.src = WM_PRESETS.warna;
+
+// Re-render canvas when watermarks finish loading
+[wmImages.white, wmImages.black, wmImages.warna].forEach(img => {
+  img.onload = () => {
+    if (currentWmImage) updateWmCanvas();
+  };
+});
 
 function openWatermarkModal() {
   closeAllModals();
@@ -856,6 +1041,7 @@ function openWatermarkModal() {
   if (modal) {
     modal.classList.remove('hidden');
     document.addEventListener('paste', handleWmPasteEvent);
+    toggleWmSpacingField();
   }
 }
 
@@ -905,9 +1091,12 @@ function loadWmImageFromFile(file) {
       const previewWrapper = document.getElementById('wmPreviewWrapper');
       if (dropzone) dropzone.classList.add('hidden');
       if (previewWrapper) previewWrapper.classList.remove('hidden');
-      
+
       document.getElementById('wmCopyBtn').disabled = false;
       document.getElementById('wmDownloadBtn').disabled = false;
+
+      // Update UI & Render
+      updateWmAutoUi();
       updateWmCanvas();
     };
     img.src = event.target.result;
@@ -922,15 +1111,153 @@ function resetWmImage() {
   const previewWrapper = document.getElementById('wmPreviewWrapper');
   if (dropzone) dropzone.classList.remove('hidden');
   if (previewWrapper) previewWrapper.classList.add('hidden');
-  
+
   document.getElementById('wmCopyBtn').disabled = true;
   document.getElementById('wmDownloadBtn').disabled = true;
+}
+
+// Detect average brightness / luminance of the loaded image
+function detectImageLuminance(img) {
+  if (!img) return 128;
+  try {
+    const sampleCanvas = document.createElement('canvas');
+    sampleCanvas.width = 64;
+    sampleCanvas.height = 64;
+    const sCtx = sampleCanvas.getContext('2d');
+    sCtx.drawImage(img, 0, 0, 64, 64);
+    const data = sCtx.getImageData(0, 0, 64, 64).data;
+    let total = 0;
+    let count = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const a = data[i + 3];
+      if (a > 30) {
+        // ITU-R BT.709 perceived luminance
+        total += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+        count++;
+      }
+    }
+    return count > 0 ? (total / count) : 128;
+  } catch (e) {
+    console.warn('Luminance error:', e);
+    return 128;
+  }
+}
+
+function selectWmVariant(variant) {
+  selectedWmVariant = variant;
+
+  // Update button active styles
+  const variants = ['auto', 'white', 'black', 'warna', 'custom'];
+  variants.forEach(v => {
+    const btn = document.getElementById(`wmVariantBtn-${v}`);
+    if (btn) {
+      if (v === variant) {
+        btn.className = 'wm-variant-btn active px-2 py-1.5 rounded-xl border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs';
+      } else {
+        btn.className = 'wm-variant-btn px-2 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:border-zinc-300 dark:hover:border-zinc-600 flex items-center justify-center gap-1.5 transition-all';
+      }
+    }
+  });
+
+  updateWmAutoUi();
+  updateWmCanvas();
+}
+
+function handleCustomWmFile(e) {
+  const files = e.target.files;
+  if (files && files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const img = new Image();
+      img.onload = function () {
+        wmImages.custom = img;
+        selectWmVariant('custom');
+        if (typeof Toast !== 'undefined') {
+          Toast.success('Watermark Dimuat!', 'Foto watermark kustom berhasil digunakan.');
+        }
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(files[0]);
+  }
+}
+
+function updateWmAutoUi() {
+  const isDark = currentWmImage ? (detectImageLuminance(currentWmImage) < 135) : false;
+  const thumb = document.getElementById('wmActiveThumb');
+  const nameEl = document.getElementById('wmActiveName');
+  const statusEl = document.getElementById('wmActiveStatus');
+  const autoBadge = document.getElementById('wmAutoBadge');
+
+  if (selectedWmVariant === 'auto') {
+    if (isDark) {
+      if (thumb) thumb.src = WM_PRESETS.white;
+      if (nameEl) nameEl.textContent = 'Watermark Putih (Auto)';
+      if (statusEl) statusEl.textContent = 'Kontras: Gambar Gelap';
+      if (autoBadge) {
+        autoBadge.textContent = 'Auto: Putih';
+        autoBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60';
+      }
+    } else {
+      if (thumb) thumb.src = WM_PRESETS.black;
+      if (nameEl) nameEl.textContent = 'Watermark Hitam (Auto)';
+      if (statusEl) statusEl.textContent = 'Kontras: Gambar Terang';
+      if (autoBadge) {
+        autoBadge.textContent = 'Auto: Hitam';
+        autoBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700';
+      }
+    }
+  } else if (selectedWmVariant === 'white') {
+    if (thumb) thumb.src = WM_PRESETS.white;
+    if (nameEl) nameEl.textContent = 'Watermark Putih';
+    if (statusEl) statusEl.textContent = 'Mode Manual';
+    if (autoBadge) autoBadge.textContent = 'Manual: Putih';
+  } else if (selectedWmVariant === 'black') {
+    if (thumb) thumb.src = WM_PRESETS.black;
+    if (nameEl) nameEl.textContent = 'Watermark Hitam';
+    if (statusEl) statusEl.textContent = 'Mode Manual';
+    if (autoBadge) autoBadge.textContent = 'Manual: Hitam';
+  } else if (selectedWmVariant === 'warna') {
+    if (thumb) thumb.src = WM_PRESETS.warna;
+    if (nameEl) nameEl.textContent = 'Watermark Berwarna';
+    if (statusEl) statusEl.textContent = 'Mode Manual';
+    if (autoBadge) autoBadge.textContent = 'Manual: Berwarna';
+  } else if (selectedWmVariant === 'custom') {
+    if (thumb && wmImages.custom) thumb.src = wmImages.custom.src;
+    if (nameEl) nameEl.textContent = 'Watermark Kustom';
+    if (statusEl) statusEl.textContent = 'Upload Pengguna';
+    if (autoBadge) autoBadge.textContent = 'Kustom';
+  }
+}
+
+function toggleWmSpacingField() {
+  const pos = document.getElementById('wmPosition')?.value;
+  const spacingWrapper = document.getElementById('wmSpacingWrapper');
+  if (spacingWrapper) {
+    if (pos === 'tile') {
+      spacingWrapper.classList.remove('hidden');
+    } else {
+      spacingWrapper.classList.add('hidden');
+    }
+  }
+}
+
+function getActiveWatermarkImage() {
+  if (selectedWmVariant === 'white') return wmImages.white;
+  if (selectedWmVariant === 'black') return wmImages.black;
+  if (selectedWmVariant === 'warna') return wmImages.warna;
+  if (selectedWmVariant === 'custom') return wmImages.custom || wmImages.white;
+
+  // 'auto' mode
+  const isDark = currentWmImage ? (detectImageLuminance(currentWmImage) < 135) : false;
+  return isDark ? wmImages.white : wmImages.black;
 }
 
 function updateWmCanvas() {
   if (!currentWmImage) return;
 
   const canvas = document.getElementById('wmCanvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
   const imgW = currentWmImage.naturalWidth || currentWmImage.width;
@@ -939,74 +1266,82 @@ function updateWmCanvas() {
   canvas.width = imgW;
   canvas.height = imgH;
 
-  // Draw original image
+  // Draw base original image
   ctx.clearRect(0, 0, imgW, imgH);
   ctx.drawImage(currentWmImage, 0, 0, imgW, imgH);
 
-  // Read controls
-  const wmText = document.getElementById('wmText').value || '@premium_dz';
-  const position = document.getElementById('wmPosition').value;
-  const colorName = document.getElementById('wmColor').value;
-  const opacity = parseFloat(document.getElementById('wmOpacity').value) / 100;
-  const fontSize = parseInt(document.getElementById('wmSize').value) || 32;
-  const rotationDeg = parseInt(document.getElementById('wmRotate').value) || 0;
+  // Read watermark parameters
+  const activeWmImg = getActiveWatermarkImage();
+  if (!activeWmImg || !activeWmImg.complete) {
+    updateWmAutoUi();
+    return;
+  }
 
-  // Configure text style
+  updateWmAutoUi();
+
+  const position = document.getElementById('wmPosition')?.value || 'tile';
+  const opacity = (parseFloat(document.getElementById('wmOpacity')?.value) || 35) / 100;
+  const scalePercent = (parseInt(document.getElementById('wmSize')?.value) || 30) / 100;
+  const rotationDeg = parseInt(document.getElementById('wmRotate')?.value) || -30;
+  const spacing = parseInt(document.getElementById('wmSpacing')?.value) || 120;
+
+  // Compute proportional watermark size relative to image dimensions
+  const baseDim = Math.min(imgW, imgH);
+  const wmAspect = (activeWmImg.naturalHeight && activeWmImg.naturalWidth)
+    ? (activeWmImg.naturalHeight / activeWmImg.naturalWidth)
+    : 0.35;
+
+  const wmWidth = Math.max(40, baseDim * scalePercent);
+  const wmHeight = wmWidth * wmAspect;
+
   ctx.save();
   ctx.globalAlpha = opacity;
-  ctx.font = `bold ${fontSize}px sans-serif`;
-
-  let textColor = '#ffffff';
-  switch (colorName) {
-    case 'black': textColor = '#000000'; break;
-    case 'red': textColor = '#ef4444'; break;
-    case 'gold': textColor = '#eab308'; break;
-    case 'white': default: textColor = '#ffffff'; break;
-  }
-  ctx.fillStyle = textColor;
-  ctx.shadowColor = 'rgba(0,0,0,0.4)';
-  ctx.shadowBlur = 4;
-
-  const textMetrics = ctx.measureText(wmText);
-  const textW = textMetrics.width;
 
   if (position === 'tile') {
-    // Pola Ulang Diagonal Grid Proofing
-    const stepX = textW + 120;
-    const stepY = fontSize + 100;
+    // Staggered Diamond Grid Tiling
+    const stepX = wmWidth + spacing;
+    const stepY = wmHeight + spacing * 0.8;
     const angleRad = (rotationDeg * Math.PI) / 180;
 
-    for (let y = -imgH; y < imgH * 2; y += stepY) {
-      for (let x = -imgW; x < imgW * 2; x += stepX) {
+    let row = 0;
+    for (let y = -imgH * 0.5; y < imgH * 1.8; y += stepY) {
+      row++;
+      const rowOffset = (row % 2 === 0) ? stepX / 2 : 0;
+      for (let x = -imgW * 0.5; x < imgW * 1.8; x += stepX) {
         ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(angleRad);
-        ctx.fillText(wmText, 0, 0);
+        ctx.translate(x + rowOffset, y);
+        if (rotationDeg !== 0) ctx.rotate(angleRad);
+        ctx.drawImage(activeWmImg, -wmWidth / 2, -wmHeight / 2, wmWidth, wmHeight);
         ctx.restore();
       }
     }
   } else {
-    // Single Position
+    // Single Placement
     ctx.save();
     let posX = imgW / 2;
     let posY = imgH / 2;
+    const padX = Math.max(30, imgW * 0.04);
+    const padY = Math.max(30, imgH * 0.04);
 
     if (position === 'bottom_right') {
-      posX = imgW - textW - 30;
-      posY = imgH - 30;
+      posX = imgW - (wmWidth / 2) - padX;
+      posY = imgH - (wmHeight / 2) - padY;
     } else if (position === 'bottom_left') {
-      posX = 30;
-      posY = imgH - 30;
+      posX = (wmWidth / 2) + padX;
+      posY = imgH - (wmHeight / 2) - padY;
     } else if (position === 'top_right') {
-      posX = imgW - textW - 30;
-      posY = fontSize + 30;
+      posX = imgW - (wmWidth / 2) - padX;
+      posY = (wmHeight / 2) + padY;
+    } else if (position === 'top_left') {
+      posX = (wmWidth / 2) + padX;
+      posY = (wmHeight / 2) + padY;
     }
 
     ctx.translate(posX, posY);
     if (rotationDeg !== 0) {
       ctx.rotate((rotationDeg * Math.PI) / 180);
     }
-    ctx.fillText(wmText, 0, 0);
+    ctx.drawImage(activeWmImg, -wmWidth / 2, -wmHeight / 2, wmWidth, wmHeight);
     ctx.restore();
   }
 

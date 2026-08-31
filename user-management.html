@@ -2,6 +2,16 @@
 <html lang="id">
 
 <head>
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark' || !theme) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manajemen User - Kelola FPManager</title>
@@ -28,7 +38,7 @@
 
     <!-- Sidebar Navigation -->
     <aside
-      class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-zinc-900 text-zinc-100 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50 transition-all duration-300">
+      class="fixed bottom-0 left-0 w-full md:relative md:w-64 bg-zinc-900 text-zinc-100 flex flex-col shadow-[0_-10px_20px_rgba(0,0,0,0.15)] md:shadow-xl z-50">
       <div
         class="hidden md:flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
         <a href="index.html" class="flex items-center space-x-3 logo-full">
