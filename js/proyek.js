@@ -28,11 +28,15 @@ async function loadProyekData() {
   showProyekSkeletons();
   try {
     let listProyek = await API.getProyek();
-    window.allProyekList = listProyek || []; // Cache list globally for status updates
+    if (!Array.isArray(listProyek)) {
+      listProyek = [];
+    }
+    window.allProyekList = listProyek; // Cache list globally for status updates
 
     // Add statusOrder property dynamically for custom sorting
     listProyek.forEach(p => {
-      const st = (p.status || '').toLowerCase().trim();
+      if (!p) return;
+      const st = String(p.status || '').toLowerCase().trim();
       if (st === 'menunggu') p.statusOrder = 1;
       else if (st === 'revisi') p.statusOrder = 2;
       else if (st === 'sedang dikerjakan') p.statusOrder = 3;
@@ -48,7 +52,7 @@ async function loadProyekData() {
     // Apply URL status filter if present
     const urlParams = new URLSearchParams(window.location.search);
     const statusFilter = urlParams.get('status');
-    if (statusFilter) {
+    if (statusFilter && typeof table !== 'undefined' && table) {
       filterStatus(statusFilter);
 
       // Auto-focus the filter button
@@ -69,42 +73,49 @@ async function loadProyekData() {
   } catch (error) {
     console.error('Gagal memuat data proyek:', error);
 
-    showToast({
-      title: "Data Proyek",
-      message: "Terjadi kesalahan saat memuat data proyek.",
-      type: "error"
-    });
+    if (typeof Toast !== 'undefined' && Toast.error) {
+      Toast.error("Data Proyek", "Terjadi kesalahan saat memuat data proyek.");
+    } else if (typeof showToast === 'function') {
+      showToast({
+        title: "Data Proyek",
+        message: "Terjadi kesalahan saat memuat data proyek.",
+        type: "error"
+      });
+    }
   }
 }
+
 // Update status summary numbers on dashboard/top badges
 function updateStatusCounters(proyekList) {
+  const list = Array.isArray(proyekList) ? proyekList : [];
   const counts = {
-    all: proyekList.length,
+    all: list.length,
     menunggu: 0,
     dikerjakan: 0,
     revisi: 0,
     selesai: 0,
     belumpembayaran: 0
   };
-  proyekList.forEach(p => {
-    const status = p.status.toLowerCase();
+  list.forEach(p => {
+    if (!p) return;
+    const status = String(p.status || '').toLowerCase().trim();
     if (status === 'menunggu') counts.menunggu++;
     else if (status === 'sedang dikerjakan') counts.dikerjakan++;
     else if (status === 'revisi') counts.revisi++;
     else if (status === 'selesai') counts.selesai++;
     else if (status === 'belum pembayaran') counts.belumpembayaran++;
   });
-  document.getElementById('count-all').textContent = counts.all;
-  document.getElementById('count-menunggu').textContent = counts.menunggu;
-  document.getElementById('count-dikerjakan').textContent = counts.dikerjakan;
 
-  const countRevisiEl = document.getElementById('count-revisi');
-  if (countRevisiEl) {
-    countRevisiEl.textContent = counts.revisi;
-  }
-
-  document.getElementById('count-selesai').textContent = counts.selesai;
-  document.getElementById('count-belumpembayaran').textContent = counts.belumpembayaran;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  setVal('count-all', counts.all);
+  setVal('count-menunggu', counts.menunggu);
+  setVal('count-dikerjakan', counts.dikerjakan);
+  setVal('count-revisi', counts.revisi);
+  setVal('count-selesai', counts.selesai);
+  setVal('count-belumpembayaran', counts.belumpembayaran);
 }
 // Initialize DataTables with customized styles and features
 function initTable(data) {
