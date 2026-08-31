@@ -140,6 +140,15 @@ function initTable(data) {
     autoWidth: false,
     data: data,
     columns: [
+      {
+        data: null,
+        orderable: false,
+        className: 'text-center',
+        width: '40px',
+        render: function (data) {
+          return `<input type="checkbox" value="${data.id}" class="keuangan-checkbox rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">`;
+        }
+      },
       { data: 'id' },
       {
         data: 'userId',
@@ -226,9 +235,14 @@ function initTable(data) {
         }
       }
     ],
-    order: [[0, 'desc']], // Urutkan transaksi terbaru
+    order: [[1, 'desc']], // Urutkan transaksi terbaru berdasarkan ID
     language: dtLang
   });
+
+  // Reset bulk delete button and select-all state on table reload
+  const selectAllCb = document.getElementById('selectAllKeuangan');
+  if (selectAllCb) selectAllCb.checked = false;
+  updateBulkDeleteKeuanganButton();
 }
 
 function sanitize(text) {
@@ -488,6 +502,122 @@ async function deleteTransaksi(id) {
   }
 }
 
+// ===================================
+// BATCH / BULK DELETE KEUANGAN
+// ===================================
+
+// Handle Select/Deselect All Checkbox
+$(document).on('change', '#selectAllKeuangan', function () {
+  const isChecked = this.checked;
+  $('.keuangan-checkbox').prop('checked', isChecked);
+  updateBulkDeleteKeuanganButton();
+});
+
+// Handle Individual Checkbox
+$(document).on('change', '.keuangan-checkbox', function () {
+  const total = $('.keuangan-checkbox').length;
+  const checked = $('.keuangan-checkbox:checked').length;
+  $('#selectAllKeuangan').prop('checked', total > 0 && total === checked);
+  updateBulkDeleteKeuanganButton();
+});
+
+function updateBulkDeleteKeuanganButton() {
+  const checkedBoxes = $('.keuangan-checkbox:checked');
+  const count = checkedBoxes.length;
+  const btn = document.getElementById('btnBulkDeleteKeuangan');
+  const countEl = document.getElementById('selectedKeuanganCount');
+
+  if (btn && countEl) {
+    countEl.textContent = count;
+    if (count > 0) {
+      btn.classList.remove('hidden');
+      btn.disabled = false;
+    } else {
+      btn.classList.add('hidden');
+      btn.disabled = true;
+    }
+  }
+}
+
+async function bulkDeleteKeuangan() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+  const isSuperAdmin = currUser && (
+    currUser.username === 'wansmin' ||
+    (currUser.role || '').toLowerCase().includes('super_admin') ||
+    (currUser.role || '').toLowerCase().includes('superadmin') ||
+    (currUser.role || '').toLowerCase().includes('admin')
+  );
+
+  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to delete financial records." : "Anda tidak memiliki izin untuk menghapus data Keuangan.");
+    } else {
+      alert(isEn ? "Access Denied: You do not have permission to delete financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk menghapus data Keuangan.");
+    }
+    return;
+  }
+
+  const checkedBoxes = $('.keuangan-checkbox:checked');
+  const ids = [];
+  checkedBoxes.each(function () {
+    ids.push($(this).val());
+  });
+
+  if (ids.length === 0) return;
+
+  const confirmMsg = isEn
+    ? `Are you sure you want to delete ${ids.length} selected financial transactions? This action cannot be undone.`
+    : `Apakah Anda yakin ingin menghapus ${ids.length} transaksi keuangan terpilih? Tindakan ini tidak dapat dibatalkan.`;
+
+  if (!confirm(confirmMsg)) return;
+
+  const btn = document.getElementById('btnBulkDeleteKeuangan');
+  const loader = document.getElementById('globalLoader');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1.5"></i> ${isEn ? 'Deleting...' : 'Menghapus...'}`;
+  }
+  if (loader) loader.classList.remove('hidden');
+
+  try {
+    const res = await API.deleteKeuangan(ids);
+    if (loader) loader.classList.add('hidden');
+
+    if (res && res.success) {
+      if (typeof Toast !== 'undefined') {
+        Toast.success(isEn ? "Berhasil" : "Berhasil", isEn ? `${ids.length} transactions deleted successfully.` : `${ids.length} transaksi keuangan berhasil dihapus.`);
+      } else {
+        alert(isEn ? `${ids.length} transactions deleted successfully.` : `${ids.length} transaksi keuangan berhasil dihapus.`);
+      }
+      await loadKeuanganData();
+    } else {
+      const errMsg = res ? res.message : (isEn ? "Failed to delete selected transactions." : "Gagal menghapus transaksi terpilih.");
+      if (typeof Toast !== 'undefined') {
+        Toast.error(isEn ? "Gagal" : "Gagal", errMsg);
+      } else {
+        alert(errMsg);
+      }
+    }
+  } catch (error) {
+    if (loader) loader.classList.add('hidden');
+    console.error('Bulk delete keuangan error:', error);
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Error" : "Error", isEn ? "Failed to delete selected transactions." : "Terjadi kesalahan saat menghapus transaksi terpilih.");
+    } else {
+      alert(isEn ? "Failed to delete selected transactions." : "Terjadi kesalahan saat menghapus transaksi terpilih.");
+    }
+  } finally {
+    if (btn) {
+      btn.innerHTML = `<i class="fa-solid fa-trash-can mr-1.5"></i><span>Hapus Terpilih (<span id="selectedKeuanganCount">0</span>)</span>`;
+      btn.disabled = true;
+      btn.classList.add('hidden');
+    }
+    const selectAllCb = document.getElementById('selectAllKeuangan');
+    if (selectAllCb) selectAllCb.checked = false;
+  }
+}
+
 function showKeuanganSkeletons() {
   const loader = document.getElementById('globalLoader');
   if (loader) loader.classList.add('hidden');
@@ -501,12 +631,15 @@ function showKeuanganSkeletons() {
   const tbody = document.querySelector('#keuanganTable tbody');
   if (tbody) {
     tbody.innerHTML = Array(5).fill(`
-      <tr class="border-b border-zinc-100 bg-white animate-pulse">
+      <tr class="border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 animate-pulse">
+        <td class="p-4 text-center"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
         <td class="p-4"><div class="h-4 w-12 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
-        <td class="p-4"><div class="h-4 w-40 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-6 w-14 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
       </tr>
     `).join('');
   }

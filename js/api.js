@@ -655,7 +655,7 @@ const API = {
       body.append("apiKey", CONFIG.API_KEY);
       body.append("role", currUser.role);
       body.append("userId", currUser.id);
-      body.append("id", id);
+      body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body

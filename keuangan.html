@@ -315,16 +315,26 @@
           </div>
 
           <!-- Column Mutasi Kas Table -->
-          <div class="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm overflow-hidden">
-            <h4 class="font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-4 text-base flex items-center">
-              <i class="fa-solid fa-list-ul text-indigo-600 mr-2"></i>
-              <span data-i18n="fin-table-title">Riwayat Mutasi Keuangan</span>
-            </h4>
+          <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 mb-4">
+              <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-base flex items-center">
+                <i class="fa-solid fa-list-ul text-indigo-600 dark:text-indigo-400 mr-2"></i>
+                <span data-i18n="fin-table-title">Riwayat Mutasi Keuangan</span>
+              </h4>
+
+              <!-- Bulk Delete Button (Hidden by default, shown when items checked) -->
+              <button id="btnBulkDeleteKeuangan" onclick="bulkDeleteKeuangan()" disabled
+                class="hidden inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
+                <i class="fa-solid fa-trash-can mr-1.5"></i>
+                <span>Hapus Terpilih (<span id="selectedKeuanganCount">0</span>)</span>
+              </button>
+            </div>
 
             <div class="overflow-x-auto">
               <table id="keuanganTable" class="w-full text-sm text-left" style="width: 100% !important;">
                 <thead>
                   <tr>
+                    <th class="w-10 text-center"><input type="checkbox" id="selectAllKeuangan" class="rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"></th>
                     <th>ID</th>
                     <th>User ID</th>
                     <th data-i18n="fin-th-date">Tanggal</th>
