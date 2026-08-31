@@ -222,14 +222,32 @@ function initTable(data) {
       {
         data: 'metodePembayaran',
         render: function (data, type, row) {
-          const metode = data || 'Transfer Bank';
+          const rawMetode = String(data || '').trim();
+          let metode = 'DANA';
+          if (rawMetode.toLowerCase().includes('gopay')) metode = 'GoPay';
+          else if (rawMetode.toLowerCase().includes('spay') || rawMetode.toLowerCase().includes('shopee')) metode = 'ShopeePay';
+          else if (rawMetode.toLowerCase().includes('bsi')) metode = 'BSI';
+          else if (rawMetode.toLowerCase().includes('jago')) metode = 'Bank Jago';
+          else if (rawMetode.toLowerCase().includes('qris')) metode = 'QRIS';
+          else if (rawMetode.toLowerCase().includes('tunai') || rawMetode.toLowerCase().includes('cash')) metode = 'Tunai / Cash';
+          else if (rawMetode.toLowerCase().includes('dana')) metode = 'DANA';
+          else if (rawMetode) metode = rawMetode;
+
           return `
-            <select onchange="quickUpdatePaymentMethod('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
-              <option value="Transfer Bank" ${metode.includes('Transfer') ? 'selected' : ''}>Transfer Bank</option>
-              <option value="QRIS" ${metode === 'QRIS' ? 'selected' : ''}>QRIS</option>
-              <option value="Tunai / Cash" ${metode.includes('Tunai') || metode.includes('Cash') ? 'selected' : ''}>Tunai / Cash</option>
-              <option value="E-Wallet" ${metode.includes('Wallet') || metode.includes('Dana') || metode.includes('GoPay') || metode.includes('OVO') ? 'selected' : ''}>E-Wallet</option>
-            </select>
+            <div class="flex items-center gap-1">
+              <select onchange="quickUpdatePaymentMethod('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
+                <option value="DANA" ${metode === 'DANA' ? 'selected' : ''}>DANA</option>
+                <option value="GoPay" ${metode === 'GoPay' ? 'selected' : ''}>GoPay</option>
+                <option value="ShopeePay" ${metode === 'ShopeePay' ? 'selected' : ''}>ShopeePay</option>
+                <option value="BSI" ${metode === 'BSI' ? 'selected' : ''}>BSI</option>
+                <option value="Bank Jago" ${metode === 'Bank Jago' ? 'selected' : ''}>Bank Jago</option>
+                <option value="QRIS" ${metode === 'QRIS' ? 'selected' : ''}>QRIS</option>
+                <option value="Tunai / Cash" ${metode === 'Tunai / Cash' ? 'selected' : ''}>Tunai / Cash</option>
+              </select>
+              <button onclick="showPaymentAccountsModal('${metode}')" class="p-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 rounded-md transition" title="Lihat & salin detail nomor rekening/e-wallet">
+                <i class="fa-solid fa-circle-info"></i>
+              </button>
+            </div>
           `;
         }
       },
@@ -422,12 +440,15 @@ async function handleAddTransaksi(e) {
   const jenis = document.getElementById('jenis').value;
   const keterangan = document.getElementById('keterangan').value;
   const nominal = Number(document.getElementById('nominal').value);
+  const metodeElem = document.getElementById('metodePembayaran');
+  const metodePembayaran = metodeElem ? metodeElem.value : 'DANA';
 
   const payload = {
     tanggal: tanggal.trim(),
     jenis: jenis.trim(),
     keterangan: sanitize(keterangan),
-    nominal: Number(nominal)
+    nominal: Number(nominal),
+    metodePembayaran: metodePembayaran
   };
 
   const resetSubmitBtn = () => {
@@ -570,6 +591,11 @@ function editTransaksi(id) {
   const cleanNominal = String(tx.nominal).replace(/[^0-9]/g, '');
   document.getElementById('nominal').value = cleanNominal;
   
+  const metodeElem = document.getElementById('metodePembayaran');
+  if (metodeElem && tx.metodePembayaran) {
+    metodeElem.value = tx.metodePembayaran;
+  }
+
   const nominalPreview = document.getElementById('nominalPreview');
   if (nominalPreview) nominalPreview.textContent = formatRupiah(tx.nominal);
 
