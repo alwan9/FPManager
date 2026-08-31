@@ -305,34 +305,6 @@ function initTable(data) {
             </select>
           `;
         }
-      },
-      {
-        data: null,
-        orderable: false,
-        className: 'text-center',
-        render: function (data) {
-          const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-          const isSuperAdmin = currUser && (
-            currUser.username === 'wansmin' ||
-            (currUser.role || '').toLowerCase().includes('super_admin') ||
-            (currUser.role || '').toLowerCase().includes('superadmin') ||
-            (currUser.role || '').toLowerCase().includes('admin')
-          );
-          const canDelete = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
-
-          return `
-            <div class="flex space-x-1.5 justify-center">
-              <button onclick="openPaymentApprovalModal('${data.id}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all" title="Input & Approval Pembayaran">
-                <i class="fa-solid fa-sliders mr-1"></i> Approve
-              </button>
-              ${canDelete ? `
-              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Transaksi">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-              ` : ''}
-            </div>
-          `;
-        }
       }
     ],
     order: [[3, 'desc']], // Urutkan tanggal terbaru
