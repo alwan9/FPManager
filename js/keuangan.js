@@ -448,7 +448,11 @@ async function handleAddTransaksi(e) {
     jenis: jenis.trim(),
     keterangan: sanitize(keterangan),
     nominal: Number(nominal),
-    metodePembayaran: metodePembayaran
+    metodePembayaran: metodePembayaran,
+    statusPembayaran: 'Lunas',
+    dp: Number(nominal),
+    sisa: 0,
+    totalProyek: Number(nominal)
   };
 
   const resetSubmitBtn = () => {
