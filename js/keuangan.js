@@ -210,20 +210,18 @@ function initTable(data) {
           const ket = String(row && row.keterangan || '');
           const match = ket.match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || String(data || '').match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || (row && row.idProyek ? String(row.idProyek).match(/PRJ-\d+[-a-zA-Z0-9_]*/i) : null);
           const prjId = match ? match[0] : (row && row.idProyek ? row.idProyek : '');
+          const uid = (row && row.userId) || 'USR-001';
+
+          let prjBadge = '';
           if (prjId) {
-            return `<a href="tambah-proyek.html?id=${encodeURIComponent(prjId)}" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/50 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-colors inline-block" title="Buka Detail / Edit Projek">${escapeHtml(prjId)}</a>`;
+            prjBadge = `<a href="tambah-proyek.html?id=${encodeURIComponent(prjId)}" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/50 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-colors inline-block" title="Buka Detail / Edit Projek">${escapeHtml(prjId)}</a>`;
+          } else {
+            prjBadge = `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">${escapeHtml(data || '-')}</span>`;
           }
-          const displayId = data || '-';
-          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">${escapeHtml(displayId)}</span>`;
-        }
-      },
-      {
-        data: 'userId',
-        defaultContent: 'USR-001',
-        className: 'hidden md:table-cell',
-        render: function (data) {
-          const uid = data || 'USR-001';
-          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${uid}</span>`;
+
+          const userBadge = `<div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>`;
+
+          return `<div>${prjBadge}${userBadge}</div>`;
         }
       },
       { data: 'tanggal' },

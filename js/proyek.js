@@ -139,17 +139,14 @@ function initTable(data) {
       {
         data: 'iDProyek',
         className: 'hidden md:table-cell',
-        render: function (data) {
-          return `<span onclick="copyTextToClipboard('${escapeHtml(data)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(data)}</span>`;
-        }
-      },
-      {
-        data: 'userId',
-        defaultContent: 'USR-001',
-        className: 'hidden md:table-cell',
-        render: function (data) {
-          const uid = data || 'USR-001';
-          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">${escapeHtml(uid)}</span>`;
+        render: function (data, type, row) {
+          const uid = (row && row.userId) || 'USR-001';
+          return `
+            <div>
+              <div><span onclick="copyTextToClipboard('${escapeHtml(data)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(data)}</span></div>
+              <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>
+            </div>
+          `;
         }
       },
       { data: 'tanggal', visible: false },
