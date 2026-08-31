@@ -95,9 +95,9 @@ function calculateSummary(mutasiList) {
   const saldoEl = document.getElementById('saldoBersih');
   saldoEl.textContent = formatRupiah(saldo);
   if (saldo < 0) {
-    saldoEl.className = 'text-2xl font-bold text-rose-600 mt-1 block';
+    saldoEl.className = 'text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 block';
   } else {
-    saldoEl.className = 'text-2xl font-bold text-indigo-600 mt-1 block';
+    saldoEl.className = 'text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 block';
   }
 }
 
