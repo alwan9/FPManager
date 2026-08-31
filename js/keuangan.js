@@ -145,7 +145,20 @@ function initTable(data) {
           return `<input type="checkbox" value="${data.id}" class="keuangan-checkbox rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">`;
         }
       },
-      { data: 'id' },
+      {
+        data: 'id',
+        className: 'font-mono text-xs',
+        render: function (data, type, row) {
+          const ket = String(row && row.keterangan || '');
+          const match = ket.match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || String(data || '').match(/PRJ-\d+[-a-zA-Z0-9_]*/i);
+          if (match) {
+            const prjId = match[0];
+            return `<a href="tambah-proyek.html?id=${encodeURIComponent(prjId)}" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/50 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-colors inline-block" title="Buka Detail / Edit Projek">${escapeHtml(prjId)}</a>`;
+          }
+          const displayId = data || '-';
+          return `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">${escapeHtml(displayId)}</span>`;
+        }
+      },
       {
         data: 'userId',
         defaultContent: 'USR-001',
