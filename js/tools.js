@@ -61,16 +61,9 @@ async function loadData() {
       API.getReferences()
     ]);
 
-    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-    if (currUser && currUser.role !== 'super_admin') {
-      toolsData = (tools || []).filter(t => !t.userId || t.userId === 'USR-001' || t.userId === 'super_admin' || t.userId === currUser.id);
-      shortcutsData = (shortcuts || []).filter(s => !s.userId || s.userId === 'USR-001' || s.userId === 'super_admin' || s.userId === currUser.id);
-      referencesData = (references || []).filter(r => !r.userId || r.userId === 'USR-001' || r.userId === 'super_admin' || r.userId === currUser.id);
-    } else {
-      toolsData = tools || [];
-      shortcutsData = shortcuts || [];
-      referencesData = references || [];
-    }
+    toolsData = tools || [];
+    shortcutsData = shortcuts || [];
+    referencesData = references || [];
 
     renderTools();
     renderShortcuts();
@@ -2895,12 +2888,7 @@ async function saveReference() {
     // Reload references
     try {
       const references = await API.getReferences();
-      const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-      if (currUser && currUser.role !== 'super_admin') {
-        referencesData = (references || []).filter(r => !r.userId || r.userId === 'USR-001' || r.userId === 'super_admin' || r.userId === currUser.id);
-      } else {
-        referencesData = references || [];
-      }
+      referencesData = references || [];
       renderReferences();
     } catch(err) {
       console.error(err);
@@ -2941,12 +2929,7 @@ async function deleteReference(id) {
         
         // Reload references
         const references = await API.getReferences();
-        const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-        if (currUser && currUser.role !== 'super_admin') {
-          referencesData = (references || []).filter(r => !r.userId || r.userId === 'USR-001' || r.userId === 'super_admin' || r.userId === currUser.id);
-        } else {
-          referencesData = references || [];
-        }
+        referencesData = references || [];
         renderReferences();
       } else {
         if (typeof Toast !== 'undefined') Toast.error('Gagal', res.message || 'Gagal menghapus referensi');

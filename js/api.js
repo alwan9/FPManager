@@ -241,6 +241,32 @@ const API = {
   getToken: () => {
     return sessionStorage.getItem("token") || localStorage.getItem("token") || "";
   },
+
+  // Helper untuk membuat URL dengan otentikasi lengkap (termasuk permissions & role)
+  getAuthUrl: (action, extraParams = {}) => {
+    const currUser = API.getCurrentUser();
+    const perms = Array.isArray(currUser.permissions) ? JSON.stringify(currUser.permissions) : (typeof currUser.permissions === 'object' && currUser.permissions ? JSON.stringify(currUser.permissions) : "[]");
+    let url = `${CONFIG.API_URL}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(API.getToken())}&apiKey=${encodeURIComponent(CONFIG.API_KEY)}&role=${encodeURIComponent(currUser.role || '')}&userId=${encodeURIComponent(currUser.id || '')}&permissions=${encodeURIComponent(perms)}`;
+    for (const [k, v] of Object.entries(extraParams)) {
+      if (v !== undefined && v !== null && v !== '') {
+        url += `&${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
+      }
+    }
+    url += `&_t=${Date.now()}`;
+    return url;
+  },
+
+  // Helper untuk mengisi body POST dengan otentikasi lengkap
+  appendAuthBody: (body, action) => {
+    const currUser = API.getCurrentUser();
+    body.append("action", action);
+    body.append("token", API.getToken());
+    body.append("apiKey", CONFIG.API_KEY);
+    body.append("role", currUser.role || "");
+    body.append("userId", currUser.id || "");
+    const perms = Array.isArray(currUser.permissions) ? JSON.stringify(currUser.permissions) : (typeof currUser.permissions === 'object' && currUser.permissions ? JSON.stringify(currUser.permissions) : "[]");
+    body.append("permissions", perms);
+  },
   
   // Ambil semua data proyek (mendukung pagination dan pencarian)
   getProyek: async (params = {}) => {
@@ -252,12 +278,7 @@ const API = {
     }
 
     try {
-      const currUser = API.getCurrentUser();
-      let url = `${CONFIG.API_URL}?action=getProyek&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${currUser.role}&userId=${currUser.id}`;
-      if (page) url += `&page=${page}`;
-      if (limit) url += `&limit=${limit}`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      url += `&_t=${Date.now()}`;
+      const url = API.getAuthUrl("getProyek", { page: page || undefined, limit: limit || undefined, search: search || undefined });
 
       const response = await fetch(url);
       const result = await response.json();
@@ -321,11 +342,7 @@ const API = {
 
     try {
       const body = new URLSearchParams();
-      body.append("action", "addProyek");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "addProyek");
       body.append("data", JSON.stringify(proyekData));
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -439,11 +456,7 @@ const API = {
       const clientLastUpdated = oldLocal ? (oldLocal.lastUpdated || 0) : 0;
 
       const body = new URLSearchParams();
-      body.append("action", "updateProyek");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "updateProyek");
       body.append("id", id);
 
       const payload = { ...proyekData, lastUpdated: clientLastUpdated };
@@ -522,11 +535,7 @@ const API = {
 
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteProyek");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "deleteProyek");
       body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -566,11 +575,9 @@ const API = {
       return APICache.keuangan;
     }
 
-    const currUser = API.getCurrentUser();
     try {
-      const response = await fetch(
-        `${CONFIG.API_URL}?action=getKeuangan&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${currUser.role}&userId=${currUser.id}&_t=${Date.now()}`
-      );
+      const url = API.getAuthUrl("getKeuangan");
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("HTTP Error");
       }
@@ -593,14 +600,9 @@ const API = {
   // Tambah Transaksi Keuangan
   addKeuangan: async (transaksiData) => {
     APICache.clear();
-    const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "addKeuangan");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "addKeuangan");
       body.append("data", JSON.stringify(transaksiData));
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -619,15 +621,10 @@ const API = {
   // Update Transaksi Keuangan
   updateKeuangan: async (id, transaksiData) => {
     APICache.clear();
-    const currUser = API.getCurrentUser();
     try {
       const payload = { id, ...transaksiData };
       const body = new URLSearchParams();
-      body.append("action", "updateKeuangan");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "updateKeuangan");
       body.append("id", id);
       body.append("data", JSON.stringify(payload));
       const response = await fetch(CONFIG.API_URL, {
@@ -647,14 +644,9 @@ const API = {
   // Hapus Transaksi Keuangan
   deleteKeuangan: async (id) => {
     APICache.clear();
-    const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteKeuangan");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "deleteKeuangan");
       body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
@@ -865,8 +857,10 @@ const API = {
   // ===================================
   getTools: async () => {
     const currUser = API.getCurrentUser();
+  getTools: async () => {
     try {
-      const response = await fetch(`${CONFIG.API_URL}?action=getTools&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&userId=${currUser.id}`);
+      const url = API.getAuthUrl("getTools");
+      const response = await fetch(url);
       const result = await response.json();
       if (handleUnauthorized(result)) return [];
       return result.success ? result.data : [];
@@ -880,10 +874,7 @@ const API = {
     const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "addTool");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "addTool");
       body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -894,11 +885,8 @@ const API = {
     const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "updateTool");
+      API.appendAuthBody(body, "updateTool");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("userId", currUser.id);
       body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -906,15 +894,10 @@ const API = {
   },
 
   deleteTool: async (id) => {
-    const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteTool");
+      API.appendAuthBody(body, "deleteTool");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
     } catch (e) { return { success: false, message: e.message }; }
@@ -924,9 +907,9 @@ const API = {
   // API DESIGN REFERENCES
   // ===================================
   getReferences: async () => {
-    const currUser = API.getCurrentUser();
     try {
-      const response = await fetch(`${CONFIG.API_URL}?action=getReferences&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&userId=${currUser.id}`);
+      const url = API.getAuthUrl("getReferences");
+      const response = await fetch(url);
       const result = await response.json();
       if (handleUnauthorized(result)) return [];
       return result.success ? result.data : [];
@@ -940,10 +923,7 @@ const API = {
     const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "addReference");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "addReference");
       body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -954,11 +934,8 @@ const API = {
     const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "updateReference");
+      API.appendAuthBody(body, "updateReference");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("userId", currUser.id);
       body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -966,15 +943,10 @@ const API = {
   },
 
   deleteReference: async (id) => {
-    const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteReference");
+      API.appendAuthBody(body, "deleteReference");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
     } catch (e) { return { success: false, message: e.message }; }
@@ -984,9 +956,9 @@ const API = {
   // API WEB SHORTCUTS
   // ===================================
   getShortcuts: async () => {
-    const currUser = API.getCurrentUser();
     try {
-      const response = await fetch(`${CONFIG.API_URL}?action=getShortcuts&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&userId=${currUser.id}`);
+      const url = API.getAuthUrl("getShortcuts");
+      const response = await fetch(url);
       const result = await response.json();
       if (handleUnauthorized(result)) return [];
       return result.success ? result.data : [];
@@ -1000,10 +972,7 @@ const API = {
     const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "addShortcut");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("userId", currUser.id);
+      API.appendAuthBody(body, "addShortcut");
       body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -1014,11 +983,8 @@ const API = {
     const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "updateShortcut");
+      API.appendAuthBody(body, "updateShortcut");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("userId", currUser.id);
       body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -1026,15 +992,10 @@ const API = {
   },
 
   deleteShortcut: async (id) => {
-    const currUser = API.getCurrentUser();
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteShortcut");
+      API.appendAuthBody(body, "deleteShortcut");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", currUser.role);
-      body.append("userId", currUser.id);
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
     } catch (e) { return { success: false, message: e.message }; }
@@ -1061,11 +1022,9 @@ const API = {
   // API MANAJEMEN USER (SUPER ADMIN ONLY)
   // ===================================
   getUsers: async () => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
     try {
-      const response = await fetch(`${CONFIG.API_URL}?action=getUsers&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${encodeURIComponent(role)}&userId=${encodeURIComponent(userId)}&_t=${Date.now()}`);
+      const url = API.getAuthUrl("getUsers");
+      const response = await fetch(url);
       const result = await response.json();
       if (handleUnauthorized(result)) return [];
       if (!result.success) {
@@ -1086,16 +1045,9 @@ const API = {
   },
 
   addUser: async (userData) => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
     try {
       const body = new URLSearchParams();
-      body.append("action", "addUser");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
+      API.appendAuthBody(body, "addUser");
       body.append("data", JSON.stringify(userData));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -1103,17 +1055,10 @@ const API = {
   },
 
   updateUser: async (id, userData) => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
     try {
       const body = new URLSearchParams();
-      body.append("action", "updateUser");
+      API.appendAuthBody(body, "updateUser");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
       body.append("data", JSON.stringify(userData));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
@@ -1121,17 +1066,10 @@ const API = {
   },
 
   deleteUser: async (id) => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteUser");
+      API.appendAuthBody(body, "deleteUser");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
     } catch (e) { return { success: false, message: e.message }; }
@@ -1240,11 +1178,9 @@ const API = {
   // API AKTIVITAS & TUGAS ADMIN (ADMIN TASKS)
   // ===================================
   getAdminTasks: async () => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "service";
-    const userId = currUser.id || "USR-001";
     try {
-      const response = await fetch(`${CONFIG.API_URL}?action=getAdminTasks&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${encodeURIComponent(role)}&userId=${encodeURIComponent(userId)}&_t=${Date.now()}`);
+      const url = API.getAuthUrl("getAdminTasks");
+      const response = await fetch(url);
       const result = await response.json();
       if (handleUnauthorized(result)) return [];
       if (result.success && Array.isArray(result.data)) {
@@ -1332,16 +1268,9 @@ const API = {
   },
 
   addAdminTask: async (taskData) => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "service";
-    const userId = currUser.id || "USR-001";
     try {
       const body = new URLSearchParams();
-      body.append("action", "addAdminTask");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
+      API.appendAuthBody(body, "addAdminTask");
       body.append("data", JSON.stringify(taskData));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       const result = await res.json();
@@ -1374,17 +1303,10 @@ const API = {
   },
 
   updateAdminTask: async (id, taskData) => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "service";
-    const userId = currUser.id || "USR-001";
     try {
       const body = new URLSearchParams();
-      body.append("action", "updateAdminTask");
+      API.appendAuthBody(body, "updateAdminTask");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
       body.append("data", JSON.stringify(taskData));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       const result = await res.json();
@@ -1409,17 +1331,10 @@ const API = {
   },
 
   deleteAdminTask: async (id) => {
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
     try {
       const body = new URLSearchParams();
-      body.append("action", "deleteAdminTask");
+      API.appendAuthBody(body, "deleteAdminTask");
       body.append("id", id);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       const result = await res.json();
       if (result && result.success) {
@@ -1444,9 +1359,8 @@ const API = {
 
   getAdminTaskSettings: async () => {
     try {
-      const currUser = API.getCurrentUser();
-      const role = currUser.role || "service";
-      const response = await fetch(`${CONFIG.API_URL}?action=getAdminTaskSettings&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}&role=${encodeURIComponent(role)}&_t=${Date.now()}`);
+      const url = API.getAuthUrl("getAdminTaskSettings");
+      const response = await fetch(url);
       const result = await response.json();
       if (result && result.success && result.data) {
         localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(result.data));

@@ -58,13 +58,9 @@ async function loadKeuanganData() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
     let listMutasi = await API.getKeuangan();
-    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-    if (currUser && currUser.role !== 'super_admin') {
-      listMutasi = listMutasi.filter(k => (k.userId || 'USR-001') === currUser.id);
-    }
-    currentKeuanganList = listMutasi;
-    calculateSummary(listMutasi);
-    initTable(listMutasi);
+    currentKeuanganList = listMutasi || [];
+    calculateSummary(currentKeuanganList);
+    initTable(currentKeuanganList);
   } catch (error) {
     console.error('Gagal memuat mutasi kas:', error);
     alert(isEn ? 'An error occurred while fetching financial records.' : 'Terjadi kesalahan saat mengambil riwayat keuangan.');

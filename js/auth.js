@@ -69,20 +69,15 @@ const Auth = {
     const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
     if (isSuperAdmin) return true;
 
-    // User Biasa/Biasa Tidak Bisa Akses User Manager
-    if (action.startsWith("users") || action.includes(":users") || action === "users") {
-      return false;
-    }
-
-    const permissions = user.permissions;
-
     // Handle Object/Map format: { "proyek:read": true, "proyek:delete": false }
+    const permissions = user.permissions;
     if (permissions && typeof permissions === 'object' && !Array.isArray(permissions)) {
       if (permissions[action] !== undefined) return permissions[action] === true;
       const mod = action.split(":")[0];
       if (!action.split(":")[1] && permissions[mod + ":read"] !== undefined) {
         return permissions[mod + ":read"] === true;
       }
+      if (permissions[mod] !== undefined) return permissions[mod] === true;
     }
 
     // Handle Array format: ["proyek:read", "proyek:create"]
@@ -93,8 +88,8 @@ const Auth = {
 
     const [mod, act] = action.split(":");
 
-    // 2. Full module wildcard
-    if (userPerms.includes(mod + ":*")) return true;
+    // 2. Full module wildcard (e.g. 'proyek:*' or 'proyek')
+    if (userPerms.includes(mod + ":*") || userPerms.includes(mod)) return true;
 
     // 3. Module read check (when checking module access, e.g. action='proyek:read' or 'proyek')
     if (!act || act === 'read') {
@@ -102,7 +97,7 @@ const Auth = {
       return userPerms.some(p => p.startsWith(mod + ":") || p === mod);
     }
 
-    // 5. Fallback to default role matrix if permissions array is empty
+    // 4. Fallback to default role matrix if permissions array is empty
     if ((!userPerms || userPerms.length === 0) && user.role) {
       const roleDefaults = {
         service: [
@@ -130,6 +125,7 @@ const Auth = {
       };
       const defs = roleDefaults[user.role] || [];
       if (defs.includes(action)) return true;
+      if (defs.includes(mod) || defs.includes(mod + ":*")) return true;
       if (!act || act === 'read') return defs.some(p => p.startsWith(mod + ":") || p === mod);
     }
 
@@ -138,7 +134,7 @@ const Auth = {
 
   checkLogin: () => {
     const token = Auth.getToken();
-    const isLoginPage = /(^|\/)login(\.html)?$/i.test(window.location.pathname);
+    const isLoginPage = window.location.pathname.endsWith("login.html") || window.location.pathname.endsWith("login");
     
     if (!token && !isLoginPage) {
       window.location.href = "login.html";
@@ -150,13 +146,13 @@ const Auth = {
     }
 
     if (token && !isLoginPage) {
-      Auth.checkPagePermissions();
+      Auth.guardCurrentPage();
       Auth.applyMenuPermissions();
       Auth.applyButtonPermissions();
     }
   },
 
-  checkPagePermissions: () => {
+  guardCurrentPage: () => {
     const user = Auth.getUser();
     if (!user) return;
 
@@ -174,7 +170,7 @@ const Auth = {
     if (/(^|\/)layanan(\.html)?$/i.test(path) && !Auth.hasPermission("layanan:read")) isDenied = true;
     if (/(^|\/)tools(\.html)?$/i.test(path) && !Auth.hasPermission("tools:read")) isDenied = true;
     if (/(^|\/)admin-tasks(\.html)?$/i.test(path) && !Auth.hasPermission("admin_tasks:read")) isDenied = true;
-    if (/(^|\/)user-management(\.html)?$/i.test(path)) isDenied = true; // User Biasa Tidak Boleh Akses Halaman User Manager
+    if (/(^|\/)user-management(\.html)?$/i.test(path) && !Auth.hasPermission("users:read")) isDenied = true;
 
     if (isDenied) {
       sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman tersebut.");
@@ -192,10 +188,8 @@ const Auth = {
 
     const role = (user.role || "service").toLowerCase().trim();
     const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
-    const isDesainer = role.includes("desainer") || role.includes("designer");
-    const isMobile = window.innerWidth < 768;
 
-    // 1. Check sidebar navigation links inside navMenu
+    // 1. Check sidebar and bottom navigation links inside navMenu
     const navLinks = document.querySelectorAll("#navMenu .sidebar-link");
     navLinks.forEach(el => {
       if (el.id === "pwaInstallBtn") return; // Let PWA manager control install button visibility
@@ -217,36 +211,8 @@ const Auth = {
       const isAllowed = isSuperAdmin || !permNeeded || Auth.hasPermission(permNeeded);
 
       if (isAllowed) {
-        if (isMobile) {
-          // On mobile bottom navbar:
-          // For Desainer role: show Home, Projek, Tambah, Layanan, Tools, Tugas Admin
-          // For Service/Admin/Other roles: show Home, Projek, Tambah, Keuangan, Laporan, Tugas Admin
-          let showOnMobile = false;
-          if (href.endsWith("index.html") || href.endsWith("proyek.html") || href.endsWith("tambah-proyek.html")) {
-            showOnMobile = true;
-          } else if (isDesainer) {
-            if (href.endsWith("layanan.html") || href.endsWith("tools.html") || href.endsWith("admin-tasks.html")) {
-              showOnMobile = true;
-            }
-          } else {
-            // Service staff / Default roles show Keuangan, Laporan & Tugas Admin on bottom navbar
-            if (href.endsWith("keuangan.html") || href.endsWith("laporan.html") || href.endsWith("admin-tasks.html")) {
-              showOnMobile = true;
-            }
-          }
-
-          if (showOnMobile) {
-            el.classList.remove("hidden");
-            el.style.display = "";
-          } else {
-            el.classList.add("hidden");
-            el.style.display = "none";
-          }
-        } else {
-          // Desktop sidebar: show all allowed items
-          el.classList.remove("hidden");
-          el.style.display = "";
-        }
+        el.classList.remove("hidden");
+        el.style.display = "";
       } else {
         el.classList.add("hidden");
         el.style.display = "none";

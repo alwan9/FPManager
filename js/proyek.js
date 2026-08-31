@@ -28,11 +28,7 @@ async function loadProyekData() {
   showProyekSkeletons();
   try {
     let listProyek = await API.getProyek();
-    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-    if (currUser && currUser.role !== 'super_admin') {
-      listProyek = listProyek.filter(p => (p.userId || 'USR-001') === currUser.id);
-    }
-    window.allProyekList = listProyek; // Cache list globally for status updates
+    window.allProyekList = listProyek || []; // Cache list globally for status updates
 
     // Add statusOrder property dynamically for custom sorting
     listProyek.forEach(p => {
