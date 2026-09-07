@@ -23,20 +23,30 @@ function closeExportModal() {
 }
 
 async function exportExcel() {
+    const btn = document.querySelector('#exportModal button.bg-green-600') || document.querySelector('#exportModal button:last-child');
+    if (btn && btn.disabled) return;
 
-    let data = await API.getProyek();
+    const origText = btn ? btn.innerHTML : 'Export';
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Mengekspor...';
+    }
 
-    const periode = document.querySelector(
-        'input[name="periode"]:checked'
-    ).value;
+    try {
+        let data = await API.getProyek();
 
-    const bulan = parseInt(
-        document.getElementById("bulan").value
-    );
+        const periode = document.querySelector(
+            'input[name="periode"]:checked'
+        ).value;
 
-    const tahun = parseInt(
-        document.getElementById("tahun").value
-    );
+        const bulan = parseInt(
+            document.getElementById("bulan").value
+        );
+
+        const tahun = parseInt(
+            document.getElementById("tahun").value
+        );
 
     if (periode === "month") {
 
@@ -124,5 +134,21 @@ async function exportExcel() {
 
     closeExportModal();
 
+    if (typeof Toast !== 'undefined') {
+        Toast.success('Export Berhasil', `File ${namaFile} berhasil diunduh.`);
+    }
+
+    } catch (err) {
+        console.error('Export Excel error:', err);
+        if (typeof Toast !== 'undefined') {
+            Toast.error('Gagal Ekspor', 'Terjadi kesalahan saat memproses ekspor Excel.');
+        }
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+            btn.innerHTML = origText;
+        }
+    }
 }
 

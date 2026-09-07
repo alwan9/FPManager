@@ -667,7 +667,12 @@ async function lunasiProyek() {
     return;
   }
 
-  if (!confirm(isEn ? `Are you sure you want to mark this project as paid? (Amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`)) {
+  if (!await showConfirmModal({
+    title: isEn ? "Mark as Paid" : "Pelunasan Projek",
+    message: isEn ? `Are you sure you want to mark this project as paid? (Amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`,
+    type: "info",
+    confirmText: isEn ? "Yes, Mark Paid" : "Ya, Lunasi"
+  })) {
     return;
   }
 
@@ -781,10 +786,13 @@ async function hapusProyek(id, name) {
     if (prj) prjName = prj.namaProyek || '';
   }
 
-  const confirmMsg = isEn
-    ? `Are you sure you want to delete project "${id} - ${prjName}"? This action cannot be undone.`
-    : `Apakah Anda yakin ingin menghapus projek "${id} - ${prjName}"? Tindakan ini tidak dapat dibatalkan.`;
-  if (confirm(confirmMsg)) {
+  const isConfirmed = await showConfirmModal({
+    title: isEn ? "Delete Project" : "Hapus Projek",
+    message: confirmMsg,
+    type: "danger",
+    confirmText: isEn ? "Delete Project" : "Hapus Projek"
+  });
+  if (isConfirmed) {
     try {
       const res = await API.deleteProyek(id);
       if (res.success) {
@@ -1128,7 +1136,13 @@ async function bulkDeleteProyek() {
 
   if (ids.length === 0) return;
 
-  if (confirm(`Apakah Anda yakin ingin menghapus ${ids.length} projek terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
+  const isConfirmed = await showConfirmModal({
+    title: "Hapus Projek Terpilih",
+    message: `Apakah Anda yakin ingin menghapus ${ids.length} projek terpilih? Tindakan ini tidak dapat dibatalkan.`,
+    type: "danger",
+    confirmText: "Hapus Semua"
+  });
+  if (isConfirmed) {
     try {
       const btn = document.getElementById('btnBulkDelete');
       if (btn) {

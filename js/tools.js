@@ -254,7 +254,12 @@ async function deleteTool(id) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Prompt.');
     return;
   }
-  if (confirm('Apakah Anda yakin ingin menghapus prompt ini?')) {
+  if (await showConfirmModal({
+    title: 'Hapus Prompt',
+    message: 'Apakah Anda yakin ingin menghapus prompt ini?',
+    type: 'danger',
+    confirmText: 'Hapus Prompt'
+  })) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');
 
@@ -680,7 +685,12 @@ async function deleteShortcut(id) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Web Shortcut.');
     return;
   }
-  if (confirm('Apakah Anda yakin ingin menghapus shortcut ini?')) {
+  if (await showConfirmModal({
+    title: 'Hapus Web Shortcut',
+    message: 'Apakah Anda yakin ingin menghapus shortcut ini?',
+    type: 'danger',
+    confirmText: 'Hapus Shortcut'
+  })) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');
 
@@ -1961,8 +1971,11 @@ function _renderPhilosophyResult(mdText, brandName) {
   if (dlBtn)   dlBtn.disabled   = false;
 
   if (box) {
+    // Sanitize raw text first to eliminate XSS/HTML injection from AI responses
+    const safeText = typeof escapeHtml === 'function' ? escapeHtml(mdText) : String(mdText).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     // Convert markdown to flowing HTML prose — supports headings if present but doesn't require them
-    let html = mdText
+    let html = safeText
       .replace(/^### (.*$)/gim, '<h4 class="text-lg md:text-xl font-semibold text-indigo-600 dark:text-indigo-400 mt-5 mb-2">$1</h4>')
       .replace(/^## (.*$)/gim, '<h3 class="text-xl md:text-2xl font-semibold text-indigo-600 dark:text-indigo-400 mt-5 mb-2">$1</h3>')
       .replace(/^---\s*$/gim, '<hr class="border-zinc-200 dark:border-zinc-800 my-4"/>')
@@ -2921,7 +2934,12 @@ async function deleteReference(id) {
     return;
   }
 
-  if (confirm('Apakah Anda yakin ingin menghapus referensi desain ini?')) {
+  if (await showConfirmModal({
+    title: 'Hapus Referensi',
+    message: 'Apakah Anda yakin ingin menghapus referensi desain ini?',
+    type: 'danger',
+    confirmText: 'Hapus Referensi'
+  })) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');
 

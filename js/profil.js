@@ -197,7 +197,7 @@ async function handleSaveProfileInfo(e) {
         isProfileSubmitting = false;
         const errMsg = (uploadRes && uploadRes.message) ? uploadRes.message : 'Gagal mengunggah foto ke Google Drive.';
         if (typeof Toast !== 'undefined') Toast.error('Upload Gagal', errMsg);
-        else alert(errMsg);
+        else if (typeof showToast === 'function') showToast({ title: 'Upload Gagal', message: errMsg, type: 'error' });
         return;
       }
     } catch (uploadErr) {
@@ -252,18 +252,16 @@ async function handleSaveProfileInfo(e) {
         Toast.success('Profil Diperbarui', 'Data profil berhasil disimpan langsung di Spreadsheet.');
       } else if (typeof showToast === 'function') {
         showToast('Data profil berhasil disimpan di Spreadsheet!', 'success');
-      } else {
-        alert('Data profil berhasil disimpan di Spreadsheet!');
       }
     } else {
       const errMsg = (res && res.message) ? res.message : 'Gagal menyimpan data ke Spreadsheet.';
       if (typeof Toast !== 'undefined') Toast.error('Gagal', errMsg);
-      else alert(errMsg);
+      else if (typeof showToast === 'function') showToast({ title: 'Gagal', message: errMsg, type: 'error' });
     }
   } catch (err) {
     console.error('API sync exception:', err);
     if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.');
-    else alert('Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.');
+    else if (typeof showToast === 'function') showToast({ title: 'Error', message: 'Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.', type: 'error' });
   } finally {
     isProfileSubmitting = false;
     if (submitBtn) {

@@ -50,7 +50,9 @@ async function loadLaporanData() {
 
   } catch (error) {
     console.error('Error loading laporan data:', error);
-    alert(isEn ? 'An error occurred while compiling financial report.' : 'Terjadi kesalahan saat memproses laporan keuangan.');
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? 'Error' : 'Gagal', isEn ? 'An error occurred while compiling financial report.' : 'Terjadi kesalahan saat memproses laporan keuangan.');
+    }
   }
 }
 
@@ -305,7 +307,9 @@ async function exportToExcel() {
   } catch (error) {
     console.error(error);
     const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-    alert(isEn ? 'An error occurred while exporting data to Excel.' : 'Terjadi kesalahan saat mengekspor data ke Excel');
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? 'Error' : 'Gagal Ekspor', isEn ? 'An error occurred while exporting data to Excel.' : 'Terjadi kesalahan saat mengekspor data ke Excel.');
+    }
   }
 }
 

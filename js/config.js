@@ -126,6 +126,28 @@ const CONFIG = {
   ]
 };
 
+// Global Helper: HTML & URL Sanitizers for Universal XSS Prevention
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+window.escapeHtml = escapeHtml;
+
+function sanitizeUrl(url) {
+  if (!url) return '#';
+  const clean = String(url).trim();
+  if (clean.toLowerCase().startsWith('javascript:') || clean.toLowerCase().startsWith('data:')) {
+    return '#';
+  }
+  return clean;
+}
+window.sanitizeUrl = sanitizeUrl;
+
 // Global Helper: Check if modal has filled/dirty user inputs
 function isModalInputFilled(modal) {
   const el = typeof modal === 'string' ? document.getElementById(modal) : modal;
@@ -159,6 +181,133 @@ function isModalInputFilled(modal) {
   return false;
 }
 window.isModalInputFilled = isModalInputFilled;
+
+/**
+ * Global Custom Confirmation Modal
+ * Replaces native JavaScript confirm() with a modern, glassmorphic UI modal.
+ * @param {Object|string} options - Configuration object or message string
+ * @returns {Promise<boolean>} Resolves to true on confirm, false on cancel/backdrop click
+ */
+function showConfirmModal(options) {
+  return new Promise((resolve) => {
+    let opts = {};
+    if (typeof options === 'string') {
+      opts = {
+        title: 'Konfirmasi',
+        message: options,
+        type: 'danger',
+        confirmText: 'Ya, Lanjutkan',
+        cancelText: 'Batal'
+      };
+    } else {
+      opts = {
+        title: options.title || 'Konfirmasi',
+        message: options.message || 'Apakah Anda yakin ingin melanjutkan tindakan ini?',
+        type: options.type || 'danger', // 'danger' | 'warning' | 'info' | 'success'
+        confirmText: options.confirmText || (options.type === 'danger' ? 'Ya, Hapus' : 'Ya, Lanjutkan'),
+        cancelText: options.cancelText || 'Batal'
+      };
+    }
+
+    let modal = document.getElementById('globalConfirmModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'globalConfirmModal';
+      document.body.appendChild(modal);
+    }
+
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[999999] flex items-center justify-center p-4 transition-all duration-200';
+
+    // Theme icons & colors
+    const typeConfigs = {
+      danger: {
+        icon: 'fa-solid fa-trash-can',
+        iconBg: 'bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60',
+        confirmBtn: 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 active:scale-95'
+      },
+      warning: {
+        icon: 'fa-solid fa-triangle-exclamation',
+        iconBg: 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60',
+        confirmBtn: 'bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-600/20 active:scale-95'
+      },
+      info: {
+        icon: 'fa-solid fa-circle-question',
+        iconBg: 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/60',
+        confirmBtn: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 active:scale-95'
+      },
+      success: {
+        icon: 'fa-solid fa-circle-check',
+        iconBg: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60',
+        confirmBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 active:scale-95'
+      }
+    };
+
+    const cfg = typeConfigs[opts.type] || typeConfigs.danger;
+
+    modal.innerHTML = `
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 transform transition-all text-zinc-800 dark:text-zinc-100">
+        <div class="flex items-start space-x-4">
+          <div class="w-12 h-12 rounded-2xl ${cfg.iconBg} flex items-center justify-center text-xl shrink-0">
+            <i class="${cfg.icon}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-lg text-zinc-900 dark:text-white leading-tight">${opts.title}</h3>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed">${opts.message}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+          <button id="gConfirmCancelBtn" class="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs md:text-sm transition-all cursor-pointer">
+            ${opts.cancelText}
+          </button>
+          <button id="gConfirmOkBtn" class="px-5 py-2.5 rounded-xl ${cfg.confirmBtn} font-semibold text-xs md:text-sm transition-all cursor-pointer">
+            ${opts.confirmText}
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+
+    function cleanup(result) {
+      window.removeEventListener('keydown', handleKey);
+      modal.onclick = null;
+      modal.classList.add('hidden');
+      resolve(result);
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        cleanup(false);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        cleanup(true);
+      }
+    }
+
+    window.addEventListener('keydown', handleKey);
+
+    const cancelBtn = modal.querySelector('#gConfirmCancelBtn');
+    const okBtn = modal.querySelector('#gConfirmOkBtn');
+
+    if (cancelBtn) cancelBtn.onclick = () => cleanup(false);
+    if (okBtn) okBtn.onclick = () => cleanup(true);
+
+    modal.onclick = (e) => {
+      if (e.target === modal) cleanup(false);
+    };
+
+    if (opts.type === 'danger' && cancelBtn) {
+      cancelBtn.focus();
+    } else if (okBtn) {
+      okBtn.focus();
+    }
+  });
+}
+window.showConfirmModal = showConfirmModal;
+window.CustomConfirm = showConfirmModal;
+
 
 // Global Payment Accounts Modal & Copy Helper (Clean Minimal Design)
 function showPaymentAccountsModal(highlightName = '') {

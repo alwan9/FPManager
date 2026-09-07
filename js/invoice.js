@@ -240,10 +240,15 @@ const Invoice = {
 
         const btnReset = document.getElementById('btnResetInvoice');
         if (btnReset) {
-            btnReset.addEventListener('click', () => {
+            btnReset.addEventListener('click', async () => {
                 const id = new URLSearchParams(window.location.search).get("id");
                 if (id) {
-                    if (confirm("Apakah Anda yakin ingin menghapus semua perubahan dan mengembalikan invoice ini seperti semula?")) {
+                    if (await showConfirmModal({
+                        title: "Reset Perubahan Invoice",
+                        message: "Apakah Anda yakin ingin menghapus semua perubahan dan mengembalikan invoice ini seperti semula?",
+                        type: "warning",
+                        confirmText: "Kembalikan Semula"
+                    })) {
                         localStorage.removeItem('invoice_edit_' + id);
                         window.location.reload();
                     }

@@ -539,7 +539,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const todayDate = new Date();
       todayDate.setHours(0, 0, 0, 0);
       if (inputDate < todayDate) {
-        alert(isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!");
+        if (typeof Toast !== 'undefined') {
+          Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!");
+        } else if (typeof showToast === 'function') {
+          showToast({ title: isEn ? "Warning" : "Peringatan", message: isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!", type: "warning" });
+        }
         isSubmitting = false;
         if (submitBtn) {
           submitBtn.disabled = false;

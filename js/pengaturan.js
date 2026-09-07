@@ -195,7 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnClearStorageCache = document.getElementById('btnClearStorageCache');
   if (btnClearStorageCache) {
     btnClearStorageCache.addEventListener('click', async () => {
-      if (confirm('Apakah Anda yakin ingin membersihkan seluruh cache, session, cookie, dan riwayat sementara aplikasi?')) {
+      if (await showConfirmModal({
+        title: 'Bersihkan Cache & Riwayat',
+        message: 'Apakah Anda yakin ingin membersihkan seluruh cache, session, cookie, dan riwayat sementara aplikasi?',
+        type: 'warning',
+        confirmText: 'Bersihkan Cache'
+      })) {
         // Save current session before clear to prevent logout
         const savedToken = sessionStorage.getItem("token");
         const savedUser = sessionStorage.getItem("user");
@@ -249,8 +254,13 @@ function updateApiStatusBadge() {
 }
 
 // Reset Settings to Defaults
-function resetDefaults() {
-  if (confirm("Apakah Anda yakin ingin mengembalikan semua setelan ke nilai default bawaan?")) {
+async function resetDefaults() {
+  if (await showConfirmModal({
+    title: 'Reset Pengaturan Default',
+    message: 'Apakah Anda yakin ingin mengembalikan semua setelan ke nilai default bawaan?',
+    type: 'warning',
+    confirmText: 'Kembalikan Default'
+  })) {
     localStorage.removeItem('cfg_api_url');
     localStorage.removeItem('cfg_api_key');
     localStorage.removeItem('cfg_wa_template');

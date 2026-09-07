@@ -514,7 +514,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.deleteUser = async (id, username) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus user "${username}"?`)) {
+    if (await showConfirmModal({
+      title: "Hapus Pengguna",
+      message: `Apakah Anda yakin ingin menghapus user "${username}"? Tindakan ini tidak dapat dibatalkan.`,
+      type: "danger",
+      confirmText: "Hapus User"
+    })) {
       const res = await API.deleteUser(id);
       if (res.success) {
         if (typeof Toast !== 'undefined') Toast.success("Sukses", res.message);

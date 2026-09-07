@@ -1048,13 +1048,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   // Delete Task (Super Admin Only)
-  window.deleteAdminTaskConfirm = (id, name) => {
+  window.deleteAdminTaskConfirm = async (id, name) => {
     if (!canDeleteTask) {
       if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Hanya Super Admin yang dapat menghapus tugas.");
       return;
     }
 
-    if (!confirm(`Apakah Anda yakin ingin menghapus tugas "${name}"?`)) {
+    if (!await showConfirmModal({
+      title: "Hapus Tugas",
+      message: `Apakah Anda yakin ingin menghapus tugas "${name}"?`,
+      type: "danger",
+      confirmText: "Hapus Tugas"
+    })) {
       return;
     }
 
@@ -1069,13 +1074,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Manual Reset Status Button (Super Admin Only)
   if (manualResetBtn) {
-    manualResetBtn.addEventListener("click", () => {
+    manualResetBtn.addEventListener("click", async () => {
       if (!isSuperAdmin) {
         if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Hanya Super Admin yang dapat melakukan reset manual.");
         return;
       }
 
-      if (!confirm("Reset seluruh status tugas hari ini kembali ke 'Belum Selesai'?")) {
+      if (!await showConfirmModal({
+        title: "Reset Status Tugas",
+        message: "Reset seluruh status tugas hari ini kembali ke 'Belum Selesai'?",
+        type: "warning",
+        confirmText: "Ya, Reset"
+      })) {
         return;
       }
 

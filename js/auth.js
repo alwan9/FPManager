@@ -329,10 +329,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (deniedMsg) {
     sessionStorage.removeItem("toast_denied");
     setTimeout(() => {
-      if (typeof showToast === 'function') {
-        showToast(deniedMsg, 'error');
-      } else {
-        alert(deniedMsg);
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Akses Ditolak', deniedMsg);
+      } else if (typeof showToast === 'function') {
+        showToast({ title: 'Akses Ditolak', message: deniedMsg, type: 'error' });
       }
     }, 300);
   }

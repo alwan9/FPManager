@@ -63,7 +63,9 @@ async function loadKeuanganData() {
     initTable(currentKeuanganList);
   } catch (error) {
     console.error('Gagal memuat mutasi kas:', error);
-    alert(isEn ? 'An error occurred while fetching financial records.' : 'Terjadi kesalahan saat mengambil riwayat keuangan.');
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? 'Error' : 'Gagal', isEn ? 'An error occurred while fetching financial records.' : 'Terjadi kesalahan saat mengambil riwayat keuangan.');
+    }
   }
 }
 
@@ -577,8 +579,6 @@ async function handleAddTransaksi(e) {
   if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? `You do not have permission (${requiredPerm}) to save transaction.` : `Anda tidak memiliki izin (${requiredPerm}) untuk menyimpan transaksi.`);
-    } else {
-      alert(isEn ? "Access Denied: Missing permission." : "Akses Ditolak: Anda tidak memiliki izin.");
     }
     return;
   }
@@ -626,7 +626,7 @@ async function handleAddTransaksi(e) {
   };
 
   if (!payload.tanggal) {
-    alert(isEn ? "Date is required!" : "Tanggal wajib diisi!");
+    if (typeof Toast !== 'undefined') Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Date is required!" : "Tanggal wajib diisi!");
     resetSubmitBtn();
     return;
   }
@@ -636,25 +636,25 @@ async function handleAddTransaksi(e) {
   const todayDate = new Date();
   todayDate.setHours(0, 0, 0, 0);
   if (!editModeId && inputDate < todayDate) {
-    alert(isEn ? "Transaction date cannot be in the past!" : "Tanggal transaksi tidak boleh sebelum hari ini!");
+    if (typeof Toast !== 'undefined') Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Transaction date cannot be in the past!" : "Tanggal transaksi tidak boleh sebelum hari ini!");
     resetSubmitBtn();
     return;
   }
 
   if (!payload.jenis) {
-    alert(isEn ? "Transaction type is required!" : "Jenis transaksi wajib dipilih!");
+    if (typeof Toast !== 'undefined') Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Transaction type is required!" : "Jenis transaksi wajib dipilih!");
     resetSubmitBtn();
     return;
   }
 
   if (!payload.keterangan) {
-    alert(isEn ? "Description is required!" : "Keterangan wajib diisi!");
+    if (typeof Toast !== 'undefined') Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Description is required!" : "Keterangan wajib diisi!");
     resetSubmitBtn();
     return;
   }
 
   if (!Number.isFinite(payload.nominal) || payload.nominal <= 0) {
-    alert(isEn ? "Amount must be greater than 0!" : "Nominal harus lebih dari 0!");
+    if (typeof Toast !== 'undefined') Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Amount must be greater than 0!" : "Nominal harus lebih dari 0!");
     resetSubmitBtn();
     return;
   }
@@ -671,7 +671,9 @@ async function handleAddTransaksi(e) {
     const currentSaldo = totalIn - totalOut;
 
     if (payload.nominal > currentSaldo) {
-      alert(isEn ? `Expense cannot exceed available balance (${formatRupiah(currentSaldo)})!` : `Pengeluaran tidak boleh melebihi saldo yang tersedia (${formatRupiah(currentSaldo)})!`);
+      if (typeof Toast !== 'undefined') {
+        Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? `Expense cannot exceed available balance (${formatRupiah(currentSaldo)})!` : `Pengeluaran tidak boleh melebihi saldo yang tersedia (${formatRupiah(currentSaldo)})!`);
+      }
       resetSubmitBtn();
       return;
     }
@@ -686,7 +688,9 @@ async function handleAddTransaksi(e) {
     }
 
     if (res.success) {
-      alert(isEn ? 'Transaction recorded successfully!' : 'Transaksi berhasil dicatat/diupdate!');
+      if (typeof Toast !== 'undefined') {
+        Toast.success(isEn ? 'Berhasil' : 'Berhasil', isEn ? 'Transaction recorded successfully!' : 'Transaksi berhasil dicatat/diupdate!');
+      }
 
       // Reset form kecuali tanggal
       document.getElementById('transaksiForm').reset();
@@ -708,14 +712,18 @@ async function handleAddTransaksi(e) {
       // Muat ulang data
       await loadKeuanganData();
     } else {
-      alert((isEn ? 'Failed to save transaction: ' : 'Gagal menyimpan transaksi: ') + res.message);
+      if (typeof Toast !== 'undefined') {
+        Toast.error(isEn ? 'Gagal' : 'Gagal', (isEn ? 'Failed to save transaction: ' : 'Gagal menyimpan transaksi: ') + res.message);
+      }
       if (submitBtn) {
         submitBtn.innerHTML = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
       }
     }
   } catch (error) {
     console.error(error);
-    alert(isEn ? 'An error occurred while saving transaction.' : 'Terjadi kesalahan saat menyimpan transaksi.');
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? 'Error' : 'Error', isEn ? 'An error occurred while saving transaction.' : 'Terjadi kesalahan saat menyimpan transaksi.');
+    }
     if (submitBtn) {
       submitBtn.innerHTML = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
     }
@@ -750,8 +758,6 @@ function editTransaksi(id) {
   if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:update')) {
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to edit financial records." : "Anda tidak memiliki izin untuk mengedit data Keuangan.");
-    } else {
-      alert(isEn ? "Access Denied: You do not have permission to edit financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk mengedit data Keuangan.");
     }
     return;
   }
@@ -805,8 +811,6 @@ async function deleteTransaksi(id) {
   if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to delete financial records." : "Anda tidak memiliki izin untuk menghapus data Keuangan.");
-    } else {
-      alert(isEn ? "Access Denied: You do not have permission to delete financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk menghapus data Keuangan.");
     }
     return;
   }
@@ -817,7 +821,13 @@ async function deleteTransaksi(id) {
     ? `Are you sure you want to delete transaction "${desc}"?`
     : `Yakin ingin menghapus transaksi "${desc}"?`;
 
-  if (!confirm(confirmMsg)) return;
+  const isConfirmed = await showConfirmModal({
+    title: isEn ? "Delete Transaction" : "Hapus Transaksi",
+    message: confirmMsg,
+    type: "danger",
+    confirmText: isEn ? "Delete" : "Hapus"
+  });
+  if (!isConfirmed) return;
 
   const loader = document.getElementById('globalLoader');
   if (loader) loader.classList.remove('hidden');
@@ -829,16 +839,12 @@ async function deleteTransaksi(id) {
     if (res && res.success) {
       if (typeof Toast !== 'undefined') {
         Toast.success(isEn ? "Berhasil" : "Berhasil", isEn ? "Transaction deleted successfully." : "Transaksi berhasil dihapus.");
-      } else {
-        alert(isEn ? "Transaction deleted successfully." : "Transaksi berhasil dihapus.");
       }
       await loadKeuanganData();
     } else {
       const errMsg = res ? res.message : (isEn ? "Failed to delete transaction." : "Gagal menghapus transaksi.");
       if (typeof Toast !== 'undefined') {
         Toast.error(isEn ? "Gagal" : "Gagal", errMsg);
-      } else {
-        alert(errMsg);
       }
     }
   } catch (error) {
@@ -846,8 +852,6 @@ async function deleteTransaksi(id) {
     console.error('Delete transaction error:', error);
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Error" : "Error", isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.");
-    } else {
-      alert(isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.");
     }
   }
 }
@@ -902,8 +906,6 @@ async function bulkDeleteKeuangan() {
   if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to delete financial records." : "Anda tidak memiliki izin untuk menghapus data Keuangan.");
-    } else {
-      alert(isEn ? "Access Denied: You do not have permission to delete financial records." : "Akses Ditolak: Anda tidak memiliki izin untuk menghapus data Keuangan.");
     }
     return;
   }
@@ -920,7 +922,13 @@ async function bulkDeleteKeuangan() {
     ? `Are you sure you want to delete ${ids.length} selected financial transactions? This action cannot be undone.`
     : `Apakah Anda yakin ingin menghapus ${ids.length} transaksi keuangan terpilih? Tindakan ini tidak dapat dibatalkan.`;
 
-  if (!confirm(confirmMsg)) return;
+  const isConfirmed = await showConfirmModal({
+    title: isEn ? "Delete Selected Transactions" : "Hapus Transaksi Terpilih",
+    message: confirmMsg,
+    type: "danger",
+    confirmText: isEn ? "Delete All" : "Hapus Semua"
+  });
+  if (!isConfirmed) return;
 
   const btn = document.getElementById('btnBulkDeleteKeuangan');
   const loader = document.getElementById('globalLoader');
@@ -937,16 +945,12 @@ async function bulkDeleteKeuangan() {
     if (res && res.success) {
       if (typeof Toast !== 'undefined') {
         Toast.success(isEn ? "Berhasil" : "Berhasil", isEn ? `${ids.length} transactions deleted successfully.` : `${ids.length} transaksi keuangan berhasil dihapus.`);
-      } else {
-        alert(isEn ? `${ids.length} transactions deleted successfully.` : `${ids.length} transaksi keuangan berhasil dihapus.`);
       }
       await loadKeuanganData();
     } else {
       const errMsg = res ? res.message : (isEn ? "Failed to delete selected transactions." : "Gagal menghapus transaksi terpilih.");
       if (typeof Toast !== 'undefined') {
         Toast.error(isEn ? "Gagal" : "Gagal", errMsg);
-      } else {
-        alert(errMsg);
       }
     }
   } catch (error) {
@@ -954,8 +958,6 @@ async function bulkDeleteKeuangan() {
     console.error('Bulk delete keuangan error:', error);
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Error" : "Error", isEn ? "Failed to delete selected transactions." : "Terjadi kesalahan saat menghapus transaksi terpilih.");
-    } else {
-      alert(isEn ? "Failed to delete selected transactions." : "Terjadi kesalahan saat menghapus transaksi terpilih.");
     }
   } finally {
     if (btn) {
