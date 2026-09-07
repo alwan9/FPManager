@@ -195,7 +195,8 @@ async function saveTool() {
   if (btnSubmit) {
     if (btnSubmit.disabled) return;
     btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+    btnSubmit.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
   }
 
   const title = document.getElementById('toolTitle').value;
@@ -216,13 +217,13 @@ async function saveTool() {
   } catch (err) {
     console.error(err);
     res = { success: false, message: 'Terjadi kesalahan sistem' };
-  }
-
-  if (loader) loader.classList.add('hidden');
-
-  if (btnSubmit) {
-    btnSubmit.disabled = false;
-    btnSubmit.innerHTML = 'Simpan';
+  } finally {
+    if (loader) loader.classList.add('hidden');
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      btnSubmit.innerHTML = 'Simpan';
+    }
   }
 
   if (res && res.success) {
@@ -623,7 +624,8 @@ async function saveShortcut() {
   if (btnSubmit) {
     if (btnSubmit.disabled) return;
     btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+    btnSubmit.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
   }
 
   const title = document.getElementById('shortcutTitle').value;
@@ -643,13 +645,13 @@ async function saveShortcut() {
   } catch (err) {
     console.error(err);
     res = { success: false, message: 'Terjadi kesalahan sistem' };
-  }
-
-  if (loader) loader.classList.add('hidden');
-
-  if (btnSubmit) {
-    btnSubmit.disabled = false;
-    btnSubmit.innerHTML = 'Simpan';
+  } finally {
+    if (loader) loader.classList.add('hidden');
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      btnSubmit.innerHTML = 'Simpan';
+    }
   }
 
   if (res && res.success) {
@@ -2849,7 +2851,8 @@ async function saveReference() {
   if (btnSubmit) {
     if (btnSubmit.disabled) return;
     btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+    btnSubmit.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
   }
 
   let title = document.getElementById('refFormTitleInput').value;
@@ -2872,13 +2875,13 @@ async function saveReference() {
   } catch (err) {
     console.error(err);
     res = { success: false, message: 'Terjadi kesalahan sistem' };
-  }
-
-  if (loader) loader.classList.add('hidden');
-
-  if (btnSubmit) {
-    btnSubmit.disabled = false;
-    btnSubmit.innerHTML = 'Simpan Data Referensi';
+  } finally {
+    if (loader) loader.classList.add('hidden');
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      btnSubmit.innerHTML = 'Simpan Data Referensi';
+    }
   }
 
   if (res.success) {

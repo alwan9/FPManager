@@ -51,8 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (appLanguageSelect) appLanguageSelect.value = CONFIG.LANG || 'id';
 
   // Handle Form Submission
+  let isSettingsSubmitting = false;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (isSettingsSubmitting || (submitBtn && submitBtn.disabled)) return;
+    isSettingsSubmitting = true;
+
+    const origBtnText = submitBtn ? submitBtn.innerHTML : "Simpan Pengaturan";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
+    }
 
     try {
       if (apiUrlInput) {
@@ -98,6 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
         message: "Terjadi kesalahan saat menyimpan pengaturan.",
         type: "error"
       });
+    } finally {
+      isSettingsSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+        submitBtn.innerHTML = origBtnText;
+      }
     }
   });
 

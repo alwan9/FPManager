@@ -907,9 +907,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Form Submit (Zero-latency optimistic update + Asynchronous Background Sync)
+  let isTaskFormSubmitting = false;
   if (taskForm) {
     taskForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const submitBtn = taskForm.querySelector('button[type="submit"]');
+      if (isTaskFormSubmitting || (submitBtn && submitBtn.disabled)) return;
 
       const id = taskIdInput ? taskIdInput.value : "";
       const taskName = taskNameInput ? taskNameInput.value.trim() : "";
@@ -918,44 +921,61 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const selectedAdminUser = taskAdminSelect ? taskAdminSelect.value : "service";
-      let assignedName = "Semua Tim Service";
-      if (selectedAdminUser && selectedAdminUser !== "service" && selectedAdminUser !== "all") {
-        const foundUser = serviceUsersList.find(u => u.username === selectedAdminUser);
-        assignedName = foundUser ? (foundUser.name || foundUser.username) : selectedAdminUser;
+      isTaskFormSubmitting = true;
+      const origBtnText = submitBtn ? submitBtn.innerHTML : "Simpan";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
       }
 
-      const taskPayload = {
-        taskName,
-        adminUser: selectedAdminUser,
-        adminName: assignedName,
-        priority: taskPrioritySelect ? taskPrioritySelect.value : "medium",
-        scheduleType: "hourly",
-        intervalHours: Number(settingsData.defaultIntervalHours) || 1,
-        total: taskTotalInput ? taskTotalInput.value.trim() : "",
-        status: taskStatusSelect ? taskStatusSelect.value : "Belum Selesai",
-        link: taskLinkInput ? taskLinkInput.value.trim() : "",
-        notes: taskNotesInput ? taskNotesInput.value.trim() : "",
-        lastResetDate: getTodayDateString()
-      };
+      try {
+        const selectedAdminUser = taskAdminSelect ? taskAdminSelect.value : "service";
+        let assignedName = "Semua Tim Service";
+        if (selectedAdminUser && selectedAdminUser !== "service" && selectedAdminUser !== "all") {
+          const foundUser = serviceUsersList.find(u => u.username === selectedAdminUser);
+          assignedName = foundUser ? (foundUser.name || foundUser.username) : selectedAdminUser;
+        }
 
-      // 1. INSTANT LOCAL UPDATE (0ms)
-      if (id) {
-        tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
-        TaskSyncEngine.dispatch("updateTask", { id, payload: taskPayload });
-        if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
-      } else {
-        const newId = "TSK-" + Date.now();
-        const createdTask = { ...taskPayload, id: newId, createdAt: new Date().toISOString() };
-        tasksData.unshift(createdTask);
-        TaskSyncEngine.dispatch("addTask", { payload: createdTask });
-        if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
+        const taskPayload = {
+          taskName,
+          adminUser: selectedAdminUser,
+          adminName: assignedName,
+          priority: taskPrioritySelect ? taskPrioritySelect.value : "medium",
+          scheduleType: "hourly",
+          intervalHours: Number(settingsData.defaultIntervalHours) || 1,
+          total: taskTotalInput ? taskTotalInput.value.trim() : "",
+          status: taskStatusSelect ? taskStatusSelect.value : "Belum Selesai",
+          link: taskLinkInput ? taskLinkInput.value.trim() : "",
+          notes: taskNotesInput ? taskNotesInput.value.trim() : "",
+          lastResetDate: getTodayDateString()
+        };
+
+        // 1. INSTANT LOCAL UPDATE (0ms)
+        if (id) {
+          tasksData = tasksData.map(t => (t.id === id ? { ...t, ...taskPayload } : t));
+          TaskSyncEngine.dispatch("updateTask", { id, payload: taskPayload });
+          if (typeof Toast !== "undefined") Toast.success("Tersimpan!", "Tugas admin berhasil diperbarui.");
+        } else {
+          const newId = "TSK-" + Date.now();
+          const createdTask = { ...taskPayload, id: newId, createdAt: new Date().toISOString() };
+          tasksData.unshift(createdTask);
+          TaskSyncEngine.dispatch("addTask", { payload: createdTask });
+          if (typeof Toast !== "undefined") Toast.success("Berhasil!", "Tugas checklist baru berhasil ditambahkan.");
+        }
+
+        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
+        closeTaskModal();
+        renderTasks();
+        updateStats();
+      } finally {
+        isTaskFormSubmitting = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+          submitBtn.innerHTML = origBtnText;
+        }
       }
-
-      localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(tasksData));
-      closeTaskModal();
-      renderTasks();
-      updateStats();
     });
   }
 
@@ -1104,26 +1124,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  let isSettingsSubmitting = false;
   if (settingsForm) {
     settingsForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const submitBtn = settingsForm.querySelector('button[type="submit"]');
+      if (isSettingsSubmitting || (submitBtn && submitBtn.disabled)) return;
+      isSettingsSubmitting = true;
 
-      settingsData = {
-        defaultIntervalHours: Number(settingDefaultInterval ? settingDefaultInterval.value : 1) || 1,
-        soundNotification: settingSoundToggle ? settingSoundToggle.checked : true,
-        browserNotification: settingBrowserNotifToggle ? settingBrowserNotifToggle.checked : true,
-        toastReminder: settingToastToggle ? settingToastToggle.checked : true,
-        autoDailyReset: settingAutoResetToggle ? settingAutoResetToggle.checked : true,
-        resetHour: "00:00",
-        lastResetDate: getTodayDateString()
-      };
+      const origBtnText = submitBtn ? submitBtn.innerHTML : "Simpan Pengaturan";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
+      }
 
-      localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
-      if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", `Interval pengingat global diatur ke Tiap ${settingsData.defaultIntervalHours} Jam.`);
-      closeSettingsModal();
-      updateStats();
+      try {
+        settingsData = {
+          defaultIntervalHours: Number(settingDefaultInterval ? settingDefaultInterval.value : 1) || 1,
+          soundNotification: settingSoundToggle ? settingSoundToggle.checked : true,
+          browserNotification: settingBrowserNotifToggle ? settingBrowserNotifToggle.checked : true,
+          toastReminder: settingToastToggle ? settingToastToggle.checked : true,
+          autoDailyReset: settingAutoResetToggle ? settingAutoResetToggle.checked : true,
+          resetHour: "00:00",
+          lastResetDate: getTodayDateString()
+        };
 
-      TaskSyncEngine.dispatch("saveSettings", { payload: settingsData });
+        localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
+        if (typeof Toast !== "undefined") Toast.success("Pengaturan Disimpan", `Interval pengingat global diatur ke Tiap ${settingsData.defaultIntervalHours} Jam.`);
+        closeSettingsModal();
+        updateStats();
+
+        TaskSyncEngine.dispatch("saveSettings", { payload: settingsData });
+      } finally {
+        isSettingsSubmitting = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+          submitBtn.innerHTML = origBtnText;
+        }
+      }
     });
   }
 

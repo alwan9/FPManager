@@ -506,12 +506,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).format(number);
   }
   // Submit Handler
+  let isSubmitting = false;
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (submitBtn.disabled) return;
-    submitBtn.disabled = true;
-    const origBtnText = submitBtn.innerHTML;
-    submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
+    if (isSubmitting || (submitBtn && submitBtn.disabled)) return;
+    isSubmitting = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+    }
+    const origBtnText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i><span>${isEn ? 'Saving...' : 'Menyimpan...'}</span>`;
+    }
 
     // Validasi WA
     let cleanWA = waInput.value.replace(/\D/g, ''); // bersihkan non-angka
@@ -533,8 +540,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       todayDate.setHours(0, 0, 0, 0);
       if (inputDate < todayDate) {
         alert(isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = origBtnText;
+        isSubmitting = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+          submitBtn.innerHTML = origBtnText;
+        }
         return;
       }
     }
@@ -648,6 +659,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           message: result.message,
           type: "error"
         });
+        isSubmitting = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+          submitBtn.textContent = isEditMode
+            ? (isEn ? 'Save Changes' : 'Simpan Perubahan')
+            : (isEn ? 'Save Project' : 'Simpan Projek');
+        }
 
       }
     } catch (err) {
@@ -659,14 +678,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         message: isEn ? "An error occurred while saving project data." : "Terjadi kesalahan saat menyimpan data.",
         type: "error"
       });
+      isSubmitting = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+        submitBtn.textContent = isEditMode
+          ? (isEn ? 'Save Changes' : 'Simpan Perubahan')
+          : (isEn ? 'Save Project' : 'Simpan Projek');
+      }
 
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = isEditMode
-        ? (isEn ? 'Save Changes' : 'Simpan Perubahan')
-        : (isEn ? 'Save Project' : 'Simpan Projek');
     }
   });
 });
-
-

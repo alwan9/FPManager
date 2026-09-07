@@ -812,8 +812,10 @@ async function hapusProyek(id, name) {
     }
   }
 }
+let isAIGenerating = false;
 async function generateAI(jenis) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (isAIGenerating) return;
   if (!currentProyek) {
     showToast({
       title: "AI",
@@ -890,6 +892,7 @@ async function generateAI(jenis) {
     return;
   }
 
+  isAIGenerating = true;
   showToast({
     title: "AI",
     message: isEn ? "Generating text..." : "Sedang membuat teks...",
@@ -902,18 +905,29 @@ async function generateAI(jenis) {
     gdriveLink
   };
 
-  const result = await API.generateAI(data);
+  try {
+    const result = await API.generateAI(data);
 
-  if (!result.success) {
+    if (!result.success) {
+      showToast({
+        title: "AI",
+        message: result.message,
+        type: "error"
+      });
+      return;
+    }
+
+    document.getElementById("hasilAI").value = result.text;
+  } catch (err) {
+    console.error(err);
     showToast({
-      title: "AI",
-      message: result.message,
+      title: "AI Error",
+      message: isEn ? "Failed to generate AI response." : "Gagal membuat respon AI.",
       type: "error"
     });
-    return;
+  } finally {
+    isAIGenerating = false;
   }
-
-  document.getElementById("hasilAI").value = result.text;
 }
 
 function copyAIText() {

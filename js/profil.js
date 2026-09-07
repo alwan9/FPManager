@@ -143,8 +143,12 @@ function handleAvatarFileSelect(e) {
 }
 
 // Handle Save Profile Info
+let isProfileSubmitting = false;
 async function handleSaveProfileInfo(e) {
   e.preventDefault();
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (isProfileSubmitting || (submitBtn && submitBtn.disabled)) return;
 
   const name = document.getElementById('profName').value.trim();
   const email = document.getElementById('profEmail').value.trim();
@@ -164,12 +168,13 @@ async function handleSaveProfileInfo(e) {
     return;
   }
 
+  isProfileSubmitting = true;
   const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
 
-  const submitBtn = e.target.querySelector('button[type="submit"]');
   const origBtnText = submitBtn ? submitBtn.innerHTML : 'Simpan Perubahan';
   if (submitBtn) {
     submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Spreadsheet...';
   }
 
@@ -186,16 +191,20 @@ async function handleSaveProfileInfo(e) {
       } else {
         if (submitBtn) {
           submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
           submitBtn.innerHTML = origBtnText;
         }
+        isProfileSubmitting = false;
         const errMsg = (uploadRes && uploadRes.message) ? uploadRes.message : 'Gagal mengunggah foto ke Google Drive.';
         if (typeof Toast !== 'undefined') Toast.error('Upload Gagal', errMsg);
         else alert(errMsg);
         return;
       }
     } catch (uploadErr) {
+      isProfileSubmitting = false;
       if (submitBtn) {
         submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
         submitBtn.innerHTML = origBtnText;
       }
       if (typeof Toast !== 'undefined') Toast.error('Upload Error', 'Terjadi kesalahan saat mengunggah foto.');
@@ -256,8 +265,10 @@ async function handleSaveProfileInfo(e) {
     if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.');
     else alert('Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.');
   } finally {
+    isProfileSubmitting = false;
     if (submitBtn) {
       submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
       submitBtn.innerHTML = origBtnText;
     }
   }

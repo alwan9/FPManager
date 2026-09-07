@@ -328,31 +328,49 @@
     const errorAlert = document.getElementById('errorAlert');
     const errorMessage = document.getElementById('errorMessage');
 
+    let isLoggingIn = false;
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      if (isLoggingIn || (submitBtn && submitBtn.disabled)) return;
+      isLoggingIn = true;
       errorAlert.classList.add('hidden');
 
-      const submitBtn = loginForm.querySelector('button[type="submit"]');
       const originalBtnText = submitBtn ? submitBtn.innerHTML : "Masuk ke Dashboard";
 
       if (submitBtn) {
         submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...';
       }
 
-      const username = usernameInput.value;
-      const password = passwordInput.value;
-      const rememberMe = rememberMeInput ? rememberMeInput.checked : false;
-      const result = await Auth.login(username, password, rememberMe);
+      try {
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+        const rememberMe = rememberMeInput ? rememberMeInput.checked : false;
+        const result = await Auth.login(username, password, rememberMe);
 
-      if (result.success) {
-        sessionStorage.setItem('just_logged_in', 'true');
-        window.location.href = 'index.html';
-      } else {
-        errorMessage.textContent = result.message;
+        if (result.success) {
+          sessionStorage.setItem('just_logged_in', 'true');
+          window.location.href = 'index.html';
+        } else {
+          errorMessage.textContent = result.message;
+          errorAlert.classList.remove('hidden');
+          isLoggingIn = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+            submitBtn.innerHTML = originalBtnText;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        errorMessage.textContent = "Terjadi kesalahan saat mencoba login. Silakan coba beberapa saat lagi.";
         errorAlert.classList.remove('hidden');
+        isLoggingIn = false;
         if (submitBtn) {
           submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
           submitBtn.innerHTML = originalBtnText;
         }
       }

@@ -584,6 +584,7 @@ function sanitize(text) {
 }
 
 // Add transaction callback
+let isKeuanganSubmitting = false;
 async function handleAddTransaksi(e) {
   e.preventDefault();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -598,17 +599,23 @@ async function handleAddTransaksi(e) {
   const requiredPerm = editModeId ? 'keuangan:update' : 'keuangan:create';
   if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
     if (typeof Toast !== 'undefined') {
-      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to manage finances." : "Anda tidak memiliki izin untuk mengelola Keuangan.");
+      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? `You do not have permission (${requiredPerm}) to save transaction.` : `Anda tidak memiliki izin (${requiredPerm}) untuk menyimpan transaksi.`);
     } else {
-      alert(isEn ? "Access Denied: You do not have permission to manage finances." : "Akses Ditolak: Anda tidak memiliki izin untuk mengelola Keuangan.");
+      alert(isEn ? "Access Denied: Missing permission." : "Akses Ditolak: Anda tidak memiliki izin.");
     }
     return;
   }
   const submitBtn = document.getElementById('submitBtn');
-  if (submitBtn.disabled) return;
-  submitBtn.disabled = true;
-  const origBtnText = submitBtn.textContent;
-  submitBtn.textContent = isEn ? 'Saving...' : 'Menyimpan...';
+  if (isKeuanganSubmitting || (submitBtn && submitBtn.disabled)) return;
+  isKeuanganSubmitting = true;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+  }
+  const origBtnText = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i><span>${isEn ? 'Saving...' : 'Menyimpan...'}</span>`;
+  }
 
   const tanggal = document.getElementById('tanggal').value;
   const jenis = document.getElementById('jenis').value;
@@ -633,8 +640,12 @@ async function handleAddTransaksi(e) {
   };
 
   const resetSubmitBtn = () => {
-    submitBtn.disabled = false;
-    submitBtn.textContent = origBtnText;
+    isKeuanganSubmitting = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      submitBtn.innerHTML = origBtnText;
+    }
   };
 
   if (!payload.tanggal) {
@@ -711,7 +722,9 @@ async function handleAddTransaksi(e) {
       
       // Reset edit mode
       editModeId = null;
-      submitBtn.textContent = isEn ? 'Save Transaction' : 'Simpan Transaksi';
+      if (submitBtn) {
+        submitBtn.innerHTML = isEn ? 'Save Transaction' : 'Simpan Transaksi';
+      }
       const formTitle = document.querySelector('#transaksiForm').previousElementSibling.querySelector('span');
       if (formTitle) formTitle.textContent = isEn ? 'Record New Transaction' : 'Catat Transaksi Baru';
 
@@ -719,14 +732,22 @@ async function handleAddTransaksi(e) {
       await loadKeuanganData();
     } else {
       alert((isEn ? 'Failed to save transaction: ' : 'Gagal menyimpan transaksi: ') + res.message);
-      submitBtn.textContent = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
+      if (submitBtn) {
+        submitBtn.innerHTML = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
+      }
     }
   } catch (error) {
     console.error(error);
     alert(isEn ? 'An error occurred while saving transaction.' : 'Terjadi kesalahan saat menyimpan transaksi.');
-    submitBtn.textContent = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
+    if (submitBtn) {
+      submitBtn.innerHTML = editModeId ? (isEn ? 'Update Transaction' : 'Update Transaksi') : (isEn ? 'Save Transaction' : 'Simpan Transaksi');
+    }
   } finally {
-    submitBtn.disabled = false;
+    isKeuanganSubmitting = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+    }
   }
 }
 

@@ -529,8 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  let isUserFormSubmitting = false;
   userForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const submitBtn = userForm.querySelector('button[type="submit"]');
+    if (isUserFormSubmitting || (submitBtn && submitBtn.disabled)) return;
+
     const editId = userIdInput.value;
     const existingUser = editId ? usersData.find(u => u.id === editId) : null;
     const uname = usernameInput.value.trim();
@@ -538,6 +542,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!editId && !passwordInput.value.trim()) {
       if (typeof Toast !== 'undefined') Toast.error("Peringatan", "Password wajib diisi saat menambah user baru.");
       return;
+    }
+
+    isUserFormSubmitting = true;
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : "Simpan";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
     }
 
     let selectedPerms = [];
@@ -566,13 +578,6 @@ document.addEventListener("DOMContentLoaded", () => {
       userData.password = passwordInput.value.trim();
     }
 
-    const submitBtn = userForm.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn ? submitBtn.innerHTML : "Simpan";
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
-    }
-
     try {
       let res;
       if (editId) {
@@ -593,9 +598,14 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         if (typeof Toast !== 'undefined') Toast.error("Gagal", res.message);
       }
+    } catch (err) {
+      console.error(err);
+      if (typeof Toast !== 'undefined') Toast.error("Error", "Terjadi kesalahan saat menyimpan data user.");
     } finally {
+      isUserFormSubmitting = false;
       if (submitBtn) {
         submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
         submitBtn.innerHTML = originalBtnText;
       }
     }

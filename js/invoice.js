@@ -316,10 +316,28 @@ const Invoice = {
     },
     exportPDF() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        const btnPDF = document.getElementById("btnPDF");
+        if (btnPDF && btnPDF.disabled) return;
+
+        const origHtml = btnPDF ? btnPDF.innerHTML : '';
+        if (btnPDF) {
+            btnPDF.disabled = true;
+            btnPDF.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+            btnPDF.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> ' + (isEn ? 'Exporting...' : 'Mengunduh PDF...');
+        }
+
         const invoice = document.getElementById("invoiceArea");
         const invNo = document.getElementById("previewInvoiceNo") ? document.getElementById("previewInvoiceNo").innerText : 'FPManager';
         const prefix = (this.docType === 'nota') ? 'Nota' : 'Invoice';
         const fileName = `${prefix}-${invNo}.pdf`;
+
+        const resetBtn = () => {
+            if (btnPDF) {
+                btnPDF.disabled = false;
+                btnPDF.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+                btnPDF.innerHTML = origHtml;
+            }
+        };
 
         if (typeof Toast !== 'undefined') {
             Toast.info(
@@ -347,6 +365,7 @@ const Invoice = {
                     orientation: "portrait"
                 }
             }).from(invoice).save().then(() => {
+                resetBtn();
                 if (typeof Toast !== 'undefined') {
                     Toast.success(
                         isEn ? "PDF Exported" : "PDF Berhasil Diunduh",
@@ -354,10 +373,12 @@ const Invoice = {
                     );
                 }
             }).catch(err => {
+                resetBtn();
                 console.error("html2pdf export error:", err);
                 window.print();
             });
         } else {
+            resetBtn();
             window.print();
         }
     },
