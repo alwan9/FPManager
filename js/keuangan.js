@@ -499,8 +499,8 @@ async function quickUpdatePelunasan(id, action) {
   } else if (action === 'edit_sisa') {
     const inputVal = prompt(
       isEn
-        ? `Enter remaining balance (Total: ${formatRupiah(totalNom)}):`
-        : `Masukkan sisa pelunasan / hutang (Total: ${formatRupiah(totalNom)}):`,
+        ? `Enter remaining settlement balance (Total: ${formatRupiah(totalNom)}):`
+        : `Masukkan sisa pelunasan (Total: ${formatRupiah(totalNom)}):`,
       currentSisa
     );
     if (inputVal === null) {

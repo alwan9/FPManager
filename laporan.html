@@ -87,12 +87,12 @@
 
       .grid {
         display: grid !important;
-        grid-template-cols: repeat(3, 1fr) !important;
+        grid-template-columns: repeat(3, 1fr) !important;
       }
     }
   </style>
   <link rel="manifest" href="manifest.json">
-
+</head>
 
 <body class="bg-zinc-50 text-zinc-800">
   <!-- Layout Wrapper -->
@@ -273,7 +273,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 no-print">
           <div>
             <h3 class="text-2xl font-bold text-zinc-900 tracking-tight">Laporan Keuangan</h3>
-            <p class="text-zinc-500 text-sm">Rekap projek, pendapatan kotor (omzet), hutang, pengeluaran, dan laba
+            <p class="text-zinc-500 text-sm" data-i18n="rep-desc">Rekap projek, pendapatan kotor (omzet), pelunasan, pengeluaran, dan laba
               rugi.</p>
           </div>
           <div class="flex space-x-3">
@@ -317,7 +317,7 @@
 
           <!-- Total DP & Piutang -->
           <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate">Hutang &
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate" data-i18n="rep-card2-title">Pelunasan &
               DP</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
@@ -326,7 +326,7 @@
                   class="text-base md:text-xl font-bold text-green-600 block truncate">Rp0</span>
               </div>
               <div class="text-right min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Sisa Hutang</span>
+                <span class="text-[10px] md:text-xs text-zinc-500 block truncate" data-i18n="rep-card2-sub2">Sisa Pelunasan</span>
                 <span id="recapTotalPiutang"
                   class="text-base md:text-xl font-bold text-rose-600 block truncate">Rp0</span>
               </div>
