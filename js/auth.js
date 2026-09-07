@@ -103,13 +103,11 @@ const Auth = {
         service: [
           "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
           "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
-          "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
           "laporan:read", "laporan:export",
           "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
         ],
         desainer: [
           "proyek:read", "proyek:create", "proyek:update",
-          "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
           "tools:read", "tools:create", "tools:update", "tools:delete",
           "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
         ],
@@ -117,7 +115,6 @@ const Auth = {
           "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
           "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
           "laporan:read", "laporan:export",
-          "layanan:read", "layanan:create", "layanan:update", "layanan:delete",
           "tools:read", "tools:create", "tools:update", "tools:delete",
           "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
           "users:read", "users:create", "users:update", "users:delete"
@@ -167,7 +164,6 @@ const Auth = {
     if (/(^|\/)tambah-proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:create")) isDenied = true;
     if (/(^|\/)keuangan(\.html)?$/i.test(path) && !Auth.hasPermission("keuangan:read")) isDenied = true;
     if (/(^|\/)laporan(\.html)?$/i.test(path) && !Auth.hasPermission("laporan:read")) isDenied = true;
-    if (/(^|\/)layanan(\.html)?$/i.test(path) && !Auth.hasPermission("layanan:read")) isDenied = true;
     if (/(^|\/)tools(\.html)?$/i.test(path) && !Auth.hasPermission("tools:read")) isDenied = true;
     if (/(^|\/)admin-tasks(\.html)?$/i.test(path) && !Auth.hasPermission("admin_tasks:read")) isDenied = true;
     if (/(^|\/)user-management(\.html)?$/i.test(path) && !Auth.hasPermission("users:read")) isDenied = true;
@@ -202,7 +198,6 @@ const Auth = {
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
-        else if (href.endsWith("layanan.html")) permNeeded = "layanan:read";
         else if (href.endsWith("tools.html")) permNeeded = "tools:read";
         else if (href.endsWith("admin-tasks.html")) permNeeded = "admin_tasks:read";
         else if (href.endsWith("user-management.html")) permNeeded = "users:read";
@@ -230,7 +225,6 @@ const Auth = {
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
-        else if (href.endsWith("layanan.html")) permNeeded = "layanan:read";
         else if (href.endsWith("tools.html")) permNeeded = "tools:read";
         else if (href.endsWith("admin-tasks.html")) permNeeded = "admin_tasks:read";
         else if (href.endsWith("user-management.html")) permNeeded = "users:read";

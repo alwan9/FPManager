@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v116';
+const CACHE_NAME = 'fpmanager-v117';
 
 const urlsToCache = [
   './',
@@ -7,7 +7,6 @@ const urlsToCache = [
   './tambah-proyek.html',
   './keuangan.html',
   './laporan.html',
-  './layanan.html',
   './pengaturan.html',
   './profil.html',
   './invoice.html',
