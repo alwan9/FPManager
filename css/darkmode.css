@@ -391,10 +391,30 @@ html.dark #globalLoader {
   background-color: #18181b !important;
 }
 
-/* 12. Modals & Glass Panels */
-html.dark .fixed.inset-0.bg-black {
-  background-color: rgba(0, 0, 0, 0.75) !important;
+/* 12. Modals & Glass Panels Backdrop Overlay (40% Black) */
+html.dark .fixed.inset-0.bg-black,
+html.dark .fixed.inset-0.z-50,
+html.dark .fixed.inset-0.z-\[100\],
+html.dark .fixed.inset-0.z-\[9999\],
+html.dark #detailModal,
+html.dark #exportModal,
+html.dark #taskModal,
+html.dark #settingsModal,
+html.dark #userDetailModal,
+html.dark #userModal,
+html.dark #addToolModal,
+html.dark #addShortcutModal,
+html.dark #referencesModal,
+html.dark #projectPreviewBlenderModal,
+html.dark #watermarkGeneratorModal,
+html.dark #sizeCheatSheetModal,
+html.dark #logoPhilosophyModal,
+html.dark #calendarSyncModal,
+html.dark #globalPaymentModal,
+html.dark [id$="Modal"] {
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
+
 
 html.dark #detailModal .bg-white,
 html.dark #userDetailModal .bg-white,

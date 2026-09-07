@@ -864,3 +864,29 @@ button.rounded-full {
 .mockup-color-btn:hover {
   transform: translateY(-1px);
 }
+
+/* ======================================================= */
+/* Universal Modal / Popup Backdrop Overlay (40% Black)   */
+/* ======================================================= */
+.fixed.inset-0.z-50,
+.fixed.inset-0.z-\[100\],
+.fixed.inset-0.z-\[9999\],
+#detailModal,
+#exportModal,
+#taskModal,
+#settingsModal,
+#userDetailModal,
+#userModal,
+#addToolModal,
+#addShortcutModal,
+#referencesModal,
+#projectPreviewBlenderModal,
+#watermarkGeneratorModal,
+#sizeCheatSheetModal,
+#logoPhilosophyModal,
+#calendarSyncModal,
+#globalPaymentModal,
+[id$="Modal"] {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
