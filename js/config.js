@@ -132,7 +132,7 @@ function showPaymentAccountsModal(highlightName = '') {
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'globalPaymentModal';
-    modal.className = 'fixed inset-0 bg-black/40 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-opacity';
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-opacity';
     document.body.appendChild(modal);
   }
 

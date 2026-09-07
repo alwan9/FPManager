@@ -866,7 +866,7 @@ button.rounded-full {
 }
 
 /* ======================================================= */
-/* Universal Modal / Popup Backdrop Overlay (40% Black)   */
+/* Universal Modal / Popup Backdrop Overlay (60% Black)   */
 /* ======================================================= */
 .fixed.inset-0.z-50,
 .fixed.inset-0.z-\[100\],
@@ -887,6 +887,7 @@ button.rounded-full {
 #calendarSyncModal,
 #globalPaymentModal,
 [id$="Modal"] {
-  background-color: rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
 }
+
 

@@ -89,7 +89,7 @@ const CalendarSync = {
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'calendarSyncModal';
-      modal.className = 'fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-[9999] p-4';
+      modal.className = 'fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-[9999] p-4';
       document.body.appendChild(modal);
     }
 

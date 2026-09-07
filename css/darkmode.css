@@ -391,7 +391,7 @@ html.dark #globalLoader {
   background-color: #18181b !important;
 }
 
-/* 12. Modals & Glass Panels Backdrop Overlay (40% Black) */
+/* 12. Modals & Glass Panels Backdrop Overlay (60% Black) */
 html.dark .fixed.inset-0.bg-black,
 html.dark .fixed.inset-0.z-50,
 html.dark .fixed.inset-0.z-\[100\],
@@ -412,7 +412,7 @@ html.dark #logoPhilosophyModal,
 html.dark #calendarSyncModal,
 html.dark #globalPaymentModal,
 html.dark [id$="Modal"] {
-  background-color: rgba(0, 0, 0, 0.4) !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
 }
 
 
