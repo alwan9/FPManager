@@ -90,6 +90,11 @@ const CalendarSync = {
       modal = document.createElement('div');
       modal.id = 'calendarSyncModal';
       modal.className = 'fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-[9999] p-4';
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      };
       document.body.appendChild(modal);
     }
 

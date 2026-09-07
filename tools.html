@@ -339,7 +339,7 @@
       </section>
 
       <!-- Add Tool Modal (Prompt) -->
-      <div id="addToolModal" onclick="if(event.target === this) closeToolModal()"
+      <div id="addToolModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeToolModal()"
         style="background-color: rgba(0, 0, 0, 0.6);"
         class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
         <div
@@ -386,7 +386,7 @@
       </div>
 
       <!-- Add Shortcut Modal (Web) -->
-      <div id="addShortcutModal" onclick="if(event.target === this) closeShortcutModal()"
+      <div id="addShortcutModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeShortcutModal()"
         style="background-color: rgba(0, 0, 0, 0.6);"
         class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
         <div
@@ -433,7 +433,7 @@
       </div>
 
       <!-- Modal References Galeri (2-Column Layout) -->
-      <div id="referencesModal" onclick="if(event.target === this) closeReferencesModal()"
+      <div id="referencesModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeReferencesModal()"
         style="background-color: rgba(0, 0, 0, 0.6);"
         class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-sm transition-all duration-300">
 
@@ -642,7 +642,7 @@
   </div>
 
   <!-- Modal Project Preview Blender -->
-  <div id="projectPreviewBlenderModal" onclick="if(event.target === this) closeProjectPreviewBlenderModal()"
+  <div id="projectPreviewBlenderModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeProjectPreviewBlenderModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div
@@ -1061,7 +1061,7 @@
   </div>
 
   <!-- Modal Watermark Generator (Tanpa Permission - Dashboard 2 Kolom Sejajar) -->
-  <div id="watermarkGeneratorModal" onclick="if(event.target === this) closeWatermarkModal()"
+  <div id="watermarkGeneratorModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeWatermarkModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div
@@ -1273,7 +1273,7 @@
   </div>
 
   <!-- Modal Panduan Ukuran & Konversi Satuan (Tanpa Permission - Clean UI) -->
-  <div id="sizeCheatSheetModal" onclick="if(event.target === this) closeSizeCheatSheetModal()"
+  <div id="sizeCheatSheetModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeSizeCheatSheetModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 overflow-y-auto backdrop-blur-md transition-all duration-300">
     <div
@@ -1346,7 +1346,7 @@
   </div>
 
   <!-- Modal AI Generator Filosofi Logo & Brand Story -->
-  <div id="logoPhilosophyModal" onclick="if(event.target === this) closeLogoPhilosophyModal()"
+  <div id="logoPhilosophyModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeLogoPhilosophyModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div

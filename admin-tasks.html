@@ -454,7 +454,7 @@
   </div>
 
   <!-- MODAL: Tambah / Edit Tugas Admin -->
-  <div id="taskModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+  <div id="taskModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeTaskModal()" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all max-h-[92vh] flex flex-col animate-fade-in">
       <div class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50/80 dark:bg-zinc-900/50">
         <h3 id="taskModalTitle" class="text-base font-bold text-zinc-800 dark:text-white flex items-center gap-2">
@@ -597,7 +597,7 @@
   </div>
 
   <!-- MODAL: Pengaturan Notifikasi & Interval (Khusus Super Admin) -->
-  <div id="settingsModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+  <div id="settingsModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeSettingsModal()" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all animate-fade-in flex flex-col">
       <div class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-indigo-900 text-white">
         <h3 class="text-base font-bold flex items-center gap-2">

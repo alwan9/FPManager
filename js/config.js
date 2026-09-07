@@ -126,6 +126,40 @@ const CONFIG = {
   ]
 };
 
+// Global Helper: Check if modal has filled/dirty user inputs
+function isModalInputFilled(modal) {
+  const el = typeof modal === 'string' ? document.getElementById(modal) : modal;
+  if (!el) return false;
+
+  // 1. Check all text-based inputs, numbers, and textareas (exclude buttons, hidden, submit, reset, checkbox, radio)
+  const inputs = el.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]), textarea');
+  for (let i = 0; i < inputs.length; i++) {
+    const input = inputs[i];
+    if (input.type === 'file') {
+      if (input.files && input.files.length > 0) return true;
+    } else if (input.id === 'tahun') {
+      // Ignore static export year input default
+      continue;
+    } else if (input.value && input.value.trim() !== '') {
+      return true;
+    }
+  }
+
+  // 2. Check for tool-specific active state
+  if (el.id === 'watermarkGeneratorModal') {
+    if (typeof wmSourceImg !== 'undefined' && wmSourceImg) return true;
+  }
+  if (el.id === 'projectPreviewBlenderModal') {
+    if (typeof pbMockupImg !== 'undefined' && (pbMockupImg || pbDesignImg)) return true;
+  }
+  if (el.id === 'logoPhilosophyModal') {
+    if (typeof logoSourceImg !== 'undefined' && logoSourceImg) return true;
+  }
+
+  return false;
+}
+window.isModalInputFilled = isModalInputFilled;
+
 // Global Payment Accounts Modal & Copy Helper (Clean Minimal Design)
 function showPaymentAccountsModal(highlightName = '') {
   let modal = document.getElementById('globalPaymentModal');
@@ -133,6 +167,11 @@ function showPaymentAccountsModal(highlightName = '') {
     modal = document.createElement('div');
     modal.id = 'globalPaymentModal';
     modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-opacity';
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    };
     document.body.appendChild(modal);
   }
 

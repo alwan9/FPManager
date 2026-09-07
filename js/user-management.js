@@ -237,12 +237,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeUserDetailModal = () => {
     if (userDetailModal) userDetailModal.classList.add("hidden");
   };
+  window.closeUserDetailModal = closeUserDetailModal;
 
   if (closeUserDetailModalBtn) closeUserDetailModalBtn.addEventListener("click", closeUserDetailModal);
   if (closeUserDetailModalBtn2) closeUserDetailModalBtn2.addEventListener("click", closeUserDetailModal);
   if (userDetailModal) {
     userDetailModal.addEventListener("click", (e) => {
-      if (e.target === userDetailModal) closeUserDetailModal();
+      if (e.target === userDetailModal && !isModalInputFilled(userDetailModal)) closeUserDetailModal();
     });
   }
 
@@ -504,11 +505,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeModal = () => {
     userModal.classList.add("hidden");
   };
+  window.closeUserModal = closeModal;
 
   closeUserModalBtn.addEventListener("click", closeModal);
   cancelUserModalBtn.addEventListener("click", closeModal);
   userModal.addEventListener("click", (e) => {
-    if (e.target === userModal) closeModal();
+    if (e.target === userModal && !isModalInputFilled(userModal)) closeModal();
   });
 
   window.deleteUser = async (id, username) => {

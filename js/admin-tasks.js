@@ -896,13 +896,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   function closeTaskModal() {
     if (taskModal) taskModal.classList.add("hidden");
   }
+  window.closeTaskModal = closeTaskModal;
 
   if (openAddTaskModalBtn) openAddTaskModalBtn.addEventListener("click", () => window.openAddTaskModal());
   if (closeTaskModalBtn) closeTaskModalBtn.addEventListener("click", closeTaskModal);
   if (cancelTaskModalBtn) cancelTaskModalBtn.addEventListener("click", closeTaskModal);
   if (taskModal) {
     taskModal.addEventListener("click", (e) => {
-      if (e.target === taskModal) closeTaskModal();
+      if (e.target === taskModal && !isModalInputFilled(taskModal)) closeTaskModal();
     });
   }
 
@@ -1114,13 +1115,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   function closeSettingsModal() {
     if (settingsModal) settingsModal.classList.add("hidden");
   }
+  window.closeSettingsModal = closeSettingsModal;
 
   if (openSettingsModalBtn) openSettingsModalBtn.addEventListener("click", openSettingsModal);
   if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener("click", closeSettingsModal);
   if (cancelSettingsModalBtn) cancelSettingsModalBtn.addEventListener("click", closeSettingsModal);
   if (settingsModal) {
     settingsModal.addEventListener("click", (e) => {
-      if (e.target === settingsModal) closeSettingsModal();
+      if (e.target === settingsModal && !isModalInputFilled(settingsModal)) closeSettingsModal();
     });
   }
 
