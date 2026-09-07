@@ -99,9 +99,9 @@ function handleAvatarFileSelect(e) {
   }
 
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = function (evt) {
     const img = new Image();
-    img.onload = function() {
+    img.onload = function () {
       // Resize image to max 250x250 for lightweight Data URL
       const canvas = document.createElement('canvas');
       const maxDim = 250;

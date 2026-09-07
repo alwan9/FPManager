@@ -466,7 +466,7 @@ async function viewDetail(id) {
       document.getElementById('modalSatuan').textContent = isEn ? (satuanMap[proyek.satuan] || proyek.satuan) : proyek.satuan;
       document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
       document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
-      
+
       const modalDeadlineEl = document.getElementById('modalDeadline');
       if (modalDeadlineEl) {
         if (proyek.deadline) {
@@ -478,7 +478,7 @@ async function viewDetail(id) {
           const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
           const st = String(proyek.status || '').toLowerCase().trim();
           const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
-          
+
           let dateDisplay = proyek.deadline;
           try {
             const parts = proyek.deadline.split('-');
@@ -494,7 +494,7 @@ async function viewDetail(id) {
           } catch (e) {
             dateDisplay = proyek.deadline;
           }
-          
+
           if (isFinished) {
             modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span>`;
           } else {
@@ -533,17 +533,17 @@ async function viewDetail(id) {
           modalDeadlineEl.textContent = '-';
         }
       }
-      
+
       document.getElementById('modalCatatan').textContent = proyek.catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
-      
+
       // Dropdown Sisa & Fitur Lunasi
       const sisaVal = Number(proyek.sisaPembayaran) || 0;
       const dpVal = Number(proyek.dP) || 0;
       const nominalVal = Number(proyek.nominalProyek) || 0;
       const sisaSelect = document.getElementById('modalSisaSelect');
       const sisaIcon = document.getElementById('modalSisaIcon');
-      
-      if(sisaSelect) {
+
+      if (sisaSelect) {
         sisaSelect.innerHTML = '';
         if (dpVal >= nominalVal && nominalVal > 0) {
           // Lunas
@@ -553,7 +553,7 @@ async function viewDetail(id) {
           sisaSelect.appendChild(opt);
           sisaSelect.disabled = true;
           sisaSelect.className = "appearance-none bg-transparent font-bold text-green-600 text-sm focus:outline-none w-full truncate";
-          if(sisaIcon) sisaIcon.classList.add('hidden');
+          if (sisaIcon) sisaIcon.classList.add('hidden');
         } else {
           // Belum Lunas
           const optUtang = document.createElement('option');
@@ -561,15 +561,15 @@ async function viewDetail(id) {
           optUtang.textContent = formatRupiah(sisaVal);
           optUtang.selected = true;
           sisaSelect.appendChild(optUtang);
-          
+
           const optLunas = document.createElement('option');
           optLunas.value = 'lunas';
           optLunas.textContent = isEn ? 'Mark as Paid' : 'Lunasi (Ubah jadi lunas)';
           sisaSelect.appendChild(optLunas);
-          
+
           sisaSelect.disabled = false;
           sisaSelect.className = "appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate";
-          if(sisaIcon) sisaIcon.classList.remove('hidden');
+          if (sisaIcon) sisaIcon.classList.remove('hidden');
         }
       }
       // Style badge status
@@ -595,7 +595,7 @@ async function viewDetail(id) {
       }
       // Edit Button
       document.getElementById('modalEditBtn').onclick = () => {
-        try { sessionStorage.setItem('cached_edit_proyek', JSON.stringify(proyek)); } catch(e){}
+        try { sessionStorage.setItem('cached_edit_proyek', JSON.stringify(proyek)); } catch (e) { }
         window.location.href = `tambah-proyek.html?id=${encodeURIComponent(proyek.iDProyek)}`;
       };
       document.getElementById("modalInvoiceBtn").onclick = () => {
@@ -657,26 +657,26 @@ async function handleSisaChange(selectEl) {
 async function lunasiProyek() {
   if (!currentProyek) return;
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  
+
   const nominalVal = Number(currentProyek.nominalProyek) || 0;
   const dpVal = Number(currentProyek.dP) || 0;
   const sisa = nominalVal - dpVal;
-  
+
   if (sisa <= 0) {
     showToast({ title: "Info", message: "Proyek sudah lunas.", type: "info" });
     return;
   }
-  
+
   if (!confirm(isEn ? `Are you sure you want to mark this project as paid? (Amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`)) {
     return;
   }
-  
+
   try {
     const sisaSelect = document.getElementById('modalSisaSelect');
     if (sisaSelect) {
       sisaSelect.disabled = true;
     }
-    
+
     let newCatatan = currentProyek.catatan || "";
     if (newCatatan && !newCatatan.toLowerCase().includes("lunas")) {
       newCatatan += " - Pembayaran LUNAS";
@@ -701,9 +701,9 @@ async function lunasiProyek() {
       catatan: newCatatan,
       gdriveLink: currentProyek.gdriveLink
     };
-    
+
     const updateRes = await API.updateProyek(currentProyek.iDProyek, payloadProyek);
-    
+
     // 2. Sync / Insert Mutasi Keuangan
     if (updateRes.success) {
       try {
@@ -738,16 +738,16 @@ async function lunasiProyek() {
           };
           await API.addKeuangan(txPayload);
         }
-      } catch(kErr) {
+      } catch (kErr) {
         console.warn("Sync keuangan on lunasi error:", kErr);
       }
-      
+
       showToast({
         title: isEn ? "Success" : "Berhasil",
         message: isEn ? "Project marked as paid." : "Pelunasan berhasil dicatat ke sistem.",
         type: "success"
       });
-      
+
       closeModal();
       loadProyekData();
     } else {
@@ -774,15 +774,15 @@ async function hapusProyek(id, name) {
     });
     return;
   }
-  
+
   let prjName = name || '';
   if (!prjName && window.allProyekList) {
     const prj = window.allProyekList.find(p => String(p.iDProyek) === String(id));
     if (prj) prjName = prj.namaProyek || '';
   }
 
-  const confirmMsg = isEn 
-    ? `Are you sure you want to delete project "${id} - ${prjName}"? This action cannot be undone.` 
+  const confirmMsg = isEn
+    ? `Are you sure you want to delete project "${id} - ${prjName}"? This action cannot be undone.`
     : `Apakah Anda yakin ingin menghapus projek "${id} - ${prjName}"? Tindakan ini tidak dapat dibatalkan.`;
   if (confirm(confirmMsg)) {
     try {
@@ -870,7 +870,7 @@ async function generateAI(jenis) {
     const sisa = formatRp(currentProyek.sisaPembayaran || 0);
 
     if (jenis === 'testimoni') {
-      text = isEn 
+      text = isEn
         ? `Hello ${namaKlien}, thank you very much for trusting us with the project *${namaProyek}*. 😊\n\nIf you don't mind, we would like to request a quick testimonial or feedback about our design work and service. Your feedback is highly valuable to help us improve.\n\nThank you very much for your time and cooperation! 🙏✨`
         : `Halo Kak ${namaKlien}, terima kasih banyak telah mempercayakan pengerjaan projek *${namaProyek}* kepada kami. 😊\n\nJika tidak keberatan, kami ingin meminta sedikit testimoni atau feedback singkat mengenai hasil desain dan pelayanan kami. Pendapat Kakak sangat berarti bagi kami untuk terus berkembang.\n\nTerima kasih banyak atas waktu dan kerja samanya, Kak! 🙏✨`;
     } else if (jenis === 'pelunasan') {
@@ -966,7 +966,7 @@ function sendAIWhatsapp() {
   const waUrl = `https://api.whatsapp.com/send?phone=${currentProyek.nomorWA}&text=${waText}`;
   const win = window.open(waUrl, 'FPManager_WhatsAppTab');
   if (win && typeof win.focus === 'function') {
-    try { win.focus(); } catch (e) {}
+    try { win.focus(); } catch (e) { }
   }
 }
 
@@ -1107,7 +1107,7 @@ function showProyekSkeletons() {
       </tr>
     `).join('');
   }
-  
+
   // Status Counters
   const skeletonCounter = '<div class="h-5 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
   document.getElementById('count-all').innerHTML = skeletonCounter;

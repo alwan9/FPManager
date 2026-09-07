@@ -242,7 +242,7 @@ function initTable(data) {
       { data: 'tanggal' },
       {
         data: 'keterangan',
-        render: function(data, type, row) {
+        render: function (data, type, row) {
           const isExpense = row.jenis === 'Pengeluaran';
           const icon = isExpense ? '<i class="fa-solid fa-arrow-turn-up text-rose-500 mr-1.5"></i>' : '<i class="fa-solid fa-arrow-turn-down text-emerald-500 mr-1.5"></i>';
           const noteHtml = row.catatanPelunasan ? `<div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1 font-medium"><i class="fa-solid fa-receipt text-[10px] text-indigo-500"></i><span>${escapeHtml(row.catatanPelunasan)}</span></div>` : '';
@@ -273,10 +273,7 @@ function initTable(data) {
               </span>
               <select onchange="quickUpdateDp('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
                 <option value="belum" ${dpVal <= 0 ? 'selected' : ''}>🔴 Belum DP</option>
-                <option value="dp_custom" ${dpVal > 0 && dpVal < total ? 'selected' : ''}>🟡 Sudah DP (${formatRupiah(dpVal)})</option>
-                <option value="dp_50">⚡ DP 50% (${formatRupiah(Math.round(total * 0.5))})</option>
-                <option value="dp_lunas" ${dpVal >= total && total > 0 ? 'selected' : ''}>🟢 DP 100% (Lunas)</option>
-                <option value="dp_edit">✏️ Ubah Nominal DP...</option>
+                <option value="dp_custom" ${dpVal > 0 ? 'selected' : ''}>🟡 Sudah DP</option>
               </select>
             </div>
           `;
@@ -400,30 +397,10 @@ async function quickUpdateDp(id, action) {
     newDp = 0;
     newSisa = totalNom;
     newStatus = 'Belum';
-  } else if (action === 'dp_50') {
-    newDp = Math.round(totalNom * 0.5);
-    newSisa = Math.max(0, totalNom - newDp);
-    newStatus = (newDp >= totalNom && totalNom > 0) ? 'Lunas' : (newDp > 0 ? 'DP' : 'Belum');
-  } else if (action === 'dp_lunas') {
-    newDp = totalNom;
-    newSisa = 0;
-    newStatus = 'Lunas';
-  } else if (action === 'dp_edit') {
-    const inputVal = prompt(
-      isEn
-        ? `Enter received DP amount (Total: ${formatRupiah(totalNom)}):`
-        : `Masukkan nominal DP yang diterima (Total: ${formatRupiah(totalNom)}):`,
-      currentDp
-    );
-    if (inputVal === null) {
-      await loadKeuanganData();
-      return;
-    }
-    newDp = Math.min(totalNom, Math.max(0, parseFloat(inputVal) || 0));
-    newSisa = Math.max(0, totalNom - newDp);
-    newStatus = (newDp >= totalNom && totalNom > 0) ? 'Lunas' : (newDp > 0 ? 'DP' : 'Belum');
   } else if (action === 'dp_custom') {
-    return;
+    newDp = (currentDp > 0 && currentDp < totalNom) ? currentDp : Math.round(totalNom / 2);
+    newSisa = Math.max(0, totalNom - newDp);
+    newStatus = newDp > 0 ? 'DP' : 'Belum';
   }
 
   try {
@@ -655,9 +632,9 @@ async function handleAddTransaksi(e) {
   }
 
   const inputDate = new Date(payload.tanggal);
-  inputDate.setHours(0,0,0,0);
+  inputDate.setHours(0, 0, 0, 0);
   const todayDate = new Date();
-  todayDate.setHours(0,0,0,0);
+  todayDate.setHours(0, 0, 0, 0);
   if (!editModeId && inputDate < todayDate) {
     alert(isEn ? "Transaction date cannot be in the past!" : "Tanggal transaksi tidak boleh sebelum hari ini!");
     resetSubmitBtn();
@@ -715,11 +692,11 @@ async function handleAddTransaksi(e) {
       document.getElementById('transaksiForm').reset();
       const nominalPreview = document.getElementById('nominalPreview');
       if (nominalPreview) nominalPreview.textContent = '';
-      
+
       const todayStr = new Date().toISOString().split('T')[0];
       document.getElementById('tanggal').value = todayStr;
       document.getElementById('tanggal').min = todayStr;
-      
+
       // Reset edit mode
       editModeId = null;
       if (submitBtn) {
@@ -792,7 +769,7 @@ function editTransaksi(id) {
   document.getElementById('keterangan').value = tx.keterangan;
   const cleanNominal = String(tx.nominal).replace(/[^0-9]/g, '');
   document.getElementById('nominal').value = cleanNominal;
-  
+
   const metodeElem = document.getElementById('metodePembayaran');
   if (metodeElem && tx.metodePembayaran) {
     metodeElem.value = tx.metodePembayaran;
@@ -996,11 +973,11 @@ function showKeuanganSkeletons() {
   if (loader) loader.classList.add('hidden');
 
   const skeletonText = '<div class="h-6 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
-  
+
   document.getElementById('totalPemasukan').innerHTML = skeletonText;
   document.getElementById('totalPengeluaran').innerHTML = skeletonText;
   document.getElementById('saldoBersih').innerHTML = skeletonText;
-  
+
   const tbody = document.querySelector('#keuanganTable tbody');
   if (tbody) {
     tbody.innerHTML = Array(5).fill(`

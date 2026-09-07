@@ -193,7 +193,8 @@
           </button>
           <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
             <i class="fa-solid fa-file-invoice-dollar text-indigo-600"></i>
-            <span><span class="hidden md:inline" data-i18n="rep-header">Laporan Bisnis & Ekspor</span><span class="inline md:hidden">Laporan</span></span>
+            <span><span class="hidden md:inline" data-i18n="rep-header">Laporan Bisnis & Ekspor</span><span
+                class="inline md:hidden">Laporan</span></span>
           </h2>
         </div>
         <div class="flex items-center space-x-4">
@@ -273,17 +274,21 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0 no-print">
           <div>
             <h3 class="text-2xl font-bold text-zinc-900 tracking-tight">Laporan Keuangan</h3>
-            <p class="text-zinc-500 text-sm" data-i18n="rep-desc">Rekap projek, pendapatan kotor (omzet), pelunasan, pengeluaran, dan laba
+            <p class="text-zinc-500 text-sm" data-i18n="rep-desc">Rekap projek, pendapatan kotor (omzet), pelunasan,
+              pengeluaran, dan laba
               rugi.</p>
           </div>
           <div class="flex space-x-3">
             <button onclick="exportToExcel()" data-permission-allow="laporan:export"
               class="inline-flex items-center justify-center px-4 py-2 md:px-5 md:py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold rounded-xl text-xs md:text-sm shadow-lg shadow-green-600/30 hover:shadow-green-600/50 transform hover:-translate-y-0.5 transition-all">
-              <i class="fa-solid fa-file-excel mr-1.5 md:mr-2 text-base md:text-lg"></i> <span data-i18n="rep-btn-excel"><span class="hidden md:inline">Ekspor Excel</span><span class="inline md:hidden">Ekspor</span></span>
+              <i class="fa-solid fa-file-excel mr-1.5 md:mr-2 text-base md:text-lg"></i> <span
+                data-i18n="rep-btn-excel"><span class="hidden md:inline">Ekspor Excel</span><span
+                  class="inline md:hidden">Ekspor</span></span>
             </button>
             <button onclick="window.print()" data-permission-allow="laporan:export"
               class="inline-flex items-center justify-center px-3 py-2 md:px-4 md:py-2 bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-semibold rounded-xl text-xs shadow-md transition-all">
-              <i class="fa-solid fa-print mr-1.5 md:mr-2"></i> <span class="hidden md:inline">Cetak Laporan / PDF</span><span class="inline md:hidden">Cetak</span>
+              <i class="fa-solid fa-print mr-1.5 md:mr-2"></i> <span class="hidden md:inline">Cetak Laporan /
+                PDF</span><span class="inline md:hidden">Cetak</span>
             </button>
           </div>
         </div>
@@ -304,8 +309,7 @@
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Total Projek</span>
-                <span id="recapTotalProyek"
-                  class="text-base md:text-xl font-bold text-zinc-950 block truncate">-</span>
+                <span id="recapTotalProyek" class="text-base md:text-xl font-bold text-zinc-950 block truncate">-</span>
               </div>
               <div class="text-right min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-zinc-500 block truncate">Total Omzet</span>
@@ -317,16 +321,17 @@
 
           <!-- Total DP & Piutang -->
           <div class="bg-white rounded-2xl border border-zinc-200 p-4 md:p-6 shadow-sm hover-card space-y-3">
-            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate" data-i18n="rep-card2-title">Pelunasan &
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
+              data-i18n="rep-card2-title">Pelunasan &
               DP</span>
             <div class="flex justify-between items-center gap-2">
               <div class="min-w-0 flex-1">
                 <span class="text-[10px] md:text-xs text-zinc-500 block truncate">DP Diterima</span>
-                <span id="recapTotalDp"
-                  class="text-base md:text-xl font-bold text-green-600 block truncate">Rp0</span>
+                <span id="recapTotalDp" class="text-base md:text-xl font-bold text-green-600 block truncate">Rp0</span>
               </div>
               <div class="text-right min-w-0 flex-1">
-                <span class="text-[10px] md:text-xs text-zinc-500 block truncate" data-i18n="rep-card2-sub2">Sisa Pelunasan</span>
+                <span class="text-[10px] md:text-xs text-zinc-500 block truncate" data-i18n="rep-card2-sub2">Sisa
+                  Pelunasan</span>
                 <span id="recapTotalPiutang"
                   class="text-base md:text-xl font-bold text-rose-600 block truncate">Rp0</span>
               </div>
