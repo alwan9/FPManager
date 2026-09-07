@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const price = parseFloat(hargaSatuanInput.value) || 0;
     const dp = parseFloat(dpInput.value) || 0;
     const nominal = Math.round(qty * price);
-    const sisa = Math.round(nominal - dp);
+    const sisa = Math.max(0, Math.round(nominal - dp));
     nominalInput.value = formatRupiah(nominal);
     sisaInput.value = formatRupiah(sisa);
 
@@ -573,40 +573,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Cari transaksi keuangan yang terhubung dengan projek ini
             const linkedTx = (keuanganList || []).find(k => {
-              if (!k || !k.keterangan) return false;
-              const ket = String(k.keterangan).trim();
+              if (!k) return false;
+              const kIdPrj = String(k.idProyek || '').trim();
+              const ket = String(k.keterangan || '').trim();
               const ketLower = ket.toLowerCase();
               return (
+                (kIdPrj && (kIdPrj === rawTargetId || kIdPrj === decodedTargetId)) ||
                 ket.includes(rawTargetId) ||
                 ket.includes(decodedTargetId) ||
-                (clientName && ketLower.includes(clientName) && (ketLower.includes('dp') || ketLower.includes('pelunasan') || ketLower.includes('pembayaran')))
+                (clientName && ketLower.includes(clientName) && (ketLower.includes('dp') || ketLower.includes('pelunasan') || ketLower.includes('pembayaran') || ketLower.includes('tagihan')))
               );
             });
 
-            const isLunas = dp >= nominal;
+            const isLunas = dp >= nominal && nominal > 0;
+            const statusBayar = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
+            const realCash = isLunas ? nominal : dp;
             const updatedDesc = isLunas
               ? `Pembayaran Lunas - ${payload.pelanggan} (${proyekId})`
-              : `Pembayaran DP - ${payload.pelanggan} (${proyekId})`;
+              : (statusBayar === 'DP'
+                ? `Pembayaran DP - ${payload.pelanggan} (${proyekId})`
+                : `Tagihan Projek - ${payload.pelanggan} (${proyekId})`);
 
             if (linkedTx) {
-              if (dp > 0) {
-                // Perbarui transaksi yang ada dengan nominal DP baru
-                await API.updateKeuangan(linkedTx.id, {
-                  nominal: dp,
-                  keterangan: updatedDesc,
-                  jenis: 'Pemasukan'
-                });
-              } else {
-                // Jika DP diubah jadi 0, hapus transaksi kas terkait
-                await API.deleteKeuangan(linkedTx.id);
-              }
-            } else if (dp > 0) {
-              // Jika sebelumnya belum ada mutasi keuangan tapi sekarang diinput DP
+              await API.updateKeuangan(linkedTx.id, {
+                nominal: realCash,
+                dp: dp,
+                sisa: sisa,
+                totalProyek: nominal,
+                statusPembayaran: statusBayar,
+                metodePembayaran: payload.metodePembayaran,
+                keterangan: updatedDesc,
+                jenis: 'Pemasukan'
+              });
+            } else {
               const newTx = {
                 tanggal: new Date().toISOString().split('T')[0],
                 jenis: 'Pemasukan',
                 keterangan: updatedDesc,
-                nominal: dp
+                nominal: realCash,
+                dp: dp,
+                sisa: sisa,
+                totalProyek: nominal,
+                statusPembayaran: statusBayar,
+                metodePembayaran: payload.metodePembayaran,
+                idProyek: proyekId
               };
               await API.addKeuangan(newTx);
             }
@@ -616,28 +626,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       } else {
         result = await API.addProyek(payload);
-
-        // Auto-insert ke Mutasi Keuangan jika ada DP saat Tambah Baru
-        if (result.success && dp > 0 && (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:create'))) {
-          try {
-            const createdId = result.idProyek || result.id || '';
-            const isLunas = dp >= nominal;
-            const txDesc = isLunas
-              ? `Pembayaran Lunas - ${payload.pelanggan}${createdId ? ` (${createdId})` : ''}`
-              : `Pembayaran DP - ${payload.pelanggan}${createdId ? ` (${createdId})` : ''}`;
-
-            const txPayload = {
-              tanggal: payload.tanggal || new Date().toISOString().split('T')[0],
-              jenis: 'Pemasukan',
-              keterangan: txDesc,
-              nominal: dp
-            };
-
-            await API.addKeuangan(txPayload);
-          } catch(syncErr) {
-            console.warn("Gagal menambahkan mutasi keuangan:", syncErr);
-          }
-        }
       }
       if (result.success) {
 

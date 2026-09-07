@@ -357,6 +357,14 @@
                 </select>
               </div>
 
+              <!-- Catatan Pelunasan / Keterangan Pembayaran -->
+              <div>
+                <label for="catatanPelunasan" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Catatan Pelunasan (Opsional)</label>
+                <input type="text" id="catatanPelunasan"
+                  class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  placeholder="Contoh: Lunas via QRIS / Transfer tgl 3 Sept">
+              </div>
+
               <button type="submit" id="submitBtn"
                 class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all">
                 <span data-i18n="fin-btn-save">Simpan Transaksi</span>
@@ -399,10 +407,9 @@
                     <th>ID Projek & User</th>
                     <th data-i18n="fin-th-date">Tanggal</th>
                     <th data-i18n="fin-th-desc">Keterangan</th>
-                    <th>Total & DP (Rp)</th>
-                    <th>Sisa (Rp)</th>
+                    <th>DP (Uang Muka)</th>
+                    <th>Pelunasan / Sisa</th>
                     <th>Metode</th>
-                    <th>Status / Approval</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>

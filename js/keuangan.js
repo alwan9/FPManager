@@ -58,13 +58,77 @@ async function loadKeuanganData() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
     let listMutasi = await API.getKeuangan();
-    currentKeuanganList = listMutasi || [];
+    currentKeuanganList = consolidateKeuanganList(listMutasi || []);
     calculateSummary(currentKeuanganList);
     initTable(currentKeuanganList);
   } catch (error) {
     console.error('Gagal memuat mutasi kas:', error);
     alert(isEn ? 'An error occurred while fetching financial records.' : 'Terjadi kesalahan saat mengambil riwayat keuangan.');
   }
+}
+
+// Mengelompokkan transaksi berbasis ID Projek sehingga 1 projek = 1 baris
+function consolidateKeuanganList(list) {
+  if (!Array.isArray(list)) return [];
+  const projectMap = new Map();
+  const result = [];
+
+  list.forEach(item => {
+    if (!item) return;
+    const ket = String(item.keterangan || '');
+    const match = ket.match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || String(item.id || '').match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || (item.idProyek ? String(item.idProyek).match(/PRJ-\d+[-a-zA-Z0-9_]*/i) : null);
+    const prjId = match ? match[0] : (item.idProyek ? String(item.idProyek) : '');
+
+    // Jika tertaut ke ID Projek dan bertipe Pemasukan
+    if (prjId && item.jenis === 'Pemasukan') {
+      if (projectMap.has(prjId)) {
+        const existing = projectMap.get(prjId);
+        const exTotal = Number(existing.totalProyek) || Number(existing.nominal) || 0;
+        const curTotal = Number(item.totalProyek) || Number(item.nominal) || 0;
+        const finalTotal = Math.max(exTotal, curTotal);
+
+        const exDp = Number(existing.dp) || 0;
+        const curDp = Number(item.dp) || 0;
+        const finalDp = Math.max(exDp, curDp);
+
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp >= finalTotal && finalTotal > 0);
+        const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp);
+        const finalStatus = isLunas ? 'Lunas' : (finalDp > 0 ? 'DP' : 'Belum');
+
+        existing.totalProyek = finalTotal;
+        existing.dp = finalDp;
+        existing.sisa = finalSisa;
+        existing.statusPembayaran = finalStatus;
+        existing.nominal = isLunas ? finalTotal : finalDp;
+        if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
+        if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
+        if (item.tanggal) existing.tanggal = item.tanggal;
+      } else {
+        const total = Number(item.totalProyek) || Number(item.nominal) || 0;
+        const dp = Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0;
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || (dp >= total && total > 0);
+        const sisa = isLunas ? 0 : (item.sisa !== undefined ? Number(item.sisa) : Math.max(0, total - dp));
+        const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
+
+        const consolidated = {
+          ...item,
+          idProyek: prjId,
+          totalProyek: total,
+          dp: dp,
+          sisa: sisa,
+          statusPembayaran: status,
+          nominal: isLunas ? total : dp,
+          catatanPelunasan: item.catatanPelunasan || ''
+        };
+        projectMap.set(prjId, consolidated);
+        result.push(consolidated);
+      }
+    } else {
+      result.push(item);
+    }
+  });
+
+  return result;
 }
 
 // Compute total income, expenses, and current cash balance
@@ -74,12 +138,16 @@ function calculateSummary(mutasiList) {
 
   mutasiList.forEach(item => {
     const st = String(item.statusPembayaran || '').toLowerCase();
+    const isLunas = st.includes('lunas');
     const isUnpaid = st === 'belum';
+    const total = Number(item.totalProyek) || Number(item.nominal) || 0;
     const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
     const nominal = Number(item.nominal) || 0;
 
     if (item.jenis === 'Pemasukan') {
-      if (!isUnpaid) {
+      if (isLunas) {
+        totalIn += (total > 0 ? total : nominal);
+      } else if (!isUnpaid) {
         totalIn += (dpVal > 0 ? dpVal : nominal);
       }
     } else if (item.jenis === 'Pengeluaran') {
@@ -177,31 +245,39 @@ function initTable(data) {
         render: function(data, type, row) {
           const isExpense = row.jenis === 'Pengeluaran';
           const icon = isExpense ? '<i class="fa-solid fa-arrow-turn-up text-rose-500 mr-1.5"></i>' : '<i class="fa-solid fa-arrow-turn-down text-emerald-500 mr-1.5"></i>';
-          return `<div class="font-medium text-zinc-800 dark:text-zinc-200">${icon}${escapeHtml(data || '')}</div>`;
+          const noteHtml = row.catatanPelunasan ? `<div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1 font-medium"><i class="fa-solid fa-receipt text-[10px] text-indigo-500"></i><span>${escapeHtml(row.catatanPelunasan)}</span></div>` : '';
+          return `<div><div class="font-medium text-zinc-800 dark:text-zinc-200">${icon}${escapeHtml(data || '')}</div>${noteHtml}</div>`;
         }
       },
       {
         data: null,
         render: function (data, type, row) {
-          const total = Number(row.totalProyek) || Number(row.nominal) || 0;
-          const st = String(row.statusPembayaran || '').toLowerCase();
-          const dpVal = Number(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal)) || 0;
-          
           if (row.jenis === 'Pengeluaran') {
             return `
               <div>
-                <div class="font-bold text-rose-600">- ${formatRupiah(Number(row.nominal) || 0)}</div>
-                <div class="text-[11px] text-zinc-400 font-medium">Pengeluaran Kas</div>
+                <div class="font-bold text-rose-600 dark:text-rose-400">- ${formatRupiah(Number(row.nominal) || 0)}</div>
+                <div class="text-[11px] text-zinc-400 font-medium">Kas Keluar</div>
               </div>
             `;
           }
 
+          const total = Number(row.totalProyek) || Number(row.nominal) || 0;
+          const st = String(row.statusPembayaran || '').toLowerCase();
+          const dpVal = Number(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal)) || 0;
+          const isDpPaid = dpVal > 0;
+
           return `
-            <div>
-              <div class="font-bold text-zinc-900 dark:text-zinc-100">${formatRupiah(total)}</div>
-              <div class="text-xs ${dpVal > 0 ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-zinc-400'}">
-                ${dpVal > 0 ? `<i class="fa-solid fa-arrow-down mr-0.5"></i> DP: ${formatRupiah(dpVal)}` : 'Belum Ada DP'}
-              </div>
+            <div class="flex items-center gap-2 whitespace-nowrap">
+              <span class="font-semibold text-xs min-w-[70px] ${isDpPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400'}">
+                ${formatRupiah(dpVal)}
+              </span>
+              <select onchange="quickUpdateDp('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
+                <option value="belum" ${dpVal <= 0 ? 'selected' : ''}>🔴 Belum DP</option>
+                <option value="dp_custom" ${dpVal > 0 && dpVal < total ? 'selected' : ''}>🟡 Sudah DP (${formatRupiah(dpVal)})</option>
+                <option value="dp_50">⚡ DP 50% (${formatRupiah(Math.round(total * 0.5))})</option>
+                <option value="dp_lunas" ${dpVal >= total && total > 0 ? 'selected' : ''}>🟢 DP 100% (Lunas)</option>
+                <option value="dp_edit">✏️ Ubah Nominal DP...</option>
+              </select>
             </div>
           `;
         }
@@ -209,14 +285,28 @@ function initTable(data) {
       {
         data: null,
         render: function (data, type, row) {
+          if (row.jenis === 'Pengeluaran') {
+            return `<span class="text-zinc-400 text-xs italic">-</span>`;
+          }
+
           const total = Number(row.totalProyek) || Number(row.nominal) || 0;
           const st = String(row.statusPembayaran || '').toLowerCase();
           const dpVal = Number(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal)) || 0;
           const sisa = row.sisa !== undefined ? Number(row.sisa) : Math.max(0, total - dpVal);
-          if (row.jenis === 'Pengeluaran' || sisa <= 0 || st === 'lunas') {
-            return `<span class="text-emerald-600 font-semibold text-xs"><i class="fa-solid fa-circle-check mr-1"></i>0</span>`;
-          }
-          return `<span class="text-rose-600 font-semibold">${formatRupiah(sisa)}</span>`;
+          const isLunas = st.includes('lunas') || sisa <= 0;
+
+          return `
+            <div class="flex items-center gap-2 whitespace-nowrap">
+              <span class="font-semibold text-xs min-w-[70px] ${isLunas ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                ${isLunas ? 'Rp0' : formatRupiah(sisa)}
+              </span>
+              <select onchange="quickUpdatePelunasan('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
+                <option value="belum_lunas" ${!isLunas ? 'selected' : ''}>🔴 Belum Lunas</option>
+                <option value="lunas" ${isLunas ? 'selected' : ''}>🟢 Sudah Lunas (Rp0)</option>
+                <option value="edit_sisa">📝 Ubah Sisa / Catatan...</option>
+              </select>
+            </div>
+          `;
         }
       },
       {
@@ -252,29 +342,6 @@ function initTable(data) {
         }
       },
       {
-        data: 'statusPembayaran',
-        render: function (data, type, row) {
-          const st = String(data || (Number(row.nominal) > 0 ? (Number(row.sisa) <= 0 ? 'Lunas' : 'DP') : 'Belum')).toLowerCase();
-          let currentStatus = 'Belum';
-          let badgeColor = 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/50';
-          if (st.includes('lunas')) {
-            currentStatus = 'Lunas';
-            badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/50';
-          } else if (st.includes('dp') || st.includes('sebagian')) {
-            currentStatus = 'DP';
-            badgeColor = 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900/50';
-          }
-
-          return `
-            <select onchange="quickUpdatePaymentStatus('${row.id}', this.value)" class="px-2.5 py-1 text-xs font-bold rounded-xl cursor-pointer border ${badgeColor} focus:ring-2 focus:ring-indigo-400">
-              <option value="Belum" ${currentStatus === 'Belum' ? 'selected' : ''} class="bg-white text-rose-700 font-semibold">🔴 Belum Bayar</option>
-              <option value="DP" ${currentStatus === 'DP' ? 'selected' : ''} class="bg-white text-amber-700 font-semibold">🟡 DP / Sebagian</option>
-              <option value="Lunas" ${currentStatus === 'Lunas' ? 'selected' : ''} class="bg-white text-emerald-700 font-semibold">🟢 Lunas</option>
-            </select>
-          `;
-        }
-      },
-      {
         data: null,
         orderable: false,
         className: 'text-center',
@@ -306,7 +373,7 @@ function initTable(data) {
         }
       }
     ],
-    order: [[3, 'desc']], // Urutkan tanggal terbaru
+    order: [[2, 'desc']], // Urutkan tanggal terbaru
     language: dtLang
   });
 
@@ -316,67 +383,174 @@ function initTable(data) {
   updateBulkDeleteKeuanganButton();
 }
 
-// Quick Update Status Pembayaran (Inline dari Dropdown Tabel)
-async function quickUpdatePaymentStatus(id, newStatus) {
+// Quick Update DP (Inline dari Dropdown Kolom DP)
+async function quickUpdateDp(id, action) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const tx = currentKeuanganList.find(k => String(k.id) === String(id));
   if (!tx) return;
 
   const totalNom = Number(tx.totalProyek) || Number(tx.nominal) || 0;
+  const currentDp = Number(tx.dp) || 0;
 
   let newDp = 0;
   let newSisa = totalNom;
-  let newNominal = 0;
+  let newStatus = 'Belum';
 
-  if (newStatus === 'Lunas') {
-    newDp = totalNom;
-    newSisa = 0;
-    newNominal = totalNom;
-  } else if (newStatus === 'Belum') {
+  if (action === 'belum') {
     newDp = 0;
     newSisa = totalNom;
-    newNominal = 0;
-  } else if (newStatus === 'DP') {
-    const currentDp = Number(tx.dp) || Math.round(totalNom / 2);
-    const inputVal = prompt(isEn ? `Enter received DP amount (Total: ${formatRupiah(totalNom)}):` : `Masukkan nominal DP yang diterima (Total: ${formatRupiah(totalNom)}):`, currentDp);
+    newStatus = 'Belum';
+  } else if (action === 'dp_50') {
+    newDp = Math.round(totalNom * 0.5);
+    newSisa = Math.max(0, totalNom - newDp);
+    newStatus = (newDp >= totalNom && totalNom > 0) ? 'Lunas' : (newDp > 0 ? 'DP' : 'Belum');
+  } else if (action === 'dp_lunas') {
+    newDp = totalNom;
+    newSisa = 0;
+    newStatus = 'Lunas';
+  } else if (action === 'dp_edit') {
+    const inputVal = prompt(
+      isEn
+        ? `Enter received DP amount (Total: ${formatRupiah(totalNom)}):`
+        : `Masukkan nominal DP yang diterima (Total: ${formatRupiah(totalNom)}):`,
+      currentDp
+    );
     if (inputVal === null) {
       await loadKeuanganData();
       return;
     }
     newDp = Math.min(totalNom, Math.max(0, parseFloat(inputVal) || 0));
     newSisa = Math.max(0, totalNom - newDp);
-    newNominal = newDp;
-    if (newDp >= totalNom && totalNom > 0) newStatus = 'Lunas';
-    else if (newDp <= 0) newStatus = 'Belum';
+    newStatus = (newDp >= totalNom && totalNom > 0) ? 'Lunas' : (newDp > 0 ? 'DP' : 'Belum');
+  } else if (action === 'dp_custom') {
+    return;
   }
 
   try {
     if (typeof Toast !== 'undefined') {
-      Toast.info(isEn ? "Updating" : "Memperbarui", isEn ? "Updating payment status..." : "Memperbarui status pembayaran...");
+      Toast.info(isEn ? "Updating" : "Memperbarui", isEn ? "Updating DP..." : "Memperbarui data DP...");
     }
+
+    const isLunas = newStatus === 'Lunas' || newSisa <= 0;
+    const realCash = isLunas ? totalNom : newDp;
 
     const payload = {
       statusPembayaran: newStatus,
-      nominal: newNominal,
+      nominal: realCash,
       dp: newDp,
       sisa: newSisa,
-      totalProyek: totalNom
+      totalProyek: totalNom,
+      catatanPelunasan: tx.catatanPelunasan || ''
     };
 
     const res = await API.updateKeuangan(id, payload);
     if (res && res.success) {
       if (typeof Toast !== 'undefined') {
-        Toast.success(isEn ? "Success" : "Berhasil", isEn ? `Payment status updated to ${newStatus}.` : `Status pembayaran berhasil diubah menjadi ${newStatus}.`);
+        Toast.success(isEn ? "Success" : "Berhasil", isEn ? `DP updated to ${formatRupiah(newDp)}.` : `DP berhasil diperbarui menjadi ${formatRupiah(newDp)}.`);
       }
       await loadKeuanganData();
     } else {
       if (typeof Toast !== 'undefined') {
-        Toast.error(isEn ? "Failed" : "Gagal", res ? res.message : "Gagal memperbarui status.");
+        Toast.error(isEn ? "Failed" : "Gagal", res ? res.message : "Gagal memperbarui DP.");
       }
       await loadKeuanganData();
     }
   } catch (err) {
-    console.error("quickUpdatePaymentStatus error:", err);
+    console.error("quickUpdateDp error:", err);
+    await loadKeuanganData();
+  }
+}
+
+// Quick Update Pelunasan (Inline dari Dropdown Kolom Pelunasan)
+async function quickUpdatePelunasan(id, action) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const tx = currentKeuanganList.find(k => String(k.id) === String(id));
+  if (!tx) return;
+
+  const totalNom = Number(tx.totalProyek) || Number(tx.nominal) || 0;
+  const currentSisa = tx.sisa !== undefined ? Number(tx.sisa) : Math.max(0, totalNom - (Number(tx.dp) || 0));
+
+  let newDp = Number(tx.dp) || 0;
+  let newSisa = currentSisa;
+  let newStatus = String(tx.statusPembayaran || 'Belum');
+  let newCatatanPelunasan = tx.catatanPelunasan || '';
+
+  if (action === 'lunas') {
+    newDp = totalNom;
+    newSisa = 0;
+    newStatus = 'Lunas';
+
+    const defaultNote = tx.catatanPelunasan || `Lunas via ${tx.metodePembayaran || 'Transfer'} tgl ${new Date().toLocaleDateString('id-ID')}`;
+    const notePrompt = prompt(
+      isEn
+        ? `Settlement note / payment details (Optional):`
+        : `Catatan pelunasan / keterangan pembayaran (Opsional):`,
+      defaultNote
+    );
+    if (notePrompt !== null) {
+      newCatatanPelunasan = notePrompt.trim();
+    }
+  } else if (action === 'belum_lunas') {
+    if (newStatus.toLowerCase().includes('lunas') || newSisa <= 0) {
+      newDp = (Number(tx.dp) < totalNom && Number(tx.dp) > 0) ? Number(tx.dp) : Math.round(totalNom / 2);
+      newSisa = Math.max(0, totalNom - newDp);
+      newStatus = newDp > 0 ? 'DP' : 'Belum';
+    }
+  } else if (action === 'edit_sisa') {
+    const inputVal = prompt(
+      isEn
+        ? `Enter remaining balance (Total: ${formatRupiah(totalNom)}):`
+        : `Masukkan sisa pelunasan / hutang (Total: ${formatRupiah(totalNom)}):`,
+      currentSisa
+    );
+    if (inputVal === null) {
+      await loadKeuanganData();
+      return;
+    }
+    newSisa = Math.min(totalNom, Math.max(0, parseFloat(inputVal) || 0));
+    newDp = Math.max(0, totalNom - newSisa);
+    newStatus = newSisa <= 0 ? 'Lunas' : (newDp > 0 ? 'DP' : 'Belum');
+
+    const notePrompt = prompt(
+      isEn ? `Settlement note (Optional):` : `Catatan pelunasan (Opsional):`,
+      newCatatanPelunasan
+    );
+    if (notePrompt !== null) {
+      newCatatanPelunasan = notePrompt.trim();
+    }
+  }
+
+  try {
+    if (typeof Toast !== 'undefined') {
+      Toast.info(isEn ? "Updating" : "Memperbarui", isEn ? "Updating payment status..." : "Memperbarui status pelunasan...");
+    }
+
+    const isLunas = newStatus === 'Lunas' || newSisa <= 0;
+    const realCash = isLunas ? totalNom : newDp;
+
+    const payload = {
+      statusPembayaran: newStatus,
+      nominal: realCash,
+      dp: newDp,
+      sisa: newSisa,
+      totalProyek: totalNom,
+      catatanPelunasan: newCatatanPelunasan
+    };
+
+    const res = await API.updateKeuangan(id, payload);
+    if (res && res.success) {
+      if (typeof Toast !== 'undefined') {
+        Toast.success(isEn ? "Success" : "Berhasil", isEn ? `Payment status updated to ${newStatus}.` : `Status pelunasan berhasil diperbarui menjadi ${newStatus}.`);
+      }
+      await loadKeuanganData();
+    } else {
+      if (typeof Toast !== 'undefined') {
+        Toast.error(isEn ? "Failed" : "Gagal", res ? res.message : "Gagal memperbarui pelunasan.");
+      }
+      await loadKeuanganData();
+    }
+  } catch (err) {
+    console.error("quickUpdatePelunasan error:", err);
     await loadKeuanganData();
   }
 }
@@ -442,6 +616,8 @@ async function handleAddTransaksi(e) {
   const nominal = Number(document.getElementById('nominal').value);
   const metodeElem = document.getElementById('metodePembayaran');
   const metodePembayaran = metodeElem ? metodeElem.value : 'DANA';
+  const catatanPelunasanElem = document.getElementById('catatanPelunasan');
+  const catatanPelunasan = catatanPelunasanElem ? catatanPelunasanElem.value.trim() : '';
 
   const payload = {
     tanggal: tanggal.trim(),
@@ -452,7 +628,8 @@ async function handleAddTransaksi(e) {
     statusPembayaran: 'Lunas',
     dp: Number(nominal),
     sisa: 0,
-    totalProyek: Number(nominal)
+    totalProyek: Number(nominal),
+    catatanPelunasan: catatanPelunasan
   };
 
   const resetSubmitBtn = () => {
@@ -598,6 +775,11 @@ function editTransaksi(id) {
   const metodeElem = document.getElementById('metodePembayaran');
   if (metodeElem && tx.metodePembayaran) {
     metodeElem.value = tx.metodePembayaran;
+  }
+
+  const catatanPelunasanElem = document.getElementById('catatanPelunasan');
+  if (catatanPelunasanElem) {
+    catatanPelunasanElem.value = tx.catatanPelunasan || '';
   }
 
   const nominalPreview = document.getElementById('nominalPreview');
@@ -803,12 +985,14 @@ function showKeuanganSkeletons() {
     tbody.innerHTML = Array(5).fill(`
       <tr class="border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 animate-pulse">
         <td class="p-4 text-center"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
-        <td class="p-4"><div class="h-4 w-12 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-4 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
-        <td class="p-4"><div class="h-4 w-36 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
         <td class="p-4"><div class="h-6 w-14 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
       </tr>
     `).join('');
