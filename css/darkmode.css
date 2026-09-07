@@ -455,3 +455,47 @@ html.dark #profileDropdownBtn {
   background-color: #27272a !important;
   color: #f4f4f5 !important;
 }
+
+/* 14. Dedicated Login Page & Glassmorphism Theme Overrides */
+html.dark .glass-panel {
+  background: rgba(24, 24, 27, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-color: rgba(63, 63, 70, 0.6) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .login-right-container {
+  background-color: #09090b !important;
+}
+
+html.dark .login-input,
+html.dark #loginForm input[type="text"],
+html.dark #loginForm input[type="password"] {
+  background-color: rgba(39, 39, 42, 0.75) !important;
+  border-color: rgba(63, 63, 70, 0.8) !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark .login-input:focus,
+html.dark #loginForm input[type="text"]:focus,
+html.dark #loginForm input[type="password"]:focus {
+  background-color: rgba(39, 39, 42, 0.95) !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+}
+
+html.dark #splashLoader {
+  background-color: #09090b !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark #splashLoader .bg-zinc-100 {
+  background-color: #27272a !important;
+}
+
+html.dark #errorAlert {
+  background-color: rgba(69, 10, 10, 0.5) !important;
+  border-color: rgba(153, 27, 27, 0.8) !important;
+  color: #fca5a5 !important;
+}
