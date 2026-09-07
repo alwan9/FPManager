@@ -161,6 +161,7 @@ const Auth = {
 
     let isDenied = false;
     if (/(^|\/)proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
+    if (/(^|\/)invoice(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
     if (/(^|\/)tambah-proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:create")) isDenied = true;
     if (/(^|\/)keuangan(\.html)?$/i.test(path) && !Auth.hasPermission("keuangan:read")) isDenied = true;
     if (/(^|\/)laporan(\.html)?$/i.test(path) && !Auth.hasPermission("laporan:read")) isDenied = true;
@@ -194,7 +195,7 @@ const Auth = {
       let permNeeded = el.getAttribute("data-permission-allow");
 
       if (!permNeeded && href) {
-        if (href.endsWith("proyek.html")) permNeeded = "proyek:read";
+        if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
@@ -221,7 +222,7 @@ const Auth = {
       let permNeeded = el.getAttribute("data-permission-allow");
 
       if (!permNeeded && href) {
-        if (href.endsWith("proyek.html")) permNeeded = "proyek:read";
+        if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
