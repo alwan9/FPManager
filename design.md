@@ -162,9 +162,51 @@ Toast.info('Info', 'Form tambah data dibuka.');
 
 ---
 
-## 5. Ringkasan Aturan yang Dilarang (Deprecated Patterns)
+## 5. Standar Proteksi Anti-Spam Klik & Double Submission
+
+Semua tombol form submit, proses simpan, hapus massal, generate AI, dan export file **WAJIB** menerapkan proteksi ganda (*Dual-Lock*) untuk mencegah pengiriman berulang:
+
+```javascript
+let isSubmitting = false;
+
+async function handleAction(e) {
+  if (e) e.preventDefault();
+  const submitBtn = document.getElementById('btnSubmit');
+
+  // 1. Guard check
+  if (isSubmitting || (submitBtn && submitBtn.disabled)) return;
+  isSubmitting = true;
+
+  // 2. Lock UI & Berikan Visual Spinner
+  const originalHTML = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Menyimpan...';
+  }
+
+  try {
+    // 3. Jalankan proses asynchronous (API, Export, Generate, dll.)
+    await API.someAction();
+  } finally {
+    // 4. Buka kembali lock setelah proses selesai
+    isSubmitting = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+      submitBtn.innerHTML = originalHTML;
+    }
+  }
+}
+```
+
+---
+
+## 6. Ringkasan Aturan yang Dilarang (Deprecated Patterns)
 
 - ❌ **DILARANG** memanggil `alert(...)` bawaan browser.
 - ❌ **DILARANG** memanggil `confirm(...)` bawaan browser.
-- ❌ **DILARANG** menggunakan warna backdrop modal selain transparansi hitam 60% (`rgba(0, 0, 0, 0.6)`).
+- ❌ **DILARANG** menggunakan warna backdrop modal selain transparansi hitam 60% (`rgba(0, 0, 0, 0.6)` / `bg-black/60`).
 - ❌ **DILARANG** membuat popup yang langsung tertutup saat klik backdrop jika pengguna sedang mengisi form data penting tanpa proteksi `isModalInputFilled`.
+- ❌ **DILARANG** membuat tombol submit asinkron tanpa proteksi anti-spam klik ganda (`isSubmitting` guard & button disabled).
+

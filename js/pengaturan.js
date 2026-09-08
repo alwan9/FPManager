@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (notifVibrateCheckbox) notifVibrateCheckbox.checked = CONFIG.NOTIF_VIBRATE !== false;
   if (notifSilentCheckbox) notifSilentCheckbox.checked = !!CONFIG.NOTIF_SILENT;
   if (toastPositionSelect) toastPositionSelect.value = CONFIG.TOAST_POSITION || 'top-right';
-  if (toastDurationSelect) toastDurationSelect.value = (CONFIG.TOAST_DURATION || 4000).toString();
+  if (toastDurationSelect) toastDurationSelect.value = (CONFIG.TOAST_DURATION || 1000).toString();
   if (appLanguageSelect) appLanguageSelect.value = CONFIG.LANG || 'id';
 
   // Handle Form Submission

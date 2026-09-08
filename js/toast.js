@@ -30,7 +30,7 @@ const Toast = (() => {
         }
         container.className = posClasses;
 
-        const duration = (typeof CONFIG !== 'undefined' && CONFIG.TOAST_DURATION) ? CONFIG.TOAST_DURATION : 4000;
+        const duration = (typeof CONFIG !== 'undefined' && CONFIG.TOAST_DURATION) ? CONFIG.TOAST_DURATION : 1000;
 
         const colors = {
 

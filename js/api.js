@@ -291,10 +291,19 @@ const API = {
       if (!page && !limit && !search) {
         APICache.proyek = result.data;
         APICache.proyekTime = Date.now();
+        if (Array.isArray(result.data)) {
+          FPManagerDB.saveAll('proyek', result.data);
+        }
       }
       return result.data;
     } catch (error) {
       console.error("FETCH ERROR :", error);
+      try {
+        const local = await FPManagerDB.getAll('proyek');
+        if (local && local.length > 0) {
+          return local;
+        }
+      } catch (dbErr) {}
       return [];
     }
   },
@@ -592,9 +601,18 @@ const API = {
       
       APICache.keuangan = result.data;
       APICache.keuanganTime = Date.now();
+      if (Array.isArray(result.data)) {
+        FPManagerDB.saveAll('keuangan', result.data);
+      }
       return result.data;
     } catch (error) {
       console.error("FETCH ERROR :", error);
+      try {
+        const local = await FPManagerDB.getAll('keuangan');
+        if (local && local.length > 0) {
+          return local;
+        }
+      } catch (dbErr) {}
       return [];
     }
   },

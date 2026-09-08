@@ -64,7 +64,7 @@ const CONFIG = {
   },
 
   get TOAST_DURATION() {
-    return parseInt(localStorage.getItem('cfg_toast_duration')) || 4000;
+    return parseInt(localStorage.getItem('cfg_toast_duration')) || 1000;
   },
   set TOAST_DURATION(val) {
     localStorage.setItem('cfg_toast_duration', val);
