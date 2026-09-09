@@ -93,23 +93,29 @@ function consolidateKeuanganList(list) {
         const curDp = Number(item.dp) || 0;
         const finalDp = Math.max(exDp, curDp);
 
-        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp >= finalTotal && finalTotal > 0);
-        const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp);
+        const exPelunasan = Number(existing.pelunasan) || 0;
+        const curPelunasan = Number(item.pelunasan) || 0;
+        const finalPelunasan = Math.max(exPelunasan, curPelunasan);
+
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp + finalPelunasan >= finalTotal && finalTotal > 0);
+        const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp - finalPelunasan);
         const finalStatus = isLunas ? 'Lunas' : (finalDp > 0 ? 'DP' : 'Belum');
 
         existing.totalProyek = finalTotal;
         existing.dp = finalDp;
+        existing.pelunasan = finalPelunasan;
         existing.sisa = finalSisa;
         existing.statusPembayaran = finalStatus;
-        existing.nominal = isLunas ? finalTotal : finalDp;
+        existing.nominal = isLunas ? (finalPelunasan > 0 && finalDp < finalTotal ? finalPelunasan : finalTotal) : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
         if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
         if (item.tanggal) existing.tanggal = item.tanggal;
       } else {
         const total = Number(item.totalProyek) || Number(item.nominal) || 0;
         const dp = Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0;
-        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || (dp >= total && total > 0);
-        const sisa = isLunas ? 0 : (item.sisa !== undefined ? Number(item.sisa) : Math.max(0, total - dp));
+        const pelunasan = Number(item.pelunasan) || 0;
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || ((dp + pelunasan) >= total && total > 0);
+        const sisa = isLunas ? 0 : (item.sisa !== undefined ? Number(item.sisa) : Math.max(0, total - dp - pelunasan));
         const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
 
         const consolidated = {
@@ -117,9 +123,10 @@ function consolidateKeuanganList(list) {
           idProyek: prjId,
           totalProyek: total,
           dp: dp,
+          pelunasan: pelunasan,
           sisa: sisa,
           statusPembayaran: status,
-          nominal: isLunas ? total : dp,
+          nominal: isLunas ? (pelunasan > 0 && dp < total ? pelunasan : total) : dp,
           catatanPelunasan: item.catatanPelunasan || ''
         };
         projectMap.set(prjId, consolidated);
@@ -144,11 +151,12 @@ function calculateSummary(mutasiList) {
     const isUnpaid = st === 'belum';
     const total = Number(item.totalProyek) || Number(item.nominal) || 0;
     const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
+    const pelunasanVal = Number(item.pelunasan) || 0;
     const nominal = Number(item.nominal) || 0;
 
     if (item.jenis === 'Pemasukan') {
       if (isLunas) {
-        totalIn += (total > 0 ? total : nominal);
+        totalIn += (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
       } else if (!isUnpaid) {
         totalIn += (dpVal > 0 ? dpVal : nominal);
       }
@@ -447,15 +455,18 @@ async function quickUpdatePelunasan(id, action) {
   if (!tx) return;
 
   const totalNom = Number(tx.totalProyek) || Number(tx.nominal) || 0;
-  const currentSisa = tx.sisa !== undefined ? Number(tx.sisa) : Math.max(0, totalNom - (Number(tx.dp) || 0));
+  const currentDp = Number(tx.dp) || 0;
+  const currentPelunasan = Number(tx.pelunasan) || 0;
+  const currentSisa = tx.sisa !== undefined ? Number(tx.sisa) : Math.max(0, totalNom - currentDp - currentPelunasan);
 
-  let newDp = Number(tx.dp) || 0;
+  let newDp = currentDp;
+  let newPelunasan = currentPelunasan;
   let newSisa = currentSisa;
   let newStatus = String(tx.statusPembayaran || 'Belum');
   let newCatatanPelunasan = tx.catatanPelunasan || '';
 
   if (action === 'lunas') {
-    newDp = totalNom;
+    newPelunasan = currentPelunasan + currentSisa;
     newSisa = 0;
     newStatus = 'Lunas';
 
@@ -471,7 +482,7 @@ async function quickUpdatePelunasan(id, action) {
     }
   } else if (action === 'belum_lunas') {
     if (newStatus.toLowerCase().includes('lunas') || newSisa <= 0) {
-      newDp = (Number(tx.dp) < totalNom && Number(tx.dp) > 0) ? Number(tx.dp) : Math.round(totalNom / 2);
+      newPelunasan = 0;
       newSisa = Math.max(0, totalNom - newDp);
       newStatus = newDp > 0 ? 'DP' : 'Belum';
     }
@@ -487,7 +498,7 @@ async function quickUpdatePelunasan(id, action) {
       return;
     }
     newSisa = Math.min(totalNom, Math.max(0, parseFloat(inputVal) || 0));
-    newDp = Math.max(0, totalNom - newSisa);
+    newPelunasan = Math.max(0, totalNom - newDp - newSisa);
     newStatus = newSisa <= 0 ? 'Lunas' : (newDp > 0 ? 'DP' : 'Belum');
 
     const notePrompt = prompt(
@@ -505,12 +516,13 @@ async function quickUpdatePelunasan(id, action) {
     }
 
     const isLunas = newStatus === 'Lunas' || newSisa <= 0;
-    const realCash = isLunas ? totalNom : newDp;
+    const realCash = isLunas ? (newPelunasan > 0 && newDp < totalNom ? newPelunasan : totalNom) : newDp;
 
     const payload = {
       statusPembayaran: newStatus,
       nominal: realCash,
       dp: newDp,
+      pelunasan: newPelunasan,
       sisa: newSisa,
       totalProyek: totalNom,
       catatanPelunasan: newCatatanPelunasan

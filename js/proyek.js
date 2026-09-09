@@ -500,6 +500,11 @@ async function viewDetail(id) {
       document.getElementById('modalSatuan').textContent = isEn ? (satuanMap[proyek.satuan] || proyek.satuan) : proyek.satuan;
       document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
       document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
+      const modalPelunasanEl = document.getElementById('modalPelunasan');
+      const pelunasanVal = Number(proyek.pelunasan) || 0;
+      if (modalPelunasanEl) {
+        modalPelunasanEl.textContent = formatRupiah(pelunasanVal);
+      }
 
       const modalDeadlineEl = document.getElementById('modalDeadline');
       if (modalDeadlineEl) {
@@ -574,12 +579,13 @@ async function viewDetail(id) {
       const sisaVal = Number(proyek.sisaPembayaran) || 0;
       const dpVal = Number(proyek.dP) || 0;
       const nominalVal = Number(proyek.nominalProyek) || 0;
+      const isLunas = sisaVal <= 0 || (dpVal + pelunasanVal >= nominalVal && nominalVal > 0);
       const sisaSelect = document.getElementById('modalSisaSelect');
       const sisaIcon = document.getElementById('modalSisaIcon');
 
       if (sisaSelect) {
         sisaSelect.innerHTML = '';
-        if (dpVal >= nominalVal && nominalVal > 0) {
+        if (isLunas) {
           // Lunas
           const opt = document.createElement('option');
           opt.value = 'lunas';
@@ -649,18 +655,42 @@ async function viewDetail(id) {
         waBtnEl.href = waUrl;
         waBtnEl.target = 'FPManager_WhatsAppTab';
       }
-      // Show Modal
-      document.getElementById('detailModal').classList.remove('hidden');
 
-      // Auto open details tag for AI Assistant on desktop screen sizes
-      const detailsEl = document.querySelector('#detailModal details');
-      if (detailsEl) {
-        if (window.innerWidth >= 768) {
-          detailsEl.setAttribute('open', '');
-        } else {
-          detailsEl.removeAttribute('open');
+      // Link Google Drive Proyek
+      const modalGDriveContainer = document.getElementById('modalGDriveContainer');
+      const modalGDriveLink = document.getElementById('modalGDriveLink');
+      const gdriveInputContainer = document.getElementById('gdriveInputContainer');
+      const gdriveLinkInput = document.getElementById('gdriveLink');
+
+      if (proyek.gdriveLink && proyek.gdriveLink.trim() !== '') {
+        modalGDriveContainer.classList.remove('hidden');
+        modalGDriveLink.href = sanitizeUrl(proyek.gdriveLink);
+        modalGDriveLink.onclick = null;
+        if (gdriveInputContainer) {
+          gdriveInputContainer.classList.add('hidden');
+        }
+      } else {
+        modalGDriveContainer.classList.add('hidden');
+        modalGDriveLink.href = '#';
+        if (gdriveInputContainer) {
+          gdriveInputContainer.classList.remove('hidden');
+          gdriveLinkInput.value = '';
         }
       }
+
+      // Reset AI Section
+      document.getElementById('hasilAI').value = '';
+      currentProyek = proyek;
+
+      // Ensure that restricted buttons are hidden in Detail Modal for unauthorized roles
+      if (typeof Auth !== 'undefined' && typeof Auth.enforceDOMPermissions === 'function') {
+        Auth.enforceDOMPermissions();
+      }
+
+      // Buka modal
+      const modal = document.getElementById('detailModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
   } catch (error) {
     console.error(error);
@@ -694,16 +724,17 @@ async function lunasiProyek() {
 
   const nominalVal = Number(currentProyek.nominalProyek) || 0;
   const dpVal = Number(currentProyek.dP) || 0;
-  const sisa = nominalVal - dpVal;
+  const pelunasanCurrent = Number(currentProyek.pelunasan) || 0;
+  const sisa = currentProyek.sisaPembayaran !== undefined ? Number(currentProyek.sisaPembayaran) : Math.max(0, nominalVal - dpVal - pelunasanCurrent);
 
   if (sisa <= 0) {
-    showToast({ title: "Info", message: "Proyek sudah lunas.", type: "info" });
+    showToast({ title: "Info", message: isEn ? "Project is already fully paid." : "Proyek sudah lunas.", type: "info" });
     return;
   }
 
   if (!await showConfirmModal({
     title: isEn ? "Mark as Paid" : "Pelunasan Projek",
-    message: isEn ? `Are you sure you want to mark this project as paid? (Amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`,
+    message: isEn ? `Are you sure you want to mark this project as paid? (Settlement amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`,
     type: "info",
     confirmText: isEn ? "Yes, Mark Paid" : "Ya, Lunasi"
   })) {
@@ -723,7 +754,9 @@ async function lunasiProyek() {
       newCatatan = "Pembayaran LUNAS";
     }
 
-    // 1. Update data proyek
+    const settledPelunasan = pelunasanCurrent + sisa;
+
+    // 1. Update data proyek (DP ASLI TETAP UTUH, Pelunasan dicatat terpisah, Sisa = 0)
     const payloadProyek = {
       namaProyek: currentProyek.namaProyek,
       pelanggan: currentProyek.namaPelanggan,
@@ -733,12 +766,14 @@ async function lunasiProyek() {
       satuan: currentProyek.satuan,
       hargaSatuan: currentProyek.hargaSatuan,
       nominal: nominalVal,
-      dp: nominalVal,
+      dp: dpVal, // Pertahankan DP asli
+      pelunasan: settledPelunasan, // Catat pelunasan riil secara terpisah
       sisa: 0,
       deadline: currentProyek.deadline,
-      status: "Selesai",
+      status: currentProyek.status === "Menunggu" ? "Sedang Dikerjakan" : currentProyek.status,
       catatan: newCatatan,
-      gdriveLink: currentProyek.gdriveLink
+      gdriveLink: currentProyek.gdriveLink,
+      sumber: currentProyek.sumber || "WhatsApp"
     };
 
     const updateRes = await API.updateProyek(currentProyek.iDProyek, payloadProyek);
@@ -748,42 +783,50 @@ async function lunasiProyek() {
       try {
         const keuanganList = await API.getKeuangan();
         const prjId = currentProyek.iDProyek;
-        const linkedTx = (keuanganList || []).find(k => {
-          if (!k || !k.keterangan) return false;
-          const ket = String(k.keterangan);
-          return ket.includes(prjId) || (k.idProyek && k.idProyek === prjId);
+        
+        // Cari transaksi keuangan DP dari projek ini jika ada
+        const linkedDpTx = (keuanganList || []).find(k => {
+          if (!k) return false;
+          const kPrj = String(k.idProyek || '');
+          const ket = String(k.keterangan || '');
+          return (kPrj === prjId || ket.includes(prjId)) && String(k.statusPembayaran || '').toLowerCase() === 'dp';
         });
 
-        if (linkedTx) {
-          await API.updateKeuangan(linkedTx.id, {
-            nominal: nominalVal,
-            dp: nominalVal,
+        if (linkedDpTx) {
+          // Update status & pelunasan di baris DP tanpa merusak nominal kas DP yang sudah masuk
+          await API.updateKeuangan(linkedDpTx.id, {
+            dp: dpVal,
+            pelunasan: settledPelunasan,
             sisa: 0,
             totalProyek: nominalVal,
             statusPembayaran: 'Lunas',
-            keterangan: `Pembayaran Lunas - ${currentProyek.namaPelanggan} (${prjId})`
+            catatanPelunasan: `Pelunasan Rp${sisa.toLocaleString('id-ID')} tgl ${new Date().toLocaleDateString('id-ID')}`
           });
-        } else {
-          const txPayload = {
-            tanggal: new Date().toISOString().split('T')[0],
-            jenis: 'Pemasukan',
-            keterangan: `Pembayaran Lunas - ${currentProyek.namaPelanggan} (${prjId})`,
-            nominal: nominalVal,
-            dp: nominalVal,
-            sisa: 0,
-            totalProyek: nominalVal,
-            statusPembayaran: 'Lunas',
-            idProyek: prjId
-          };
-          await API.addKeuangan(txPayload);
         }
+
+        // Tambah entri mutasi penerimaan kas pelunasan baru di buku Keuangan
+        const txPayload = {
+          tanggal: new Date().toISOString().split('T')[0],
+          jenis: 'Pemasukan',
+          keterangan: `Pelunasan Projek - ${currentProyek.namaPelanggan} (${prjId})`,
+          nominal: sisa, // Kas riil pelunasan yang baru masuk
+          dp: dpVal,
+          pelunasan: settledPelunasan,
+          sisa: 0,
+          totalProyek: nominalVal,
+          statusPembayaran: 'Lunas',
+          idProyek: prjId,
+          catatanPelunasan: `Pelunasan tagihan projek (${formatRupiah(sisa)})`
+        };
+        await API.addKeuangan(txPayload);
+
       } catch (kErr) {
         console.warn("Sync keuangan on lunasi error:", kErr);
       }
 
       showToast({
         title: isEn ? "Success" : "Berhasil",
-        message: isEn ? "Project marked as paid." : "Pelunasan berhasil dicatat ke sistem.",
+        message: isEn ? "Project marked as paid." : "Pelunasan berhasil dicatat ke sistem dan buku keuangan.",
         type: "success"
       });
 

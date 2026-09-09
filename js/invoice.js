@@ -90,6 +90,19 @@ const Invoice = {
             this.format(data.nominalProyek);
         document.getElementById("previewDP").innerText =
             this.format(data.dP);
+        const pelunasanVal = Number(data.pelunasan) || 0;
+        const pelunasanRow = document.getElementById("previewPelunasanRow");
+        const pelunasanEl = document.getElementById("previewPelunasan");
+        if (pelunasanEl) {
+            pelunasanEl.innerText = this.format(pelunasanVal);
+        }
+        if (pelunasanRow) {
+            if (pelunasanVal > 0) {
+                pelunasanRow.classList.remove("hidden");
+            } else {
+                pelunasanRow.classList.add("hidden");
+            }
+        }
         document.getElementById("previewSisa").innerText =
             this.format(data.sisaPembayaran);
         // ==========================

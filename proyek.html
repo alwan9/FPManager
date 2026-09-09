@@ -564,17 +564,21 @@
             </div>
 
             <!-- Finance Breakdown -->
-            <div class="grid grid-cols-3 gap-4 py-2">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 py-2 bg-zinc-50 dark:bg-zinc-800/40 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800">
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-total">Total Nominal</span>
-                <span id="modalNominal" class="font-bold text-zinc-800 text-sm">Rp0</span>
+                <span id="modalNominal" class="font-bold text-zinc-800 dark:text-zinc-100 text-sm">Rp0</span>
               </div>
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-dp">Uang Muka (DP)</span>
-                <span id="modalDp" class="font-bold text-zinc-800 text-sm">Rp0</span>
+                <span id="modalDp" class="font-bold text-zinc-800 dark:text-zinc-100 text-sm">Rp0</span>
               </div>
               <div>
-                <span class="text-xs text-zinc-400 block" data-i18n="dt-debt">Sisa Pelunasan</span>
+                <span class="text-xs text-zinc-400 block" data-i18n="dt-settlement">Pelunasan</span>
+                <span id="modalPelunasan" class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">Rp0</span>
+              </div>
+              <div>
+                <span class="text-xs text-zinc-400 block" data-i18n="dt-debt">Sisa Tagihan</span>
                 <div class="relative inline-block mt-0.5 w-full">
                   <select id="modalSisaSelect" onchange="handleSisaChange(this)"
                     class="appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate">

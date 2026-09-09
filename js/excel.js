@@ -99,6 +99,8 @@ async function exportExcel() {
 
         DP: item.dP,
 
+        Pelunasan: item.pelunasan || 0,
+
         Sisa: item.sisaPembayaran,
 
         Deadline: item.deadline,

@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const manualGDriveContainer = document.getElementById('manualGDriveContainer');
   const deadlineWarning = document.getElementById('deadlineWarning');
   const submitBtn = document.getElementById('submitBtn');
+  let currentPelunasan = 0;
 
 
   // Toggle visibilitas input link manual berdasarkan status checkbox
@@ -178,6 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Populate data function
     const populateFormData = (proyek) => {
       if (!proyek) return;
+      currentPelunasan = Number(proyek.pelunasan) || 0;
       if (displayUserIdEl) {
         displayUserIdEl.textContent = proyek.userId || (currUser ? currUser.id : 'USR-001');
       }
@@ -305,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const price = parseFloat(hargaSatuanInput.value) || 0;
     const dp = parseFloat(dpInput.value) || 0;
     const nominal = Math.round(qty * price);
-    const sisa = Math.max(0, Math.round(nominal - dp));
+    const sisa = Math.max(0, Math.round(nominal - dp - (isEditMode ? (Number(currentPelunasan) || 0) : 0)));
     nominalInput.value = formatRupiah(nominal);
     sisaInput.value = formatRupiah(sisa);
 
@@ -535,7 +537,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const price = parseFloat(hargaSatuanInput.value) || 0;
     const dp = parseFloat(dpInput.value) || 0;
     const nominal = Math.round(qty * price);
-    const sisa = Math.round(nominal - dp);
+    const sisa = Math.max(0, Math.round(nominal - dp - (isEditMode ? (Number(currentPelunasan) || 0) : 0)));
 
     if (!isEditMode) {
       const inputDate = new Date(deadlineInput.value);
@@ -568,6 +570,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       hargaSatuan: price,
       nominal: nominal,
       dp: dp,
+      pelunasan: isEditMode ? (Number(currentPelunasan) || 0) : 0,
       sisa: sisa,
       deadline: deadlineInput.value,
       status: statusInput.value,
@@ -605,9 +608,9 @@ document.addEventListener('DOMContentLoaded', async () => {
               );
             });
 
-            const isLunas = dp >= nominal && nominal > 0;
+            const isLunas = sisa <= 0 && nominal > 0;
             const statusBayar = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
-            const realCash = isLunas ? nominal : dp;
+            const realCash = isLunas ? (currentPelunasan > 0 && dp < nominal ? currentPelunasan : nominal) : dp;
             const updatedDesc = isLunas
               ? `Pembayaran Lunas - ${payload.pelanggan} (${proyekId})`
               : (statusBayar === 'DP'
@@ -618,6 +621,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               await API.updateKeuangan(linkedTx.id, {
                 nominal: realCash,
                 dp: dp,
+                pelunasan: Number(currentPelunasan) || 0,
                 sisa: sisa,
                 totalProyek: nominal,
                 statusPembayaran: statusBayar,
@@ -632,6 +636,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 keterangan: updatedDesc,
                 nominal: realCash,
                 dp: dp,
+                pelunasan: Number(currentPelunasan) || 0,
                 sisa: sisa,
                 totalProyek: nominal,
                 statusPembayaran: statusBayar,

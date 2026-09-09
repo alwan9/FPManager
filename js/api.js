@@ -334,6 +334,7 @@ const API = {
         hargaSatuan: Number(proyekData.hargaSatuan) || 0,
         nominalProyek: Number(proyekData.nominal) || 0,
         dP: Number(proyekData.dp) || 0,
+        pelunasan: Number(proyekData.pelunasan) || 0,
         sisaPembayaran: Number(proyekData.sisa) || 0,
         deadline: proyekData.deadline || "",
         status: proyekData.status || "Menunggu",
@@ -379,6 +380,7 @@ const API = {
           hargaSatuan: proyekData.hargaSatuan,
           nominalProyek: proyekData.nominal,
           dP: proyekData.dp,
+          pelunasan: Number(proyekData.pelunasan) || 0,
           sisaPembayaran: proyekData.sisa,
           deadline: proyekData.deadline,
           status: proyekData.status,
@@ -406,6 +408,7 @@ const API = {
         hargaSatuan: proyekData.hargaSatuan,
         nominalProyek: proyekData.nominal,
         dP: proyekData.dp,
+        pelunasan: Number(proyekData.pelunasan) || 0,
         sisaPembayaran: proyekData.sisa,
         deadline: proyekData.deadline,
         status: proyekData.status,
@@ -449,6 +452,7 @@ const API = {
         hargaSatuan: proyekData.hargaSatuan !== undefined ? Number(proyekData.hargaSatuan) : (oldLocal ? oldLocal.hargaSatuan : 0),
         nominalProyek: proyekData.nominal !== undefined ? Number(proyekData.nominal) : (oldLocal ? oldLocal.nominalProyek : 0),
         dP: proyekData.dp !== undefined ? Number(proyekData.dp) : (oldLocal ? oldLocal.dP : 0),
+        pelunasan: proyekData.pelunasan !== undefined ? Number(proyekData.pelunasan) : (oldLocal ? Number(oldLocal.pelunasan || 0) : 0),
         sisaPembayaran: proyekData.sisa !== undefined ? Number(proyekData.sisa) : (oldLocal ? oldLocal.sisaPembayaran : 0),
         deadline: proyekData.deadline !== undefined ? proyekData.deadline : (oldLocal ? oldLocal.deadline : ""),
         status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
@@ -506,6 +510,7 @@ const API = {
           hargaSatuan: proyekData.hargaSatuan !== undefined ? proyekData.hargaSatuan : (oldLocal ? oldLocal.hargaSatuan : 0),
           nominalProyek: proyekData.nominal !== undefined ? proyekData.nominal : (oldLocal ? oldLocal.nominalProyek : 0),
           dP: proyekData.dp !== undefined ? proyekData.dp : (oldLocal ? oldLocal.dP : 0),
+          pelunasan: proyekData.pelunasan !== undefined ? Number(proyekData.pelunasan) : (oldLocal ? Number(oldLocal.pelunasan || 0) : 0),
           sisaPembayaran: proyekData.sisa !== undefined ? proyekData.sisa : (oldLocal ? oldLocal.sisaPembayaran : 0),
           deadline: proyekData.deadline || (oldLocal ? oldLocal.deadline : ""),
           status: proyekData.status || (oldLocal ? oldLocal.status : "Menunggu"),
@@ -776,22 +781,29 @@ const API = {
     let selesaiCount = 0;
 
     (projects || []).forEach(p => {
-      totalPemasukan += (Number(p.pembayaranAwal) || 0);
       const st = String(p.status || '').toLowerCase();
       if (st.includes('dikerjakan')) dikerjakanCount++;
       else if (st.includes('revisi')) revisiCount++;
       else if (st.includes('selesai')) selesaiCount++;
     });
 
-    (keuanganList || []).forEach(k => {
-      const jenis = String(k.jenis || '').toLowerCase();
-      const nominal = Number(k.nominal) || 0;
-      if (jenis.includes('masuk') || jenis === 'pemasukan') {
-        totalPemasukan += nominal;
-      } else if (jenis.includes('keluar') || jenis === 'pengeluaran') {
-        totalPengeluaran += nominal;
-      }
-    });
+    if (keuanganList && keuanganList.length > 0) {
+      keuanganList.forEach(k => {
+        const jenis = String(k.jenis || '').toLowerCase();
+        const nominal = Number(k.nominal) || 0;
+        if (jenis.includes('masuk') || jenis === 'pemasukan') {
+          totalPemasukan += nominal;
+        } else if (jenis.includes('keluar') || jenis === 'pengeluaran') {
+          totalPengeluaran += nominal;
+        }
+      });
+    } else {
+      (projects || []).forEach(p => {
+        const dpVal = Number(p.dP !== undefined ? p.dP : p.dp) || 0;
+        const pelVal = Number(p.pelunasan) || 0;
+        totalPemasukan += (dpVal + pelVal);
+      });
+    }
 
     const labaBersih = totalPemasukan - totalPengeluaran;
 

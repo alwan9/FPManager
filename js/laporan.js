@@ -66,9 +66,9 @@ function renderOverviewCards(proyekList, keuanganList) {
   let totalPengeluaran = 0;
 
   proyekList.forEach(p => {
-    totalOmzet += Number(p.nominal) || 0;
-    totalDp += Number(p.dp) || 0;
-    totalHutang += Number(p.sisa) || 0;
+    totalOmzet += Number(p.nominalProyek !== undefined ? p.nominalProyek : p.nominal) || 0;
+    totalDp += Number(p.dP !== undefined ? p.dP : p.dp) || 0;
+    totalHutang += Number(p.sisaPembayaran !== undefined ? p.sisaPembayaran : p.sisa) || 0;
   });
 
   keuanganList.forEach(k => {
@@ -274,9 +274,10 @@ async function exportToExcel() {
       'Jumlah': p.jumlah,
       'Satuan': p.satuan,
       'Harga Satuan (Rp)': p.hargaSatuan || 0,
-      'Nominal Proyek (Rp)': p.nominalProyek || p.nominal,
-      'DP (Rp)': p.dP || p.dp,
-      'Sisa Tagihan (Rp)': p.sisaPembayaran || p.sisa,
+      'Nominal Proyek (Rp)': p.nominalProyek !== undefined ? p.nominalProyek : p.nominal,
+      'DP (Rp)': p.dP !== undefined ? p.dP : p.dp,
+      'Pelunasan (Rp)': p.pelunasan || 0,
+      'Sisa Tagihan (Rp)': p.sisaPembayaran !== undefined ? p.sisaPembayaran : p.sisa,
       'Tenggat Waktu': p.deadline,
       'Status': p.status,
       'Sumber': p.sumber || 'WhatsApp',
@@ -286,11 +287,19 @@ async function exportToExcel() {
     // 2. Siapkan Sheet Keuangan
     const wsKeuanganData = keuangan.map(k => ({
       'ID Transaksi': k.id,
+      'ID Proyek': k.idProyek || '',
       'User ID': k.userId || 'USR-001',
       'Tanggal': k.tanggal,
       'Jenis Mutasi': k.jenis,
       'Keterangan': k.keterangan,
-      'Nominal (Rp)': k.nominal
+      'Nominal Kas (Rp)': k.nominal,
+      'DP (Rp)': k.dp || 0,
+      'Pelunasan (Rp)': k.pelunasan || 0,
+      'Sisa (Rp)': k.sisa || 0,
+      'Total Proyek (Rp)': k.totalProyek || 0,
+      'Status': k.statusPembayaran || '',
+      'Metode': k.metodePembayaran || '',
+      'Catatan Pelunasan': k.catatanPelunasan || ''
     }));
 
     // Buat Workbook dan pasangkan sheet
