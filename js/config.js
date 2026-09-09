@@ -148,6 +148,42 @@ function sanitizeUrl(url) {
 }
 window.sanitizeUrl = sanitizeUrl;
 
+// Global Helper: Clipboard Copy Utility
+function copyTextToClipboard(text, label = "Teks") {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
+      }
+    }).catch(err => {
+      console.error("Gagal menyalin via navigator.clipboard:", err);
+      fallbackCopyText(text, label);
+    });
+  } else {
+    fallbackCopyText(text, label);
+  }
+}
+function fallbackCopyText(text, label = "Teks") {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
+    }
+  } catch (e) {
+    if (typeof Toast !== 'undefined') Toast.error('Gagal Menyalin', 'Perangkat tidak mendukung penyalinan otomatis.');
+  }
+  document.body.removeChild(textarea);
+}
+window.copyTextToClipboard = copyTextToClipboard;
+
+
 // Global Helper: Check if modal has filled/dirty user inputs
 function isModalInputFilled(modal) {
   const el = typeof modal === 'string' ? document.getElementById(modal) : modal;

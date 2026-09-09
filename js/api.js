@@ -16,54 +16,60 @@
 })();
 
 // Helper HTML Escaper for XSS Prevention
-const escapeHtml = (str) => {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
+if (typeof window.escapeHtml === 'undefined') {
+  window.escapeHtml = function(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+}
 
 // Helper URL Sanitizer to prevent javascript: or data: URL injection (XSS)
-const sanitizeUrl = (url) => {
-  if (!url) return '#';
-  const clean = String(url).trim();
-  if (clean.toLowerCase().startsWith('javascript:') || clean.toLowerCase().startsWith('data:')) {
-    return '#';
-  }
-  return clean;
-};
+if (typeof window.sanitizeUrl === 'undefined') {
+  window.sanitizeUrl = function(url) {
+    if (!url) return '#';
+    const clean = String(url).trim();
+    if (clean.toLowerCase().startsWith('javascript:') || clean.toLowerCase().startsWith('data:')) {
+      return '#';
+    }
+    return clean;
+  };
+}
 
 // Helper Clipboard Copier for UX Convenience
-const copyTextToClipboard = async (text, label = "Teks") => {
-  if (!text) return;
-  try {
-    await navigator.clipboard.writeText(text);
-    if (typeof Toast !== 'undefined') {
-      Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
-    }
-  } catch (err) {
-    console.error("Gagal menyalin:", err);
-    // Fallback using execCommand
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
+if (typeof window.copyTextToClipboard === 'undefined') {
+  window.copyTextToClipboard = async function(text, label = "Teks") {
+    if (!text) return;
     try {
-      document.execCommand('copy');
+      await navigator.clipboard.writeText(text);
       if (typeof Toast !== 'undefined') {
         Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
       }
-    } catch (e) {
-      if (typeof Toast !== 'undefined') Toast.error('Gagal Menyalin', 'Perangkat tidak mendukung penyalinan otomatis.');
+    } catch (err) {
+      console.error("Gagal menyalin:", err);
+      // Fallback using execCommand
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        if (typeof Toast !== 'undefined') {
+          Toast.success('Berhasil Disalin!', `${label} "${text}" telah disalin ke clipboard.`);
+        }
+      } catch (e) {
+        if (typeof Toast !== 'undefined') Toast.error('Gagal Menyalin', 'Perangkat tidak mendukung penyalinan otomatis.');
+      }
+      document.body.removeChild(textarea);
     }
-    document.body.removeChild(textarea);
-  }
-};
+  };
+}
 
 // Helper Unauthorized
 const handleUnauthorized = (result) => {
@@ -1426,5 +1432,10 @@ const API = {
     return { success: true, message: "Pengaturan pengingat tugas berhasil disimpan." };
   }
 };
+
+window.API = API;
+window.APICache = APICache;
+window.FPManagerDB = FPManagerDB;
+
 
 
