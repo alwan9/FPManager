@@ -452,18 +452,6 @@ async function viewDetail(id) {
         document.getElementById('hasilAI').value = '';
       }
 
-      // Tampilkan link Google Drive jika ada
-      const modalGDriveContainer = document.getElementById('modalGDriveContainer');
-      const modalGDriveLink = document.getElementById('modalGDriveLink');
-      if (modalGDriveContainer && modalGDriveLink) {
-        if (proyek.gdriveLink) {
-          modalGDriveContainer.classList.remove('hidden');
-          modalGDriveLink.href = sanitizeUrl(proyek.gdriveLink);
-        } else {
-          modalGDriveContainer.classList.add('hidden');
-          modalGDriveLink.href = '#';
-        }
-      }
       document.getElementById('modalId').textContent = proyek.iDProyek;
       if (document.getElementById('modalUserId')) {
         document.getElementById('modalUserId').textContent = proyek.userId || 'USR-001';
