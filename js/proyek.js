@@ -152,8 +152,17 @@ function initTable(data) {
       { data: 'tanggal', visible: false },
       {
         data: 'namaProyek',
-        render: function (data) {
-          return escapeHtml(data || '');
+        render: function (data, type, row) {
+          const sumber = (row && row.sumber) ? row.sumber : 'WhatsApp';
+          let sourceBadge = '';
+          if (sumber.toLowerCase() === 'shopee') {
+            sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800 ml-1.5 align-middle" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[9px] text-orange-500"></i> Shopee</span>`;
+          } else if (sumber.toLowerCase() === 'fiverr') {
+            sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 ml-1.5 align-middle" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[9px] text-emerald-500"></i> Fiverr</span>`;
+          } else {
+            sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300 border border-green-200 dark:border-green-800 ml-1.5 align-middle" title="Sumber: WhatsApp"><i class="fa-brands fa-whatsapp text-[9px] text-green-500"></i> WhatsApp</span>`;
+          }
+          return `<div><span class="font-medium text-zinc-900 dark:text-zinc-100">${escapeHtml(data || '')}</span> ${sourceBadge}</div>`;
         }
       },
       {
@@ -415,6 +424,17 @@ function filterStatus(status) {
     table.column(9).search('^' + status + '$', true, false).draw();
   }
 }
+
+// Filter proyek berdasarkan sumber (WhatsApp, Fiverr, Shopee)
+function filterBySumber(sumber) {
+  if (!table) return;
+  if (!sumber || sumber === 'all') {
+    table.column(3).search('').draw();
+  } else {
+    table.column(3).search(sumber, true, false).draw();
+  }
+}
+window.filterBySumber = filterBySumber;
 // View Project details inside Modal
 async function viewDetail(id) {
   try {
@@ -447,6 +467,20 @@ async function viewDetail(id) {
       document.getElementById('modalId').textContent = proyek.iDProyek;
       if (document.getElementById('modalUserId')) {
         document.getElementById('modalUserId').textContent = proyek.userId || 'USR-001';
+      }
+      const modalSumberEl = document.getElementById('modalSumber');
+      if (modalSumberEl) {
+        const src = (proyek && proyek.sumber) ? proyek.sumber : 'WhatsApp';
+        if (src.toLowerCase() === 'shopee') {
+          modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800';
+          modalSumberEl.innerHTML = '<i class="fa-solid fa-bag-shopping text-orange-500 mr-1"></i> Shopee';
+        } else if (src.toLowerCase() === 'fiverr') {
+          modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+          modalSumberEl.innerHTML = '<i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> Fiverr';
+        } else {
+          modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800';
+          modalSumberEl.innerHTML = '<i class="fa-brands fa-whatsapp text-green-500 mr-1"></i> WhatsApp';
+        }
       }
       document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
       document.getElementById('modalWa').textContent = `+${proyek.nomorWA}`;
@@ -1017,6 +1051,7 @@ async function updateProyekStatus(id, newStatus) {
       sisa: Number(proyek.sisaPembayaran) || 0,
       deadline: proyek.deadline,
       status: newStatus,
+      sumber: proyek.sumber || 'WhatsApp',
       catatan: proyek.catatan || ''
     };
 

@@ -166,6 +166,7 @@ const TRANSLATIONS = {
     // Project Detail Modal (detailModal)
     "dt-title": "Detail Projek",
     "dt-status": "Status Projek",
+    "dt-source": "Sumber Projek",
     "dt-deadline": "Deadline Target",
     "dt-client": "Pelanggan",
     "dt-work": "Nama Pekerjaan",
@@ -216,6 +217,7 @@ const TRANSLATIONS = {
     "add-btn-3days": "+3 Hari",
     "add-deadline-warning": "Peringatan: Deadline kurang dari 24 jam!",
     "add-label-status": "Status Projek*",
+    "add-label-source": "Sumber Projek*",
     "add-label-gdrive": "Link Google Drive (Opsional)",
     "add-label-createdrive": "Buat Folder Google Drive Otomatis?",
     "add-desc-createdrive": "Sistem akan membuatkan folder baru di Google Drive untuk proyek ini.",
@@ -412,6 +414,7 @@ const TRANSLATIONS = {
     // Project Detail Modal (detailModal)
     "dt-title": "Project Details",
     "dt-status": "Project Status",
+    "dt-source": "Project Source",
     "dt-deadline": "Target Deadline",
     "dt-client": "Customer",
     "dt-work": "Job / Project Name",
@@ -462,6 +465,7 @@ const TRANSLATIONS = {
     "add-btn-3days": "+3 Days",
     "add-deadline-warning": "Warning: Deadline is less than 24 hours!",
     "add-label-status": "Project Status*",
+    "add-label-source": "Project Source*",
     "add-label-gdrive": "Google Drive Link (Optional)",
     "add-label-createdrive": "Create Google Drive Folder Automatically?",
     "add-desc-createdrive": "System will automatically create a new folder in Google Drive for this project.",

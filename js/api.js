@@ -339,6 +339,7 @@ const API = {
         status: proyekData.status || "Menunggu",
         catatan: proyekData.catatan || "",
         gdriveLink: proyekData.gdriveLink || "",
+        sumber: proyekData.sumber || "WhatsApp",
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now(),
         isOfflineCreated: true
@@ -383,6 +384,7 @@ const API = {
           status: proyekData.status,
           catatan: proyekData.catatan,
           gdriveLink: result.gdriveLink || proyekData.gdriveLink,
+          sumber: proyekData.sumber || "WhatsApp",
           userId: currUser ? currUser.id : "USR-001",
           lastUpdated: Date.now()
         };
@@ -409,6 +411,7 @@ const API = {
         status: proyekData.status,
         catatan: proyekData.catatan,
         gdriveLink: proyekData.gdriveLink,
+        sumber: proyekData.sumber || "WhatsApp",
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now(),
         isOfflineCreated: true
@@ -451,6 +454,7 @@ const API = {
         status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
         catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
         gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
+        sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now()
       };
@@ -507,6 +511,7 @@ const API = {
           status: proyekData.status || (oldLocal ? oldLocal.status : "Menunggu"),
           catatan: proyekData.catatan || (oldLocal ? oldLocal.catatan : ""),
           gdriveLink: proyekData.gdriveLink || (oldLocal ? oldLocal.gdriveLink : ""),
+          sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
           lastUpdated: Date.now()
         };
         await FPManagerDB.saveOne('proyek', localUpdated);

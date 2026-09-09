@@ -261,6 +261,15 @@ function renderRecentProjects(recent) {
     };
     const displayStatus = statusMap[p.status] || p.status;
     const badgeClass = 'badge-' + p.status.toLowerCase().replace(/\s+/g, '');
+    const sumber = p.sumber || 'WhatsApp';
+    let sourceBadge = '';
+    if (sumber.toLowerCase() === 'shopee') {
+      sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800 ml-1.5 align-middle" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[8px] text-orange-500"></i> Shopee</span>`;
+    } else if (sumber.toLowerCase() === 'fiverr') {
+      sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 ml-1.5 align-middle" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[8px] text-emerald-500"></i> Fiverr</span>`;
+    } else {
+      sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300 border border-green-200 dark:border-green-800 ml-1.5 align-middle" title="Sumber: WhatsApp"><i class="fa-brands fa-whatsapp text-[8px] text-green-500"></i> WhatsApp</span>`;
+    }
     const gdriveBtn = p.gdriveLink ? `
       <a href="${p.gdriveLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[8px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
         <i class="fa-solid fa-folder-open text-indigo-600 text-[8px]"></i>
@@ -275,6 +284,7 @@ function renderRecentProjects(recent) {
         <span class="text-[10px] text-zinc-500 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
         <div class="flex items-center mt-1">
           <span class="inline-block px-1.5 py-0.5 text-[8px] font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
+          ${sourceBadge}
           ${gdriveBtn}
         </div>
       </div>

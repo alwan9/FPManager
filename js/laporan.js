@@ -279,6 +279,7 @@ async function exportToExcel() {
       'Sisa Tagihan (Rp)': p.sisaPembayaran || p.sisa,
       'Tenggat Waktu': p.deadline,
       'Status': p.status,
+      'Sumber': p.sumber || 'WhatsApp',
       'Catatan': p.catatan || ''
     }));
 
