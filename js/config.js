@@ -218,6 +218,99 @@ function isModalInputFilled(modal) {
 }
 window.isModalInputFilled = isModalInputFilled;
 
+// Global Helper: Universal Modal Exclusivity Manager
+// Automatically ensures only ONE popup/modal is active at any time.
+function closeAllOpenModals(exceptModal = null) {
+  const allModals = document.querySelectorAll(
+    '.fixed.inset-0:not(.hidden), [id*="modal" i]:not(.hidden), [id*="Modal" i]:not(.hidden), [id$="Modal"]:not(.hidden)'
+  );
+
+  allModals.forEach((el) => {
+    if (!el || el === exceptModal) return;
+    if (exceptModal && (exceptModal.contains(el) || el.contains(exceptModal))) return;
+
+    const id = el.id || '';
+    if (
+      id === 'globalLoader' ||
+      id === 'toast-container' ||
+      id === 'navMenu' ||
+      id.startsWith('toast-') ||
+      el.classList.contains('sidebar-link')
+    ) {
+      return;
+    }
+
+    if (el.classList.contains('fixed') || /modal/i.test(id)) {
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+  });
+
+  // Global paste event listener cleanups (tools module)
+  if (typeof handleWmPasteEvent === 'function') document.removeEventListener('paste', handleWmPasteEvent);
+  if (typeof handleLogoPasteEvent === 'function') document.removeEventListener('paste', handleLogoPasteEvent);
+  if (typeof handlePbPasteEvent === 'function') document.removeEventListener('paste', handlePbPasteEvent);
+
+  // Close profile dropdown if open
+  const profileDropdown = document.getElementById('profileDropdown');
+  if (profileDropdown && profileDropdown !== exceptModal && !profileDropdown.classList.contains('hidden')) {
+    profileDropdown.classList.add('hidden');
+  }
+}
+window.closeAllOpenModals = closeAllOpenModals;
+window.closeAllModals = closeAllOpenModals;
+
+// Automatic MutationObserver: ensures that whenever ANY modal opens, other open modals automatically close
+(function initGlobalModalExclusivity() {
+  let isClosingOtherModals = false;
+  const observer = new MutationObserver((mutations) => {
+    if (isClosingOtherModals) return;
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        const target = mutation.target;
+        if (!target || !target.classList) continue;
+
+        const id = target.id || '';
+        if (
+          id === 'globalLoader' ||
+          id === 'toast-container' ||
+          id === 'navMenu' ||
+          id.startsWith('toast-') ||
+          target.classList.contains('sidebar-link')
+        ) {
+          continue;
+        }
+
+        const isModalOverlay = (
+          /modal/i.test(id) ||
+          (target.classList.contains('fixed') && target.classList.contains('inset-0'))
+        );
+
+        if (isModalOverlay && !target.classList.contains('hidden')) {
+          isClosingOtherModals = true;
+          try {
+            closeAllOpenModals(target);
+          } finally {
+            isClosingOtherModals = false;
+          }
+        }
+      }
+    }
+  });
+
+  function startObserver() {
+    if (document.body) {
+      observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startObserver);
+  } else {
+    startObserver();
+  }
+})();
+
 /**
  * Global Custom Confirmation Modal
  * Replaces native JavaScript confirm() with a modern, glassmorphic UI modal.

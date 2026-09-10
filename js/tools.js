@@ -236,6 +236,7 @@ async function saveTool() {
 }
 
 function editTool(id) {
+  closeAllModals();
   const tool = toolsData.find(t => String(t.id) === String(id));
   if (!tool) return;
   document.getElementById('modalTitle').textContent = 'Edit Prompt';
@@ -673,6 +674,7 @@ async function saveShortcut() {
 }
 
 function editShortcut(id) {
+  closeAllModals();
   const shortcut = shortcutsData.find(s => String(s.id) === String(id));
   if (!shortcut) return;
   document.getElementById('shortcutModalTitle').textContent = 'Edit Web Shortcut';
@@ -2833,6 +2835,7 @@ function renderReferences(query = '') {
 }
 
 function openReferencesModal() {
+  closeAllModals();
   const modal = document.getElementById('referencesModal');
   if (modal) modal.classList.remove('hidden');
   resetRefForm();
