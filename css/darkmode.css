@@ -58,11 +58,149 @@ html.dark .text-zinc-400 {
   color: #a1a1aa !important;
 }
 
-/* Border utilities */
-html.dark .border-zinc-300,
-html.dark .border-zinc-200,
-html.dark .border-zinc-100 {
+/* Border utilities & Universal Dark Mode Border Normalization */
+html.dark,
+html.dark *,
+html.dark *::before,
+html.dark *::after {
+  border-color: #27272a;
+}
+
+html.dark .border,
+html.dark .border-t,
+html.dark .border-b,
+html.dark .border-l,
+html.dark .border-r,
+html.dark .border-x,
+html.dark .border-y,
+html.dark .border-2,
+html.dark .border-4,
+html.dark .border-8,
+html.dark hr {
   border-color: #27272a !important;
+}
+
+html.dark .border-zinc-50,
+html.dark .border-zinc-100,
+html.dark .border-zinc-200,
+html.dark .border-zinc-300,
+html.dark .border-zinc-400,
+html.dark .border-zinc-500,
+html.dark .border-zinc-600,
+html.dark .border-gray-50,
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-400,
+html.dark .border-gray-500,
+html.dark .border-slate-50,
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300,
+html.dark .border-slate-400,
+html.dark .border-slate-500,
+html.dark .border-white,
+html.dark [class*="border-white"],
+html.dark [class*="border-zinc-100"],
+html.dark [class*="border-zinc-200"],
+html.dark [class*="border-zinc-300"],
+html.dark [class*="border-zinc-400"],
+html.dark [class*="border-gray-"],
+html.dark [class*="border-slate-"] {
+  border-color: #27272a !important;
+}
+
+html.dark .dark\:border-zinc-800,
+html.dark .dark\:border-zinc-900 {
+  border-color: #27272a !important;
+}
+
+html.dark .dark\:border-zinc-700 {
+  border-color: #3f3f46 !important;
+}
+
+html.dark .divide-y > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-x > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-zinc-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-zinc-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-zinc-300 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #27272a !important;
+}
+
+/* Soft colored badge/tag borders in dark mode */
+html.dark .border-indigo-100,
+html.dark .border-indigo-200,
+html.dark .border-indigo-300,
+html.dark .border-indigo-400,
+html.dark [class*="border-indigo-"] {
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+html.dark .border-emerald-100,
+html.dark .border-emerald-200,
+html.dark .border-emerald-300,
+html.dark .border-emerald-400,
+html.dark .border-green-100,
+html.dark .border-green-200,
+html.dark .border-green-300,
+html.dark [class*="border-emerald-"],
+html.dark [class*="border-green-"] {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .border-rose-100,
+html.dark .border-rose-200,
+html.dark .border-rose-300,
+html.dark .border-rose-400,
+html.dark .border-red-100,
+html.dark .border-red-200,
+html.dark .border-red-300,
+html.dark [class*="border-rose-"],
+html.dark [class*="border-red-"] {
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+html.dark .border-amber-100,
+html.dark .border-amber-200,
+html.dark .border-amber-300,
+html.dark .border-amber-400,
+html.dark .border-yellow-100,
+html.dark .border-yellow-200,
+html.dark .border-yellow-300,
+html.dark [class*="border-amber-"],
+html.dark [class*="border-yellow-"] {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+html.dark .border-blue-100,
+html.dark .border-blue-200,
+html.dark .border-blue-300,
+html.dark .border-blue-400,
+html.dark [class*="border-blue-"] {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .border-purple-100,
+html.dark .border-purple-200,
+html.dark .border-purple-300,
+html.dark .border-purple-400,
+html.dark [class*="border-purple-"] {
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+html.dark .btn-secondary,
+html.dark button.border,
+html.dark a.border {
+  border-color: #3f3f46 !important;
+}
+html.dark .btn-secondary:hover,
+html.dark button.border:hover,
+html.dark a.border:hover {
+  border-color: #52525b !important;
 }
 
 /* 4. FontAwesome & SVG Icons in Dark Mode */
