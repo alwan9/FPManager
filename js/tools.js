@@ -168,13 +168,13 @@ function renderTools(query = '') {
           <span>EN</span>
         </button>
         ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
-        <button onclick="editTool('${tool.id}')" class="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 font-normal rounded-xl transition-colors flex items-center justify-center" title="Edit Prompt">
+        <button onclick="editTool('${tool.id}')" class="px-2.5 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors flex items-center justify-center space-x-1" title="Edit Prompt">
           <i class="fa-solid fa-pen"></i>
         </button>
         ` : ''}
         ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
-        <button onclick="deleteTool('${tool.id}')" class="w-10 h-10 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 font-normal rounded-xl transition-colors flex items-center justify-center" title="Hapus Prompt">
-          <i class="fa-solid fa-trash-can"></i>
+        <button onclick="deleteTool('${tool.id}')" class="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors flex items-center justify-center space-x-1" title="Hapus Prompt">
+          <i class="fa-solid fa-trash"></i>
         </button>
         ` : ''}
       </div>
@@ -254,7 +254,11 @@ async function deleteTool(id) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Prompt.');
     return;
   }
-  if (await showConfirmModal({
+  const confirmFn = typeof showConfirmModal === 'function' 
+    ? showConfirmModal 
+    : (typeof window !== 'undefined' && window.showConfirmModal ? window.showConfirmModal : (async (opts) => confirm(typeof opts === 'string' ? opts : (opts.message || 'Apakah Anda yakin?'))));
+
+  if (await confirmFn({
     title: 'Hapus Prompt',
     message: 'Apakah Anda yakin ingin menghapus prompt ini?',
     type: 'danger',
@@ -434,13 +438,13 @@ function renderShortcuts(query = '') {
       </a>
       <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
         ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
-        <button onclick="editShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform" title="Edit Shortcut">
-          <i class="fa-solid fa-pen text-xs"></i>
+        <button onclick="editShortcut('${shortcut.id}')" class="px-2 py-1 pointer-events-auto bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold flex items-center justify-center shadow-sm hover:scale-110 transition-all" title="Edit Shortcut">
+          <i class="fa-solid fa-pen"></i>
         </button>
         ` : ''}
         ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
-        <button onclick="deleteShortcut('${shortcut.id}')" class="w-8 h-8 pointer-events-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg flex items-center justify-center shadow-sm hover:scale-110 transition-transform" title="Hapus Shortcut">
-          <i class="fa-solid fa-trash-can text-xs"></i>
+        <button onclick="deleteShortcut('${shortcut.id}')" class="px-2 py-1 pointer-events-auto bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/80 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold flex items-center justify-center shadow-sm hover:scale-110 transition-all" title="Hapus Shortcut">
+          <i class="fa-solid fa-trash"></i>
         </button>
         ` : ''}
       </div>
@@ -685,7 +689,11 @@ async function deleteShortcut(id) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Web Shortcut.');
     return;
   }
-  if (await showConfirmModal({
+  const confirmFn = typeof showConfirmModal === 'function' 
+    ? showConfirmModal 
+    : (typeof window !== 'undefined' && window.showConfirmModal ? window.showConfirmModal : (async (opts) => confirm(typeof opts === 'string' ? opts : (opts.message || 'Apakah Anda yakin?'))));
+
+  if (await confirmFn({
     title: 'Hapus Web Shortcut',
     message: 'Apakah Anda yakin ingin menghapus shortcut ini?',
     type: 'danger',
@@ -2808,13 +2816,13 @@ function renderReferences(query = '') {
       <td class="px-4 py-3 text-right">
         <div class="flex items-center justify-end space-x-1.5">
           ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
-          <button onclick="editReference('${ref.id}')" class="p-1 text-zinc-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition" title="Edit">
-            <i class="fa-solid fa-pen text-xs"></i>
+          <button onclick="editReference('${ref.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit">
+            <i class="fa-solid fa-pen"></i>
           </button>
           ` : ''}
           ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
-          <button onclick="deleteReference('${ref.id}')" class="p-1 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded transition" title="Hapus">
-            <i class="fa-solid fa-trash-can text-xs"></i>
+          <button onclick="deleteReference('${ref.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus">
+            <i class="fa-solid fa-trash"></i>
           </button>
           ` : ''}
         </div>
@@ -2934,7 +2942,11 @@ async function deleteReference(id) {
     return;
   }
 
-  if (await showConfirmModal({
+  const confirmFn = typeof showConfirmModal === 'function' 
+    ? showConfirmModal 
+    : (typeof window !== 'undefined' && window.showConfirmModal ? window.showConfirmModal : (async (opts) => confirm(typeof opts === 'string' ? opts : (opts.message || 'Apakah Anda yakin?'))));
+
+  if (await confirmFn({
     title: 'Hapus Referensi',
     message: 'Apakah Anda yakin ingin menghapus referensi desain ini?',
     type: 'danger',

@@ -182,9 +182,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="px-4 py-3 text-center">
             ${isMainAdmin ? '<span class="text-zinc-400 text-xs font-mono">-</span>' : `
               <button onclick="deleteUser('${u.id}', '${escapeHtml(u.username)}')" data-permission-allow="users:delete"
-                class="p-2 text-red-500 hover:text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors"
                 title="Hapus User">
-                <i class="fa-solid fa-trash-can"></i>
+                <i class="fa-solid fa-trash"></i>
               </button>
             `}
           </td>

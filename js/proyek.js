@@ -345,12 +345,12 @@ function initTable(data) {
                 <i class="fa-solid fa-calendar-plus"></i>
               </button>
               ${canUpdate ? `
-              <a href="tambah-proyek.html?id=${encodeURIComponent(data.iDProyek)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => p.iDProyek === '${data.iDProyek}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Edit Proyek">
+              <a href="tambah-proyek.html?id=${encodeURIComponent(data.iDProyek)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => p.iDProyek === '${data.iDProyek}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Proyek">
                 <i class="fa-solid fa-pen"></i>
               </a>
               ` : ''}
               ${canDelete ? `
-              <button onclick="hapusProyek('${data.iDProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-md text-xs font-semibold" title="Hapus Proyek">
+              <button onclick="hapusProyek('${data.iDProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Proyek">
                 <i class="fa-solid fa-trash"></i>
               </button>
               ` : ''}

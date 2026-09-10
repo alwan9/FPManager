@@ -732,17 +732,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div class="flex items-center justify-center space-x-1">
               <!-- Edit Button (CRU) -->
               <button onclick="openEditTaskModal('${task.id}')"
-                class="p-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors"
                 title="Edit Tugas">
-                <i class="fa-solid fa-pen-to-square"></i>
+                <i class="fa-solid fa-pen"></i>
               </button>
 
               <!-- Delete Button (CRUD - Super Admin Only) -->
               ${canDeleteTask ? `
                 <button onclick="deleteAdminTaskConfirm('${task.id}', '${escapeHtmlSafe(task.taskName)}')"
-                  class="p-1.5 text-rose-500 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                  class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors"
                   title="Hapus Tugas">
-                  <i class="fa-solid fa-trash-can"></i>
+                  <i class="fa-solid fa-trash"></i>
                 </button>
               ` : ''}
             </div>
