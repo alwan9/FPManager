@@ -373,23 +373,45 @@
                   class="w-full max-w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                 <div class="flex flex-wrap gap-2 mt-2">
                   <button type="button" id="todayBtn"
-                    class="px-3 py-1 text-sm bg-indigo-600  text-white hover:bg-zinc-200 rounded-lg">
+                    class="deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-calendar-check text-[11px]"></i>
                     <span data-i18n="add-btn-today">Hari Ini</span>
                   </button>
 
                   <button type="button" id="tomorrowBtn"
-                    class="px-3 py-1 text-sm  bg-indigo-600  text-white hover:bg-zinc-200 rounded-lg">
+                    class="deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-sun text-[11px]"></i>
                     <span data-i18n="add-btn-tomorrow">Besok</span>
                   </button>
 
                   <button type="button" id="threeDaysBtn"
-                    class="px-3 py-1 text-sm  bg-indigo-600  text-white hover:bg-zinc-200 rounded-lg">
+                    class="deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-[11px]"></i>
                     <span data-i18n="add-btn-3days">+3 Hari</span>
                   </button>
+
+                  <button type="button" id="sevenDaysBtn"
+                    class="deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-calendar-days text-[11px]"></i>
+                    <span data-i18n="add-btn-7days">+1 Minggu</span>
+                  </button>
+
+                  <button type="button" id="fourteenDaysBtn"
+                    class="deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-calendar text-[11px]"></i>
+                    <span data-i18n="add-btn-14days">+2 Minggu</span>
+                  </button>
+
+                  <button type="button" id="thirtyDaysBtn"
+                    class="deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-regular fa-calendar-plus text-[11px]"></i>
+                    <span data-i18n="add-btn-30days">+1 Bulan</span>
+                  </button>
                 </div>
+                <div id="deadlineInfoBox" class="mt-2 text-xs"></div>
                 <p id="deadlineWarning" class="hidden text-xs text-amber-600 font-semibold mt-1">
                   <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                  <span data-i18n="add-deadline-warning">Deadline sangat mepet (kurang dari 3 hari)!</span>
+                  <span data-i18n="add-deadline-warning">Deadline sangat mepet!</span>
                 </p>
               </div>
 

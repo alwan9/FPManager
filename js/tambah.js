@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const todayBtn = document.getElementById('todayBtn');
   const tomorrowBtn = document.getElementById('tomorrowBtn');
   const threeDaysBtn = document.getElementById('threeDaysBtn');
+  const sevenDaysBtn = document.getElementById('sevenDaysBtn');
+  const fourteenDaysBtn = document.getElementById('fourteenDaysBtn');
+  const thirtyDaysBtn = document.getElementById('thirtyDaysBtn');
   const statusInput = document.getElementById('status');
   const sumberInput = document.getElementById('sumber');
   const metodePembayaranInput = document.getElementById('metodePembayaran');
@@ -321,18 +324,79 @@ document.addEventListener('DOMContentLoaded', async () => {
       dpPreview.textContent = dpInput.value ? formatRupiah(dp) : '';
     }
   };
+  function getLocalDateString(offsetDays = 0) {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function parseLocalDate(dateStr) {
+    if (!dateStr) return null;
+    const cleanStr = String(dateStr).split('T')[0];
+    const parts = cleanStr.split('-');
+    if (parts.length !== 3) return new Date(dateStr);
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
+  }
+
   function formatDate(date) {
+    if (!date) return '';
+    if (typeof date === 'string') {
+      const parsed = parseLocalDate(date);
+      if (parsed && !isNaN(parsed.getTime())) {
+        const year = parsed.getFullYear();
+        const month = String(parsed.getMonth() + 1).padStart(2, "0");
+        const day = String(parsed.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+      return date;
+    }
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
 
+  function updateDeadlinePresetHighlight(selectedDateStr) {
+    const cleanDateStr = String(selectedDateStr || '').split('T')[0];
+    const presets = [
+      { id: 'todayBtn', offset: 0 },
+      { id: 'tomorrowBtn', offset: 1 },
+      { id: 'threeDaysBtn', offset: 3 },
+      { id: 'sevenDaysBtn', offset: 7 },
+      { id: 'fourteenDaysBtn', offset: 14 },
+      { id: 'thirtyDaysBtn', offset: 30 }
+    ];
+
+    presets.forEach(p => {
+      const btn = document.getElementById(p.id);
+      if (!btn) return;
+      const targetStr = getLocalDateString(p.offset);
+      const isActive = cleanDateStr && cleanDateStr === targetStr;
+
+      if (isActive) {
+        btn.className = 'deadline-preset-btn px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm bg-indigo-600 text-white ring-2 ring-indigo-300 dark:ring-indigo-700 active:scale-95 flex items-center gap-1.5';
+      } else {
+        btn.className = 'deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5';
+      }
+    });
+  }
+
+  function setDeadlineWithOffset(offsetDays) {
+    const targetStr = getLocalDateString(offsetDays);
+    if (deadlineInput) {
+      deadlineInput.value = targetStr;
+      checkDeadline(targetStr);
+    }
+  }
+
   if (!isEditMode) {
-    const defaultDate = new Date();
-    deadlineInput.value = formatDate(defaultDate);
-    deadlineInput.min = formatDate(defaultDate);
-    checkDeadline(deadlineInput.value);
+    const defaultDateStr = getLocalDateString(0);
+    deadlineInput.value = defaultDateStr;
+    deadlineInput.min = defaultDateStr;
+    checkDeadline(defaultDateStr);
 
     // Pre-fill fields from URL query params (useful for Pricelist redirect)
     const produkParam = urlParams.get('produk');
@@ -468,39 +532,61 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Call initial preview setup
   updateNamaProyekPreview();
   // Cek Tanggal Deadline
-  deadlineInput.addEventListener('change', (e) => {
-    checkDeadline(e.target.value);
-  });
-  todayBtn.addEventListener("click", () => {
-    const date = new Date();
-    deadlineInput.value = formatDate(date);
-    checkDeadline(deadlineInput.value);
-  });
-  tomorrowBtn.addEventListener("click", () => {
-    const date = new Date();
-    date.setDate(date.getDate() + 1);
-    deadlineInput.value = formatDate(date);
-    checkDeadline(deadlineInput.value);
-  });
-  threeDaysBtn.addEventListener("click", () => {
-    const date = new Date();
-    date.setDate(date.getDate() + 3);
-    deadlineInput.value = formatDate(date);
-    checkDeadline(deadlineInput.value);
-  });
+  if (deadlineInput) {
+    deadlineInput.addEventListener('change', (e) => {
+      checkDeadline(e.target.value);
+    });
+    deadlineInput.addEventListener('input', (e) => {
+      checkDeadline(e.target.value);
+    });
+  }
+
+  if (todayBtn) todayBtn.addEventListener("click", () => setDeadlineWithOffset(0));
+  if (tomorrowBtn) tomorrowBtn.addEventListener("click", () => setDeadlineWithOffset(1));
+  if (threeDaysBtn) threeDaysBtn.addEventListener("click", () => setDeadlineWithOffset(3));
+  if (sevenDaysBtn) sevenDaysBtn.addEventListener("click", () => setDeadlineWithOffset(7));
+  if (fourteenDaysBtn) fourteenDaysBtn.addEventListener("click", () => setDeadlineWithOffset(14));
+  if (thirtyDaysBtn) thirtyDaysBtn.addEventListener("click", () => setDeadlineWithOffset(30));
+
   function checkDeadline(dateStr) {
-    if (!dateStr) return;
-    const deadlineDate = new Date(dateStr);
+    const cleanDateStr = String(dateStr || '').split('T')[0];
+    updateDeadlinePresetHighlight(cleanDateStr);
+    const infoBox = document.getElementById('deadlineInfoBox');
+    if (deadlineWarning) deadlineWarning.classList.add('hidden');
+
+    if (!cleanDateStr) {
+      if (infoBox) infoBox.innerHTML = '';
+      return;
+    }
+
+    const deadlineDate = parseLocalDate(cleanDateStr);
     const today = new Date();
-    // Reset jam agar perbandingan fokus pada tanggal saja
     today.setHours(0, 0, 0, 0);
-    deadlineDate.setHours(0, 0, 0, 0);
-    const diffTime = deadlineDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays >= 0 && diffDays <= 3) {
-      deadlineWarning.classList.remove('hidden');
-    } else {
-      deadlineWarning.classList.add('hidden');
+
+    if (!deadlineDate || isNaN(deadlineDate.getTime())) {
+      if (infoBox) infoBox.innerHTML = '';
+      return;
+    }
+
+    const diffTime = deadlineDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+
+    if (infoBox) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDateName = deadlineDate.toLocaleDateString(isEn ? 'en-US' : 'id-ID', options);
+
+      if (diffDays < 0) {
+        infoBox.innerHTML = `<span class="text-red-600 dark:text-red-400 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> ${isEn ? `Deadline passed (${Math.abs(diffDays)} days ago) · ${formattedDateName}` : `Tanggal deadline sudah lewat (${Math.abs(diffDays)} hari lalu) · ${formattedDateName}`}</span>`;
+      } else if (diffDays === 0) {
+        infoBox.innerHTML = `<span class="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> ${isEn ? `Deadline is TODAY · ${formattedDateName}` : `Deadline HARI INI · ${formattedDateName}`}</span>`;
+      } else if (diffDays === 1) {
+        infoBox.innerHTML = `<span class="text-orange-600 dark:text-orange-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> ${isEn ? `Deadline is TOMORROW · ${formattedDateName}` : `Deadline BESOK · ${formattedDateName}`}</span>`;
+      } else if (diffDays <= 3) {
+        infoBox.innerHTML = `<span class="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-hourglass-half"></i> ${isEn ? `Deadline in ${diffDays} days · ${formattedDateName}` : `Deadline ${diffDays} hari lagi · ${formattedDateName}`}</span>`;
+      } else {
+        infoBox.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5"><i class="fa-solid fa-calendar-check"></i> ${isEn ? `Target: ${formattedDateName} (${diffDays} days remaining)` : `Target: ${formattedDateName} (sisa ${diffDays} hari)`}</span>`;
+      }
     }
   }
   // Format ke Rupiah helper untuk input baca-saja
@@ -540,11 +626,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sisa = Math.max(0, Math.round(nominal - dp - (isEditMode ? (Number(currentPelunasan) || 0) : 0)));
 
     if (!isEditMode) {
-      const inputDate = new Date(deadlineInput.value);
-      inputDate.setHours(0, 0, 0, 0);
+      const inputDate = parseLocalDate(deadlineInput.value);
       const todayDate = new Date();
       todayDate.setHours(0, 0, 0, 0);
-      if (inputDate < todayDate) {
+      if (inputDate && inputDate < todayDate) {
         if (typeof Toast !== 'undefined') {
           Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? "Deadline cannot be in the past!" : "Tanggal deadline tidak boleh sebelum hari ini!");
         } else if (typeof showToast === 'function') {
