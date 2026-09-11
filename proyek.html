@@ -483,7 +483,7 @@
   <div id="detailModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeModal()" style="background-color: rgba(0, 0, 0, 0.6);"
     class="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-4 overflow-y-auto hidden">
     <div
-      class="bg-white rounded-2xl shadow-2xl max-w-lg md:max-w-4xl w-full my-4 sm:my-8 flex flex-col transform transition-all border border-zinc-100 overflow-hidden">
+      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-lg md:max-w-4xl w-full my-4 sm:my-8 flex flex-col transform transition-all border border-zinc-100 dark:border-zinc-800 overflow-hidden">
 
       <!-- Modal Header -->
       <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center shrink-0">
@@ -501,13 +501,13 @@
 
       <!-- Modal Body -->
       <div class="flex-1">
-        <div class="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-zinc-100 bg-white">
+        <div class="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-zinc-100 dark:md:divide-zinc-800 bg-white dark:bg-zinc-900">
 
           <!-- Left Column: Details -->
-          <div class="p-6 space-y-4 text-sm text-zinc-700">
+          <div class="p-6 space-y-4 text-sm text-zinc-700 dark:text-zinc-300">
 
             <!-- Status & Deadline Info -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-4 border-b border-zinc-100">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-4 border-b border-zinc-100 dark:border-zinc-800">
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-status">Status Projek</span>
                 <span id="modalStatus"
@@ -516,7 +516,7 @@
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-source">Sumber</span>
                 <span id="modalSumber"
-                  class="inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 border border-green-200">WhatsApp</span>
+                  class="inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800">WhatsApp</span>
               </div>
               <div>
                 <span class="text-xs text-zinc-400 block">User ID</span>
@@ -525,40 +525,40 @@
               </div>
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-deadline">Deadline Target</span>
-                <span id="modalDeadline" class="font-semibold text-zinc-800 mt-1 block">Tanggal</span>
+                <span id="modalDeadline" class="font-semibold text-zinc-800 dark:text-zinc-100 mt-1 block">Tanggal</span>
               </div>
             </div>
 
             <!-- Customer details -->
             <div>
               <span class="text-xs text-zinc-400 block" data-i18n="dt-client">Pelanggan</span>
-              <span id="modalPelanggan" class="font-bold text-base text-zinc-900 block mt-0.5">Nama Pelanggan</span>
+              <span id="modalPelanggan" class="font-bold text-base text-zinc-900 dark:text-zinc-100 block mt-0.5">Nama Pelanggan</span>
               <div class="flex items-center space-x-2 mt-1">
                 <i class="fa-brands fa-whatsapp text-green-500"></i>
                 <span id="modalWa" onclick="copyTextToClipboard(this.textContent.replace('+', ''), 'Nomor WA')"
-                  class="text-zinc-600 text-xs cursor-pointer hover:underline hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  class="text-zinc-600 dark:text-zinc-400 text-xs cursor-pointer hover:underline hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                   title="Klik untuk salin Nomor WA">62812345</span>
               </div>
             </div>
 
             <!-- Product Details -->
-            <div class="bg-zinc-50 p-4 rounded-xl space-y-2">
+            <div class="bg-zinc-50 dark:bg-zinc-800/40 p-4 rounded-xl space-y-2 border border-zinc-100 dark:border-zinc-800">
               <div>
                 <span class="text-xs text-zinc-400 block" data-i18n="dt-work">Nama Pekerjaan</span>
-                <span id="modalNamaProyek" class="font-semibold text-zinc-800">Nama Brosur</span>
+                <span id="modalNamaProyek" class="font-semibold text-zinc-800 dark:text-zinc-100">Nama Brosur</span>
               </div>
               <div class="grid grid-cols-3 gap-2">
                 <div>
                   <span class="text-xs text-zinc-400 block" data-i18n="dt-product">Produk</span>
-                  <span id="modalProduk" class="font-medium text-xs text-zinc-700">Brosur</span>
+                  <span id="modalProduk" class="font-medium text-xs text-zinc-700 dark:text-zinc-300">Brosur</span>
                 </div>
                 <div>
                   <span class="text-xs text-zinc-400 block" data-i18n="dt-qty">Jumlah</span>
-                  <span id="modalJumlah" class="font-medium text-xs text-zinc-700">500</span>
+                  <span id="modalJumlah" class="font-medium text-xs text-zinc-700 dark:text-zinc-300">500</span>
                 </div>
                 <div>
                   <span class="text-xs text-zinc-400 block" data-i18n="dt-unit">Satuan</span>
-                  <span id="modalSatuan" class="font-medium text-xs text-zinc-700">pcs</span>
+                  <span id="modalSatuan" class="font-medium text-xs text-zinc-700 dark:text-zinc-300">pcs</span>
                 </div>
               </div>
             </div>
@@ -592,11 +592,20 @@
               </div>
             </div>
 
+            <!-- Metode Pembayaran -->
+            <div class="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 text-xs">
+              <span class="text-zinc-500 dark:text-zinc-400 font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-credit-card text-indigo-500"></i>
+                <span data-i18n="dt-payment-method">Metode Pembayaran</span>
+              </span>
+              <span id="modalMetode" class="font-bold text-zinc-800 dark:text-zinc-200">DANA</span>
+            </div>
+
             <!-- Catatan -->
             <div>
               <span class="text-xs text-zinc-400 block" data-i18n="dt-notes">Catatan / Keterangan</span>
               <p id="modalCatatan"
-                class="mt-1 bg-zinc-50 p-3 rounded-lg border border-zinc-100 text-xs text-zinc-600 italic">Tidak ada
+                class="mt-1 bg-zinc-50 dark:bg-zinc-800/40 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-300 italic">Tidak ada
                 catatan.</p>
             </div>
 
@@ -604,9 +613,9 @@
             <div id="modalGDriveContainer" class="hidden">
               <span class="text-xs text-zinc-400 block" data-i18n="dt-gdrive">Link Google Drive Proyek</span>
               <a id="modalGDriveLink" target="_blank" rel="noopener noreferrer" href="#"
-                class="mt-1.5 flex items-center justify-between p-3 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-semibold transition text-xs border border-indigo-100">
+                class="mt-1.5 flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-xl font-semibold transition text-xs border border-indigo-100 dark:border-indigo-900/50">
                 <span class="flex items-center gap-2">
-                  <i class="fa-solid fa-folder-open text-base text-indigo-600"></i>
+                  <i class="fa-solid fa-folder-open text-base text-indigo-600 dark:text-indigo-400"></i>
                   <span data-i18n="dt-btn-gdrive">Buka Folder Google Drive Proyek</span>
                 </span>
                 <i class="fa-solid fa-arrow-up-right-from-square text-xs text-indigo-400"></i>
@@ -616,10 +625,10 @@
           </div>
 
           <!-- Right Column: AI Assistant & Actions -->
-          <div class="p-6 space-y-4 bg-white   md:bg-white flex flex-col justify-start">
+          <div class="p-6 space-y-4 bg-white dark:bg-zinc-900 flex flex-col justify-start">
             <details class="group">
               <summary
-                class="font-semibold cursor-pointer md:cursor-default list-none flex items-center justify-between text-indigo-700 bg-indigo-50 p-3 rounded-xl hover:bg-indigo-100 md:hover:bg-indigo-50 transition-colors">
+                class="font-semibold cursor-pointer md:cursor-default list-none flex items-center justify-between text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 md:hover:bg-indigo-50 dark:md:hover:bg-indigo-950/40 transition-colors border border-indigo-100/50 dark:border-indigo-900/50">
                 <span class="flex items-center gap-2">
                   <i class="fa-solid fa-robot"></i>
                   <span data-i18n="dt-ai-title">AI Assistant</span>
@@ -633,10 +642,10 @@
                 <!-- Input Google Drive Link -->
                 <div id="gdriveInputContainer" class="hidden">
                   <label for="gdriveLink"
-                    class="block text-xs font-semibold text-zinc-500 mb-1.5 uppercase tracking-wider"
+                    class="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider"
                     data-i18n="dt-gdrive-input">Link Google Drive Hasil Desain</label>
                   <input type="url" id="gdriveLink"
-                    class="w-full px-3 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+                    class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:text-white"
                     placeholder="https://drive.google.com/drive/folders/.../view?usp=sharing">
                 </div>
 
@@ -692,7 +701,7 @@
       </div>
       <!-- Modal Footer -->
       <div
-        class="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
+        class="px-6 py-4 bg-zinc-50 dark:bg-zinc-800/60 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:justify-between gap-3 shrink-0">
         <!-- WA action button -->
         <a id="modalWaBtn" target="_blank" rel="noopener noreferrer" href="#"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl text-xs text-center shadow flex items-center justify-center">
@@ -717,7 +726,7 @@
           </button>
 
           <button id="modalEditBtn" data-permission-allow="proyek:update"
-            class="px-4 py-2 rounded-xl bg-zinc-200 text-zinc-800 hover:bg-zinc-300 transition-colors btn-secondary text-xs flex items-center">
+            class="px-4 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors btn-secondary text-xs flex items-center">
             <span data-i18n="dt-btn-edit">Edit</span>
           </button>
           <button id="modalHapusBtn" data-permission-allow="proyek:delete"

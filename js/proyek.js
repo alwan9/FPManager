@@ -434,260 +434,335 @@ function filterBySumber(sumber) {
 }
 window.filterBySumber = filterBySumber;
 // View Project details inside Modal
-async function viewDetail(id) {
+async function viewDetail(idOrObj) {
   try {
-    const list = await API.getProyek();
-    const proyek = list.find(p => p.iDProyek === id);
-    currentProyek = proyek;
-    if (proyek) {
-      if (document.getElementById('gdriveInputContainer')) {
-        document.getElementById('gdriveInputContainer').classList.add('hidden');
+    let proyek = null;
+    if (idOrObj && typeof idOrObj === 'object') {
+      proyek = idOrObj;
+    } else {
+      const rawId = String(idOrObj || '').trim();
+      const decodedId = decodeURIComponent(rawId).trim();
+
+      // 1. Cari instan di memori lokal tabel terlebih dahulu
+      const localList = window.allProyekList || (typeof table !== 'undefined' && table ? table.data().toArray() : []);
+      proyek = (localList || []).find(p => {
+        if (!p) return false;
+        const pid = String(p.iDProyek || p.id || p.idProyek || '').trim();
+        return pid === rawId || pid === decodedId || pid.toLowerCase() === rawId.toLowerCase() || pid.toLowerCase() === decodedId.toLowerCase();
+      });
+
+      // 2. Jika belum ditemukan, fetch dari API
+      if (!proyek) {
+        const list = await API.getProyek();
+        proyek = (list || []).find(p => {
+          if (!p) return false;
+          const pid = String(p.iDProyek || p.id || p.idProyek || '').trim();
+          return pid === rawId || pid === decodedId || pid.toLowerCase() === rawId.toLowerCase() || pid.toLowerCase() === decodedId.toLowerCase();
+        });
       }
-      if (document.getElementById('gdriveLink')) {
-        document.getElementById('gdriveLink').value = proyek.gdriveLink || '';
-      }
-      if (document.getElementById('hasilAI')) {
-        document.getElementById('hasilAI').value = '';
-      }
-
-      document.getElementById('modalId').textContent = proyek.iDProyek;
-      if (document.getElementById('modalUserId')) {
-        document.getElementById('modalUserId').textContent = proyek.userId || 'USR-001';
-      }
-      const modalSumberEl = document.getElementById('modalSumber');
-      if (modalSumberEl) {
-        const src = (proyek && proyek.sumber) ? proyek.sumber : 'WhatsApp';
-        if (src.toLowerCase() === 'shopee') {
-          modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800';
-          modalSumberEl.innerHTML = '<i class="fa-solid fa-bag-shopping text-orange-500 mr-1"></i> Shopee';
-        } else if (src.toLowerCase() === 'fiverr') {
-          modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
-          modalSumberEl.innerHTML = '<i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> Fiverr';
-        } else {
-          modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800';
-          modalSumberEl.innerHTML = '<i class="fa-brands fa-whatsapp text-green-500 mr-1"></i> WhatsApp';
-        }
-      }
-      document.getElementById('modalPelanggan').textContent = proyek.namaPelanggan;
-      document.getElementById('modalWa').textContent = `+${proyek.nomorWA}`;
-      document.getElementById('modalNamaProyek').textContent = proyek.namaProyek;
-      document.getElementById('modalProduk').textContent = proyek.produk || proyek.jenisProduk || '-';
-      document.getElementById('modalJumlah').textContent = proyek.jumlah;
-      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-      const satuanMap = {
-        'pcs': 'pcs',
-        'lembar': 'sheet',
-        'meter': 'meter',
-        'dus': 'box',
-        'paket': 'package',
-        'rim': 'ream',
-        'buku': 'book'
-      };
-      document.getElementById('modalSatuan').textContent = isEn ? (satuanMap[proyek.satuan] || proyek.satuan) : proyek.satuan;
-      document.getElementById('modalNominal').textContent = formatRupiah(proyek.nominalProyek);
-      document.getElementById('modalDp').textContent = formatRupiah(proyek.dP);
-      const modalPelunasanEl = document.getElementById('modalPelunasan');
-      const pelunasanVal = Number(proyek.pelunasan) || 0;
-      if (modalPelunasanEl) {
-        modalPelunasanEl.textContent = formatRupiah(pelunasanVal);
-      }
-
-      const modalDeadlineEl = document.getElementById('modalDeadline');
-      if (modalDeadlineEl) {
-        if (proyek.deadline) {
-          const dlDate = new Date(proyek.deadline);
-          dlDate.setHours(0, 0, 0, 0);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const diffMs = dlDate - today;
-          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-          const st = String(proyek.status || '').toLowerCase().trim();
-          const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
-
-          let dateDisplay = proyek.deadline;
-          try {
-            const parts = proyek.deadline.split('-');
-            if (parts.length === 3) {
-              const year = parts[0];
-              const month = parseInt(parts[1], 10);
-              const day = parseInt(parts[2], 10);
-              const monthsId = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-              const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-              const mName = isEn ? monthsEn[month - 1] : monthsId[month - 1];
-              dateDisplay = `${day} ${mName} ${year}`;
-            }
-          } catch (e) {
-            dateDisplay = proyek.deadline;
-          }
-
-          if (isFinished) {
-            modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span>`;
-          } else {
-            const isWaitingOrProgress = st.includes('menunggu') || st.includes('dikerjakan');
-            const isRevision = st.includes('revisi');
-
-            if (isWaitingOrProgress) {
-              if (diffDays >= 0) {
-                const label = isEn ? `-${diffDays} days` : `-${diffDays} hari`;
-                const colorClass = diffDays <= 3 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-zinc-500 dark:text-zinc-400 font-semibold';
-                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs ${colorClass}"> (${label})</span>`;
-              } else {
-                const label = isEn ? `Overdue by ${Math.abs(diffDays)} days` : `Terlambat ${Math.abs(diffDays)} hari`;
-                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${label})</span>`;
-              }
-            } else if (isRevision) {
-              if (diffDays < 0) {
-                const label = isEn ? `Overdue by ${Math.abs(diffDays)} days` : `Terlambat ${Math.abs(diffDays)} hari`;
-                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${label})</span>`;
-              } else {
-                const label = isEn ? `-${diffDays} days` : `-${diffDays} hari`;
-                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-amber-600 dark:text-amber-400 font-bold"> (${label})</span>`;
-              }
-            } else {
-              // Fallback (e.g. Belum Pembayaran)
-              if (diffDays >= 0) {
-                const label = isEn ? `-${diffDays} days` : `-${diffDays} hari`;
-                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-zinc-500 dark:text-zinc-400 font-semibold"> (${label})</span>`;
-              } else {
-                const label = isEn ? `Overdue by ${Math.abs(diffDays)} days` : `Terlambat ${Math.abs(diffDays)} hari`;
-                modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${label})</span>`;
-              }
-            }
-          }
-        } else {
-          modalDeadlineEl.textContent = '-';
-        }
-      }
-
-      document.getElementById('modalCatatan').textContent = proyek.catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
-
-      // Dropdown Sisa & Fitur Lunasi
-      const sisaVal = Number(proyek.sisaPembayaran) || 0;
-      const dpVal = Number(proyek.dP) || 0;
-      const nominalVal = Number(proyek.nominalProyek) || 0;
-      const isLunas = sisaVal <= 0 || (dpVal + pelunasanVal >= nominalVal && nominalVal > 0);
-      const sisaSelect = document.getElementById('modalSisaSelect');
-      const sisaIcon = document.getElementById('modalSisaIcon');
-
-      if (sisaSelect) {
-        sisaSelect.innerHTML = '';
-        if (isLunas) {
-          // Lunas
-          const opt = document.createElement('option');
-          opt.value = 'lunas';
-          opt.textContent = isEn ? 'Paid' : 'Lunas';
-          sisaSelect.appendChild(opt);
-          sisaSelect.disabled = true;
-          sisaSelect.className = "appearance-none bg-transparent font-bold text-green-600 text-sm focus:outline-none w-full truncate";
-          if (sisaIcon) sisaIcon.classList.add('hidden');
-        } else {
-          // Belum Lunas
-          const optUtang = document.createElement('option');
-          optUtang.value = 'utang';
-          optUtang.textContent = formatRupiah(sisaVal);
-          optUtang.selected = true;
-          sisaSelect.appendChild(optUtang);
-
-          const optLunas = document.createElement('option');
-          optLunas.value = 'lunas';
-          optLunas.textContent = isEn ? 'Mark as Paid' : 'Lunasi (Ubah jadi lunas)';
-          sisaSelect.appendChild(optLunas);
-
-          sisaSelect.disabled = false;
-          sisaSelect.className = "appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate";
-          if (sisaIcon) sisaIcon.classList.remove('hidden');
-        }
-      }
-      // Style badge status
-      const statusBadge = document.getElementById('modalStatus');
-      const statusMap = {
-        'Menunggu': 'Waiting',
-        'Sedang Dikerjakan': 'In Progress',
-        'Revisi': 'Revision',
-        'Selesai': 'Completed',
-        'Belum Pembayaran': 'Unpaid',
-        'Dibatalkan': 'Cancelled'
-      };
-      statusBadge.textContent = isEn ? (statusMap[proyek.status] || proyek.status) : proyek.status;
-      statusBadge.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full badge-${proyek.status.toLowerCase().replace(/\s+/g, '')}`;
-      // Calendar Button
-      const modalCalendarBtn = document.getElementById('modalCalendarBtn');
-      if (modalCalendarBtn) {
-        modalCalendarBtn.onclick = () => {
-          if (typeof CalendarSync !== 'undefined') {
-            CalendarSync.prompt(proyek);
-          }
-        };
-      }
-      // Edit Button
-      document.getElementById('modalEditBtn').onclick = () => {
-        try { sessionStorage.setItem('cached_edit_proyek', JSON.stringify(proyek)); } catch (e) { }
-        window.location.href = `tambah-proyek.html?id=${encodeURIComponent(proyek.iDProyek)}`;
-      };
-      document.getElementById("modalInvoiceBtn").onclick = () => {
-        window.location.href =
-          "invoice.html?id=" + proyek.iDProyek;
-      };
-      // Hapus Button
-      document.getElementById('modalHapusBtn').onclick = () => {
-        closeModal();
-        hapusProyek(proyek.iDProyek, proyek.namaProyek);
-      };
-      // WA Button
-      const waText = encodeURIComponent(CONFIG.WA_TEMPLATE);
-      const waUrl = `https://api.whatsapp.com/send?phone=${proyek.nomorWA}&text=${waText}`;
-      const waBtnEl = document.getElementById('modalWaBtn');
-      if (waBtnEl) {
-        waBtnEl.href = waUrl;
-        waBtnEl.target = 'FPManager_WhatsAppTab';
-      }
-
-      // Link Google Drive Proyek
-      const modalGDriveContainer = document.getElementById('modalGDriveContainer');
-      const modalGDriveLink = document.getElementById('modalGDriveLink');
-      const gdriveInputContainer = document.getElementById('gdriveInputContainer');
-      const gdriveLinkInput = document.getElementById('gdriveLink');
-
-      if (proyek.gdriveLink && proyek.gdriveLink.trim() !== '') {
-        modalGDriveContainer.classList.remove('hidden');
-        modalGDriveLink.href = sanitizeUrl(proyek.gdriveLink);
-        modalGDriveLink.onclick = null;
-        if (gdriveInputContainer) {
-          gdriveInputContainer.classList.add('hidden');
-        }
-      } else {
-        modalGDriveContainer.classList.add('hidden');
-        modalGDriveLink.href = '#';
-        if (gdriveInputContainer) {
-          gdriveInputContainer.classList.remove('hidden');
-          gdriveLinkInput.value = '';
-        }
-      }
-
-      // Reset AI Section
-      document.getElementById('hasilAI').value = '';
-      currentProyek = proyek;
-
-      // Ensure that restricted buttons are hidden in Detail Modal for unauthorized roles
-      if (typeof Auth !== 'undefined' && typeof Auth.enforceDOMPermissions === 'function') {
-        Auth.enforceDOMPermissions();
-      }
-
-      // Buka modal
-      const modal = document.getElementById('detailModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
     }
+
+    if (!proyek) {
+      console.warn("Proyek tidak ditemukan untuk ID/Data:", idOrObj);
+      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+      if (typeof Toast !== 'undefined') {
+        Toast.error(isEn ? "Project Detail" : "Detail Projek", isEn ? "Project data not found." : "Data projek tidak ditemukan.");
+      }
+      return;
+    }
+
+    currentProyek = proyek;
+    populateDetailModal(proyek);
   } catch (error) {
-    console.error(error);
+    console.error("Error loading project detail:", error);
     const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-    showToast({
-      title: isEn ? "Project Detail" : "Detail Projek",
-      message: isEn ? "Failed to load project details." : "Gagal memuat detail projek.",
-      type: "error"
-    });
+    if (typeof Toast !== 'undefined') {
+      Toast.error(isEn ? "Project Detail" : "Detail Projek", isEn ? "Failed to load project details." : "Gagal memuat detail projek.");
+    }
   }
 }
+window.viewDetail = viewDetail;
+
+function populateDetailModal(proyek) {
+  if (!proyek) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+
+  const proyekId = proyek.iDProyek || proyek.id || proyek.idProyek || '-';
+  const userId = proyek.userId || proyek.userid || 'USR-001';
+  const sumber = proyek.sumber || 'WhatsApp';
+  const namaProyek = proyek.namaProyek || proyek.proyek || proyek.nama || '-';
+  const namaPelanggan = proyek.namaPelanggan || proyek.pelanggan || proyek.client || '-';
+  const produk = proyek.produk || proyek.jenisProduk || proyek.namaProduk || '-';
+  const jumlah = proyek.jumlah !== undefined ? proyek.jumlah : (proyek.qty || 1);
+  const satuan = proyek.satuan || 'pcs';
+  const nominal = parseFloat(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0)) || 0;
+  const dp = parseFloat(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0)) || 0;
+  const pelunasan = parseFloat(proyek.pelunasan || 0) || 0;
+  const sisa = parseFloat(proyek.sisaPembayaran !== undefined ? proyek.sisaPembayaran : (proyek.sisa !== undefined ? proyek.sisa : Math.max(0, nominal - dp - pelunasan))) || 0;
+  const status = proyek.status || 'Menunggu';
+  const catatan = proyek.catatan || proyek.keterangan || '';
+  const gdriveLink = proyek.gdriveLink || proyek.gdrive || '';
+  const metodePembayaran = proyek.metodePembayaran || proyek.metode || '-';
+  const deadline = proyek.deadline || proyek.tenggatWaktu || proyek.target || '';
+
+  // 1. ID & User ID
+  const modalIdEl = document.getElementById('modalId');
+  if (modalIdEl) modalIdEl.textContent = proyekId;
+
+  const modalUserIdEl = document.getElementById('modalUserId');
+  if (modalUserIdEl) modalUserIdEl.textContent = userId;
+
+  // 2. Status Badge
+  const modalStatusEl = document.getElementById('modalStatus');
+  if (modalStatusEl) {
+    const statusMap = {
+      'Menunggu': 'Waiting',
+      'Sedang Dikerjakan': 'In Progress',
+      'Revisi': 'Revision',
+      'Selesai': 'Completed',
+      'Belum Pembayaran': 'Unpaid',
+      'Dibatalkan': 'Cancelled'
+    };
+    modalStatusEl.textContent = isEn ? (statusMap[status] || status) : status;
+    const badgeStatusKey = String(status).toLowerCase().replace(/\s+/g, '');
+    modalStatusEl.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full badge-${badgeStatusKey}`;
+  }
+
+  // 3. Sumber Badge
+  const modalSumberEl = document.getElementById('modalSumber');
+  if (modalSumberEl) {
+    if (sumber.toLowerCase() === 'shopee') {
+      modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800';
+      modalSumberEl.innerHTML = '<i class="fa-solid fa-bag-shopping text-orange-500 mr-1"></i> Shopee';
+    } else if (sumber.toLowerCase() === 'fiverr') {
+      modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+      modalSumberEl.innerHTML = '<i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> Fiverr';
+    } else {
+      modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800';
+      modalSumberEl.innerHTML = '<i class="fa-brands fa-whatsapp text-green-500 mr-1"></i> WhatsApp';
+    }
+  }
+
+  // 4. Deadline Display
+  const modalDeadlineEl = document.getElementById('modalDeadline');
+  if (modalDeadlineEl) {
+    if (deadline) {
+      const cleanDl = String(deadline).split('T')[0];
+      const parts = cleanDl.split('-');
+      let dateDisplay = cleanDl;
+      let diffDays = 0;
+
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        const day = parseInt(parts[2], 10);
+        const monthsId = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const mName = isEn ? monthsEn[month - 1] : monthsId[month - 1];
+        dateDisplay = `${day} ${mName} ${year}`;
+
+        const dlDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diffMs = dlDate.getTime() - today.getTime();
+        diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      }
+
+      const st = String(status).toLowerCase().trim();
+      const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
+
+      if (isFinished) {
+        modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span>`;
+      } else {
+        if (diffDays === 0) {
+          modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-amber-600 dark:text-amber-400 font-bold"> (${isEn ? 'Today!' : 'Hari ini!'})</span>`;
+        } else if (diffDays === 1) {
+          modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-orange-600 dark:text-orange-400 font-bold"> (${isEn ? 'Tomorrow!' : 'Besok!'})</span>`;
+        } else if (diffDays > 1) {
+          const colorClass = diffDays <= 3 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-zinc-500 dark:text-zinc-400 font-semibold';
+          modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs ${colorClass}"> (${isEn ? `-${diffDays} days` : `-${diffDays} hari`})</span>`;
+        } else {
+          modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`})</span>`;
+        }
+      }
+    } else {
+      modalDeadlineEl.textContent = '-';
+    }
+  }
+
+  // 5. Customer & WA
+  const modalPelangganEl = document.getElementById('modalPelanggan');
+  if (modalPelangganEl) modalPelangganEl.textContent = namaPelanggan;
+
+  let rawWA = String(proyek.nomorWA || proyek.wa || proyek.nomorWa || '').replace(/\D/g, '');
+  if (rawWA.startsWith('0')) rawWA = '62' + rawWA.slice(1);
+  else if (!rawWA.startsWith('62') && rawWA.length > 0) rawWA = '62' + rawWA;
+
+  const modalWaEl = document.getElementById('modalWa');
+  if (modalWaEl) {
+    modalWaEl.textContent = rawWA ? `+${rawWA}` : '-';
+  }
+
+  // 6. Product Details
+  const modalNamaProyekEl = document.getElementById('modalNamaProyek');
+  if (modalNamaProyekEl) modalNamaProyekEl.textContent = namaProyek;
+
+  const modalProdukEl = document.getElementById('modalProduk');
+  if (modalProdukEl) modalProdukEl.textContent = produk;
+
+  const modalJumlahEl = document.getElementById('modalJumlah');
+  if (modalJumlahEl) modalJumlahEl.textContent = jumlah;
+
+  const modalSatuanEl = document.getElementById('modalSatuan');
+  if (modalSatuanEl) {
+    const satuanMap = {
+      'pcs': 'pcs',
+      'lembar': 'sheet',
+      'meter': 'meter',
+      'dus': 'box',
+      'paket': 'package',
+      'rim': 'ream',
+      'buku': 'book'
+    };
+    modalSatuanEl.textContent = isEn ? (satuanMap[satuan] || satuan) : satuan;
+  }
+
+  // 7. Finance Breakdown
+  const modalNominalEl = document.getElementById('modalNominal');
+  if (modalNominalEl) modalNominalEl.textContent = formatRupiah(nominal);
+
+  const modalDpEl = document.getElementById('modalDp');
+  if (modalDpEl) modalDpEl.textContent = formatRupiah(dp);
+
+  const modalPelunasanEl = document.getElementById('modalPelunasan');
+  if (modalPelunasanEl) modalPelunasanEl.textContent = formatRupiah(pelunasan);
+
+  // 8. Sisa Tagihan & Dropdown Lunasi
+  const isLunas = sisa <= 0 || (dp + pelunasan >= nominal && nominal > 0);
+  const sisaSelect = document.getElementById('modalSisaSelect');
+  const sisaIcon = document.getElementById('modalSisaIcon');
+
+  if (sisaSelect) {
+    sisaSelect.innerHTML = '';
+    if (isLunas) {
+      const opt = document.createElement('option');
+      opt.value = 'lunas';
+      opt.textContent = isEn ? 'Paid (Rp0)' : 'Lunas (Rp0)';
+      sisaSelect.appendChild(opt);
+      sisaSelect.disabled = true;
+      sisaSelect.className = "appearance-none bg-transparent font-bold text-green-600 text-sm focus:outline-none w-full truncate";
+      if (sisaIcon) sisaIcon.classList.add('hidden');
+    } else {
+      const optUtang = document.createElement('option');
+      optUtang.value = 'utang';
+      optUtang.textContent = formatRupiah(sisa);
+      optUtang.selected = true;
+      sisaSelect.appendChild(optUtang);
+
+      const optLunas = document.createElement('option');
+      optLunas.value = 'lunas';
+      optLunas.textContent = isEn ? 'Mark as Paid' : 'Lunasi (Ubah jadi lunas)';
+      sisaSelect.appendChild(optLunas);
+
+      sisaSelect.disabled = false;
+      sisaSelect.className = "appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate";
+      if (sisaIcon) sisaIcon.classList.remove('hidden');
+    }
+  }
+
+  // 9. Metode Pembayaran
+  const modalMetodeEl = document.getElementById('modalMetode');
+  if (modalMetodeEl) {
+    modalMetodeEl.textContent = metodePembayaran;
+  }
+
+  // 10. Catatan
+  const modalCatatanEl = document.getElementById('modalCatatan');
+  if (modalCatatanEl) {
+    modalCatatanEl.textContent = catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
+  }
+
+  // 11. Google Drive Link
+  const modalGDriveContainer = document.getElementById('modalGDriveContainer');
+  const modalGDriveLink = document.getElementById('modalGDriveLink');
+  const gdriveInputContainer = document.getElementById('gdriveInputContainer');
+  const gdriveLinkInput = document.getElementById('gdriveLink');
+
+  if (gdriveLink && gdriveLink.trim() !== '') {
+    if (modalGDriveContainer) modalGDriveContainer.classList.remove('hidden');
+    if (modalGDriveLink) modalGDriveLink.href = sanitizeUrl(gdriveLink);
+    if (gdriveInputContainer) gdriveInputContainer.classList.add('hidden');
+    if (gdriveLinkInput) gdriveLinkInput.value = gdriveLink;
+  } else {
+    if (modalGDriveContainer) modalGDriveContainer.classList.add('hidden');
+    if (modalGDriveLink) modalGDriveLink.href = '#';
+    if (gdriveInputContainer) gdriveInputContainer.classList.remove('hidden');
+    if (gdriveLinkInput) gdriveLinkInput.value = '';
+  }
+
+  // 12. Action Buttons in Footer
+  const modalCalendarBtn = document.getElementById('modalCalendarBtn');
+  if (modalCalendarBtn) {
+    modalCalendarBtn.onclick = () => {
+      if (typeof CalendarSync !== 'undefined') {
+        CalendarSync.prompt(proyek);
+      }
+    };
+  }
+
+  const modalEditBtn = document.getElementById('modalEditBtn');
+  if (modalEditBtn) {
+    modalEditBtn.onclick = () => {
+      try { sessionStorage.setItem('cached_edit_proyek', JSON.stringify(proyek)); } catch (e) { }
+      window.location.href = `tambah-proyek.html?id=${encodeURIComponent(proyekId)}`;
+    };
+  }
+
+  const modalInvoiceBtn = document.getElementById('modalInvoiceBtn');
+  if (modalInvoiceBtn) {
+    modalInvoiceBtn.onclick = () => {
+      window.location.href = `invoice.html?id=${encodeURIComponent(proyekId)}`;
+    };
+  }
+
+  const modalHapusBtn = document.getElementById('modalHapusBtn');
+  if (modalHapusBtn) {
+    modalHapusBtn.onclick = () => {
+      closeModal();
+      hapusProyek(proyekId, namaProyek);
+    };
+  }
+
+  const waBtnEl = document.getElementById('modalWaBtn');
+  if (waBtnEl) {
+    if (rawWA) {
+      const waText = encodeURIComponent(CONFIG.WA_TEMPLATE || '');
+      waBtnEl.href = `https://api.whatsapp.com/send?phone=${rawWA}&text=${waText}`;
+      waBtnEl.target = 'FPManager_WhatsAppTab';
+      waBtnEl.classList.remove('opacity-50', 'pointer-events-none');
+    } else {
+      waBtnEl.href = '#';
+      waBtnEl.classList.add('opacity-50', 'pointer-events-none');
+    }
+  }
+
+  // Reset AI section
+  const hasilAIEl = document.getElementById('hasilAI');
+  if (hasilAIEl) hasilAIEl.value = '';
+
+  // Enforce DOM Permissions
+  if (typeof Auth !== 'undefined' && typeof Auth.enforceDOMPermissions === 'function') {
+    Auth.enforceDOMPermissions();
+  }
+
+  // Buka modal
+  const modal = document.getElementById('detailModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+window.populateDetailModal = populateDetailModal;
 
 // Close Modal
 function closeModal() {
