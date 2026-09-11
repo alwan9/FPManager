@@ -81,7 +81,7 @@ const CONFIG = {
     {
       id: 'dana',
       name: 'DANA',
-      number: '0883216760774',
+      number: '088216760774',
       holder: 'Hafiz Alwan',
       type: 'E-Wallet',
       icon: 'fa-solid fa-wallet text-sky-500',
@@ -99,7 +99,7 @@ const CONFIG = {
     {
       id: 'spay',
       name: 'ShopeePay (SPay)',
-      number: '0883216760774',
+      number: '088216760774',
       holder: 'Hafiz Alwan',
       type: 'E-Wallet',
       icon: 'fa-solid fa-bag-shopping text-orange-500',
