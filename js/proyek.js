@@ -159,8 +159,6 @@ function initTable(data) {
             sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800 ml-1.5 align-middle" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[9px] text-orange-500"></i> Shopee</span>`;
           } else if (sumber.toLowerCase() === 'fiverr') {
             sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 ml-1.5 align-middle" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[9px] text-emerald-500"></i> Fiverr</span>`;
-          } else {
-            sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300 border border-green-200 dark:border-green-800 ml-1.5 align-middle" title="Sumber: WhatsApp"><i class="fa-brands fa-whatsapp text-[9px] text-green-500"></i> WhatsApp</span>`;
           }
           return `<div><span class="font-medium text-zinc-900 dark:text-zinc-100">${escapeHtml(data || '')}</span> ${sourceBadge}</div>`;
         }
