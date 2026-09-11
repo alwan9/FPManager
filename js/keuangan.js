@@ -322,7 +322,9 @@ function initTable(data) {
           const rawMetode = String(data || '').trim();
           let metode = 'DANA';
           if (rawMetode.toLowerCase().includes('gopay')) metode = 'GoPay';
-          else if (rawMetode.toLowerCase().includes('spay') || rawMetode.toLowerCase().includes('shopee')) metode = 'ShopeePay';
+          else if (rawMetode.toLowerCase().includes('spay') || rawMetode.toLowerCase().includes('shopeepay')) metode = 'ShopeePay';
+          else if (rawMetode.toLowerCase().includes('shopee')) metode = 'Shopee';
+          else if (rawMetode.toLowerCase().includes('fiverr')) metode = 'Fiverr';
           else if (rawMetode.toLowerCase().includes('bsi')) metode = 'BSI';
           else if (rawMetode.toLowerCase().includes('jago')) metode = 'Bank Jago';
           else if (rawMetode.toLowerCase().includes('qris')) metode = 'QRIS';
@@ -336,6 +338,8 @@ function initTable(data) {
                 <option value="DANA" ${metode === 'DANA' ? 'selected' : ''}>DANA</option>
                 <option value="GoPay" ${metode === 'GoPay' ? 'selected' : ''}>GoPay</option>
                 <option value="ShopeePay" ${metode === 'ShopeePay' ? 'selected' : ''}>ShopeePay</option>
+                <option value="Shopee" ${metode === 'Shopee' ? 'selected' : ''}>Shopee</option>
+                <option value="Fiverr" ${metode === 'Fiverr' ? 'selected' : ''}>Fiverr</option>
                 <option value="BSI" ${metode === 'BSI' ? 'selected' : ''}>BSI</option>
                 <option value="Bank Jago" ${metode === 'Bank Jago' ? 'selected' : ''}>Bank Jago</option>
                 <option value="QRIS" ${metode === 'QRIS' ? 'selected' : ''}>QRIS</option>

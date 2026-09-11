@@ -106,6 +106,24 @@ const CONFIG = {
       badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
     },
     {
+      id: 'shopee',
+      name: 'Shopee',
+      number: 'Pembayaran Marketplace Shopee',
+      holder: 'Hafiz Alwan / @premium_dz',
+      type: 'Marketplace',
+      icon: 'fa-solid fa-bag-shopping text-orange-500',
+      badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
+    },
+    {
+      id: 'fiverr',
+      name: 'Fiverr',
+      number: 'Pembayaran Order Fiverr',
+      holder: 'Hafiz Alwan / @premium_dz',
+      type: 'Marketplace',
+      icon: 'fa-solid fa-bolt text-emerald-500',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
+    },
+    {
       id: 'bsi',
       name: 'BSI (Bank Syariah Indonesia)',
       number: '7312337627',
