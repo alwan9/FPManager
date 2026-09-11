@@ -1118,11 +1118,12 @@ function sendAIWhatsapp() {
 
 // Format Rupiah Helper
 function formatRupiah(number) {
+  const num = typeof number === 'number' ? number : (parseFloat(number) || 0);
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0
-  }).format(number);
+  }).format(isNaN(num) ? 0 : num);
 }
 
 // Update status of project inline from table select

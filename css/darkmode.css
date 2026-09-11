@@ -560,19 +560,73 @@ html.dark #userModal .bg-white,
 html.dark #exportModal .bg-white,
 html.dark #toolModal .bg-white,
 html.dark #shortcutModal .bg-white,
-html.dark #calendarSyncModal .bg-white {
+html.dark #calendarSyncModal .bg-white,
+html.dark [id$="Modal"] .bg-white {
   background-color: #18181b !important;
   border-color: #27272a !important;
-  color: #e4e4e7 !important;
+  color: #f4f4f5 !important;
 }
 
 html.dark #detailModal .bg-zinc-50,
 html.dark #userDetailModal .bg-zinc-50,
 html.dark #userModal .bg-zinc-50,
 html.dark #exportModal .bg-zinc-50,
-html.dark #calendarSyncModal .bg-zinc-50 {
+html.dark #calendarSyncModal .bg-zinc-50,
+html.dark [id$="Modal"] .bg-zinc-50 {
   background-color: #09090b !important;
   border-color: #27272a !important;
+}
+
+/* Modal Typography & Contrast Fixes in Dark Mode */
+html.dark #detailModal,
+html.dark #detailModal span,
+html.dark #detailModal p,
+html.dark #detailModal h4,
+html.dark #detailModal label {
+  color: #f4f4f5;
+}
+
+html.dark #detailModal .text-zinc-900,
+html.dark #detailModal .text-zinc-800,
+html.dark #detailModal .text-zinc-700,
+html.dark #detailModal #modalPelanggan,
+html.dark #detailModal #modalNamaProyek,
+html.dark #detailModal #modalProduk,
+html.dark #detailModal #modalJumlah,
+html.dark #detailModal #modalSatuan,
+html.dark #detailModal #modalNominal,
+html.dark #detailModal #modalDp,
+html.dark #detailModal #modalMetode,
+html.dark #detailModal #modalDeadline,
+html.dark [id$="Modal"] .text-zinc-900,
+html.dark [id$="Modal"] .text-zinc-800,
+html.dark [id$="Modal"] .text-zinc-700 {
+  color: #f4f4f5 !important;
+}
+
+html.dark #detailModal .text-zinc-600,
+html.dark #detailModal .text-zinc-500,
+html.dark #detailModal #modalWa,
+html.dark [id$="Modal"] .text-zinc-600,
+html.dark [id$="Modal"] .text-zinc-500 {
+  color: #cbd5e1 !important;
+}
+
+html.dark #detailModal .text-zinc-400,
+html.dark [id$="Modal"] .text-zinc-400 {
+  color: #a1a1aa !important;
+}
+
+html.dark #detailModal #modalCatatan {
+  color: #cbd5e1 !important;
+  background-color: #121215 !important;
+  border-color: #27272a !important;
+}
+
+html.dark #detailModal #modalUserId {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
 }
 
 /* Modal Headers */
