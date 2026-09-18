@@ -239,9 +239,8 @@ window.isModalInputFilled = isModalInputFilled;
 // Global Helper: Universal Modal Exclusivity Manager
 // Automatically ensures only ONE popup/modal is active at any time.
 function closeAllOpenModals(exceptModal = null) {
-  const allModals = document.querySelectorAll(
-    '.fixed.inset-0:not(.hidden), [id*="modal" i]:not(.hidden), [id*="Modal" i]:not(.hidden), [id$="Modal"]:not(.hidden)'
-  );
+  // Only query actual modal overlays: elements that are full-screen fixed overlays (.fixed.inset-0)
+  const allModals = document.querySelectorAll('.fixed.inset-0:not(.hidden)');
 
   allModals.forEach((el) => {
     if (!el || el === exceptModal) return;
@@ -252,13 +251,15 @@ function closeAllOpenModals(exceptModal = null) {
       id === 'globalLoader' ||
       id === 'toast-container' ||
       id === 'navMenu' ||
+      id === 'splashScreen' ||
       id.startsWith('toast-') ||
       el.classList.contains('sidebar-link')
     ) {
       return;
     }
 
-    if (el.classList.contains('fixed') || /modal/i.test(id)) {
+    // Only close true modal overlays (must be top-level fixed inset-0 containers)
+    if (el.classList.contains('fixed') && el.classList.contains('inset-0')) {
       el.classList.add('hidden');
       el.classList.remove('flex');
     }
@@ -293,15 +294,19 @@ window.closeAllModals = closeAllOpenModals;
           id === 'globalLoader' ||
           id === 'toast-container' ||
           id === 'navMenu' ||
+          id === 'splashScreen' ||
           id.startsWith('toast-') ||
           target.classList.contains('sidebar-link')
         ) {
           continue;
         }
 
+        // A modal overlay MUST be a top-level fullscreen overlay (fixed AND inset-0)
+        // that is an actual modal container, not an arbitrary child element with 'modal' in its ID!
         const isModalOverlay = (
-          /modal/i.test(id) ||
-          (target.classList.contains('fixed') && target.classList.contains('inset-0'))
+          target.classList.contains('fixed') &&
+          target.classList.contains('inset-0') &&
+          (id.toLowerCase().endsWith('modal') || target.hasAttribute('data-modal-overlay') || target.getAttribute('role') === 'dialog')
         );
 
         if (isModalOverlay && !target.classList.contains('hidden')) {

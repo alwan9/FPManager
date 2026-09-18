@@ -523,10 +523,16 @@ function populateDetailModal(proyek) {
 
   // 1. ID & User ID
   const modalIdEl = document.getElementById('modalId');
-  if (modalIdEl) modalIdEl.textContent = proyekId;
+  if (modalIdEl) {
+    modalIdEl.textContent = proyekId;
+    modalIdEl.classList.remove('hidden');
+  }
 
   const modalUserIdEl = document.getElementById('modalUserId');
-  if (modalUserIdEl) modalUserIdEl.textContent = userId;
+  if (modalUserIdEl) {
+    modalUserIdEl.textContent = userId;
+    modalUserIdEl.classList.remove('hidden');
+  }
 
   // 2. Status Badge
   const modalStatusEl = document.getElementById('modalStatus');
@@ -557,11 +563,13 @@ function populateDetailModal(proyek) {
       modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800';
       modalSumberEl.innerHTML = '<i class="fa-brands fa-whatsapp text-green-500 mr-1"></i> WhatsApp';
     }
+    modalSumberEl.classList.remove('hidden');
   }
 
   // 4. Deadline Display
   const modalDeadlineEl = document.getElementById('modalDeadline');
   if (modalDeadlineEl) {
+    modalDeadlineEl.classList.remove('hidden');
     if (deadline) {
       const cleanDl = (typeof window.parseSafeDateString === 'function')
         ? window.parseSafeDateString(deadline)
@@ -610,7 +618,10 @@ function populateDetailModal(proyek) {
 
   // 5. Customer & WA
   const modalPelangganEl = document.getElementById('modalPelanggan');
-  if (modalPelangganEl) modalPelangganEl.textContent = namaPelanggan;
+  if (modalPelangganEl) {
+    modalPelangganEl.textContent = namaPelanggan;
+    modalPelangganEl.classList.remove('hidden');
+  }
 
   let rawWA = String(proyek.nomorWA || proyek.wa || proyek.nomorWa || '').replace(/\D/g, '');
   if (rawWA.startsWith('0')) rawWA = '62' + rawWA.slice(1);
@@ -619,17 +630,27 @@ function populateDetailModal(proyek) {
   const modalWaEl = document.getElementById('modalWa');
   if (modalWaEl) {
     modalWaEl.textContent = rawWA ? `+${rawWA}` : '-';
+    modalWaEl.classList.remove('hidden');
   }
 
   // 6. Product Details
   const modalNamaProyekEl = document.getElementById('modalNamaProyek');
-  if (modalNamaProyekEl) modalNamaProyekEl.textContent = namaProyek;
+  if (modalNamaProyekEl) {
+    modalNamaProyekEl.textContent = namaProyek;
+    modalNamaProyekEl.classList.remove('hidden');
+  }
 
   const modalProdukEl = document.getElementById('modalProduk');
-  if (modalProdukEl) modalProdukEl.textContent = produk;
+  if (modalProdukEl) {
+    modalProdukEl.textContent = produk;
+    modalProdukEl.classList.remove('hidden');
+  }
 
   const modalJumlahEl = document.getElementById('modalJumlah');
-  if (modalJumlahEl) modalJumlahEl.textContent = jumlah;
+  if (modalJumlahEl) {
+    modalJumlahEl.textContent = jumlah;
+    modalJumlahEl.classList.remove('hidden');
+  }
 
   const modalSatuanEl = document.getElementById('modalSatuan');
   if (modalSatuanEl) {
@@ -643,17 +664,27 @@ function populateDetailModal(proyek) {
       'buku': 'book'
     };
     modalSatuanEl.textContent = isEn ? (satuanMap[satuan] || satuan) : satuan;
+    modalSatuanEl.classList.remove('hidden');
   }
 
   // 7. Finance Breakdown
   const modalNominalEl = document.getElementById('modalNominal');
-  if (modalNominalEl) modalNominalEl.textContent = formatRupiah(nominal);
+  if (modalNominalEl) {
+    modalNominalEl.textContent = formatRupiah(nominal);
+    modalNominalEl.classList.remove('hidden');
+  }
 
   const modalDpEl = document.getElementById('modalDp');
-  if (modalDpEl) modalDpEl.textContent = formatRupiah(dp);
+  if (modalDpEl) {
+    modalDpEl.textContent = formatRupiah(dp);
+    modalDpEl.classList.remove('hidden');
+  }
 
   const modalPelunasanEl = document.getElementById('modalPelunasan');
-  if (modalPelunasanEl) modalPelunasanEl.textContent = formatRupiah(pelunasan);
+  if (modalPelunasanEl) {
+    modalPelunasanEl.textContent = formatRupiah(pelunasan);
+    modalPelunasanEl.classList.remove('hidden');
+  }
 
   // 8. Sisa Tagihan & Dropdown Lunasi
   const isLunas = sisa <= 0 || (dp + pelunasan >= nominal && nominal > 0);
@@ -686,18 +717,21 @@ function populateDetailModal(proyek) {
       sisaSelect.className = "appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate";
       if (sisaIcon) sisaIcon.classList.remove('hidden');
     }
+    sisaSelect.classList.remove('hidden');
   }
 
   // 9. Metode Pembayaran
   const modalMetodeEl = document.getElementById('modalMetode');
   if (modalMetodeEl) {
     modalMetodeEl.textContent = metodePembayaran;
+    modalMetodeEl.classList.remove('hidden');
   }
 
   // 10. Catatan
   const modalCatatanEl = document.getElementById('modalCatatan');
   if (modalCatatanEl) {
     modalCatatanEl.textContent = catatan || (isEn ? 'No notes.' : 'Tidak ada catatan.');
+    modalCatatanEl.classList.remove('hidden');
   }
 
   // 11. Google Drive Link
@@ -708,7 +742,10 @@ function populateDetailModal(proyek) {
 
   if (gdriveLink && gdriveLink.trim() !== '') {
     if (modalGDriveContainer) modalGDriveContainer.classList.remove('hidden');
-    if (modalGDriveLink) modalGDriveLink.href = sanitizeUrl(gdriveLink);
+    if (modalGDriveLink) {
+      modalGDriveLink.href = sanitizeUrl(gdriveLink);
+      modalGDriveLink.classList.remove('hidden');
+    }
     if (gdriveInputContainer) gdriveInputContainer.classList.add('hidden');
     if (gdriveLinkInput) gdriveLinkInput.value = gdriveLink;
   } else {
@@ -721,6 +758,7 @@ function populateDetailModal(proyek) {
   // 12. Action Buttons in Footer
   const modalCalendarBtn = document.getElementById('modalCalendarBtn');
   if (modalCalendarBtn) {
+    modalCalendarBtn.classList.remove('hidden');
     modalCalendarBtn.onclick = () => {
       if (typeof CalendarSync !== 'undefined') {
         CalendarSync.prompt(proyek);
@@ -738,6 +776,7 @@ function populateDetailModal(proyek) {
 
   const modalInvoiceBtn = document.getElementById('modalInvoiceBtn');
   if (modalInvoiceBtn) {
+    modalInvoiceBtn.classList.remove('hidden');
     modalInvoiceBtn.onclick = () => {
       window.location.href = `invoice.html?id=${encodeURIComponent(proyekId)}`;
     };
@@ -753,6 +792,7 @@ function populateDetailModal(proyek) {
 
   const waBtnEl = document.getElementById('modalWaBtn');
   if (waBtnEl) {
+    waBtnEl.classList.remove('hidden');
     if (rawWA) {
       const waText = encodeURIComponent(CONFIG.WA_TEMPLATE || '');
       waBtnEl.href = `https://api.whatsapp.com/send?phone=${rawWA}&text=${waText}`;
@@ -769,8 +809,10 @@ function populateDetailModal(proyek) {
   if (hasilAIEl) hasilAIEl.value = '';
 
   // Enforce DOM Permissions
-  if (typeof Auth !== 'undefined' && typeof Auth.enforceDOMPermissions === 'function') {
-    Auth.enforceDOMPermissions();
+  if (typeof Auth !== 'undefined') {
+    if (typeof Auth.applyButtonPermissions === 'function') {
+      Auth.applyButtonPermissions();
+    }
   }
 
   // Buka modal
