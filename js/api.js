@@ -40,6 +40,28 @@ if (typeof window.sanitizeUrl === 'undefined') {
   };
 }
 
+// Helper Tanggal Aman Anti-UTC Offset Bug
+if (typeof window.parseSafeDateString === 'undefined') {
+  window.parseSafeDateString = function(dateVal) {
+    if (!dateVal) return '';
+    let str = String(dateVal).replace(/^'+/, '').trim();
+    if (!str) return '';
+
+    // Jika formatnya ISO UTC (misal 2026-09-18T17:00:00.000Z)
+    if (str.includes('T') || str.includes('Z')) {
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    }
+
+    return str.split('T')[0];
+  };
+}
+
 // Helper Clipboard Copier for UX Convenience
 if (typeof window.copyTextToClipboard === 'undefined') {
   window.copyTextToClipboard = async function(text, label = "Teks") {
@@ -293,6 +315,15 @@ const API = {
         console.error("API ERROR :", result.message);
         return [];
       }
+
+      if (Array.isArray(result.data)) {
+        result.data.forEach(p => {
+          if (p) {
+            if (p.deadline) p.deadline = window.parseSafeDateString(p.deadline);
+            if (p.tanggal) p.tanggal = window.parseSafeDateString(p.tanggal);
+          }
+        });
+      }
       
       if (!page && !limit && !search) {
         APICache.proyek = result.data;
@@ -319,12 +350,22 @@ const API = {
     APICache.clear();
     const currUser = API.getCurrentUser();
 
+    const getTodayLocalDateStr = () => {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const cleanDeadline = window.parseSafeDateString(proyekData.deadline);
+
     // Check if offline
     if (!navigator.onLine) {
       const offlineId = "OFFLINE-PRJ-" + Date.now();
       const localProyek = {
         iDProyek: offlineId,
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: getTodayLocalDateStr(),
         namaProyek: proyekData.namaProyek || "",
         namaPelanggan: proyekData.pelanggan || "",
         nomorWA: proyekData.wa || "",
@@ -336,7 +377,7 @@ const API = {
         dP: Number(proyekData.dp) || 0,
         pelunasan: Number(proyekData.pelunasan) || 0,
         sisaPembayaran: Number(proyekData.sisa) || 0,
-        deadline: proyekData.deadline || "",
+        deadline: cleanDeadline,
         status: proyekData.status || "Menunggu",
         catatan: proyekData.catatan || "",
         gdriveLink: proyekData.gdriveLink || "",
@@ -347,7 +388,7 @@ const API = {
       };
 
       await FPManagerDB.saveOne('proyek', localProyek);
-      await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData });
+      await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData: { ...proyekData, deadline: cleanDeadline } });
 
       return {
         success: true,
@@ -361,7 +402,8 @@ const API = {
     try {
       const body = new URLSearchParams();
       API.appendAuthBody(body, "addProyek");
-      body.append("data", JSON.stringify(proyekData));
+      const payloadToSend = { ...proyekData, deadline: cleanDeadline ? ("'" + cleanDeadline) : "" };
+      body.append("data", JSON.stringify(payloadToSend));
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         body
@@ -370,7 +412,7 @@ const API = {
       if (result.success) {
         const addedProyek = {
           iDProyek: result.idProyek,
-          tanggal: new Date().toISOString().split('T')[0],
+          tanggal: getTodayLocalDateStr(),
           namaProyek: proyekData.namaProyek,
           namaPelanggan: proyekData.pelanggan,
           nomorWA: proyekData.wa,
@@ -382,7 +424,7 @@ const API = {
           dP: proyekData.dp,
           pelunasan: Number(proyekData.pelunasan) || 0,
           sisaPembayaran: proyekData.sisa,
-          deadline: proyekData.deadline,
+          deadline: cleanDeadline,
           status: proyekData.status,
           catatan: proyekData.catatan,
           gdriveLink: result.gdriveLink || proyekData.gdriveLink,
@@ -398,7 +440,7 @@ const API = {
       const offlineId = "OFFLINE-PRJ-" + Date.now();
       const localProyek = {
         iDProyek: offlineId,
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: getTodayLocalDateStr(),
         namaProyek: proyekData.namaProyek,
         namaPelanggan: proyekData.pelanggan,
         nomorWA: proyekData.wa,
@@ -410,7 +452,7 @@ const API = {
         dP: proyekData.dp,
         pelunasan: Number(proyekData.pelunasan) || 0,
         sisaPembayaran: proyekData.sisa,
-        deadline: proyekData.deadline,
+        deadline: cleanDeadline,
         status: proyekData.status,
         catatan: proyekData.catatan,
         gdriveLink: proyekData.gdriveLink,
@@ -435,6 +477,7 @@ const API = {
     APICache.clear();
     const currUser = API.getCurrentUser();
     const isTempId = String(id).startsWith("OFFLINE-PRJ-");
+    const cleanDeadline = proyekData.deadline !== undefined ? window.parseSafeDateString(proyekData.deadline) : undefined;
 
     if (!navigator.onLine || isTempId) {
       const allLocal = await FPManagerDB.getAll('proyek');
@@ -454,7 +497,7 @@ const API = {
         dP: proyekData.dp !== undefined ? Number(proyekData.dp) : (oldLocal ? oldLocal.dP : 0),
         pelunasan: proyekData.pelunasan !== undefined ? Number(proyekData.pelunasan) : (oldLocal ? Number(oldLocal.pelunasan || 0) : 0),
         sisaPembayaran: proyekData.sisa !== undefined ? Number(proyekData.sisa) : (oldLocal ? oldLocal.sisaPembayaran : 0),
-        deadline: proyekData.deadline !== undefined ? proyekData.deadline : (oldLocal ? oldLocal.deadline : ""),
+        deadline: cleanDeadline !== undefined ? cleanDeadline : (oldLocal ? oldLocal.deadline : ""),
         status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
         catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
         gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
@@ -464,7 +507,7 @@ const API = {
       };
 
       await FPManagerDB.saveOne('proyek', localUpdated);
-      await FPManagerDB.addToQueue('updateProyek', { id, proyekData, lastUpdated: localUpdated.lastUpdated });
+      await FPManagerDB.addToQueue('updateProyek', { id, proyekData: { ...proyekData, ...(cleanDeadline !== undefined ? { deadline: cleanDeadline } : {}) }, lastUpdated: localUpdated.lastUpdated });
 
       return {
         success: true,
@@ -484,7 +527,11 @@ const API = {
       API.appendAuthBody(body, "updateProyek");
       body.append("id", id);
 
-      const payload = { ...proyekData, lastUpdated: clientLastUpdated };
+      const payload = { 
+        ...proyekData, 
+        ...(cleanDeadline !== undefined ? { deadline: cleanDeadline ? ("'" + cleanDeadline) : "" } : {}),
+        lastUpdated: clientLastUpdated 
+      };
       body.append("data", JSON.stringify(payload));
 
       const response = await fetch(CONFIG.API_URL, {
@@ -811,17 +858,20 @@ const API = {
     const deadlineAlerts = [];
     (projects || []).forEach(p => {
       if (p.deadline) {
-        const dlDate = new Date(p.deadline);
-        dlDate.setHours(0, 0, 0, 0);
-        const diffMs = dlDate - today;
-        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const cleanDl = window.parseSafeDateString(p.deadline);
+        const parts = cleanDl.split('-');
+        let diffDays = -999;
+        if (parts.length === 3) {
+          const dlDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
+          diffDays = Math.round((dlDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        }
         const st = String(p.status || '').toLowerCase();
         if (diffDays >= 0 && diffDays <= 3 && !st.includes('selesai') && !st.includes('batal')) {
           deadlineAlerts.push({
             iDProyek: p.iDProyek,
             namaProyek: p.namaProyek,
             namaPelanggan: p.namaPelanggan,
-            deadline: p.deadline,
+            deadline: cleanDl,
             diffDays: diffDays
           });
         }

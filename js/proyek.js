@@ -199,30 +199,37 @@ function initTable(data) {
           if (!data) return '-';
           if (type === 'display') {
             const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-            const dlDate = new Date(data);
-            dlDate.setHours(0, 0, 0, 0);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const diffMs = dlDate - today;
-            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+            const cleanDl = (typeof window.parseSafeDateString === 'function')
+              ? window.parseSafeDateString(data)
+              : String(data || '').replace(/^'+/, '').split('T')[0];
+            const parts = cleanDl.split('-');
+            let diffDays = 0;
+            let dateDisplay = cleanDl;
+
+            if (parts.length === 3) {
+              const year = parseInt(parts[0], 10);
+              const month = parseInt(parts[1], 10);
+              const day = parseInt(parts[2], 10);
+              const dlDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const diffMs = dlDate.getTime() - today.getTime();
+              diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+              const monthsId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+              const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              const mName = isEn ? monthsEn[month - 1] : monthsId[month - 1];
+              dateDisplay = `${day} ${mName} ${year}`;
+            } else {
+              const dlDate = new Date(data);
+              dlDate.setHours(0, 0, 0, 0);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              diffDays = Math.round((dlDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+            }
+
             const st = String(row.status || '').toLowerCase().trim();
             const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
-
-            let dateDisplay = data;
-            try {
-              const parts = data.split('-');
-              if (parts.length === 3) {
-                const year = parts[0];
-                const month = parseInt(parts[1], 10);
-                const day = parseInt(parts[2], 10);
-                const monthsId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                const mName = isEn ? monthsEn[month - 1] : monthsId[month - 1];
-                dateDisplay = `${day} ${mName} ${year}`;
-              }
-            } catch (e) {
-              dateDisplay = data;
-            }
 
             const isWaitingOrProgress = st.includes('menunggu') || st.includes('dikerjakan');
             const isRevision = st.includes('revisi');
@@ -232,39 +239,48 @@ function initTable(data) {
             }
 
             let badgeHtml = '';
+            const getBadgeText = (days) => {
+              if (days === 0) return isEn ? 'Today' : 'Hari ini';
+              if (days === 1) return isEn ? 'Tomorrow' : 'Besok';
+              if (days > 1) return isEn ? `${days}d left` : `Sisa ${days} hari`;
+              return isEn ? `Overdue ${Math.abs(days)}d` : `Terlambat ${Math.abs(days)} hari`;
+            };
+
             if (isWaitingOrProgress) {
               if (diffDays >= 0) {
-                const label = isEn ? `-${diffDays}d` : `-${diffDays} hari`;
-                const badgeClass = diffDays <= 3
-                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-900/50'
-                  : 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700';
-                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+                const label = getBadgeText(diffDays);
+                const badgeClass = diffDays === 0
+                  ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 font-bold'
+                  : (diffDays === 1
+                    ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 font-bold'
+                    : (diffDays <= 3
+                      ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-900/50 font-bold'
+                      : 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 font-medium'));
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] border ${badgeClass} w-max">${label}</span>`;
               } else {
-                const label = isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`;
-                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50';
-                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+                const label = getBadgeText(diffDays);
+                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50 font-bold';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] border ${badgeClass} w-max">${label}</span>`;
               }
             } else if (isRevision) {
               if (diffDays < 0) {
-                const label = isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`;
-                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50 animate-pulse';
-                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+                const label = getBadgeText(diffDays);
+                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50 font-bold animate-pulse';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] border ${badgeClass} w-max">${label}</span>`;
               } else {
-                const label = isEn ? `-${diffDays}d` : `-${diffDays} hari`;
-                const badgeClass = 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/50';
-                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
+                const label = getBadgeText(diffDays);
+                const badgeClass = diffDays <= 1
+                  ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 font-bold'
+                  : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/50 font-semibold';
+                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] border ${badgeClass} w-max">${label}</span>`;
               }
             } else {
               // Fallback for other states (e.g. Belum Pembayaran)
-              if (diffDays >= 0) {
-                const label = isEn ? `-${diffDays}d` : `-${diffDays} hari`;
-                const badgeClass = 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700';
-                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
-              } else {
-                const label = isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`;
-                const badgeClass = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50';
-                badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass} w-max">${label}</span>`;
-              }
+              const label = getBadgeText(diffDays);
+              const badgeClass = diffDays < 0
+                ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50 font-bold'
+                : 'text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 font-medium';
+              badgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] border ${badgeClass} w-max">${label}</span>`;
             }
 
             return `<div class="flex flex-col space-y-0.5">
@@ -547,7 +563,9 @@ function populateDetailModal(proyek) {
   const modalDeadlineEl = document.getElementById('modalDeadline');
   if (modalDeadlineEl) {
     if (deadline) {
-      const cleanDl = String(deadline).split('T')[0];
+      const cleanDl = (typeof window.parseSafeDateString === 'function')
+        ? window.parseSafeDateString(deadline)
+        : String(deadline).replace(/^'+/, '').split('T')[0];
       const parts = cleanDl.split('-');
       let dateDisplay = cleanDl;
       let diffDays = 0;
@@ -580,7 +598,7 @@ function populateDetailModal(proyek) {
           modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-orange-600 dark:text-orange-400 font-bold"> (${isEn ? 'Tomorrow!' : 'Besok!'})</span>`;
         } else if (diffDays > 1) {
           const colorClass = diffDays <= 3 ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-zinc-500 dark:text-zinc-400 font-semibold';
-          modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs ${colorClass}"> (${isEn ? `-${diffDays} days` : `-${diffDays} hari`})</span>`;
+          modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs ${colorClass}"> (${isEn ? `${diffDays} days left` : `Sisa ${diffDays} hari`})</span>`;
         } else {
           modalDeadlineEl.innerHTML = `<span class="text-zinc-800 dark:text-zinc-100">${dateDisplay}</span> <span class="text-xs text-red-600 dark:text-red-400 font-bold"> (${isEn ? `Overdue ${Math.abs(diffDays)}d` : `Terlambat ${Math.abs(diffDays)} hari`})</span>`;
         }
@@ -923,6 +941,10 @@ async function hapusProyek(id, name) {
     const prj = window.allProyekList.find(p => String(p.iDProyek) === String(id));
     if (prj) prjName = prj.namaProyek || '';
   }
+
+  const confirmMsg = isEn
+    ? `Are you sure you want to delete project ${prjName ? `"${prjName}"` : `(${id})`}? This action cannot be undone.`
+    : `Apakah Anda yakin ingin menghapus projek ${prjName ? `"${prjName}"` : `(${id})`}? Tindakan ini tidak dapat dibatalkan.`;
 
   const isConfirmed = await showConfirmModal({
     title: isEn ? "Delete Project" : "Hapus Projek",

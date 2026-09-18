@@ -206,8 +206,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (dpInput) dpInput.value = dpVal;
       
       if (deadlineInput && proyek.deadline) {
-        let dl = String(proyek.deadline);
-        if (dl.indexOf('T') !== -1) dl = dl.split('T')[0];
+        let dl = (typeof window.parseSafeDateString === 'function')
+          ? window.parseSafeDateString(proyek.deadline)
+          : String(proyek.deadline).replace(/^'+/, '').split('T')[0];
         deadlineInput.value = dl;
         checkDeadline(dl);
       }
@@ -326,6 +327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   function getLocalDateString(offsetDays = 0) {
     const d = new Date();
+    d.setHours(12, 0, 0, 0); // Hindari pergantian tanggal akibat tengah malam atau offset zona waktu
     d.setDate(d.getDate() + offsetDays);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -335,7 +337,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function parseLocalDate(dateStr) {
     if (!dateStr) return null;
-    const cleanStr = String(dateStr).split('T')[0];
+    const cleanStr = (typeof window.parseSafeDateString === 'function')
+      ? window.parseSafeDateString(dateStr)
+      : String(dateStr).replace(/^'+/, '').split('T')[0];
     const parts = cleanStr.split('-');
     if (parts.length !== 3) return new Date(dateStr);
     return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
@@ -377,18 +381,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isActive = cleanDateStr && cleanDateStr === targetStr;
 
       if (isActive) {
-        btn.className = 'deadline-preset-btn px-3 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm bg-indigo-600 text-white ring-2 ring-indigo-300 dark:ring-indigo-700 active:scale-95 flex items-center gap-1.5';
+        btn.className = 'deadline-preset-btn px-3 py-1 text-sm font-bold rounded-lg transition-all shadow-md bg-indigo-800 text-white ring-2 ring-indigo-300 dark:ring-indigo-400 active:scale-95';
       } else {
-        btn.className = 'deadline-preset-btn px-3 py-1.5 text-xs font-semibold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 flex items-center gap-1.5';
+        btn.className = 'deadline-preset-btn px-3 py-1 text-sm font-medium rounded-lg transition-all shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95';
       }
     });
   }
 
-  function setDeadlineWithOffset(offsetDays) {
+  function setDeadlineWithOffset(offsetDays, e) {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
     const targetStr = getLocalDateString(offsetDays);
     if (deadlineInput) {
       deadlineInput.value = targetStr;
       checkDeadline(targetStr);
+      deadlineInput.dispatchEvent(new Event('input', { bubbles: true }));
+      deadlineInput.dispatchEvent(new Event('change', { bubbles: true }));
     }
   }
 
@@ -541,15 +551,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (todayBtn) todayBtn.addEventListener("click", () => setDeadlineWithOffset(0));
-  if (tomorrowBtn) tomorrowBtn.addEventListener("click", () => setDeadlineWithOffset(1));
-  if (threeDaysBtn) threeDaysBtn.addEventListener("click", () => setDeadlineWithOffset(3));
-  if (sevenDaysBtn) sevenDaysBtn.addEventListener("click", () => setDeadlineWithOffset(7));
-  if (fourteenDaysBtn) fourteenDaysBtn.addEventListener("click", () => setDeadlineWithOffset(14));
-  if (thirtyDaysBtn) thirtyDaysBtn.addEventListener("click", () => setDeadlineWithOffset(30));
+  if (todayBtn) todayBtn.addEventListener("click", (e) => setDeadlineWithOffset(0, e));
+  if (tomorrowBtn) tomorrowBtn.addEventListener("click", (e) => setDeadlineWithOffset(1, e));
+  if (threeDaysBtn) threeDaysBtn.addEventListener("click", (e) => setDeadlineWithOffset(3, e));
+  if (sevenDaysBtn) sevenDaysBtn.addEventListener("click", (e) => setDeadlineWithOffset(7, e));
+  if (fourteenDaysBtn) fourteenDaysBtn.addEventListener("click", (e) => setDeadlineWithOffset(14, e));
+  if (thirtyDaysBtn) thirtyDaysBtn.addEventListener("click", (e) => setDeadlineWithOffset(30, e));
 
   function checkDeadline(dateStr) {
-    const cleanDateStr = String(dateStr || '').split('T')[0];
+    const cleanDateStr = (typeof window.parseSafeDateString === 'function')
+      ? window.parseSafeDateString(dateStr)
+      : String(dateStr || '').replace(/^'+/, '').split('T')[0];
     updateDeadlinePresetHighlight(cleanDateStr);
     const infoBox = document.getElementById('deadlineInfoBox');
     if (deadlineWarning) deadlineWarning.classList.add('hidden');
