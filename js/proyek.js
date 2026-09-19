@@ -815,6 +815,9 @@ function populateDetailModal(proyek) {
     }
   }
 
+  // Reset ke Tab Informasi & Finansial
+  switchDetailModalTab('info');
+
   // Buka modal
   const modal = document.getElementById('detailModal');
   if (modal) {
@@ -823,6 +826,31 @@ function populateDetailModal(proyek) {
   }
 }
 window.populateDetailModal = populateDetailModal;
+
+// Tab Switcher for Detail Modal
+function switchDetailModalTab(tabName) {
+  const tabInfo = document.getElementById('detailTabInfo');
+  const tabAI = document.getElementById('detailTabAI');
+  const btnInfo = document.getElementById('tabBtnInfo');
+  const btnAI = document.getElementById('tabBtnAI');
+
+  if (!tabInfo || !tabAI || !btnInfo || !btnAI) return;
+
+  if (tabName === 'ai') {
+    tabInfo.classList.add('hidden');
+    tabAI.classList.remove('hidden');
+
+    btnAI.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs";
+    btnInfo.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200";
+  } else {
+    tabInfo.classList.remove('hidden');
+    tabAI.classList.add('hidden');
+
+    btnInfo.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs";
+    btnAI.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200";
+  }
+}
+window.switchDetailModalTab = switchDetailModalTab;
 
 // Close Modal
 function closeModal() {
