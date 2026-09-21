@@ -17,7 +17,9 @@ if ('serviceWorker' in navigator) {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
 
         // Force check for updates on load
-        registration.update();
+        registration.update().catch(err => {
+          console.debug('ServiceWorker update check skipped (offline or server unreachable):', err);
+        });
 
         // Detect when a new Service Worker update is installing
         registration.addEventListener('updatefound', () => {
@@ -45,8 +47,10 @@ if ('serviceWorker' in navigator) {
   // Check for SW updates whenever user switches back to the app window
   window.addEventListener('focus', () => {
     navigator.serviceWorker.ready.then(registration => {
-      registration.update();
-    });
+      registration.update().catch(err => {
+        console.debug('ServiceWorker update check skipped (offline or server unreachable):', err);
+      });
+    }).catch(() => {});
   });
 }
 

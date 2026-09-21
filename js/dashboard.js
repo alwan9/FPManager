@@ -16,10 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Customize Dashboard UI elements according to logged-in User Role and Permissions
 function applyDashboardRoleCustomizations() {
   const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-  if (!user) return;
-
-  const role = (user.role || 'service').toLowerCase().trim();
-  const isSuperAdmin = (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+  const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
+  const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
   const isDesainer = role.includes("desainer") || role.includes("designer");
   const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -32,9 +30,9 @@ function applyDashboardRoleCustomizations() {
     if (isSuperAdmin) {
       welcomeTitle.textContent = isEn ? "Welcome Super Admin! 👋" : "Selamat Datang Super Admin! 👋";
     } else if (isDesainer) {
-      welcomeTitle.textContent = isEn ? `Welcome ${user.name || 'Designer'}! 🎨` : `Selamat Datang ${user.name || 'Desainer'}! 🎨`;
+      welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Designer'}! 🎨` : `Selamat Datang ${user?.name || 'Desainer'}! 🎨`;
     } else {
-      welcomeTitle.textContent = isEn ? `Welcome ${user.name || 'Staff'}! 👋` : `Selamat Datang ${user.name || 'Staff'}! 👋`;
+      welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Staff'}! 👋` : `Selamat Datang ${user?.name || 'Staff'}! 👋`;
     }
   }
 
@@ -53,12 +51,12 @@ function applyDashboardRoleCustomizations() {
   if (!canReadFinancials) {
     if (chartCard) chartCard.classList.add('hidden');
     if (recentProjectsCard) {
-      recentProjectsCard.className = 'lg:col-span-3 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm flex flex-col justify-between';
+      recentProjectsCard.className = 'lg:col-span-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
     }
   } else {
     if (chartCard) chartCard.classList.remove('hidden');
     if (recentProjectsCard) {
-      recentProjectsCard.className = 'bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm flex flex-col justify-between';
+      recentProjectsCard.className = 'lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
     }
   }
 }
@@ -67,7 +65,7 @@ function applyDashboardRoleCustomizations() {
 async function loadDashboardData() {
   showDashboardSkeletons();
   try {
-    // Single consolidated fetch to drastically reduce dashboard loading latency
+    // Consolidated fetch for complete dashboard payload
     const dashboardData = await API.getDashboard();
     if (!dashboardData) return;
 
@@ -85,7 +83,7 @@ async function loadDashboardData() {
     // 4. Render Grafik Keuangan Bulanan (jika diizinkan)
     const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
     const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-    const isSuperAdmin = (user && (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin")));
+    const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
     const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
     
     if (canReadFinancials && dashboardData.chartData) {
@@ -275,20 +273,20 @@ function renderRecentProjects(recent) {
       </a>
     ` : '';
     const item = document.createElement('div');
-    item.className = 'flex items-center justify-between p-3 border border-zinc-100 rounded-xl bg-zinc-50 hover:bg-zinc-100 transition-colors duration-150';
+    item.className = 'flex items-center justify-between p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors duration-150';
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
-        <span class="font-bold text-sm text-zinc-900 block truncate">${p.namaProyek}</span>
-        <span class="text-[10px] text-zinc-500 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
-        <div class="flex items-center mt-1">
+        <span class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 block truncate">${p.namaProyek}</span>
+        <span class="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
+        <div class="flex items-center mt-1 flex-wrap gap-1">
           <span class="inline-block px-1.5 py-0.5 text-[8px] font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
           ${sourceBadge}
           ${gdriveBtn}
         </div>
       </div>
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-xs text-zinc-800 block">${formatRupiah(p.nominalProyek)}</span>
-        <span class="text-[8px] text-zinc-400 block mt-1">${p.tanggal}</span>
+        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block">${formatRupiah(p.nominalProyek)}</span>
+        <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${p.tanggal}</span>
       </div>
     `;
     container.appendChild(item);
@@ -296,12 +294,35 @@ function renderRecentProjects(recent) {
 }
 // Compile monthly finance data and render double-bar Chart
 function renderDashboardChart(chartData) {
-  const ctx = document.getElementById('dashboardChart').getContext('2d');
+  const canvas = document.getElementById('dashboardChart');
+  if (!canvas) return;
+
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js belum siap, mencoba memuat ulang dalam 300ms...');
+    setTimeout(() => renderDashboardChart(chartData), 300);
+    return;
+  }
+
+  // Destroy previous instance to avoid "Canvas is already in use" error
+  if (window.dashboardChartInstance) {
+    try {
+      window.dashboardChartInstance.destroy();
+    } catch (e) {
+      console.warn('Could not destroy previous chart instance:', e);
+    }
+  }
+
+  const ctx = canvas.getContext('2d');
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const labels = chartData.labels || [];
-  const pemasukanData = chartData.pemasukan || [];
-  const pengeluaranData = chartData.pengeluaran || [];
-  new Chart(ctx, {
+  const labels = (chartData && chartData.labels && chartData.labels.length > 0) ? chartData.labels : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
+  const pemasukanData = (chartData && chartData.pemasukan && chartData.pemasukan.length > 0) ? chartData.pemasukan : [0, 0, 0, 0, 0, 0];
+  const pengeluaranData = (chartData && chartData.pengeluaran && chartData.pengeluaran.length > 0) ? chartData.pengeluaran : [0, 0, 0, 0, 0, 0];
+
+  const isDark = document.documentElement.classList.contains('dark');
+  Chart.defaults.color = isDark ? '#d4d4d8' : '#52525b';
+  Chart.defaults.borderColor = isDark ? '#27272a' : '#f4f4f5';
+
+  window.dashboardChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels,
@@ -312,7 +333,9 @@ function renderDashboardChart(chartData) {
           backgroundColor: 'rgba(34, 197, 94, 0.85)', // Green
           borderColor: 'rgb(34, 197, 94)',
           borderWidth: 1,
-          borderRadius: 6
+          borderRadius: 6,
+          barPercentage: 0.65,
+          categoryPercentage: 0.7
         },
         {
           label: isEn ? 'Out (Rp)' : 'Keluar (Rp)',
@@ -320,7 +343,9 @@ function renderDashboardChart(chartData) {
           backgroundColor: 'rgba(239, 68, 68, 0.85)', // Rose
           borderColor: 'rgb(239, 68, 68)',
           borderWidth: 1,
-          borderRadius: 6
+          borderRadius: 6,
+          barPercentage: 0.65,
+          categoryPercentage: 0.7
         }
       ]
     },
@@ -331,13 +356,25 @@ function renderDashboardChart(chartData) {
         legend: {
           position: 'top',
           labels: {
-            font: { family: 'Inter' }
+            font: { family: 'Inter' },
+            color: isDark ? '#e4e4e7' : '#3f3f46'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const val = context.raw || 0;
+              return `${context.dataset.label}: ${formatRupiah(val)}`;
+            }
           }
         }
       },
       scales: {
         y: {
           beginAtZero: true,
+          grid: {
+            color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+          },
           afterBuildTicks: function (scale) {
             const isMobile = window.innerWidth < 768;
             if (isMobile) {
@@ -352,6 +389,7 @@ function renderDashboardChart(chartData) {
           },
           ticks: {
             font: { family: 'Inter' },
+            color: isDark ? '#a1a1aa' : '#71717a',
             callback: function (value) {
               const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
               const isMobile = window.innerWidth < 768;
@@ -373,8 +411,12 @@ function renderDashboardChart(chartData) {
           }
         },
         x: {
+          grid: {
+            display: false
+          },
           ticks: {
-            font: { family: 'Inter' }
+            font: { family: 'Inter' },
+            color: isDark ? '#a1a1aa' : '#71717a'
           }
         }
       }
@@ -535,17 +577,18 @@ function showDashboardSkeletons() {
   // Recent Projects
   const recentList = document.getElementById('recentProyekList');
   recentList.innerHTML = Array(5).fill(`
-    <div class="flex items-center justify-between p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 animate-pulse">
-      <div class="min-w-0 flex-1 pr-2 space-y-2">
-        <div class="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-        <div class="h-3 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-        <div class="flex gap-2 mt-1">
-          <div class="h-4 w-16 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
+    <div class="flex items-center justify-between p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 animate-pulse">
+      <div class="min-w-0 flex-1 pr-2 space-y-1.5">
+        <div class="h-3.5 w-3/4 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="h-2.5 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="flex gap-1.5 mt-1">
+          <div class="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
+          <div class="h-3.5 w-12 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
         </div>
       </div>
-      <div class="text-right flex-shrink-0 space-y-2">
-        <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-        <div class="h-3 w-16 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
+      <div class="text-right flex-shrink-0 space-y-1.5">
+        <div class="h-3.5 w-16 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
+        <div class="h-2.5 w-12 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
       </div>
     </div>
   `).join('');

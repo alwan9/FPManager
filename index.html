@@ -333,46 +333,46 @@
         </div>
 
         <!-- Grid Chart and Recent activities -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-          <!-- Column Chart (Left) -->
+          <!-- Column Chart (Left - 7 cols) -->
           <div id="chartCard"
-            class="lg:col-span-2 bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col justify-between">
-            <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
-              <h4 class="font-bold text-zinc-800 text-sm flex items-center">
-                <i class="fa-solid fa-chart-simple text-indigo-600 mr-2"></i>
+            class="lg:col-span-7 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+            <div class="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-3.5 mb-3.5">
+              <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-sm flex items-center">
+                <i class="fa-solid fa-chart-simple text-indigo-600 dark:text-indigo-400 mr-2"></i>
                 <span data-i18n="dash-chart-title"><span class="hidden md:inline">Grafik Arus Keuangan
                     Bulanan</span><span class="inline md:hidden">Grafik Keuangan</span></span>
               </h4>
               <a href="laporan.html"
-                class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
                 <span data-i18n="dash-report-detail">Detail Laporan</span>
                 <i class="fa-solid fa-chevron-right ml-0.5 text-[9px]"></i>
               </a>
             </div>
-            <div class="relative w-full h-72">
+            <div class="relative w-full h-[350px] sm:h-[370px] lg:h-[380px]">
               <canvas id="dashboardChart"></canvas>
             </div>
           </div>
 
-          <!-- Column Recent Projects (Right) -->
+          <!-- Column Recent Projects (Right - 5 cols) -->
           <div id="recentProjectsCard"
-            class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex justify-between items-center border-b border-zinc-100 pb-4 mb-4">
-                <h4 class="font-bold text-zinc-800 text-sm flex items-center">
-                  <i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i>
+            class="lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+            <div class="flex flex-col h-full">
+              <div class="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-3.5 mb-3.5 shrink-0">
+                <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-sm flex items-center">
+                  <i class="fa-solid fa-clock-rotate-left text-indigo-600 dark:text-indigo-400 mr-2"></i>
                   <span data-i18n="dash-recent-projects">Projek Terbaru</span>
                 </h4>
                 <a href="proyek.html"
-                  class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                  class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
                   <span data-i18n="dash-view-all">Semua</span>
                   <i class="fa-solid fa-chevron-right ml-0.5 text-[9px]"></i>
                 </a>
               </div>
 
-              <!-- List Container -->
-              <div id="recentProyekList" class="space-y-4">
+              <!-- List Container with smooth scrollbar and matching height -->
+              <div id="recentProyekList" class="space-y-2.5 overflow-y-auto max-h-[350px] sm:max-h-[370px] lg:max-h-[380px] pr-1 grow">
                 <!-- Items populated by JS -->
                 <div class="text-center py-8 text-zinc-400 text-sm">
                   Memproses data projek...

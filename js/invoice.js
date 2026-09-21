@@ -2,8 +2,20 @@ const Invoice = {
     proyek: [],
     docType: 'invoice',
     showSignature: true,
+    invoiceTheme: 'light',
     async init() {
+        // Inisialisasi tema invoice (Terang / Gelap)
+        const savedTheme = localStorage.getItem('invoice_theme');
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            this.setInvoiceTheme(savedTheme, false);
+        } else {
+            const isDarkApp = document.documentElement.classList.contains('dark');
+            this.setInvoiceTheme(isDarkApp ? 'dark' : 'light', false);
+        }
+
         this.generateWatermark();
+        this.setupThemeListeners();
+
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         try {
             this.proyek = await API.getProyek();
@@ -172,6 +184,7 @@ const Invoice = {
                 if (parsed.signName) document.getElementById('previewSignName').innerText = parsed.signName;
                 if (parsed.docType) docType = parsed.docType;
                 if (parsed.showSignature !== undefined) showSignature = parsed.showSignature;
+                if (parsed.invoiceTheme) this.setInvoiceTheme(parsed.invoiceTheme, false);
             } catch (e) { console.error('Failed to parse saved invoice', e); }
         }
 
@@ -263,6 +276,7 @@ const Invoice = {
                         confirmText: "Kembalikan Semula"
                     })) {
                         localStorage.removeItem('invoice_edit_' + id);
+                        localStorage.removeItem('invoice_theme');
                         window.location.reload();
                     }
                 }
@@ -316,7 +330,8 @@ const Invoice = {
             signTitle: previewSignTitle ? previewSignTitle.innerText : 'Hormat Kami,',
             signName: previewSignName ? previewSignName.innerText : '@premium_dz',
             showSignature: chkShowSignature ? chkShowSignature.checked : true,
-            docType: this.docType || 'invoice'
+            docType: this.docType || 'invoice',
+            invoiceTheme: this.invoiceTheme || 'light'
         };
 
         localStorage.setItem('invoice_edit_' + id, JSON.stringify(dataToSave));
@@ -365,6 +380,7 @@ const Invoice = {
         }
 
         if (typeof html2pdf !== 'undefined') {
+            const isDark = (this.invoiceTheme === 'dark');
             html2pdf().set({
                 margin: 0.2,
                 filename: fileName,
@@ -375,7 +391,8 @@ const Invoice = {
                 html2canvas: {
                     scale: 2,
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    backgroundColor: isDark ? '#121215' : '#ffffff'
                 },
                 jsPDF: {
                     unit: "in",
@@ -411,20 +428,93 @@ const Invoice = {
             if (titleEl) titleEl.innerText = "NOTA";
             if (labelEl) labelEl.innerText = "No Nota :";
             if (btnInvoice) {
-                btnInvoice.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm text-zinc-600 hover:text-zinc-900";
+                btnInvoice.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white";
             }
             if (btnNota) {
-                btnNota.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm bg-indigo-600 text-white shadow-sm";
+                btnNota.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm";
             }
         } else {
             if (titleEl) titleEl.innerText = "INVOICE";
             if (labelEl) labelEl.innerText = "No Invoice :";
             if (btnInvoice) {
-                btnInvoice.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm bg-indigo-600 text-white shadow-sm";
+                btnInvoice.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm";
             }
             if (btnNota) {
-                btnNota.className = "flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm text-zinc-600 hover:text-zinc-900";
+                btnNota.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white";
             }
+        }
+    },
+    setupThemeListeners() {
+        const btnLight = document.getElementById('btnThemeLight');
+        const btnDark = document.getElementById('btnThemeDark');
+        if (btnLight) {
+            btnLight.addEventListener('click', () => {
+                this.setInvoiceTheme('light', true);
+            });
+        }
+        if (btnDark) {
+            btnDark.addEventListener('click', () => {
+                this.setInvoiceTheme('dark', true);
+            });
+        }
+
+        // Sinkronkan bila tombol toggle mode gelap di header diklik
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                setTimeout(() => {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    this.setInvoiceTheme(isDark ? 'dark' : 'light', true);
+                }, 50);
+            });
+        }
+
+        // Cetak dengan background gelap jika tema invoice gelap
+        window.addEventListener('beforeprint', () => {
+            if (this.invoiceTheme === 'dark') {
+                document.body.classList.add('print-dark-mode');
+            } else {
+                document.body.classList.remove('print-dark-mode');
+            }
+        });
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('print-dark-mode');
+        });
+    },
+    setInvoiceTheme(theme, save = true) {
+        this.invoiceTheme = theme;
+        const invoice = document.getElementById('invoiceArea');
+        const btnLight = document.getElementById('btnThemeLight');
+        const btnDark = document.getElementById('btnThemeDark');
+
+        if (theme === 'dark') {
+            if (invoice) {
+                invoice.classList.add('invoice-dark-mode');
+                invoice.classList.remove('invoice-light-mode');
+            }
+            if (btnDark) {
+                btnDark.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5";
+            }
+            if (btnLight) {
+                btnLight.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1.5";
+            }
+        } else {
+            if (invoice) {
+                invoice.classList.remove('invoice-dark-mode');
+                invoice.classList.add('invoice-light-mode');
+            }
+            if (btnLight) {
+                btnLight.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5";
+            }
+            if (btnDark) {
+                btnDark.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1.5";
+            }
+        }
+
+        this.generateWatermark();
+
+        if (save) {
+            localStorage.setItem('invoice_theme', theme);
         }
     },
     toggleSignature(show) {
@@ -453,6 +543,8 @@ const Invoice = {
         const cols = 8;
         const rows = 12;
 
+        const isDark = (this.invoiceTheme === 'dark');
+
         for (let r = 0; r < rows; r++) {
             // Stagger alternate rows to form a beautiful diamond watermark mesh
             const stagger = (r % 2 === 0) ? (gap / 2) : 0;
@@ -462,7 +554,13 @@ const Invoice = {
                 img.style.position = 'absolute';
                 img.style.width = `${logoWidth}px`;
                 img.style.height = 'auto';
-                img.style.opacity = '0.08'; // Clearly visible watermark
+                if (isDark) {
+                    img.style.opacity = '0.04';
+                    img.style.filter = 'brightness(0) invert(1)';
+                } else {
+                    img.style.opacity = '0.08';
+                    img.style.filter = 'none';
+                }
                 img.style.pointerEvents = 'none';
                 img.style.left = `${c * gap + stagger - 30}px`;
                 img.style.top = `${r * gap - 20}px`;

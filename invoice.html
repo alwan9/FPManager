@@ -58,15 +58,7 @@
         #invoiceArea {
             position: relative;
             overflow: hidden;
-        }
-
-        .invoice-row:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
-        .nominal-cell {
-            background-color: #f8fafc !important;
-            border-left: 2px solid #e4e4e7 !important;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .invoice-row td {
@@ -74,13 +66,267 @@
             padding-bottom: 4px !important;
         }
 
+        /* LIGHT INVOICE MODE (Always crisp white even when global html is dark) */
+        #invoiceArea:not(.invoice-dark-mode),
+        #invoiceArea.invoice-light-mode {
+            background-color: #ffffff !important;
+            color: #18181b !important;
+            border-color: #e4e4e7 !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .invoice-header-border,
+        #invoiceArea.invoice-light-mode .invoice-header-border {
+            border-color: #e4e4e7 !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) #previewDocTitle,
+        #invoiceArea.invoice-light-mode #previewDocTitle {
+            color: #4f46e5 !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .text-zinc-500,
+        #invoiceArea.invoice-light-mode .text-zinc-500 {
+            color: #71717a !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .text-zinc-600,
+        #invoiceArea.invoice-light-mode .text-zinc-600 {
+            color: #52525b !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .text-zinc-700,
+        #invoiceArea.invoice-light-mode .text-zinc-700 {
+            color: #3f3f46 !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .text-zinc-800,
+        #invoiceArea.invoice-light-mode .text-zinc-800 {
+            color: #27272a !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .text-zinc-900,
+        #invoiceArea.invoice-light-mode .text-zinc-900 {
+            color: #18181b !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) thead,
+        #invoiceArea.invoice-light-mode thead {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) th,
+        #invoiceArea.invoice-light-mode th {
+            border-color: #4338ca !important;
+            color: #ffffff !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) td,
+        #invoiceArea.invoice-light-mode td {
+            border-color: #e4e4e7 !important;
+            color: #18181b !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .invoice-row:nth-child(even),
+        #invoiceArea.invoice-light-mode .invoice-row:nth-child(even) {
+            background-color: #f9fafb !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .invoice-row:nth-child(odd),
+        #invoiceArea.invoice-light-mode .invoice-row:nth-child(odd) {
+            background-color: #ffffff !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .nominal-cell,
+        #invoiceArea.invoice-light-mode .nominal-cell {
+            background-color: #f8fafc !important;
+            border-left: 2px solid #e4e4e7 !important;
+            color: #09090b !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) #previewTotalBox,
+        #invoiceArea.invoice-light-mode #previewTotalBox {
+            background-color: #fafafa !important;
+            border-color: #e4e4e7 !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) #previewCatatanBox,
+        #invoiceArea.invoice-light-mode #previewCatatanBox {
+            background-color: #f4f4f5 !important;
+            color: #18181b !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) #previewSignImage,
+        #invoiceArea.invoice-light-mode #previewSignImage {
+            filter: none !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) #previewSignLine,
+        #invoiceArea.invoice-light-mode #previewSignLine {
+            border-color: #a1a1aa !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .ornament-1,
+        #invoiceArea.invoice-light-mode .ornament-1 {
+            background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)) !important;
+        }
+
+        #invoiceArea:not(.invoice-dark-mode) .ornament-2,
+        #invoiceArea.invoice-light-mode .ornament-2 {
+            background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)) !important;
+        }
+
+        /* DARK INVOICE MODE (Executive Luxury Dark Theme) */
+        #invoiceArea.invoice-dark-mode {
+            background-color: #121215 !important;
+            color: #f4f4f5 !important;
+            border-color: #27272a !important;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8) !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .invoice-header-border {
+            border-color: #27272a !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewDocTitle {
+            color: #818cf8 !important;
+            text-shadow: 0 0 24px rgba(129, 140, 248, 0.3);
+        }
+
+        #invoiceArea.invoice-dark-mode p,
+        #invoiceArea.invoice-dark-mode b,
+        #invoiceArea.invoice-dark-mode span,
+        #invoiceArea.invoice-dark-mode h3 {
+            color: #f4f4f5;
+        }
+
+        #invoiceArea.invoice-dark-mode .text-zinc-500 {
+            color: #a1a1aa !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .text-zinc-600 {
+            color: #a1a1aa !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .text-zinc-700 {
+            color: #d4d4d8 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .text-zinc-800 {
+            color: #f4f4f5 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .text-zinc-900 {
+            color: #ffffff !important;
+        }
+
+        #invoiceArea.invoice-dark-mode thead {
+            background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+            color: #ffffff !important;
+        }
+
+        #invoiceArea.invoice-dark-mode th {
+            border-color: #4338ca !important;
+            color: #ffffff !important;
+        }
+
+        #invoiceArea.invoice-dark-mode td {
+            border-color: #27272a !important;
+            color: #e4e4e7 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .invoice-row:nth-child(even) {
+            background-color: #18181d !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .invoice-row:nth-child(odd) {
+            background-color: #121215 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .nominal-cell {
+            background-color: #181822 !important;
+            border-left: 2px solid #6366f1 !important;
+            color: #a5b4fc !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .editable-cell:focus {
+            background-color: #22222b !important;
+            outline: 2px solid #6366f1 !important;
+            border-radius: 4px;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewTotalBox {
+            background-color: #18181d !important;
+            border-color: #27272a !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewTotalBox .border-t {
+            border-color: #27272a !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewTotal {
+            color: #ffffff !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewDP {
+            color: #e4e4e7 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewPelunasan {
+            color: #34d399 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewSisa {
+            color: #f87171 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewCatatanBox {
+            background-color: #18181d !important;
+            border: 1px solid #27272a !important;
+            color: #e4e4e7 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewCatatan {
+            color: #e4e4e7 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewSignTitle {
+            color: #a1a1aa !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewSignImage {
+            filter: invert(1) brightness(1.2) contrast(1.1) !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewSignLine {
+            border-color: #3f3f46 !important;
+        }
+
+        #invoiceArea.invoice-dark-mode #previewSignName {
+            color: #ffffff !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .ornament-1 {
+            background: linear-gradient(to left, rgba(99, 102, 241, 0.28), rgba(168, 85, 247, 0.08)) !important;
+        }
+
+        #invoiceArea.invoice-dark-mode .ornament-2 {
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.22), rgba(236, 72, 153, 0.06)) !important;
+        }
+
         @media print {
             body {
-                background: white !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+            body:not(.print-dark-mode) {
+                background: white !important;
+            }
+            body.print-dark-mode {
+                background: #121215 !important;
             }
             .no-print, .no-print * {
                 display: none !important;
@@ -103,6 +349,10 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+            #invoiceArea.invoice-dark-mode {
+                background-color: #121215 !important;
+                color: #f4f4f5 !important;
+            }
         }
     </style>
 
@@ -119,31 +369,59 @@
                 <i class="fa fa-arrow-left mr-2"></i>
                 Kembali
             </button>
+            <button id="darkModeToggle"
+                class="no-print p-2.5 px-4 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm transition-all flex items-center gap-2"
+                title="Ganti Mode Gelap / Terang">
+                <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
+                <span class="text-xs font-semibold hidden sm:inline" id="darkModeText">Mode Gelap</span>
+            </button>
         </div>
 
         <!-- Control Panel (Document Settings) -->
         <div
-            class="no-print bg-white rounded-xl shadow-md border border-zinc-200 p-4 mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-                <span class="font-semibold text-zinc-700">Tipe Dokumen:</span>
-                <div class="flex bg-zinc-100 p-1 rounded-xl w-full sm:w-auto">
-                    <button id="btnTypeInvoice"
-                        class="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm bg-indigo-600 text-white shadow-sm">
-                        Invoice
-                    </button>
-                    <button id="btnTypeNota"
-                        class="flex-1 sm:flex-initial px-4 py-2 rounded-lg font-semibold transition-all text-sm text-zinc-600 hover:text-zinc-900">
-                        Nota
-                    </button>
+            class="no-print bg-white dark:bg-zinc-800/90 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700/80 p-4 mb-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                <!-- Tipe Dokumen -->
+                <div class="flex items-center gap-2.5">
+                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tipe Dokumen:</span>
+                    <div class="flex bg-zinc-100 dark:bg-zinc-700/60 p-1 rounded-xl">
+                        <button id="btnTypeInvoice"
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm">
+                            Invoice
+                        </button>
+                        <button id="btnTypeNota"
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white">
+                            Nota
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tema Invoice -->
+                <div class="flex items-center gap-2.5">
+                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tema Invoice:</span>
+                    <div class="flex bg-zinc-100 dark:bg-zinc-700/60 p-1 rounded-xl">
+                        <button id="btnThemeLight" type="button"
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-sun text-amber-500"></i>
+                            <span>Terang</span>
+                        </button>
+                        <button id="btnThemeDark" type="button"
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-moon text-indigo-400"></i>
+                            <span>Gelap</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 self-start sm:self-auto">
+
+            <!-- Tampilkan Tanda Tangan -->
+            <div class="flex items-center gap-2 self-start lg:self-auto">
                 <label class="relative flex items-center cursor-pointer select-none">
                     <input type="checkbox" id="chkShowSignature" class="sr-only peer" checked>
                     <div
-                        class="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
+                        class="w-11 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 dark:after:border-zinc-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
                     </div>
-                    <span class="ml-3 font-semibold text-zinc-700 text-sm">Tampilkan Tanda Tangan</span>
+                    <span class="ml-3 font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tampilkan Tanda Tangan</span>
                 </label>
             </div>
         </div>
@@ -160,11 +438,11 @@
             <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" id="watermarkGrid" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
 
             <!-- Background Decorative Ornaments (Slanted modern polygon blocks, no circles) -->
-            <div class="absolute top-0 right-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(40px); background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
-            <div class="absolute bottom-0 left-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(-40px); background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+            <div class="ornament-1 absolute top-0 right-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(40px); background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+            <div class="ornament-2 absolute bottom-0 left-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(-40px); background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
 
             <div class="relative z-10 space-y-8">
-                <div class="flex justify-between border-b pb-6">
+                <div class="flex justify-between border-b pb-6 invoice-header-border">
 
                     <div>
 
@@ -349,7 +627,7 @@
 
                 <!-- Total -->
                 <div class="flex justify-end mt-8" style="page-break-inside: avoid;">
-                    <div class="w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
+                    <div id="previewTotalBox" class="w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-semibold" data-i18n="inv-total">Total</span>
                             <span class="font-bold text-zinc-900 text-base outline-none" contenteditable="true"
@@ -381,7 +659,7 @@
                         <h3 class="font-bold mb-2 text-zinc-700" data-i18n="inv-notes">
                             Catatan
                         </h3>
-                        <div class="bg-zinc-100 rounded-lg p-4 min-h-[100px]">
+                        <div id="previewCatatanBox" class="bg-zinc-100 rounded-lg p-4 min-h-[100px]">
                             <span id="previewCatatan" class="outline-none block w-full h-full" contenteditable="true">
                                 -
                             </span>
@@ -399,7 +677,7 @@
                                 <img id="previewSignImage" src="assets/img/ttd.png" alt="Tanda Tangan"
                                     class="h-16 w-auto object-contain">
                             </div>
-                            <div class="border-b border-zinc-400 w-full mb-2"></div>
+                            <div id="previewSignLine" class="border-b border-zinc-400 w-full mb-2"></div>
                             <p id="previewSignName" class="font-bold text-zinc-800 outline-none" contenteditable="true">
                                 @premium_dz
                             </p>

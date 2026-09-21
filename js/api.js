@@ -789,6 +789,7 @@ const API = {
   },
 
   getDashboard: async () => {
+    let backendStats = null;
     try {
       const response = await fetch(
         `${CONFIG.API_URL}?action=getDashboard&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
@@ -796,20 +797,39 @@ const API = {
       const result = await response.json();
       if (handleUnauthorized(result)) return null;
       if (result.success && result.data) {
-        return result.data;
+        if (result.data.chartData && result.data.recentProjects) {
+          return result.data;
+        }
+        backendStats = result.data;
       }
     } catch (error) {
       console.warn("Backend getDashboard failed, computing locally:", error);
     }
 
-    // Fallback: Build complete Dashboard data client-side from Proyek & Keuangan APIs
+    // Fallback & Enrichment: Build complete Dashboard data client-side from Proyek & Keuangan APIs
     try {
       const projects = (await API.getProyek()) || [];
       const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-      const canKeuangan = user && (user.username === "wansmin" || (user.role && user.role.includes("admin")) || Auth.hasPermission("keuangan:read"));
+      const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
+      const canKeuangan = !user || user.username === "wansmin" || role.includes("admin") || role.includes("service") || Auth.hasPermission("keuangan:read");
       const keuanganList = canKeuangan ? ((await API.getKeuangan()) || []) : [];
 
-      return API.buildDashboardData(projects, keuanganList);
+      const dashboardData = API.buildDashboardData(projects, keuanganList);
+      if (backendStats && dashboardData.stats) {
+        if (backendStats.totalProyek !== undefined && Number(backendStats.totalProyek) > 0) {
+          dashboardData.stats.totalProyek = Number(backendStats.totalProyek);
+        }
+        if (backendStats.totalPemasukan !== undefined && Number(backendStats.totalPemasukan) > 0) {
+          dashboardData.stats.totalPemasukan = Number(backendStats.totalPemasukan);
+        }
+        if (backendStats.totalPengeluaran !== undefined && Number(backendStats.totalPengeluaran) > 0) {
+          dashboardData.stats.totalPengeluaran = Number(backendStats.totalPengeluaran);
+        }
+        if (backendStats.labaBersih !== undefined) {
+          dashboardData.stats.labaBersih = Number(backendStats.labaBersih);
+        }
+      }
+      return dashboardData;
     } catch (err) {
       console.error("Local dashboard calculation error:", err);
       return null;
@@ -848,7 +868,8 @@ const API = {
       (projects || []).forEach(p => {
         const dpVal = Number(p.dP !== undefined ? p.dP : p.dp) || 0;
         const pelVal = Number(p.pelunasan) || 0;
-        totalPemasukan += (dpVal + pelVal);
+        const nomVal = Number(p.nominalProyek) || 0;
+        totalPemasukan += (dpVal + pelVal > 0 ? (dpVal + pelVal) : nomVal);
       });
     }
 
@@ -896,26 +917,46 @@ const API = {
       let mIn = 0;
       let mOut = 0;
 
+      // Project Income
       (projects || []).forEach(p => {
         if (p.tanggal) {
-          const pDate = new Date(p.tanggal);
-          if (pDate.getMonth() === mIdx && pDate.getFullYear() === yr) {
-            mIn += (Number(p.pembayaranAwal) || 0);
+          const cleanDate = window.parseSafeDateString(p.tanggal);
+          const parts = cleanDate.split('-');
+          if (parts.length === 3) {
+            const pYr = parseInt(parts[0], 10);
+            const pMo = parseInt(parts[1], 10) - 1;
+            if (pMo === mIdx && pYr === yr) {
+              const dp = Number(p.dP !== undefined ? p.dP : p.dp) || 0;
+              const pel = Number(p.pelunasan) || 0;
+              const nom = Number(p.nominalProyek) || 0;
+              mIn += (dp + pel > 0 ? (dp + pel) : nom);
+            }
           }
         }
       });
 
-      (keuanganList || []).forEach(k => {
-        if (k.tanggal) {
-          const kDate = new Date(k.tanggal);
-          if (kDate.getMonth() === mIdx && kDate.getFullYear() === yr) {
-            const jenis = String(k.jenis || '').toLowerCase();
-            const nominal = Number(k.nominal) || 0;
-            if (jenis.includes('masuk') || jenis === 'pemasukan') mIn += nominal;
-            else if (jenis.includes('keluar') || jenis === 'pengeluaran') mOut += nominal;
+      // Keuangan transactions (override or supplement if separate)
+      if (keuanganList && keuanganList.length > 0) {
+        (keuanganList || []).forEach(k => {
+          if (k.tanggal) {
+            const cleanDate = window.parseSafeDateString(k.tanggal);
+            const parts = cleanDate.split('-');
+            if (parts.length === 3) {
+              const kYr = parseInt(parts[0], 10);
+              const kMo = parseInt(parts[1], 10) - 1;
+              if (kMo === mIdx && kYr === yr) {
+                const jenis = String(k.jenis || '').toLowerCase();
+                const nominal = Number(k.nominal) || 0;
+                if (jenis.includes('masuk') || jenis === 'pemasukan') {
+                  mIn += nominal;
+                } else if (jenis.includes('keluar') || jenis === 'pengeluaran') {
+                  mOut += nominal;
+                }
+              }
+            }
           }
-        }
-      });
+        });
+      }
 
       pemasukanArr.push(mIn);
       pengeluaranArr.push(mOut);

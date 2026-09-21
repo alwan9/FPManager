@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v127';
+const CACHE_NAME = 'fpmanager-v131';
 
 const urlsToCache = [
   './',
@@ -103,7 +103,8 @@ self.addEventListener('fetch', event => {
     url.includes('generativelanguage.googleapis.com') ||
     url.includes('googleapis.com') ||
     url.includes('cdn.jsdelivr.net') ||
-    url.includes('unpkg.com')
+    url.includes('unpkg.com') ||
+    url.includes('/ws')
   ) {
     return;
   }
@@ -140,15 +141,33 @@ self.addEventListener('fetch', event => {
         if (cachedResponse) {
           return cachedResponse;
         }
-        return fetch(event.request).then(response => {
-          if (response && response.status === 200) {
-            const responseCopy = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseCopy);
+        return fetch(event.request)
+          .then(response => {
+            if (response && response.status === 200) {
+              const responseCopy = response.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, responseCopy);
+              });
+            }
+            return response;
+          })
+          .catch(err => {
+            console.warn('SW static asset fetch failed:', event.request.url, err);
+            return caches.match(event.request).then(fallbackRes => {
+              if (fallbackRes) return fallbackRes;
+              if (event.request.destination === 'style' || url.endsWith('.css')) {
+                return new Response('/* Offline fallback stylesheet */', {
+                  headers: { 'Content-Type': 'text/css' }
+                });
+              }
+              if (event.request.destination === 'script' || url.endsWith('.js')) {
+                return new Response('// Offline fallback script', {
+                  headers: { 'Content-Type': 'application/javascript' }
+                });
+              }
+              return Response.error();
             });
-          }
-          return response;
-        });
+          });
       })
   );
 });
