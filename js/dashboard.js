@@ -491,7 +491,7 @@ function initDeadlineCalendar(revisiProjects) {
       const dayDeadlines = deadlineLookup[dateString] || [];
       const hasDeadlines = dayDeadlines.length > 0;
 
-      cell.className = `p-2 text-xs text-center border border-zinc-200 dark:border-zinc-800 rounded-xl relative cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 transition-colors flex flex-col items-center justify-between min-h-[54px] ${isToday ? 'bg-red-600 text-white font-bold border-red-600 hover:bg-red-700 hover:text-white' : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
+      cell.className = `p-2 text-xs text-center border border-zinc-200 dark:border-zinc-800 rounded-xl relative cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 transition-colors flex flex-col items-center justify-between min-h-[54px] ${isToday ? 'bg-indigo-600 text-white font-bold border-indigo-600 hover:bg-indigo-700 hover:text-white shadow-sm' : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300'
         }`;
 
       const dayNumSpan = document.createElement('span');
