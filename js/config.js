@@ -108,9 +108,11 @@ const CONFIG = {
     {
       id: 'shopee',
       name: 'Shopee',
-      number: 'Pembayaran Marketplace Shopee',
+      number: 'https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618',
+      displayNumber: '@premium_dz (Toko Shopee)',
       holder: 'Hafiz Alwan / @premium_dz',
       type: 'Marketplace',
+      url: 'https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618',
       icon: 'fa-solid fa-bag-shopping text-orange-500',
       badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
     },
@@ -486,7 +488,7 @@ function showPaymentAccountsModal(highlightName = '') {
       <div class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
         <div>
           <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-base">Info Rekening & E-Wallet</h3>
-          <p class="text-xs text-zinc-400 mt-0.5">Klik nomor untuk menyalin ke clipboard</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Klik nomor atau tombol untuk menyalin info rekening</p>
         </div>
         <button onclick="document.getElementById('globalPaymentModal').classList.add('hidden')" class="w-7 h-7 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition">
           <i class="fa-solid fa-xmark text-sm"></i>
@@ -498,35 +500,54 @@ function showPaymentAccountsModal(highlightName = '') {
         ${accounts.map(acc => {
           const isHighlighted = searchLower && (acc.name.toLowerCase().includes(searchLower) || acc.id.toLowerCase().includes(searchLower));
           const highlightBg = isHighlighted ? 'bg-indigo-50/50 dark:bg-indigo-950/30 -mx-2 px-2 rounded-xl' : '';
+          const copyValue = acc.holder ? `${acc.number} a.n. ${acc.holder}` : acc.number;
+          const escapedCopyValue = copyValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const escapedAccName = (acc.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const targetUrl = acc.url || (String(acc.number || '').startsWith('http') ? acc.number : '');
 
           return `
             <div class="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 ${highlightBg}">
-              <div>
+              <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-zinc-900 dark:text-zinc-100 text-sm">${acc.name}</span>
-                  <span class="text-[11px] text-zinc-400 font-medium">· ${acc.type}</span>
+                  <span class="font-bold text-zinc-900 dark:text-zinc-100 text-sm truncate">${acc.name}</span>
+                  <span class="text-[11px] text-zinc-400 font-medium shrink-0">· ${acc.type}</span>
                 </div>
                 <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">a.n. ${acc.holder}</div>
-                <div onclick="copyTextToClipboard('${acc.number}', '${acc.name}')" class="font-mono font-bold text-sm text-zinc-800 dark:text-zinc-200 mt-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 tracking-wide select-all" title="Klik untuk salin">
-                  ${acc.number}
+                <div onclick="copyTextToClipboard('${escapedCopyValue}', '${escapedAccName}')" class="font-mono font-bold text-sm text-zinc-800 dark:text-zinc-200 mt-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 tracking-wide select-all truncate" title="Klik untuk salin nomor & a.n.">
+                  ${acc.displayNumber || acc.number}
                 </div>
               </div>
 
-              <button onclick="copyTextToClipboard('${acc.number}', '${acc.name}')" class="px-3.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition flex items-center gap-1.5 active:scale-95 shrink-0">
-                <i class="fa-regular fa-copy text-xs"></i>
-                <span>Salin No</span>
-              </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                ${targetUrl ? `
+                  <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs rounded-xl transition flex items-center gap-1.5 active:scale-95 shadow-xs" title="Buka Toko ${acc.name}">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <span>Buka</span>
+                  </a>
+                ` : ''}
+                <button onclick="copyTextToClipboard('${escapedCopyValue}', '${escapedAccName}')" class="px-3.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition flex items-center gap-1.5 active:scale-95 shrink-0" title="Salin nomor & a.n.">
+                  <i class="fa-regular fa-copy text-xs"></i>
+                  <span>Salin</span>
+                </button>
+              </div>
             </div>
           `;
         }).join('')}
       </div>
 
       <!-- Footer -->
-      <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
-        <button onclick="copyAllPaymentAccounts()" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1.5">
-          <i class="fa-brands fa-whatsapp"></i>
-          <span>Salin Format WA</span>
-        </button>
+      <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-3">
+          <button onclick="copyAllPaymentAccounts()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>Salin Format WA</span>
+          </button>
+
+          <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400 hover:underline flex items-center gap-1" title="Kunjungi Toko Shopee">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Toko Shopee</span>
+          </a>
+        </div>
 
         <button onclick="document.getElementById('globalPaymentModal').classList.add('hidden')" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition">
           Tutup

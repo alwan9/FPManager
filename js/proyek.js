@@ -554,8 +554,8 @@ function populateDetailModal(proyek) {
   const modalSumberEl = document.getElementById('modalSumber');
   if (modalSumberEl) {
     if (sumber.toLowerCase() === 'shopee') {
-      modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800';
-      modalSumberEl.innerHTML = '<i class="fa-solid fa-bag-shopping text-orange-500 mr-1"></i> Shopee';
+      modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-900/60 border border-orange-200 dark:border-orange-800 transition';
+      modalSumberEl.innerHTML = '<a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-orange-700 dark:text-orange-300" title="Buka Toko Shopee"><i class="fa-solid fa-bag-shopping text-orange-500 mr-1.5"></i> Shopee <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-1 opacity-70"></i></a>';
     } else if (sumber.toLowerCase() === 'fiverr') {
       modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
       modalSumberEl.innerHTML = '<i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> Fiverr';

@@ -161,7 +161,13 @@
                 class="inline md:hidden">Dashboard</span></span>
           </h2>
         </div>
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/60 dark:hover:bg-orange-900/80 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 rounded-xl text-xs font-bold transition shadow-xs active:scale-95"
+            title="Buka Halaman Toko Shopee">
+            <i class="fa-solid fa-bag-shopping text-orange-500"></i>
+            <span class="hidden sm:inline">Toko Shopee</span>
+          </a>
           <button id="pwaInstallBtnMobile"
             class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
             title="Install Aplikasi">
@@ -235,7 +241,7 @@
 
         <!-- Welcome banner -->
         <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 text-white shadow-lg gap-4">
           <div>
             <h3 class="text-xl md:text-2xl font-bold tracking-tight" data-i18n="dash-welcome">Selamat Datang Admin! 👋
             </h3>
@@ -245,12 +251,19 @@
               <span class="inline md:hidden">Ringkasan performa usaha hari ini.</span>
             </p>
           </div>
-          <a href="tambah-proyek.html" data-permission-allow="proyek:create"
-            class="inline-flex items-center justify-center px-4 py-2.5 bg-white text-indigo-700 font-semibold rounded-xl text-sm shadow hover:bg-zinc-100 transition-colors">
-            <i class="fa-solid fa-circle-plus mr-2 text-indigo-600"></i>
-            <span data-i18n="dash-quick-add"><span class="hidden md:inline">Tambah Projek</span><span
-                class="inline md:hidden">+ Projek</span></span>
-          </a>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer"
+              class="inline-flex items-center justify-center px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl text-sm shadow hover:shadow-md transition-all active:scale-95" title="Kunjungi Toko Shopee">
+              <i class="fa-solid fa-bag-shopping mr-2 text-white"></i>
+              <span>Toko Shopee</span>
+            </a>
+            <a href="tambah-proyek.html" data-permission-allow="proyek:create"
+              class="inline-flex items-center justify-center px-4 py-2.5 bg-white text-indigo-700 font-semibold rounded-xl text-sm shadow hover:bg-zinc-100 transition-colors">
+              <i class="fa-solid fa-circle-plus mr-2 text-indigo-600"></i>
+              <span data-i18n="dash-quick-add"><span class="hidden md:inline">Tambah Projek</span><span
+                  class="inline md:hidden">+ Projek</span></span>
+            </a>
+          </div>
         </div>
 
         <!-- Deadline Alerts Container -->

@@ -303,7 +303,7 @@ function initTable(data) {
           const isLunas = st.includes('lunas') || sisa <= 0;
 
           return `
-            <div class="flex items-center gap-2 whitespace-nowrap">
+            <div class="  items-center gap-2 whitespace-nowrap">
               <span class="font-semibold text-xs min-w-[70px] ${isLunas ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
                 ${isLunas ? 'Rp0' : formatRupiah(sisa)}
               </span>
