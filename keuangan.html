@@ -273,45 +273,6 @@
 
         </div>
 
-        <!-- Sebaran & Posisi Saldo Dompet / Rekening / Marketplace -->
-        <div class="mb-8">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                  <i class="fa-solid fa-wallet text-indigo-600 dark:text-indigo-400"></i>
-                  <span>Posisi Dana & Saldo per Akun</span>
-                </h4>
-                <span id="walletCountBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900">0 Akun</span>
-              </div>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Hitungan otomatis akumulasi mutasi pemasukan & pengeluaran dari setiap sumber rekening/e-wallet.
-              </p>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <div id="activeWalletFilterBadge" class="hidden items-center gap-2">
-                <span class="text-xs px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center gap-1.5 border border-indigo-200 dark:border-indigo-800 shadow-sm animate-pulse">
-                  <i class="fa-solid fa-filter text-[10px]"></i>
-                  <span>Filter: <strong id="activeWalletFilterName">Semua</strong></span>
-                  <button type="button" onclick="clearWalletFilter()" class="ml-1 text-indigo-500 hover:text-indigo-800 dark:hover:text-white font-bold p-0.5" title="Hapus Filter">
-                    <i class="fa-solid fa-xmark text-xs"></i>
-                  </button>
-                </span>
-              </div>
-              <button type="button" onclick="showPaymentAccountsModal()"
-                class="inline-flex items-center px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition">
-                <i class="fa-solid fa-credit-card mr-1.5 text-indigo-500"></i>
-                <span>Detail No. Rekening</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Dynamic Grid Container for Wallet Cards -->
-          <div id="walletAccountsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <!-- Populated dynamically by calculateSummary / renderWalletBreakdown -->
-          </div>
-        </div>
-
         <!-- Two Column Layout (Form & Mutasi Table) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
@@ -371,21 +332,7 @@
 
               <!-- Metode Pembayaran -->
               <div>
-                <div class="flex items-center justify-between mb-1">
-                  <label for="metodePembayaran"
-                    class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Metode Pembayaran</label>
-                  <div class="flex items-center gap-2">
-                    <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer"
-                      class="text-xs text-orange-600 dark:text-orange-400 hover:underline font-semibold flex items-center gap-1" title="Buka Toko Shopee">
-                      <i class="fa-solid fa-bag-shopping"></i> Toko Shopee
-                    </a>
-                    <span class="text-zinc-300 dark:text-zinc-700 text-xs">·</span>
-                    <button type="button" onclick="showPaymentAccountsModal()"
-                      class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-1">
-                      <i class="fa-solid fa-circle-info"></i> Info Rekening
-                    </button>
-                  </div>
-                </div>
+
                 <select id="metodePembayaran"
                   class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                   <option value="DANA">DANA - 088216760774 (Hafiz Alwan)</option>
@@ -427,8 +374,10 @@
               </h4>
 
               <div class="flex items-center gap-2 flex-wrap">
-                <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer"
-                  class="inline-flex items-center px-3 py-1.5 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/60 dark:hover:bg-orange-900 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 rounded-xl text-xs font-bold transition shadow-sm" title="Buka Halaman Toko Shopee">
+                <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618"
+                  target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center px-3 py-1.5 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/60 dark:hover:bg-orange-900 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 rounded-xl text-xs font-bold transition shadow-sm"
+                  title="Buka Halaman Toko Shopee">
                   <i class="fa-solid fa-bag-shopping mr-1.5 text-orange-500"></i>
                   <span>Toko Shopee</span>
                 </a>
