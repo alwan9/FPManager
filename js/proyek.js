@@ -948,6 +948,7 @@ async function lunasiProyek() {
 
     const settledPelunasan = pelunasanCurrent + sisa;
     const chosenMetode = result.metode || currentProyek.metodePembayaran || 'Shopee';
+    const dpMetodeAsli = currentProyek.metodeBayarDp || currentProyek.metodePembayaran || currentProyek.metode || 'Shopee';
 
     // 1. Update data proyek (DP ASLI TETAP UTUH, Pelunasan dicatat terpisah, Sisa = 0)
     const payloadProyek = {
@@ -964,7 +965,9 @@ async function lunasiProyek() {
       sisa: 0,
       deadline: currentProyek.deadline,
       status: currentProyek.status === "Menunggu" ? "Sedang Dikerjakan" : currentProyek.status,
-      metodePembayaran: chosenMetode,
+      metodePembayaran: dpMetodeAsli, // Metode bayar DP / asal tetap tersimpan
+      metodeBayarDp: dpMetodeAsli,
+      metodeBayarPelunasan: chosenMetode, // Metode pembayaran pelunasan dari popup
       catatan: newCatatan,
       gdriveLink: currentProyek.gdriveLink,
       sumber: currentProyek.sumber || "WhatsApp"
@@ -994,8 +997,10 @@ async function lunasiProyek() {
             sisa: 0,
             totalProyek: nominalVal,
             statusPembayaran: 'Lunas',
+            metodeBayarDp: linkedDpTx.metodeBayarDp || dpMetodeAsli,
+            metodeBayarPelunasan: chosenMetode,
             metodePembayaran: chosenMetode,
-            catatanPelunasan: result.catatan || `Pelunasan Rp${sisa.toLocaleString('id-ID')} tgl ${new Date().toLocaleDateString('id-ID')}`
+            catatanPelunasan: result.catatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
           });
         }
 
@@ -1010,9 +1015,11 @@ async function lunasiProyek() {
           sisa: 0,
           totalProyek: nominalVal,
           statusPembayaran: 'Lunas',
+          metodeBayarDp: dpMetodeAsli,
+          metodeBayarPelunasan: chosenMetode,
           metodePembayaran: chosenMetode,
           idProyek: prjId,
-          catatanPelunasan: result.catatan || `Pelunasan tagihan projek (${formatRupiah(sisa)})`
+          catatanPelunasan: result.catatan || `Pelunasan tagihan projek via ${chosenMetode} (${formatRupiah(sisa)})`
         };
         await API.addKeuangan(txPayload);
 
@@ -1343,7 +1350,9 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       sisa: newSisa,
       deadline: proyek.deadline,
       status: newStatus,
-      metodePembayaran: chosenMetode,
+      metodePembayaran: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
+      metodeBayarDp: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
+      metodeBayarPelunasan: chosenMetode,
       sumber: proyek.sumber || 'WhatsApp',
       catatan: newCatatan
     };
@@ -1355,6 +1364,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
         try {
           const keuanganList = await API.getKeuangan();
           const prjId = proyek.iDProyek;
+          const dpMetodeAsli = proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee';
           
           const linkedDpTx = (keuanganList || []).find(k => {
             if (!k) return false;
@@ -1370,6 +1380,8 @@ async function updateProyekStatus(id, newStatus, selectEl) {
               sisa: 0,
               totalProyek: nominalVal,
               statusPembayaran: 'Lunas',
+              metodeBayarDp: linkedDpTx.metodeBayarDp || dpMetodeAsli,
+              metodeBayarPelunasan: chosenMetode,
               metodePembayaran: chosenMetode,
               catatanPelunasan: addedCatatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
             });
@@ -1384,6 +1396,8 @@ async function updateProyekStatus(id, newStatus, selectEl) {
               sisa: 0,
               totalProyek: nominalVal,
               statusPembayaran: 'Lunas',
+              metodeBayarDp: dpMetodeAsli,
+              metodeBayarPelunasan: chosenMetode,
               metodePembayaran: chosenMetode,
               idProyek: prjId,
               catatanPelunasan: addedCatatan || `Pelunasan via ${chosenMetode}`
