@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function syncSumberUI(sumberVal, preferredMetode) {
     const s = String(sumberVal || (sumberInput ? sumberInput.value : 'WhatsApp') || 'WhatsApp').trim().toLowerCase();
     
-    let targetMetode = preferredMetode !== undefined ? preferredMetode : (metodePembayaranInput ? metodePembayaranInput.value : '');
-    if (!targetMetode) {
+    let targetMetode = preferredMetode;
+    if (targetMetode === undefined || targetMetode === null || targetMetode === '') {
       if (s === 'shopee') targetMetode = 'Shopee';
       else if (s === 'fiverr') targetMetode = 'Fiverr';
       else targetMetode = 'QRIS';
@@ -339,7 +339,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (sumberInput) {
           sumberInput.value = proyek.sumber || 'WhatsApp';
         }
-        syncSumberUI(proyek.sumber || 'WhatsApp', proyek.metodePembayaran || proyek.metode);
+        const initialMetode = proyek.metodePembayaran || proyek.metode || '';
+        syncSumberUI(proyek.sumber || 'WhatsApp', initialMetode);
+        if (metodePembayaranInput && initialMetode) {
+          metodePembayaranInput.value = initialMetode;
+        }
         if (catatanInput) {
           catatanInput.value = proyek.catatan || "";
         }
