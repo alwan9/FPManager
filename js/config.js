@@ -807,3 +807,132 @@ window.addEventListener('load', () => {
     }, 500); // Wait for the transition to finish
   }
 });
+
+/**
+ * Global Shortcut Handler: Ctrl + 1
+ * Clears web cache, offline cache, non-auth session/cookies, and temporary history,
+ * while strictly preserving the user's active login session and essential preferences.
+ */
+async function clearWebCacheAndHistory(keepLogin = true) {
+  try {
+    // 1. Backup login session and core configuration
+    const authKeys = ['token', 'user', 'currentUser', 'fp_auth_token', 'fp_auth_user'];
+    const configKeys = [
+      'cfg_api_url', 'cfg_api_key', 'cfg_gemini_api_key', 'cfg_wa_template',
+      'cfg_reminder_interval', 'cfg_notif_style', 'cfg_notif_vibrate',
+      'cfg_notif_silent', 'cfg_toast_position', 'cfg_toast_duration',
+      'cfg_lang', 'theme', 'sidebar_collapsed', 'shortcutsOrder'
+    ];
+
+    const savedSession = {};
+    const savedLocal = {};
+
+    if (keepLogin) {
+      authKeys.forEach(k => {
+        const sVal = sessionStorage.getItem(k);
+        if (sVal !== null) savedSession[k] = sVal;
+        const lVal = localStorage.getItem(k);
+        if (lVal !== null) savedLocal[k] = lVal;
+      });
+
+      configKeys.forEach(k => {
+        const lVal = localStorage.getItem(k);
+        if (lVal !== null) savedLocal[k] = lVal;
+      });
+    }
+
+    // 2. Clear SessionStorage and restore auth keys
+    sessionStorage.clear();
+    if (keepLogin) {
+      Object.keys(savedSession).forEach(k => {
+        sessionStorage.setItem(k, savedSession[k]);
+      });
+    }
+
+    // 3. Clear LocalStorage and restore auth + config keys
+    localStorage.clear();
+    if (keepLogin) {
+      Object.keys(savedLocal).forEach(k => {
+        localStorage.setItem(k, savedLocal[k]);
+      });
+    }
+
+    // 4. Delete non-login cookies
+    if (document.cookie) {
+      const cookies = document.cookie.split(';');
+      const loginCookieNames = ['token', 'user', 'fp_auth_token', 'fp_auth_user', 'auth', 'session', 'PHPSESSID', 'login'];
+
+      cookies.forEach(cookie => {
+        const eqPos = cookie.indexOf('=');
+        const name = (eqPos > -1 ? cookie.substr(0, eqPos) : cookie).trim();
+        if (!name) return;
+
+        const isLoginCookie = loginCookieNames.some(lc => name.toLowerCase().includes(lc.toLowerCase()));
+        if (!isLoginCookie || !keepLogin) {
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=;`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+        }
+      });
+    }
+
+    // 5. Purge CacheStorage (ServiceWorker / PWA caches)
+    if ('caches' in window) {
+      try {
+        const cacheKeys = await caches.keys();
+        await Promise.all(cacheKeys.map(k => caches.delete(k)));
+      } catch (err) {
+        console.warn('CacheStorage cleanup warning:', err);
+      }
+    }
+
+    // 6. Clear in-memory / API Cache if active
+    if (typeof APICache !== 'undefined' && typeof APICache.clear === 'function') {
+      APICache.clear();
+    }
+
+    // 7. Clear history state if applicable
+    if (window.history && typeof window.history.replaceState === 'function') {
+      window.history.replaceState(null, '', window.location.href);
+    }
+
+    // 8. Visual feedback & notification
+    if (typeof showToast === 'function') {
+      showToast({
+        title: 'Cache & Riwayat Web Dibersihkan (Ctrl+1)',
+        message: 'Cache browser dan riwayat berhasil dibersihkan tanpa menghapus cookie/sesi login Anda. Memuat ulang...',
+        type: 'success'
+      });
+    } else if (typeof Toast !== 'undefined' && typeof Toast.success === 'function') {
+      Toast.success('Cache & Riwayat Web Dibersihkan (Ctrl+1)', 'Cookie login Anda tetap aman. Memuat ulang...');
+    }
+
+    // 9. Reload page to apply fresh state
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
+
+    return true;
+  } catch (error) {
+    console.error('Error clearing web cache and history:', error);
+    if (typeof showToast === 'function') {
+      showToast({
+        title: 'Pembersihan Sebagian Berhasil',
+        message: 'Beberapa cache telah dibersihkan. Cookie login tetap aman.',
+        type: 'warning'
+      });
+    }
+    return false;
+  }
+}
+
+window.clearWebCacheAndHistory = clearWebCacheAndHistory;
+
+// Global Keyboard Shortcut: Ctrl + 1 or Cmd + 1
+window.addEventListener('keydown', function (e) {
+  if ((e.ctrlKey || e.metaKey) && (e.key === '1' || e.code === 'Digit1' || e.keyCode === 49)) {
+    e.preventDefault();
+    clearWebCacheAndHistory(true);
+  }
+});
+

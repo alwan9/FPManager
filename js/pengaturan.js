@@ -197,48 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClearStorageCache.addEventListener('click', async () => {
       if (await showConfirmModal({
         title: 'Bersihkan Cache & Riwayat',
-        message: 'Apakah Anda yakin ingin membersihkan seluruh cache, session, cookie, dan riwayat sementara aplikasi?',
+        message: 'Apakah Anda yakin ingin membersihkan seluruh cache, cookie non-login, dan riwayat sementara aplikasi? (Sesi login Anda tidak akan terhapus). Shortcut: Ctrl + 1',
         type: 'warning',
         confirmText: 'Bersihkan Cache'
       })) {
-        // Save current session before clear to prevent logout
-        const savedToken = sessionStorage.getItem("token");
-        const savedUser = sessionStorage.getItem("user");
-        const savedLocalToken = localStorage.getItem("token");
-        const savedLocalUser = localStorage.getItem("user");
-
-        // Clear session storage
-        sessionStorage.clear();
-
-        // Restore session
-        if (savedToken) sessionStorage.setItem("token", savedToken);
-        if (savedUser) sessionStorage.setItem("user", savedUser);
-        if (savedLocalToken) localStorage.setItem("token", savedLocalToken);
-        if (savedLocalUser) localStorage.setItem("user", savedLocalUser);
-
-        // Clear cache storage if supported
-        if ('caches' in window) {
-          try {
-            const keys = await caches.keys();
-            await Promise.all(keys.map(key => caches.delete(key)));
-          } catch (err) {
-            console.error("Cache cleanup error:", err);
-          }
-        }
-        // Clear API cache
-        if (typeof APICache !== 'undefined' && typeof APICache.clear === 'function') {
-          APICache.clear();
-        }
-
-
-        showToast({
-          title: 'Cache & Session Dibersihkan',
-          message: 'Cache, sesi cookie, dan riwayat sementara berhasil dibersihkan tanpa memutus sesi login! Memuat ulang...',
-          type: 'success'
-        });
-        setTimeout(() => {
+        if (typeof clearWebCacheAndHistory === 'function') {
+          await clearWebCacheAndHistory(true);
+        } else {
           window.location.reload();
-        }, 1200);
+        }
       }
     });
   }
