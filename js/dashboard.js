@@ -72,6 +72,28 @@ async function loadDashboardData() {
     // Apply dashboard role customizations
     applyDashboardRoleCustomizations();
 
+    const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+    const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
+    const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
+    const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+
+    // Sync financial metrics 100% with Keuangan Parent Consolidated data
+    if (canReadFinancials) {
+      try {
+        const rawKeuangan = (await API.getKeuangan()) || [];
+        const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(rawKeuangan) : rawKeuangan;
+        const summary = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
+        if (summary) {
+          if (!dashboardData.stats) dashboardData.stats = {};
+          dashboardData.stats.totalPemasukan = summary.totalIn;
+          dashboardData.stats.totalPengeluaran = summary.totalOut;
+          dashboardData.stats.labaBersih = summary.saldo;
+        }
+      } catch (syncErr) {
+        console.warn("Failed to sync direct keuangan summary for dashboard:", syncErr);
+      }
+    }
+
     // 1. Tampilkan Statistik Ringkasan (Role-aware)
     if (dashboardData.stats) {
       renderSummaryStats(dashboardData.stats);
@@ -81,11 +103,6 @@ async function loadDashboardData() {
     // 3. Tampilkan Proyek Terbaru (Top 5)
     renderRecentProjects(dashboardData.recentProjects);
     // 4. Render Grafik Keuangan Bulanan (jika diizinkan)
-    const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-    const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-    const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
-    const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
-    
     if (canReadFinancials && dashboardData.chartData) {
       renderDashboardChart(dashboardData.chartData);
     }
@@ -257,18 +274,19 @@ function renderRecentProjects(recent) {
       'Belum Pembayaran': 'Belum Pembayaran',
       'Dibatalkan': 'Dibatalkan'
     };
-    const displayStatus = statusMap[p.status] || p.status;
-    const badgeClass = 'badge-' + p.status.toLowerCase().replace(/\s+/g, '');
+    let badgeKey = String(p.status || '').toLowerCase().replace(/\s+/g, '');
+    if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
+    const badgeClass = 'badge-' + badgeKey;
     const sumber = p.sumber || 'WhatsApp';
     let sourceBadge = '';
     if (sumber.toLowerCase() === 'shopee') {
-      sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800 ml-1.5 align-middle" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[8px] text-orange-500"></i> Shopee</span>`;
+      sourceBadge = `<span class="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] leading-tight font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[7px] text-orange-500"></i> Shopee</span>`;
     } else if (sumber.toLowerCase() === 'fiverr') {
-      sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 ml-1.5 align-middle" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[8px] text-emerald-500"></i> Fiverr</span>`;
+      sourceBadge = `<span class="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] leading-tight font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[7px] text-emerald-500"></i> Fiverr</span>`;
     }
     const gdriveBtn = p.gdriveLink ? `
-      <a href="${p.gdriveLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[8px] font-semibold border border-indigo-100 transition ml-2 align-middle" title="Buka Google Drive">
-        <i class="fa-solid fa-folder-open text-indigo-600 text-[8px]"></i>
+      <a href="${p.gdriveLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-0.5 px-1 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/60 rounded text-[7px] leading-tight font-semibold border border-indigo-200/70 dark:border-indigo-800 transition" title="Buka Google Drive">
+        <i class="fa-solid fa-folder-open text-indigo-600 dark:text-indigo-400 text-[7px]"></i>
         <span>Drive</span>
       </a>
     ` : '';
@@ -279,7 +297,7 @@ function renderRecentProjects(recent) {
         <span class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 block truncate">${p.namaProyek}</span>
         <span class="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
         <div class="flex items-center mt-1 flex-wrap gap-1">
-          <span class="inline-block px-1.5 py-0.5 text-[8px] font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
+          <span class="inline-block px-1 py-0.5 text-[7px] leading-tight font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
           ${sourceBadge}
           ${gdriveBtn}
         </div>

@@ -52,7 +52,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="manifest" href="manifest.json">
-
+</head>
 
 <body class="bg-zinc-50 text-zinc-800">
   <!-- Outer Shell wrapper -->
@@ -448,15 +448,13 @@
                 </div>
                 <select id="metodePembayaran"
                   class="w-full px-4 py-2 border border-zinc-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
-                  <option value="DANA">DANA - 088216760774 (Hafiz Alwan)</option>
-                  <option value="GoPay">GoPay - 085117651702 (Pasya Putri)</option>
-                  <option value="ShopeePay">ShopeePay (SPay) - 088216760774 (Hafiz Alwan)</option>
-                  <option value="Shopee">Shopee</option>
-                  <option value="Fiverr">Fiverr</option>
-                  <option value="BSI">BSI - 7312337627 (Hafiz Alwan)</option>
-                  <option value="Bank Jago">Bank Jago - 104873618392 (Hafiz Alwan)</option>
-                  <option value="QRIS">QRIS</option>
-                  <option value="Tunai / Cash">Tunai / Cash</option>
+                  <option value="QRIS" selected>QRIS</option>
+                  <option value="Transfer Bank">Transfer Bank (BCA / Mandiri / BRI)</option>
+                  <option value="Shopee">Shopee - @premium_dz (Toko Shopee)</option>
+                  <option value="ShopeePay">ShopeePay</option>
+                  <option value="Fiverr">Fiverr (Direct / Balance)</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Cash">Tunai / Cash</option>
                 </select>
               </div>
 
@@ -548,6 +546,6 @@
   </script>
   <script src="js/pwa.js"></script>
   <script src="js/theme.js"></script>
-
+</body>
 
 </html>

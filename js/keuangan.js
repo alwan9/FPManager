@@ -140,12 +140,47 @@ function consolidateKeuanganList(list) {
   return result;
 }
 
-// Compute total income, expenses, and current cash balance
+// Compute total income, expenses, current cash balance, and account group breakdowns
 function calculateSummary(mutasiList) {
   let totalIn = 0;
   let totalOut = 0;
 
+  // Pre-configured payment accounts map
+  const accountsMap = {
+    'Shopee': { name: 'Shopee', group: 'market', groupName: 'Marketplace', type: 'Marketplace', number: '@premium_dz', holder: 'Toko Shopee', icon: 'fa-solid fa-bag-shopping text-orange-500', bgClass: 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800', totalIn: 0, totalOut: 0, txCount: 0 },
+    'QRIS': { name: 'QRIS', group: 'ewallet', groupName: 'QRIS & E-Wallet', type: 'QRIS', number: 'All Payment', holder: 'Hafiz Alwan', icon: 'fa-solid fa-qrcode text-indigo-500', bgClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800', totalIn: 0, totalOut: 0, txCount: 0 }
+  };
+
   mutasiList.forEach(item => {
+    const rawMetode = String(item.metodePembayaran || '').trim();
+    let metodeKey = null;
+
+    if (rawMetode.toLowerCase().includes('shopee')) metodeKey = 'Shopee';
+    else if (rawMetode.toLowerCase().includes('qris')) metodeKey = 'QRIS';
+    else if (rawMetode) {
+      if (!accountsMap[rawMetode]) {
+        accountsMap[rawMetode] = {
+          name: rawMetode,
+          group: 'market',
+          groupName: 'Metode Lain',
+          type: 'Rekening',
+          number: '-',
+          holder: 'Hafiz Alwan',
+          icon: 'fa-solid fa-credit-card text-zinc-500',
+          bgClass: 'bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700',
+          totalIn: 0,
+          totalOut: 0,
+          txCount: 0
+        };
+      }
+      metodeKey = rawMetode;
+    } else {
+      const smb = String(item.sumber || '').toLowerCase();
+      if (smb.includes('shopee')) metodeKey = 'Shopee';
+      else if (smb.includes('qris')) metodeKey = 'QRIS';
+      else metodeKey = 'Shopee';
+    }
+
     const st = String(item.statusPembayaran || '').toLowerCase();
     const isLunas = st.includes('lunas');
     const isUnpaid = st === 'belum';
@@ -154,14 +189,26 @@ function calculateSummary(mutasiList) {
     const pelunasanVal = Number(item.pelunasan) || 0;
     const nominal = Number(item.nominal) || 0;
 
+    let inVal = 0;
+    let outVal = 0;
+
     if (item.jenis === 'Pemasukan') {
       if (isLunas) {
-        totalIn += (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
+        inVal = (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
       } else if (!isUnpaid) {
-        totalIn += (dpVal > 0 ? dpVal : nominal);
+        inVal = (dpVal > 0 ? dpVal : nominal);
       }
     } else if (item.jenis === 'Pengeluaran') {
-      totalOut += nominal;
+      outVal = nominal;
+    }
+
+    totalIn += inVal;
+    totalOut += outVal;
+
+    if (metodeKey && accountsMap[metodeKey]) {
+      accountsMap[metodeKey].totalIn += inVal;
+      accountsMap[metodeKey].totalOut += outVal;
+      accountsMap[metodeKey].txCount += 1;
     }
   });
 
@@ -177,7 +224,147 @@ function calculateSummary(mutasiList) {
   } else {
     saldoEl.className = 'text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 block';
   }
+
+  // Render Category Groups and Account Breakdown
+  renderWalletBreakdown(accountsMap);
 }
+
+// Render dynamic group distribution (Simple & Compact Overview)
+function renderWalletBreakdown(accountsMap) {
+  const accountKeys = Object.keys(accountsMap);
+  let groupTotals = {
+    ewallet: { totalSaldo: 0, totalIn: 0, totalOut: 0, count: 0, accounts: [] },
+    market: { totalSaldo: 0, totalIn: 0, totalOut: 0, count: 0, accounts: [] }
+  };
+
+  accountKeys.forEach(key => {
+    const acc = accountsMap[key];
+    const netSaldo = acc.totalIn - acc.totalOut;
+    const grp = (acc.group === 'market' || key === 'Shopee') ? 'market' : 'ewallet';
+    const hasActivityOrBalance = netSaldo !== 0 || acc.totalIn > 0 || acc.totalOut > 0 || acc.txCount > 0;
+
+    if (groupTotals[grp]) {
+      groupTotals[grp].totalSaldo += netSaldo;
+      groupTotals[grp].totalIn += acc.totalIn;
+      groupTotals[grp].totalOut += acc.totalOut;
+      if (hasActivityOrBalance) {
+        groupTotals[grp].count += 1;
+        groupTotals[grp].accounts.push({ key, ...acc, netSaldo });
+      }
+    }
+  });
+
+  // Update Group 1: QRIS
+  const ewalletEl = document.getElementById('totalSaldoEwallet');
+  if (ewalletEl) ewalletEl.textContent = formatRupiah(groupTotals.ewallet.totalSaldo);
+  const ewalletBadge = document.getElementById('ewalletCountBadge');
+  if (ewalletBadge) {
+    const qrisAcc = accountsMap['QRIS'];
+    ewalletBadge.textContent = `${qrisAcc ? qrisAcc.txCount : 0} Transaksi`;
+  }
+  const ewalletList = document.getElementById('ewalletMiniList');
+  if (ewalletList) {
+    if (groupTotals.ewallet.accounts.length > 0) {
+      ewalletList.innerHTML = groupTotals.ewallet.accounts.map(acc => `
+        <div class="flex items-center justify-between py-1 px-1.5 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-zinc-700 dark:text-zinc-300 transition ${currentWalletFilter === acc.key ? 'bg-indigo-100 dark:bg-indigo-900/60 font-semibold' : ''}" onclick="filterTableByWallet('${escapeHtml(acc.key)}')" title="Klik untuk filter transaksi ${escapeHtml(acc.name)}">
+          <span class="flex items-center gap-1.5 truncate">
+            <i class="${acc.icon} text-[10px]"></i>
+            <span class="truncate">${escapeHtml(acc.name)}</span>
+          </span>
+          <span class="font-bold font-mono ${acc.netSaldo < 0 ? 'text-rose-500' : 'text-zinc-900 dark:text-zinc-100'}">${formatRupiah(acc.netSaldo)}</span>
+        </div>
+      `).join('');
+    } else {
+      ewalletList.innerHTML = `<div class="text-[11px] text-zinc-400 dark:text-zinc-500 italic py-1 px-1">Belum ada saldo</div>`;
+    }
+  }
+
+  // Update Group 2: Shopee (Marketplace)
+  const marketEl = document.getElementById('totalSaldoMarket');
+  if (marketEl) marketEl.textContent = formatRupiah(groupTotals.market.totalSaldo);
+  const marketBadge = document.getElementById('marketCountBadge');
+  if (marketBadge) {
+    const shopeeAcc = accountsMap['Shopee'];
+    marketBadge.textContent = `${shopeeAcc ? shopeeAcc.txCount : 0} Transaksi`;
+  }
+  const marketList = document.getElementById('marketMiniList');
+  if (marketList) {
+    if (groupTotals.market.accounts.length > 0) {
+      marketList.innerHTML = groupTotals.market.accounts.map(acc => `
+        <div class="flex items-center justify-between py-1 px-1.5 rounded-lg cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-950/40 text-zinc-700 dark:text-zinc-300 transition ${currentWalletFilter === acc.key ? 'bg-orange-100 dark:bg-orange-900/60 font-semibold' : ''}" onclick="filterTableByWallet('${escapeHtml(acc.key)}')" title="Klik untuk filter transaksi ${escapeHtml(acc.name)}">
+          <span class="flex items-center gap-1.5 truncate">
+            <i class="${acc.icon} text-[10px]"></i>
+            <span class="truncate">${escapeHtml(acc.name)}</span>
+          </span>
+          <span class="font-bold font-mono ${acc.netSaldo < 0 ? 'text-rose-500' : 'text-zinc-900 dark:text-zinc-100'}">${formatRupiah(acc.netSaldo)}</span>
+        </div>
+      `).join('');
+    } else {
+      marketList.innerHTML = `<div class="text-[11px] text-zinc-400 dark:text-zinc-500 italic py-1 px-1">Belum ada saldo</div>`;
+    }
+  }
+}
+
+// Global Wallet Filter State
+let currentWalletFilter = null;
+
+function filterTableByWallet(walletKey) {
+  if (!table) return;
+  if (currentWalletFilter === walletKey) {
+    clearWalletFilter();
+    return;
+  }
+  currentWalletFilter = walletKey;
+
+  // Column index 6 is 'Metode Pembayaran'
+  table.column(6).search(walletKey).draw();
+
+  const filterBadge = document.getElementById('activeWalletFilterBadge');
+  const filterName = document.getElementById('activeWalletFilterName');
+  if (filterBadge && filterName) {
+    filterName.textContent = walletKey;
+    filterBadge.classList.remove('hidden');
+    filterBadge.classList.add('flex');
+  }
+
+  document.querySelectorAll('.wallet-card-item').forEach(card => {
+    if (card.dataset.walletKey === walletKey) {
+      card.classList.add('ring-2', 'ring-indigo-500', 'shadow-md');
+    } else {
+      card.classList.remove('ring-2', 'ring-indigo-500', 'shadow-md');
+    }
+  });
+
+  if (typeof Toast !== 'undefined') {
+    Toast.info('Filter Akun', `Menampilkan mutasi untuk: ${walletKey}`);
+  }
+
+  const tblContainer = document.getElementById('keuanganTable');
+  if (tblContainer) {
+    tblContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function clearWalletFilter() {
+  currentWalletFilter = null;
+  if (table) {
+    table.column(6).search('').draw();
+  }
+  const filterBadge = document.getElementById('activeWalletFilterBadge');
+  if (filterBadge) {
+    filterBadge.classList.add('hidden');
+    filterBadge.classList.remove('flex');
+  }
+  document.querySelectorAll('.wallet-card-item').forEach(card => {
+    card.classList.remove('ring-2', 'ring-indigo-500', 'shadow-md');
+  });
+
+  if (typeof Toast !== 'undefined') {
+    Toast.info('Filter Direset', 'Menampilkan seluruh riwayat transaksi.');
+  }
+}
+window.filterTableByWallet = filterTableByWallet;
+window.clearWalletFilter = clearWalletFilter;
 
 // Initialize DataTable for mutation ledger
 function initTable(data) {
@@ -320,30 +507,19 @@ function initTable(data) {
         data: 'metodePembayaran',
         render: function (data, type, row) {
           const rawMetode = String(data || '').trim();
-          let metode = 'DANA';
-          if (rawMetode.toLowerCase().includes('gopay')) metode = 'GoPay';
-          else if (rawMetode.toLowerCase().includes('spay') || rawMetode.toLowerCase().includes('shopeepay')) metode = 'ShopeePay';
+          let metode = 'Shopee';
+          if (rawMetode.toLowerCase().includes('qris')) metode = 'QRIS';
           else if (rawMetode.toLowerCase().includes('shopee')) metode = 'Shopee';
-          else if (rawMetode.toLowerCase().includes('fiverr')) metode = 'Fiverr';
-          else if (rawMetode.toLowerCase().includes('bsi')) metode = 'BSI';
-          else if (rawMetode.toLowerCase().includes('jago')) metode = 'Bank Jago';
-          else if (rawMetode.toLowerCase().includes('qris')) metode = 'QRIS';
-          else if (rawMetode.toLowerCase().includes('tunai') || rawMetode.toLowerCase().includes('cash')) metode = 'Tunai / Cash';
-          else if (rawMetode.toLowerCase().includes('dana')) metode = 'DANA';
           else if (rawMetode) metode = rawMetode;
+
+          const isOther = (metode !== 'Shopee' && metode !== 'QRIS');
 
           return `
             <div class="flex items-center gap-1">
               <select onchange="quickUpdatePaymentMethod('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
-                <option value="DANA" ${metode === 'DANA' ? 'selected' : ''}>DANA</option>
-                <option value="GoPay" ${metode === 'GoPay' ? 'selected' : ''}>GoPay</option>
-                <option value="ShopeePay" ${metode === 'ShopeePay' ? 'selected' : ''}>ShopeePay</option>
+                ${isOther ? `<option value="${escapeHtml(metode)}" selected>${escapeHtml(metode)}</option>` : ''}
                 <option value="Shopee" ${metode === 'Shopee' ? 'selected' : ''}>Shopee</option>
-                <option value="Fiverr" ${metode === 'Fiverr' ? 'selected' : ''}>Fiverr</option>
-                <option value="BSI" ${metode === 'BSI' ? 'selected' : ''}>BSI</option>
-                <option value="Bank Jago" ${metode === 'Bank Jago' ? 'selected' : ''}>Bank Jago</option>
                 <option value="QRIS" ${metode === 'QRIS' ? 'selected' : ''}>QRIS</option>
-                <option value="Tunai / Cash" ${metode === 'Tunai / Cash' ? 'selected' : ''}>Tunai / Cash</option>
               </select>
               <button onclick="showPaymentAccountsModal('${metode}')" class="p-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 rounded-md transition" title="Lihat & salin detail nomor rekening/e-wallet">
                 <i class="fa-solid fa-circle-info"></i>
@@ -615,7 +791,7 @@ async function handleAddTransaksi(e) {
   const keterangan = document.getElementById('keterangan').value;
   const nominal = Number(document.getElementById('nominal').value);
   const metodeElem = document.getElementById('metodePembayaran');
-  const metodePembayaran = metodeElem ? metodeElem.value : 'DANA';
+  const metodePembayaran = metodeElem ? metodeElem.value : 'Shopee';
   const catatanPelunasanElem = document.getElementById('catatanPelunasan');
   const catatanPelunasan = catatanPelunasanElem ? catatanPelunasanElem.value.trim() : '';
 
@@ -992,9 +1168,41 @@ function showKeuanganSkeletons() {
 
   const skeletonText = '<div class="h-6 w-32 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse mt-1"></div>';
 
-  document.getElementById('totalPemasukan').innerHTML = skeletonText;
-  document.getElementById('totalPengeluaran').innerHTML = skeletonText;
-  document.getElementById('saldoBersih').innerHTML = skeletonText;
+  const inEl = document.getElementById('totalPemasukan');
+  if (inEl) inEl.innerHTML = skeletonText;
+  const outEl = document.getElementById('totalPengeluaran');
+  if (outEl) outEl.innerHTML = skeletonText;
+  const saldoEl = document.getElementById('saldoBersih');
+  if (saldoEl) saldoEl.innerHTML = skeletonText;
+
+  const ewEl = document.getElementById('totalSaldoEwallet');
+  if (ewEl) ewEl.innerHTML = skeletonText;
+  const mkEl = document.getElementById('totalSaldoMarket');
+  if (mkEl) mkEl.innerHTML = skeletonText;
+
+  const grid = document.getElementById('walletAccountsGrid');
+  if (grid) {
+    grid.innerHTML = Array(4).fill(`
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 animate-pulse shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 bg-zinc-200 dark:bg-zinc-700 rounded-xl"></div>
+            <div>
+              <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded mb-1"></div>
+              <div class="h-3 w-28 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+            </div>
+          </div>
+          <div class="h-5 w-16 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
+        </div>
+        <div class="h-3 w-16 bg-zinc-200 dark:bg-zinc-700 rounded mb-1.5 mt-3"></div>
+        <div class="h-6 w-28 bg-zinc-200 dark:bg-zinc-700 rounded mb-2.5"></div>
+        <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex justify-between">
+          <div class="h-3 w-14 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+          <div class="h-3 w-14 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        </div>
+      </div>
+    `).join('');
+  }
 
   const tbody = document.querySelector('#keuanganTable tbody');
   if (tbody) {

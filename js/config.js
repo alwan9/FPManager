@@ -79,33 +79,6 @@ const CONFIG = {
 
   PAYMENT_ACCOUNTS: [
     {
-      id: 'dana',
-      name: 'DANA',
-      number: '088216760774',
-      holder: 'Hafiz Alwan',
-      type: 'E-Wallet',
-      icon: 'fa-solid fa-wallet text-sky-500',
-      badgeClass: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400'
-    },
-    {
-      id: 'gopay',
-      name: 'GoPay',
-      number: '085117651702',
-      holder: 'Pasya Putri',
-      type: 'E-Wallet',
-      icon: 'fa-solid fa-money-bill-wave text-emerald-500',
-      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
-    },
-    {
-      id: 'spay',
-      name: 'ShopeePay (SPay)',
-      number: '088216760774',
-      holder: 'Hafiz Alwan',
-      type: 'E-Wallet',
-      icon: 'fa-solid fa-bag-shopping text-orange-500',
-      badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
-    },
-    {
       id: 'shopee',
       name: 'Shopee',
       number: 'https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618',
@@ -117,31 +90,14 @@ const CONFIG = {
       badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
     },
     {
-      id: 'fiverr',
-      name: 'Fiverr',
-      number: 'Pembayaran Order Fiverr',
-      holder: 'Hafiz Alwan / @premium_dz',
-      type: 'Marketplace',
-      icon: 'fa-solid fa-bolt text-emerald-500',
-      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
-    },
-    {
-      id: 'bsi',
-      name: 'BSI (Bank Syariah Indonesia)',
-      number: '7312337627',
+      id: 'qris',
+      name: 'QRIS',
+      number: 'QRIS All Payment',
+      displayNumber: 'QRIS (All E-Wallet / Bank)',
       holder: 'Hafiz Alwan',
-      type: 'Transfer Bank',
-      icon: 'fa-solid fa-building-columns text-teal-600',
-      badgeClass: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-400'
-    },
-    {
-      id: 'bank_jago',
-      name: 'Bank Jago',
-      number: '104873618392',
-      holder: 'Hafiz Alwan',
-      type: 'Transfer Bank',
-      icon: 'fa-solid fa-credit-card text-amber-500',
-      badgeClass: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400'
+      type: 'QRIS',
+      icon: 'fa-solid fa-qrcode text-indigo-500',
+      badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-400'
     }
   ]
 };
@@ -459,6 +415,280 @@ function showConfirmModal(options) {
     }
   });
 }
+function formatRupiah(number) {
+  const num = parseFloat(number) || 0;
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(num);
+}
+window.formatRupiah = formatRupiah;
+
+/**
+ * Global Pelunasan Payment Method Modal
+ * Displays a popup to select payment method when project status is changed to Selesai / settlement.
+ * @param {Object} options - { proyekId, namaPelanggan, namaProyek, nominal, dp, sisa, currentMetode }
+ * @returns {Promise<{ confirmed: boolean, metode: string, catatan: string }>}
+ */
+function promptMetodePelunasanModal(options = {}) {
+  return new Promise((resolve) => {
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+    const nominal = Number(options.nominal) || 0;
+    const dp = Number(options.dp) || 0;
+    const sisa = options.sisa !== undefined ? Number(options.sisa) : Math.max(0, nominal - dp);
+    const currentMetode = String(options.currentMetode || 'Shopee').trim();
+
+    let modal = document.getElementById('globalPelunasanModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'globalPelunasanModal';
+      document.body.appendChild(modal);
+    }
+
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[999999] flex items-center justify-center p-4 transition-all duration-200';
+
+    const paymentOptions = [
+      { val: 'Shopee', label: 'Shopee - @premium_dz (Toko Shopee)' },
+      { val: 'ShopeePay', label: 'ShopeePay' },
+      { val: 'QRIS', label: 'QRIS' },
+      { val: 'Transfer Bank', label: 'Transfer Bank (BCA / Mandiri / BRI)' },
+      { val: 'Fiverr', label: 'Fiverr (Direct / Balance)' },
+      { val: 'PayPal', label: 'PayPal' },
+      { val: 'Cash', label: 'Tunai / Cash' }
+    ];
+
+    let selectOptionsHtml = paymentOptions.map(opt => {
+      const isSelected = (currentMetode.toLowerCase().includes(opt.val.toLowerCase()) || opt.val.toLowerCase() === currentMetode.toLowerCase()) ? 'selected' : '';
+      return `<option value="${opt.val}" ${isSelected}>${opt.label}</option>`;
+    }).join('');
+
+    // If current method is something else not in the list
+    if (currentMetode && !paymentOptions.some(p => currentMetode.toLowerCase().includes(p.val.toLowerCase()) || p.val.toLowerCase() === currentMetode.toLowerCase())) {
+      selectOptionsHtml = `<option value="${escapeHtml(currentMetode)}" selected>${escapeHtml(currentMetode)}</option>` + selectOptionsHtml;
+    }
+
+    const clientInfo = (options.namaPelanggan || options.namaProyek) ? `
+      <div class="p-3 bg-zinc-50 dark:bg-zinc-800/70 rounded-xl border border-zinc-200/70 dark:border-zinc-700/70 text-xs space-y-1.5">
+        <div class="flex justify-between items-center text-zinc-600 dark:text-zinc-300">
+          <span>${isEn ? 'Client / Project' : 'Pelanggan / Projek'}:</span>
+          <span class="font-semibold text-zinc-800 dark:text-zinc-100 text-right truncate max-w-[200px]">${escapeHtml(options.namaPelanggan || '')} ${options.namaProyek ? '(' + escapeHtml(options.namaProyek) + ')' : ''}</span>
+        </div>
+        ${sisa > 0 ? `
+        <div class="flex justify-between items-center pt-1 border-t border-zinc-200/50 dark:border-zinc-700/50">
+          <span class="text-zinc-600 dark:text-zinc-400">${isEn ? 'Remaining Balance' : 'Sisa Pelunasan'}:</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">${formatRupiah(sisa)}</span>
+        </div>` : ''}
+      </div>
+    ` : '';
+
+    modal.innerHTML = `
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 transform transition-all text-zinc-800 dark:text-zinc-100">
+        <div class="flex items-start space-x-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60 flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-money-bill-transfer"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-base sm:text-lg text-zinc-900 dark:text-white leading-tight">${isEn ? 'Settlement Payment Method' : 'Metode Pelunasan'}</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">${isEn ? 'Status changed to Completed. Select the payment method used for settlement.' : 'Status diubah ke Selesai. Pilih rekening atau metode pelunasan yang diterima.'}</p>
+          </div>
+        </div>
+
+        ${clientInfo}
+
+        <div class="space-y-3">
+          <div>
+            <label for="pelunasanMetodeSelectInput" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+              ${isEn ? 'Payment Method / Account*' : 'Pilih Rekening / Metode Pelunasan*'}
+            </label>
+            <select id="pelunasanMetodeSelectInput"
+              class="w-full px-3.5 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+              ${selectOptionsHtml}
+            </select>
+          </div>
+
+          <div>
+            <label for="pelunasanCatatanModalInput" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+              ${isEn ? 'Settlement Note (Optional)' : 'Catatan Pelunasan (Opsional)'}
+            </label>
+            <input type="text" id="pelunasanCatatanModalInput"
+              placeholder="${isEn ? 'e.g. Paid in full via Shopee / QRIS' : 'Contoh: Sudah lunas via Shopee / QRIS'}"
+              class="w-full px-3.5 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2.5 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+          <button id="pelunasanModalCancelBtn" class="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs sm:text-sm transition-all cursor-pointer">
+            ${isEn ? 'Cancel' : 'Batal'}
+          </button>
+          <button id="pelunasanModalConfirmBtn" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i>
+            <span>${isEn ? 'Confirm & Finish' : 'Simpan & Lunaskan'}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+
+    const selectEl = modal.querySelector('#pelunasanMetodeSelectInput');
+    const noteEl = modal.querySelector('#pelunasanCatatanModalInput');
+    const cancelBtn = modal.querySelector('#pelunasanModalCancelBtn');
+    const confirmBtn = modal.querySelector('#pelunasanModalConfirmBtn');
+
+    function cleanup(result) {
+      window.removeEventListener('keydown', handleKey);
+      modal.onclick = null;
+      modal.classList.add('hidden');
+      resolve(result);
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        cleanup({ confirmed: false });
+      }
+    }
+
+    window.addEventListener('keydown', handleKey);
+
+    if (cancelBtn) {
+      cancelBtn.onclick = () => cleanup({ confirmed: false });
+    }
+
+    if (confirmBtn) {
+      confirmBtn.onclick = () => {
+        const chosenMetode = selectEl ? selectEl.value : 'Shopee';
+        const chosenNote = noteEl ? noteEl.value.trim() : '';
+        cleanup({
+          confirmed: true,
+          metode: chosenMetode,
+          catatan: chosenNote
+        });
+      };
+    }
+
+    modal.onclick = (e) => {
+      if (e.target === modal) cleanup({ confirmed: false });
+    };
+
+    if (selectEl) selectEl.focus();
+  });
+}
+window.promptMetodePelunasanModal = promptMetodePelunasanModal;
+
+/**
+ * Global Helper: Consolidate Financial Mutasi List (1 Project = 1 Consolidated Row)
+ */
+function consolidateKeuanganList(list) {
+  if (!Array.isArray(list)) return [];
+  const projectMap = new Map();
+  const result = [];
+
+  list.forEach(item => {
+    if (!item) return;
+    const ket = String(item.keterangan || '');
+    const match = ket.match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || String(item.id || '').match(/PRJ-\d+[-a-zA-Z0-9_]*/i) || (item.idProyek ? String(item.idProyek).match(/PRJ-\d+[-a-zA-Z0-9_]*/i) : null);
+    const prjId = match ? match[0] : (item.idProyek ? String(item.idProyek) : '');
+
+    // Jika tertaut ke ID Projek dan bertipe Pemasukan
+    if (prjId && item.jenis === 'Pemasukan') {
+      if (projectMap.has(prjId)) {
+        const existing = projectMap.get(prjId);
+        const exTotal = Number(existing.totalProyek) || Number(existing.nominal) || 0;
+        const curTotal = Number(item.totalProyek) || Number(item.nominal) || 0;
+        const finalTotal = Math.max(exTotal, curTotal);
+
+        const exDp = Number(existing.dp) || 0;
+        const curDp = Number(item.dp) || 0;
+        const finalDp = Math.max(exDp, curDp);
+
+        const exPelunasan = Number(existing.pelunasan) || 0;
+        const curPelunasan = Number(item.pelunasan) || 0;
+        const finalPelunasan = Math.max(exPelunasan, curPelunasan);
+
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp + finalPelunasan >= finalTotal && finalTotal > 0);
+        const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp - finalPelunasan);
+        const finalStatus = isLunas ? 'Lunas' : (finalDp > 0 ? 'DP' : 'Belum');
+
+        existing.totalProyek = finalTotal;
+        existing.dp = finalDp;
+        existing.pelunasan = finalPelunasan;
+        existing.sisa = finalSisa;
+        existing.statusPembayaran = finalStatus;
+        existing.nominal = isLunas ? (finalPelunasan > 0 && finalDp < finalTotal ? finalPelunasan : finalTotal) : finalDp;
+        if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
+        if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
+        if (item.tanggal) existing.tanggal = item.tanggal;
+      } else {
+        const total = Number(item.totalProyek) || Number(item.nominal) || 0;
+        const dp = Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0;
+        const pelunasan = Number(item.pelunasan) || 0;
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || ((dp + pelunasan) >= total && total > 0);
+        const sisa = isLunas ? 0 : (item.sisa !== undefined ? Number(item.sisa) : Math.max(0, total - dp - pelunasan));
+        const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
+
+        const consolidated = {
+          ...item,
+          idProyek: prjId,
+          totalProyek: total,
+          dp: dp,
+          pelunasan: pelunasan,
+          sisa: sisa,
+          statusPembayaran: status,
+          nominal: isLunas ? (pelunasan > 0 && dp < total ? pelunasan : total) : dp,
+          catatanPelunasan: item.catatanPelunasan || ''
+        };
+        projectMap.set(prjId, consolidated);
+        result.push(consolidated);
+      }
+    } else {
+      result.push(item);
+    }
+  });
+
+  return result;
+}
+window.consolidateKeuanganList = consolidateKeuanganList;
+
+/**
+ * Global Helper: Calculate Summary Metrics (Total In, Total Out, Saldo Bersih)
+ */
+function calculateKeuanganSummary(mutasiList) {
+  let totalIn = 0;
+  let totalOut = 0;
+
+  (mutasiList || []).forEach(item => {
+    const st = String(item.statusPembayaran || '').toLowerCase();
+    const isLunas = st.includes('lunas');
+    const isUnpaid = st === 'belum';
+    const total = Number(item.totalProyek) || Number(item.nominal) || 0;
+    const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
+    const pelunasanVal = Number(item.pelunasan) || 0;
+    const nominal = Number(item.nominal) || 0;
+
+    let inVal = 0;
+    let outVal = 0;
+
+    if (item.jenis === 'Pemasukan') {
+      if (isLunas) {
+        inVal = (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
+      } else if (!isUnpaid) {
+        inVal = (dpVal > 0 ? dpVal : nominal);
+      }
+    } else if (item.jenis === 'Pengeluaran') {
+      outVal = nominal;
+    }
+
+    totalIn += inVal;
+    totalOut += outVal;
+  });
+
+  const saldo = totalIn - totalOut;
+  return { totalIn, totalOut, saldo };
+}
+window.calculateKeuanganSummary = calculateKeuanganSummary;
+
 window.showConfirmModal = showConfirmModal;
 window.CustomConfirm = showConfirmModal;
 
@@ -470,7 +700,7 @@ function showPaymentAccountsModal(highlightName = '') {
     modal = document.createElement('div');
     modal.id = 'globalPaymentModal';
     modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-opacity';
-    modal.onclick = function(e) {
+    modal.onclick = function (e) {
       if (e.target === modal) {
         modal.classList.add('hidden');
       }
@@ -498,14 +728,14 @@ function showPaymentAccountsModal(highlightName = '') {
       <!-- Clean List -->
       <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
         ${accounts.map(acc => {
-          const isHighlighted = searchLower && (acc.name.toLowerCase().includes(searchLower) || acc.id.toLowerCase().includes(searchLower));
-          const highlightBg = isHighlighted ? 'bg-indigo-50/50 dark:bg-indigo-950/30 -mx-2 px-2 rounded-xl' : '';
-          const copyValue = acc.holder ? `${acc.number} a.n. ${acc.holder}` : acc.number;
-          const escapedCopyValue = copyValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-          const escapedAccName = (acc.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-          const targetUrl = acc.url || (String(acc.number || '').startsWith('http') ? acc.number : '');
+    const isHighlighted = searchLower && (acc.name.toLowerCase().includes(searchLower) || acc.id.toLowerCase().includes(searchLower));
+    const highlightBg = isHighlighted ? 'bg-indigo-50/50 dark:bg-indigo-950/30 -mx-2 px-2 rounded-xl' : '';
+    const copyValue = acc.holder ? `${acc.number} a.n. ${acc.holder}` : acc.number;
+    const escapedCopyValue = copyValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const escapedAccName = (acc.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const targetUrl = acc.url || (String(acc.number || '').startsWith('http') ? acc.number : '');
 
-          return `
+    return `
             <div class="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 ${highlightBg}">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
@@ -532,7 +762,7 @@ function showPaymentAccountsModal(highlightName = '') {
               </div>
             </div>
           `;
-        }).join('')}
+  }).join('')}
       </div>
 
       <!-- Footer -->

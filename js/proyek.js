@@ -317,7 +317,7 @@ function initTable(data) {
             if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
             const badgeClass = 'badge-' + badgeKey;
 
-            let selectHtml = `<select onchange="const k=this.value.toLowerCase().replace(/\\s+/g,''); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k==='dikerjakan'?'sedangdikerjakan':k); updateProyekStatus('${row.iDProyek}', this.value)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
+            let selectHtml = `<select onchange="const k=this.value.toLowerCase().replace(/\\s+/g,''); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k==='dikerjakan'?'sedangdikerjakan':k); updateProyekStatus('${row.iDProyek}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
 
             statusOptions.forEach(opt => {
               const selected = (opt.toLowerCase() === statusStr.toLowerCase()) ? 'selected' : '';
@@ -619,20 +619,46 @@ function populateDetailModal(proyek) {
     }
   }
 
-  // 5. Customer & WA
+  // 5. Customer & WA / Contact
   const modalPelangganEl = document.getElementById('modalPelanggan');
   if (modalPelangganEl) {
     modalPelangganEl.textContent = namaPelanggan;
     modalPelangganEl.classList.remove('hidden');
   }
 
-  let rawWA = String(proyek.nomorWA || proyek.wa || proyek.nomorWa || '').replace(/\D/g, '');
-  if (rawWA.startsWith('0')) rawWA = '62' + rawWA.slice(1);
-  else if (!rawWA.startsWith('62') && rawWA.length > 0) rawWA = '62' + rawWA;
+  const contactRaw = String(proyek.nomorWA || proyek.wa || proyek.nomorWa || '').trim();
+  let digitsOnly = contactRaw.replace(/\D/g, '');
+  let formattedContact = '-';
+  let isPhone = false;
+
+  if (digitsOnly.length >= 8) {
+    if (digitsOnly.startsWith('0')) digitsOnly = '62' + digitsOnly.slice(1);
+    else if (!digitsOnly.startsWith('62')) digitsOnly = '62' + digitsOnly;
+    formattedContact = `+${digitsOnly}`;
+    isPhone = true;
+  } else if (contactRaw && contactRaw !== '-' && contactRaw !== '62') {
+    formattedContact = contactRaw;
+  }
 
   const modalWaEl = document.getElementById('modalWa');
   if (modalWaEl) {
-    modalWaEl.textContent = rawWA ? `+${rawWA}` : '-';
+    if (isPhone) {
+      modalWaEl.innerHTML = `<i class="fa-brands fa-whatsapp text-emerald-500"></i> <span>${formattedContact}</span>`;
+      modalWaEl.onclick = () => copyTextToClipboard(digitsOnly, 'Nomor WA');
+      modalWaEl.title = isEn ? 'Click to copy WhatsApp Number' : 'Klik untuk salin Nomor WA';
+    } else if (sumber.toLowerCase() === 'shopee') {
+      modalWaEl.innerHTML = `<i class="fa-solid fa-bag-shopping text-orange-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
+      modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Shopee');
+      modalWaEl.title = isEn ? 'Click to copy Shopee Contact' : 'Klik untuk salin Kontak Shopee';
+    } else if (sumber.toLowerCase() === 'fiverr') {
+      modalWaEl.innerHTML = `<i class="fa-solid fa-bolt text-emerald-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
+      modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Fiverr');
+      modalWaEl.title = isEn ? 'Click to copy Fiverr Contact' : 'Klik untuk salin Kontak Fiverr';
+    } else {
+      modalWaEl.innerHTML = `<span>${escapeHtml(formattedContact)}</span>`;
+      modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak');
+      modalWaEl.title = isEn ? 'Click to copy contact' : 'Klik untuk salin kontak';
+    }
     modalWaEl.classList.remove('hidden');
   }
 
@@ -668,6 +694,13 @@ function populateDetailModal(proyek) {
     };
     modalSatuanEl.textContent = isEn ? (satuanMap[satuan] || satuan) : satuan;
     modalSatuanEl.classList.remove('hidden');
+  }
+
+  const modalHargaSatuanEl = document.getElementById('modalHargaSatuan');
+  if (modalHargaSatuanEl) {
+    const qty = parseFloat(jumlah) || 1;
+    const hargaSatuan = parseFloat(proyek.hargaSatuan !== undefined ? proyek.hargaSatuan : (qty > 0 ? Math.round(nominal / qty) : 0)) || 0;
+    modalHargaSatuanEl.textContent = formatRupiah(hargaSatuan);
   }
 
   // 7. Finance Breakdown
@@ -796,9 +829,9 @@ function populateDetailModal(proyek) {
   const waBtnEl = document.getElementById('modalWaBtn');
   if (waBtnEl) {
     waBtnEl.classList.remove('hidden');
-    if (rawWA) {
+    if (isPhone && digitsOnly) {
       const waText = encodeURIComponent(CONFIG.WA_TEMPLATE || '');
-      waBtnEl.href = `https://api.whatsapp.com/send?phone=${rawWA}&text=${waText}`;
+      waBtnEl.href = `https://api.whatsapp.com/send?phone=${digitsOnly}&text=${waText}`;
       waBtnEl.target = 'FPManager_WhatsAppTab';
       waBtnEl.classList.remove('opacity-50', 'pointer-events-none');
     } else {
@@ -884,12 +917,17 @@ async function lunasiProyek() {
     return;
   }
 
-  if (!await showConfirmModal({
-    title: isEn ? "Mark as Paid" : "Pelunasan Projek",
-    message: isEn ? `Are you sure you want to mark this project as paid? (Settlement amount: ${formatRupiah(sisa)})` : `Lakukan pelunasan sebesar ${formatRupiah(sisa)} untuk proyek ini?`,
-    type: "info",
-    confirmText: isEn ? "Yes, Mark Paid" : "Ya, Lunasi"
-  })) {
+  const result = await promptMetodePelunasanModal({
+    proyekId: currentProyek.iDProyek || '',
+    namaPelanggan: currentProyek.namaPelanggan,
+    namaProyek: currentProyek.namaProyek,
+    nominal: nominalVal,
+    dp: dpVal,
+    sisa: sisa,
+    currentMetode: currentProyek.metodePembayaran || currentProyek.metode || 'Shopee'
+  });
+
+  if (!result || !result.confirmed) {
     return;
   }
 
@@ -900,13 +938,16 @@ async function lunasiProyek() {
     }
 
     let newCatatan = currentProyek.catatan || "";
-    if (newCatatan && !newCatatan.toLowerCase().includes("lunas")) {
+    if (result.catatan) {
+      newCatatan = newCatatan ? `${newCatatan} - ${result.catatan}` : result.catatan;
+    } else if (newCatatan && !newCatatan.toLowerCase().includes("lunas")) {
       newCatatan += " - Pembayaran LUNAS";
     } else if (!newCatatan) {
       newCatatan = "Pembayaran LUNAS";
     }
 
     const settledPelunasan = pelunasanCurrent + sisa;
+    const chosenMetode = result.metode || currentProyek.metodePembayaran || 'Shopee';
 
     // 1. Update data proyek (DP ASLI TETAP UTUH, Pelunasan dicatat terpisah, Sisa = 0)
     const payloadProyek = {
@@ -923,6 +964,7 @@ async function lunasiProyek() {
       sisa: 0,
       deadline: currentProyek.deadline,
       status: currentProyek.status === "Menunggu" ? "Sedang Dikerjakan" : currentProyek.status,
+      metodePembayaran: chosenMetode,
       catatan: newCatatan,
       gdriveLink: currentProyek.gdriveLink,
       sumber: currentProyek.sumber || "WhatsApp"
@@ -952,7 +994,8 @@ async function lunasiProyek() {
             sisa: 0,
             totalProyek: nominalVal,
             statusPembayaran: 'Lunas',
-            catatanPelunasan: `Pelunasan Rp${sisa.toLocaleString('id-ID')} tgl ${new Date().toLocaleDateString('id-ID')}`
+            metodePembayaran: chosenMetode,
+            catatanPelunasan: result.catatan || `Pelunasan Rp${sisa.toLocaleString('id-ID')} tgl ${new Date().toLocaleDateString('id-ID')}`
           });
         }
 
@@ -967,8 +1010,9 @@ async function lunasiProyek() {
           sisa: 0,
           totalProyek: nominalVal,
           statusPembayaran: 'Lunas',
+          metodePembayaran: chosenMetode,
           idProyek: prjId,
-          catatanPelunasan: `Pelunasan tagihan projek (${formatRupiah(sisa)})`
+          catatanPelunasan: result.catatan || `Pelunasan tagihan projek (${formatRupiah(sisa)})`
         };
         await API.addKeuangan(txPayload);
 
@@ -1222,19 +1266,66 @@ function formatRupiah(number) {
 }
 
 // Update status of project inline from table select
-async function updateProyekStatus(id, newStatus) {
+async function updateProyekStatus(id, newStatus, selectEl) {
   try {
+    // Find original project object
+    const list = window.allProyekList || [];
+    const proyek = list.find(p => p.iDProyek === id);
+    if (!proyek) {
+      throw new Error("Projek tidak ditemukan di memori.");
+    }
+
+    const oldStatus = proyek.status || 'Menunggu';
+    let chosenMetode = proyek.metodePembayaran || proyek.metode || 'Shopee';
+    let addedCatatan = '';
+    const nominalVal = Number(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0));
+    const dpVal = Number(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0));
+    const pelunasanCurrent = Number(proyek.pelunasan || 0);
+    const sisa = proyek.sisaPembayaran !== undefined ? Number(proyek.sisaPembayaran) : Math.max(0, nominalVal - dpVal - pelunasanCurrent);
+    let settledPelunasan = pelunasanCurrent;
+    let newSisa = sisa;
+
+    // JIKA STATUS DIGANTI JADI SELESAI
+    if (newStatus.toLowerCase() === 'selesai') {
+      const result = await promptMetodePelunasanModal({
+        proyekId: id,
+        namaPelanggan: proyek.namaPelanggan,
+        namaProyek: proyek.namaProyek,
+        nominal: nominalVal,
+        dp: dpVal,
+        sisa: sisa,
+        currentMetode: chosenMetode
+      });
+
+      if (!result || !result.confirmed) {
+        // User batalkan popup: Kembalikan dropdown ke status semula
+        if (selectEl) {
+          selectEl.value = oldStatus;
+          const k = oldStatus.toLowerCase().replace(/\s+/g, '');
+          selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k === 'dikerjakan' ? 'sedangdikerjakan' : k);
+        }
+        return;
+      }
+
+      chosenMetode = result.metode || chosenMetode;
+      addedCatatan = result.catatan || '';
+      if (sisa > 0) {
+        settledPelunasan = pelunasanCurrent + sisa;
+        newSisa = 0;
+      }
+    }
+
     showToast({
       title: "Memperbarui",
       message: "Sedang memperbarui status projek...",
       type: "info"
     });
 
-    // Find original project object
-    const list = window.allProyekList || [];
-    const proyek = list.find(p => p.iDProyek === id);
-    if (!proyek) {
-      throw new Error("Projek tidak ditemukan di memori.");
+    let newCatatan = proyek.catatan || '';
+    if (addedCatatan) {
+      newCatatan = newCatatan ? `${newCatatan} - ${addedCatatan}` : addedCatatan;
+    } else if (newStatus.toLowerCase() === 'selesai' && !newCatatan.toLowerCase().includes('lunas') && sisa > 0) {
+      newCatatan = newCatatan ? `${newCatatan} - Pembayaran LUNAS` : 'Pembayaran LUNAS';
     }
 
     // Construct full update payload
@@ -1246,17 +1337,64 @@ async function updateProyekStatus(id, newStatus) {
       jumlah: Number(proyek.jumlah) || 1,
       satuan: proyek.satuan || 'Pcs',
       hargaSatuan: Number(proyek.hargaSatuan) || 0,
-      nominal: Number(proyek.nominalProyek) || 0,
-      dp: Number(proyek.dP) || 0,
-      sisa: Number(proyek.sisaPembayaran) || 0,
+      nominal: nominalVal,
+      dp: dpVal,
+      pelunasan: settledPelunasan,
+      sisa: newSisa,
       deadline: proyek.deadline,
       status: newStatus,
+      metodePembayaran: chosenMetode,
       sumber: proyek.sumber || 'WhatsApp',
-      catatan: proyek.catatan || ''
+      catatan: newCatatan
     };
 
     const res = await API.updateProyek(id, payload);
     if (res.success) {
+      // Sync Keuangan if status is Selesai
+      if (newStatus.toLowerCase() === 'selesai' && (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update') || Auth.hasPermission('keuangan:create'))) {
+        try {
+          const keuanganList = await API.getKeuangan();
+          const prjId = proyek.iDProyek;
+          
+          const linkedDpTx = (keuanganList || []).find(k => {
+            if (!k) return false;
+            const kPrj = String(k.idProyek || '');
+            const ket = String(k.keterangan || '');
+            return (kPrj === prjId || ket.includes(prjId));
+          });
+
+          if (linkedDpTx) {
+            await API.updateKeuangan(linkedDpTx.id, {
+              dp: dpVal,
+              pelunasan: settledPelunasan,
+              sisa: 0,
+              totalProyek: nominalVal,
+              statusPembayaran: 'Lunas',
+              metodePembayaran: chosenMetode,
+              catatanPelunasan: addedCatatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
+            });
+          } else {
+            const txPayload = {
+              tanggal: new Date().toISOString().split('T')[0],
+              jenis: 'Pemasukan',
+              keterangan: `Pembayaran Lunas - ${proyek.namaPelanggan} (${prjId})`,
+              nominal: nominalVal,
+              dp: dpVal,
+              pelunasan: settledPelunasan,
+              sisa: 0,
+              totalProyek: nominalVal,
+              statusPembayaran: 'Lunas',
+              metodePembayaran: chosenMetode,
+              idProyek: prjId,
+              catatanPelunasan: addedCatatan || `Pelunasan via ${chosenMetode}`
+            };
+            await API.addKeuangan(txPayload);
+          }
+        } catch (syncErr) {
+          console.warn("Gagal menyinkronkan data keuangan on updateProyekStatus:", syncErr);
+        }
+      }
+
       showToast({
         title: "Berhasil",
         message: "Status projek berhasil diperbarui.",

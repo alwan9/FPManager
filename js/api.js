@@ -382,6 +382,7 @@ const API = {
         catatan: proyekData.catatan || "",
         gdriveLink: proyekData.gdriveLink || "",
         sumber: proyekData.sumber || "WhatsApp",
+        metodePembayaran: proyekData.metodePembayaran || "QRIS",
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now(),
         isOfflineCreated: true
@@ -429,6 +430,7 @@ const API = {
           catatan: proyekData.catatan,
           gdriveLink: result.gdriveLink || proyekData.gdriveLink,
           sumber: proyekData.sumber || "WhatsApp",
+          metodePembayaran: proyekData.metodePembayaran || "QRIS",
           userId: currUser ? currUser.id : "USR-001",
           lastUpdated: Date.now()
         };
@@ -457,6 +459,7 @@ const API = {
         catatan: proyekData.catatan,
         gdriveLink: proyekData.gdriveLink,
         sumber: proyekData.sumber || "WhatsApp",
+        metodePembayaran: proyekData.metodePembayaran || "QRIS",
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now(),
         isOfflineCreated: true
@@ -502,6 +505,7 @@ const API = {
         catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
         gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
         sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
+        metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now()
       };
@@ -564,6 +568,7 @@ const API = {
           catatan: proyekData.catatan || (oldLocal ? oldLocal.catatan : ""),
           gdriveLink: proyekData.gdriveLink || (oldLocal ? oldLocal.gdriveLink : ""),
           sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
+          metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
           lastUpdated: Date.now()
         };
         await FPManagerDB.saveOne('proyek', localUpdated);
@@ -819,14 +824,14 @@ const API = {
         if (backendStats.totalProyek !== undefined && Number(backendStats.totalProyek) > 0) {
           dashboardData.stats.totalProyek = Number(backendStats.totalProyek);
         }
-        if (backendStats.totalPemasukan !== undefined && Number(backendStats.totalPemasukan) > 0) {
-          dashboardData.stats.totalPemasukan = Number(backendStats.totalPemasukan);
+        if (backendStats.dikerjakanCount !== undefined) {
+          dashboardData.stats.dikerjakanCount = Number(backendStats.dikerjakanCount);
         }
-        if (backendStats.totalPengeluaran !== undefined && Number(backendStats.totalPengeluaran) > 0) {
-          dashboardData.stats.totalPengeluaran = Number(backendStats.totalPengeluaran);
+        if (backendStats.revisiCount !== undefined) {
+          dashboardData.stats.revisiCount = Number(backendStats.revisiCount);
         }
-        if (backendStats.labaBersih !== undefined) {
-          dashboardData.stats.labaBersih = Number(backendStats.labaBersih);
+        if (backendStats.selesaiCount !== undefined) {
+          dashboardData.stats.selesaiCount = Number(backendStats.selesaiCount);
         }
       }
       return dashboardData;
@@ -840,7 +845,7 @@ const API = {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 1. Stats calculation
+    // 1. Stats calculation (100% matched with Keuangan parent consolidated summary)
     let totalPemasukan = 0;
     let totalPengeluaran = 0;
     let dikerjakanCount = 0;
@@ -855,15 +860,14 @@ const API = {
     });
 
     if (keuanganList && keuanganList.length > 0) {
-      keuanganList.forEach(k => {
-        const jenis = String(k.jenis || '').toLowerCase();
-        const nominal = Number(k.nominal) || 0;
-        if (jenis.includes('masuk') || jenis === 'pemasukan') {
-          totalPemasukan += nominal;
-        } else if (jenis.includes('keluar') || jenis === 'pengeluaran') {
-          totalPengeluaran += nominal;
-        }
-      });
+      const consolidated = (typeof consolidateKeuanganList === 'function')
+        ? consolidateKeuanganList(keuanganList)
+        : keuanganList;
+      const summary = (typeof calculateKeuanganSummary === 'function')
+        ? calculateKeuanganSummary(consolidated)
+        : { totalIn: 0, totalOut: 0, saldo: 0 };
+      totalPemasukan = summary.totalIn;
+      totalPengeluaran = summary.totalOut;
     } else {
       (projects || []).forEach(p => {
         const dpVal = Number(p.dP !== undefined ? p.dP : p.dp) || 0;
