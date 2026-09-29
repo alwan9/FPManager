@@ -177,20 +177,23 @@ function initTable(data) {
         }
       },
       {
-        data: 'nominalProyek',
-        render: function (data) {
-          return formatRupiah(data);
+        data: 'dP',
+        render: function (data, type, row) {
+          const dpVal = Number(data !== undefined ? data : (row.totalDp !== undefined ? row.totalDp : (row.dp !== undefined ? row.dp : 0))) || 0;
+          return `<span class="font-semibold text-zinc-900 dark:text-zinc-100">${formatRupiah(dpVal)}</span>`;
         }
       },
       {
-        data: 'sisaPembayaran',
+        data: 'pelunasan',
         className: 'hidden md:table-cell',
-        render: function (data) {
-          const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-          if (data > 0) {
-            return `<span class="text-rose-600 font-semibold">${formatRupiah(data)}</span>`;
+        render: function (data, type, row) {
+          const totalNom = Number(row.nominalProyek || row.totalPembayaran || row.nominal || 0);
+          const dpVal = Number(row.dP !== undefined ? row.dP : (row.totalDp !== undefined ? row.totalDp : (row.dp !== undefined ? row.dp : 0))) || 0;
+          let pelunasanVal = Number(data !== undefined ? data : (row.totalPelunasan !== undefined ? row.totalPelunasan : (row.pelunasan !== undefined ? row.pelunasan : 0))) || 0;
+          if (pelunasanVal <= 0 && totalNom > dpVal) {
+            pelunasanVal = Math.max(0, totalNom - dpVal);
           }
-          return `<span class="text-green-600 font-semibold">${isEn ? 'Paid' : 'Lunas'}</span>`;
+          return `<span class="font-semibold text-zinc-800 dark:text-zinc-200">${formatRupiah(pelunasanVal)}</span>`;
         }
       },
       {

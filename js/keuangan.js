@@ -358,8 +358,8 @@ function filterTableByWallet(walletKey) {
   }
   currentWalletFilter = walletKey;
 
-  // Column index 6 is 'Metode Pembayaran'
-  table.column(6).search(walletKey).draw();
+  // Cari transaksi yang cocok dengan akun pembayaran
+  table.search(walletKey).draw();
 
   const filterBadge = document.getElementById('activeWalletFilterBadge');
   const filterName = document.getElementById('activeWalletFilterName');
@@ -390,7 +390,7 @@ function filterTableByWallet(walletKey) {
 function clearWalletFilter() {
   currentWalletFilter = null;
   if (table) {
-    table.column(6).search('').draw();
+    table.search('').draw();
   }
   const filterBadge = document.getElementById('activeWalletFilterBadge');
   if (filterBadge) {
@@ -407,6 +407,24 @@ function clearWalletFilter() {
 }
 window.filterTableByWallet = filterTableByWallet;
 window.clearWalletFilter = clearWalletFilter;
+
+// Helper: Render Badge Metode Pembayaran
+function renderPaymentMethodBadge(rawMethod, fallbackSumber) {
+  const m = normalizePaymentMethod(rawMethod, fallbackSumber);
+  if (m === 'Shopee') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border border-orange-200 dark:border-orange-800" title="Metode: Shopee"><i class="fa-solid fa-bag-shopping text-orange-500 text-[10px]"></i> Shopee</span>`;
+  } else if (m === 'QRIS') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800" title="Metode: QRIS"><i class="fa-solid fa-qrcode text-indigo-500 text-[10px]"></i> QRIS</span>`;
+  } else if (m === 'Fiverr') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" title="Metode: Fiverr"><i class="fa-solid fa-bolt text-emerald-500 text-[10px]"></i> Fiverr</span>`;
+  } else if (m === 'Transfer Bank') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800" title="Metode: Transfer Bank"><i class="fa-solid fa-building-columns text-blue-500 text-[10px]"></i> Bank</span>`;
+  } else if (m === 'Tunai') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400 border border-teal-200 dark:border-teal-800" title="Metode: Tunai"><i class="fa-solid fa-money-bill-wave text-teal-500 text-[10px]"></i> Tunai</span>`;
+  }
+  const cleanName = escapeHtml(rawMethod || 'QRIS');
+  return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700" title="Metode: ${cleanName}"><i class="fa-solid fa-credit-card text-zinc-500 text-[10px]"></i> ${cleanName}</span>`;
+}
 
 // Initialize DataTable for mutation ledger
 function initTable(data) {
@@ -492,28 +510,22 @@ function initTable(data) {
         data: null,
         render: function (data, type, row) {
           if (row.jenis === 'Pengeluaran') {
+            const outMethod = row.metodePembayaran || row.metode || 'QRIS';
             return `
-              <div>
-                <div class="font-bold text-rose-600 dark:text-rose-400">- ${formatRupiah(Number(row.nominal) || 0)}</div>
-                <div class="text-[11px] text-zinc-400 font-medium">Kas Keluar</div>
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-rose-600 dark:text-rose-400">- ${formatRupiah(Number(row.nominal) || 0)}</div>
+                <div>${renderPaymentMethodBadge(outMethod, row.sumber)}</div>
               </div>
             `;
           }
 
-          const total = Number(row.totalProyek) || Number(row.nominal) || 0;
-          const st = String(row.statusPembayaran || '').toLowerCase();
-          const dpVal = Number(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal)) || 0;
-          const isDpPaid = dpVal > 0;
+          const dpVal = Number(row.dp !== undefined ? row.dp : (row.totalDp !== undefined ? row.totalDp : (String(row.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : row.nominal))) || 0;
+          const dpMethod = row.metodeBayarDp || row.metodePembayaran || row.sumber || 'QRIS';
 
           return `
-            <div class="flex items-center gap-2 whitespace-nowrap">
-              <span class="font-semibold text-xs min-w-[70px] ${isDpPaid ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400'}">
-                ${formatRupiah(dpVal)}
-              </span>
-              <select onchange="quickUpdateDp('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
-                <option value="belum" ${dpVal <= 0 ? 'selected' : ''}>🔴 Belum DP</option>
-                <option value="dp_custom" ${dpVal > 0 ? 'selected' : ''}>🟡 Sudah DP</option>
-              </select>
+            <div class="space-y-1">
+              <div class="font-bold text-xs ${dpVal > 0 ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400'}">${formatRupiah(dpVal)}</div>
+              <div>${renderPaymentMethodBadge(dpMethod, row.sumber)}</div>
             </div>
           `;
         }
@@ -525,47 +537,19 @@ function initTable(data) {
             return `<span class="text-zinc-400 text-xs italic">-</span>`;
           }
 
-          const total = Number(row.totalProyek) || Number(row.nominal) || 0;
-          const st = String(row.statusPembayaran || '').toLowerCase();
-          const dpVal = Number(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal)) || 0;
-          const sisa = row.sisa !== undefined ? Number(row.sisa) : Math.max(0, total - dpVal);
-          const isLunas = st.includes('lunas') || sisa <= 0;
+          const totalNom = Number(row.totalProyek || row.totalPembayaran || row.nominal || 0);
+          const dpVal = Number(row.dp !== undefined ? row.dp : (row.totalDp !== undefined ? row.totalDp : (String(row.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : row.nominal))) || 0;
+          let pelunasanVal = Number(row.pelunasan !== undefined ? row.pelunasan : (row.totalPelunasan !== undefined ? row.totalPelunasan : 0)) || 0;
+          if (pelunasanVal <= 0 && totalNom > dpVal) {
+            pelunasanVal = Math.max(0, totalNom - dpVal);
+          }
+
+          const pelunasanMethod = row.metodeBayarPelunasan || row.metodePembayaran || row.metodeBayarDp || row.sumber || 'Shopee';
 
           return `
-            <div class="  items-center gap-2 whitespace-nowrap">
-              <span class="font-semibold text-xs min-w-[70px] ${isLunas ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
-                ${isLunas ? 'Rp0' : formatRupiah(sisa)}
-              </span>
-              <select onchange="quickUpdatePelunasan('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
-                <option value="belum_lunas" ${!isLunas ? 'selected' : ''}>🔴 Belum Lunas</option>
-                <option value="lunas" ${isLunas ? 'selected' : ''}>🟢 Sudah Lunas (Rp0)</option>
-                <option value="edit_sisa">📝 Ubah Sisa / Catatan...</option>
-              </select>
-            </div>
-          `;
-        }
-      },
-      {
-        data: 'metodePembayaran',
-        render: function (data, type, row) {
-          const rawMetode = String(data || '').trim();
-          let metode = 'Shopee';
-          if (rawMetode.toLowerCase().includes('qris')) metode = 'QRIS';
-          else if (rawMetode.toLowerCase().includes('shopee')) metode = 'Shopee';
-          else if (rawMetode) metode = rawMetode;
-
-          const isOther = (metode !== 'Shopee' && metode !== 'QRIS');
-
-          return `
-            <div class="flex items-center gap-1">
-              <select onchange="quickUpdatePaymentMethod('${row.id}', this.value)" class="px-2 py-1 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-semibold cursor-pointer focus:ring-1 focus:ring-indigo-500">
-                ${isOther ? `<option value="${escapeHtml(metode)}" selected>${escapeHtml(metode)}</option>` : ''}
-                <option value="Shopee" ${metode === 'Shopee' ? 'selected' : ''}>Shopee</option>
-                <option value="QRIS" ${metode === 'QRIS' ? 'selected' : ''}>QRIS</option>
-              </select>
-              <button onclick="showPaymentAccountsModal('${metode}')" class="p-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 rounded-md transition" title="Lihat & salin detail nomor rekening/e-wallet">
-                <i class="fa-solid fa-circle-info"></i>
-              </button>
+            <div class="space-y-1">
+              <div class="font-bold text-xs ${pelunasanVal > 0 ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400'}">${formatRupiah(pelunasanVal)}</div>
+              <div>${renderPaymentMethodBadge(pelunasanMethod, row.sumber)}</div>
             </div>
           `;
         }
