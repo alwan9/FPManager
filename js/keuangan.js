@@ -69,6 +69,23 @@ async function loadKeuanganData() {
   }
 }
 
+// Helper: Normalisasi nama akun pembayaran
+function normalizePaymentMethod(rawMetode, fallbackSumber) {
+  const m = String(rawMetode || '').trim().toLowerCase();
+  const s = String(fallbackSumber || '').trim().toLowerCase();
+
+  if (m.includes('shopee') || s.includes('shopee')) return 'Shopee';
+  if (m.includes('qris')) return 'QRIS';
+  if (m.includes('fiverr') || s.includes('fiverr')) return 'Fiverr';
+  if (m.includes('paypal') || s.includes('paypal')) return 'PayPal';
+  if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
+  if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
+  if (rawMetode && String(rawMetode).trim()) return String(rawMetode).trim();
+  if (s.includes('shopee')) return 'Shopee';
+  if (s.includes('fiverr')) return 'Fiverr';
+  return 'QRIS';
+}
+
 // Mengelompokkan transaksi berbasis ID Projek sehingga 1 projek = 1 baris
 function consolidateKeuanganList(list) {
   if (!Array.isArray(list)) return [];
@@ -108,7 +125,10 @@ function consolidateKeuanganList(list) {
         existing.statusPembayaran = finalStatus;
         existing.nominal = isLunas ? (finalPelunasan > 0 && finalDp < finalTotal ? finalPelunasan : finalTotal) : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
+        if (item.metodeBayarDp) existing.metodeBayarDp = item.metodeBayarDp;
+        if (item.metodeBayarPelunasan) existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
         if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
+        if (item.sumber) existing.sumber = item.sumber;
         if (item.tanggal) existing.tanggal = item.tanggal;
       } else {
         const total = Number(item.totalProyek) || Number(item.nominal) || 0;
@@ -127,7 +147,10 @@ function consolidateKeuanganList(list) {
           sisa: sisa,
           statusPembayaran: status,
           nominal: isLunas ? (pelunasan > 0 && dp < total ? pelunasan : total) : dp,
-          catatanPelunasan: item.catatanPelunasan || ''
+          catatanPelunasan: item.catatanPelunasan || '',
+          metodeBayarDp: item.metodeBayarDp || item.metodePembayaran || '',
+          metodeBayarPelunasan: item.metodeBayarPelunasan || item.metodePembayaran || '',
+          sumber: item.sumber || ''
         };
         projectMap.set(prjId, consolidated);
         result.push(consolidated);
@@ -151,64 +174,83 @@ function calculateSummary(mutasiList) {
     'QRIS': { name: 'QRIS', group: 'ewallet', groupName: 'QRIS & E-Wallet', type: 'QRIS', number: 'All Payment', holder: 'Hafiz Alwan', icon: 'fa-solid fa-qrcode text-indigo-500', bgClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800', totalIn: 0, totalOut: 0, txCount: 0 }
   };
 
-  mutasiList.forEach(item => {
-    const rawMetode = String(item.metodePembayaran || '').trim();
-    let metodeKey = null;
-
-    if (rawMetode.toLowerCase().includes('shopee')) metodeKey = 'Shopee';
-    else if (rawMetode.toLowerCase().includes('qris')) metodeKey = 'QRIS';
-    else if (rawMetode) {
-      if (!accountsMap[rawMetode]) {
-        accountsMap[rawMetode] = {
-          name: rawMetode,
-          group: 'market',
-          groupName: 'Metode Lain',
-          type: 'Rekening',
-          number: '-',
-          holder: 'Hafiz Alwan',
-          icon: 'fa-solid fa-credit-card text-zinc-500',
-          bgClass: 'bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700',
-          totalIn: 0,
-          totalOut: 0,
-          txCount: 0
-        };
-      }
-      metodeKey = rawMetode;
-    } else {
-      const smb = String(item.sumber || '').toLowerCase();
-      if (smb.includes('shopee')) metodeKey = 'Shopee';
-      else if (smb.includes('qris')) metodeKey = 'QRIS';
-      else metodeKey = 'Shopee';
+  function ensureAccountExists(key) {
+    if (!accountsMap[key]) {
+      const kLower = key.toLowerCase();
+      const isMarket = kLower.includes('shopee') || kLower.includes('fiverr') || kLower.includes('paypal');
+      accountsMap[key] = {
+        name: key,
+        group: isMarket ? 'market' : 'ewallet',
+        groupName: isMarket ? 'Marketplace' : 'QRIS & Bank',
+        type: isMarket ? 'Platform' : 'Rekening',
+        number: '-',
+        holder: 'Hafiz Alwan',
+        icon: isMarket ? 'fa-solid fa-globe text-orange-500' : 'fa-solid fa-credit-card text-indigo-500',
+        bgClass: isMarket ? 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800' : 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800',
+        totalIn: 0,
+        totalOut: 0,
+        txCount: 0
+      };
     }
+    return accountsMap[key];
+  }
 
-    const st = String(item.statusPembayaran || '').toLowerCase();
-    const isLunas = st.includes('lunas');
-    const isUnpaid = st === 'belum';
-    const total = Number(item.totalProyek) || Number(item.nominal) || 0;
-    const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
-    const pelunasanVal = Number(item.pelunasan) || 0;
-    const nominal = Number(item.nominal) || 0;
-
-    let inVal = 0;
-    let outVal = 0;
+  mutasiList.forEach(item => {
+    if (!item) return;
 
     if (item.jenis === 'Pemasukan') {
+      const st = String(item.statusPembayaran || '').toLowerCase();
+      const isLunas = st.includes('lunas');
+      const isUnpaid = st === 'belum';
+      const total = Number(item.totalProyek) || Number(item.nominal) || 0;
+      const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
+      const pelunasanVal = Number(item.pelunasan) || 0;
+      const nominal = Number(item.nominal) || 0;
+
+      let dpIn = 0;
+      let pelunasanIn = 0;
+
       if (isLunas) {
-        inVal = (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
+        if (dpVal > 0 && pelunasanVal > 0) {
+          dpIn = dpVal;
+          pelunasanIn = pelunasanVal;
+        } else if (dpVal > 0 && pelunasanVal === 0) {
+          dpIn = dpVal;
+          pelunasanIn = Math.max(0, total - dpVal);
+        } else {
+          dpIn = total > 0 ? total : nominal;
+          pelunasanIn = 0;
+        }
       } else if (!isUnpaid) {
-        inVal = (dpVal > 0 ? dpVal : nominal);
+        dpIn = dpVal > 0 ? dpVal : nominal;
+        pelunasanIn = 0;
       }
+
+      // 1. Alokasi DP ke akun metode pembayaran DP yang sesuai (Shopee, QRIS, dll)
+      if (dpIn > 0) {
+        const dpMethodKey = normalizePaymentMethod(item.metodeBayarDp || item.metodePembayaran, item.sumber);
+        const acc = ensureAccountExists(dpMethodKey);
+        acc.totalIn += dpIn;
+        acc.txCount += 1;
+        totalIn += dpIn;
+      }
+
+      // 2. Alokasi Pelunasan ke akun metode pembayaran Pelunasan yang sesuai
+      if (pelunasanIn > 0) {
+        const pelMethodKey = normalizePaymentMethod(item.metodeBayarPelunasan || item.metodePembayaran || item.metodeBayarDp, item.sumber);
+        const acc = ensureAccountExists(pelMethodKey);
+        acc.totalIn += pelunasanIn;
+        acc.txCount += 1;
+        totalIn += pelunasanIn;
+      }
+
     } else if (item.jenis === 'Pengeluaran') {
-      outVal = nominal;
-    }
-
-    totalIn += inVal;
-    totalOut += outVal;
-
-    if (metodeKey && accountsMap[metodeKey]) {
-      accountsMap[metodeKey].totalIn += inVal;
-      accountsMap[metodeKey].totalOut += outVal;
-      accountsMap[metodeKey].txCount += 1;
+      const outVal = Number(item.nominal) || 0;
+      const outMethodKey = normalizePaymentMethod(item.metodePembayaran || item.metode, item.sumber);
+      const acc = ensureAccountExists(outMethodKey);
+      acc.totalOut += outVal;
+      acc.txCount += 1;
+      totalOut += outVal;
     }
   });
 
