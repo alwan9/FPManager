@@ -100,8 +100,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const ALL_PAYMENT_METHODS = [
     { val: 'QRIS', label: 'QRIS' },
-    { val: 'Transfer Bank', label: 'Transfer Bank (BCA / Mandiri / BRI)' },
     { val: 'Shopee', label: 'Shopee - @premium_dz (Toko Shopee)' },
+    { val: 'BSI', label: 'BSI (Bank Syariah Indonesia)' },
+    { val: 'Transfer Bank', label: 'Transfer Bank (BCA / Mandiri / BRI)' },
     { val: 'ShopeePay', label: 'ShopeePay' },
     { val: 'Saldo Shopee', label: 'Saldo Penjual Shopee' },
     { val: 'Fiverr', label: 'Fiverr (Direct / Balance)' },

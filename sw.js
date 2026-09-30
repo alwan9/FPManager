@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v138';
+const CACHE_NAME = 'fpmanager-v140';
 
 const urlsToCache = [
   './',
@@ -109,8 +109,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Network-first strategy for HTML pages/navigation
-  if (event.request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('/') || !url.includes('.')) {
+  // Network-first strategy for HTML pages/navigation and JS scripts
+  if (event.request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('.js') || url.endsWith('/') || !url.includes('.')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
@@ -127,7 +127,10 @@ self.addEventListener('fetch', event => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            return caches.match('./index.html', { ignoreSearch: true });
+            if (url.endsWith('.html') || event.request.mode === 'navigate') {
+              return caches.match('./index.html', { ignoreSearch: true });
+            }
+            return Response.error();
           });
         })
     );

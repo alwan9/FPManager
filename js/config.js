@@ -98,6 +98,16 @@ const CONFIG = {
       type: 'QRIS',
       icon: 'fa-solid fa-qrcode text-indigo-500',
       badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-400'
+    },
+    {
+      id: 'bsi',
+      name: 'BSI',
+      number: 'Bank Syariah Indonesia',
+      displayNumber: 'BSI (Bank Syariah Indonesia)',
+      holder: 'Hafiz Alwan',
+      type: 'Bank Syariah',
+      icon: 'fa-solid fa-building-columns text-emerald-500',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
     }
   ]
 };
@@ -449,9 +459,10 @@ function promptMetodePelunasanModal(options = {}) {
     modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[999999] flex items-center justify-center p-4 transition-all duration-200';
 
     const paymentOptions = [
-      { val: 'Shopee', label: 'Shopee - @premium_dz (Toko Shopee)' },
-      { val: 'ShopeePay', label: 'ShopeePay' },
       { val: 'QRIS', label: 'QRIS' },
+      { val: 'Shopee', label: 'Shopee - @premium_dz (Toko Shopee)' },
+      { val: 'BSI', label: 'BSI (Bank Syariah Indonesia)' },
+      { val: 'ShopeePay', label: 'ShopeePay' },
       { val: 'Transfer Bank', label: 'Transfer Bank (BCA / Mandiri / BRI)' },
       { val: 'Fiverr', label: 'Fiverr (Direct / Balance)' },
       { val: 'PayPal', label: 'PayPal' },
@@ -577,6 +588,67 @@ function promptMetodePelunasanModal(options = {}) {
 }
 window.promptMetodePelunasanModal = promptMetodePelunasanModal;
 
+// Global Helper: Format tanggal & waktu dari timestamp ISO / Date (menggunakan created_at yang sudah ada)
+function formatDateTime(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) {
+      return String(dateStr);
+    }
+    const day = d.getDate();
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year}, ${hours}:${minutes}`;
+  } catch (e) {
+    return String(dateStr);
+  }
+}
+window.formatDateTime = formatDateTime;
+
+// Global Helper: Render Badge Metode Pembayaran
+function renderPaymentMethodBadge(rawMethod, fallbackSumber) {
+  const m = normalizePaymentMethod(rawMethod, fallbackSumber);
+  if (m === 'Shopee') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border border-orange-200 dark:border-orange-800" title="Metode: Shopee"><i class="fa-solid fa-bag-shopping text-orange-500 text-[10px]"></i> Shopee</span>`;
+  } else if (m === 'QRIS') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800" title="Metode: QRIS"><i class="fa-solid fa-qrcode text-indigo-500 text-[10px]"></i> QRIS</span>`;
+  } else if (m === 'BSI') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" title="Metode: BSI"><i class="fa-solid fa-building-columns text-emerald-500 text-[10px]"></i> BSI</span>`;
+  } else if (m === 'Fiverr') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" title="Metode: Fiverr"><i class="fa-solid fa-bolt text-emerald-500 text-[10px]"></i> Fiverr</span>`;
+  } else if (m === 'Transfer Bank') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800" title="Metode: Transfer Bank"><i class="fa-solid fa-building-columns text-blue-500 text-[10px]"></i> Bank</span>`;
+  } else if (m === 'Tunai') {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400 border border-teal-200 dark:border-teal-800" title="Metode: Tunai"><i class="fa-solid fa-money-bill-wave text-teal-500 text-[10px]"></i> Tunai</span>`;
+  }
+  const cleanName = escapeHtml(rawMethod || 'QRIS');
+  return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700" title="Metode: ${cleanName}"><i class="fa-solid fa-credit-card text-zinc-500 text-[10px]"></i> ${cleanName}</span>`;
+}
+window.renderPaymentMethodBadge = renderPaymentMethodBadge;
+
+// Global Helper: Normalisasi nama akun pembayaran
+function normalizePaymentMethod(rawMetode, fallbackSumber) {
+  const m = String(rawMetode || '').trim().toLowerCase();
+  const s = String(fallbackSumber || '').trim().toLowerCase();
+
+  if (m.includes('bsi') || s.includes('bsi') || m.includes('syariah')) return 'BSI';
+  if (m.includes('shopee') || s.includes('shopee')) return 'Shopee';
+  if (m.includes('qris')) return 'QRIS';
+  if (m.includes('fiverr') || s.includes('fiverr')) return 'Fiverr';
+  if (m.includes('paypal') || s.includes('paypal')) return 'PayPal';
+  if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
+  if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
+  if (rawMetode && String(rawMetode).trim()) return String(rawMetode).trim();
+  if (s.includes('shopee')) return 'Shopee';
+  if (s.includes('fiverr')) return 'Fiverr';
+  return 'QRIS';
+}
+window.normalizePaymentMethod = normalizePaymentMethod;
+
 /**
  * Global Helper: Consolidate Financial Mutasi List (1 Project = 1 Consolidated Row)
  */
@@ -618,8 +690,12 @@ function consolidateKeuanganList(list) {
         existing.statusPembayaran = finalStatus;
         existing.nominal = isLunas ? (finalPelunasan > 0 && finalDp < finalTotal ? finalPelunasan : finalTotal) : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
+        if (item.metodeBayarDp) existing.metodeBayarDp = item.metodeBayarDp;
+        if (item.metodeBayarPelunasan) existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
         if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
+        if (item.sumber) existing.sumber = item.sumber;
         if (item.tanggal) existing.tanggal = item.tanggal;
+        if (item.createdAt) existing.createdAt = item.createdAt;
       } else {
         const total = Number(item.totalProyek) || Number(item.nominal) || 0;
         const dp = Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0;
@@ -637,7 +713,11 @@ function consolidateKeuanganList(list) {
           sisa: sisa,
           statusPembayaran: status,
           nominal: isLunas ? (pelunasan > 0 && dp < total ? pelunasan : total) : dp,
-          catatanPelunasan: item.catatanPelunasan || ''
+          catatanPelunasan: item.catatanPelunasan || '',
+          metodeBayarDp: item.metodeBayarDp || item.metodePembayaran || '',
+          metodeBayarPelunasan: item.metodeBayarPelunasan || item.metodePembayaran || '',
+          sumber: item.sumber || '',
+          createdAt: item.createdAt || item.tanggal || ''
         };
         projectMap.set(prjId, consolidated);
         result.push(consolidated);
@@ -652,40 +732,120 @@ function consolidateKeuanganList(list) {
 window.consolidateKeuanganList = consolidateKeuanganList;
 
 /**
- * Global Helper: Calculate Summary Metrics (Total In, Total Out, Saldo Bersih)
+ * Global Helper: Calculate Summary Metrics & Accounts Breakdown (Source of Truth)
  */
 function calculateKeuanganSummary(mutasiList) {
   let totalIn = 0;
   let totalOut = 0;
 
-  (mutasiList || []).forEach(item => {
-    const st = String(item.statusPembayaran || '').toLowerCase();
-    const isLunas = st.includes('lunas');
-    const isUnpaid = st === 'belum';
-    const total = Number(item.totalProyek) || Number(item.nominal) || 0;
-    const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
-    const pelunasanVal = Number(item.pelunasan) || 0;
-    const nominal = Number(item.nominal) || 0;
+  // Pre-configured payment accounts map matching Keuangan module
+  const accountsMap = {
+    'QRIS': { name: 'QRIS', group: 'ewallet', groupName: 'QRIS & E-Wallet', type: 'QRIS', number: 'All Payment', holder: 'Hafiz Alwan', icon: 'fa-solid fa-qrcode text-indigo-500', bgClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800', totalIn: 0, totalOut: 0, txCount: 0 },
+    'Shopee': { name: 'Shopee', group: 'market', groupName: 'Marketplace', type: 'Marketplace', number: '@premium_dz', holder: 'Toko Shopee', icon: 'fa-solid fa-bag-shopping text-orange-500', bgClass: 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800', totalIn: 0, totalOut: 0, txCount: 0 },
+    'BSI': { name: 'BSI', group: 'bank', groupName: 'Bank Syariah Indonesia', type: 'Bank Syariah', number: 'Bank Syariah', holder: 'Hafiz Alwan', icon: 'fa-solid fa-building-columns text-emerald-500', bgClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800', totalIn: 0, totalOut: 0, txCount: 0 }
+  };
 
-    let inVal = 0;
-    let outVal = 0;
+  function ensureAccountExists(key) {
+    if (!accountsMap[key]) {
+      const kLower = key.toLowerCase();
+      const isMarket = kLower.includes('shopee') || kLower.includes('fiverr') || kLower.includes('paypal');
+      const isBank = kLower.includes('bsi') || kLower.includes('bank') || kLower.includes('bca') || kLower.includes('mandiri');
+      accountsMap[key] = {
+        name: key,
+        group: isMarket ? 'market' : (isBank ? 'bank' : 'ewallet'),
+        groupName: isMarket ? 'Marketplace' : (isBank ? 'Bank Syariah / Rekening' : 'QRIS & E-Wallet'),
+        type: isMarket ? 'Platform' : 'Rekening',
+        number: '-',
+        holder: 'Hafiz Alwan',
+        icon: isMarket ? 'fa-solid fa-bag-shopping text-orange-500' : (isBank ? 'fa-solid fa-building-columns text-emerald-500' : 'fa-solid fa-credit-card text-indigo-500'),
+        bgClass: isMarket ? 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800' : (isBank ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' : 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'),
+        totalIn: 0,
+        totalOut: 0,
+        txCount: 0
+      };
+    }
+    return accountsMap[key];
+  }
+
+  (mutasiList || []).forEach(item => {
+    if (!item) return;
 
     if (item.jenis === 'Pemasukan') {
-      if (isLunas) {
-        inVal = (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
-      } else if (!isUnpaid) {
-        inVal = (dpVal > 0 ? dpVal : nominal);
-      }
-    } else if (item.jenis === 'Pengeluaran') {
-      outVal = nominal;
-    }
+      const st = String(item.statusPembayaran || '').toLowerCase();
+      const isLunas = st.includes('lunas');
+      const isUnpaid = st === 'belum';
+      const total = Number(item.totalProyek) || Number(item.nominal) || 0;
+      const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
+      const pelunasanVal = Number(item.pelunasan) || 0;
+      const nominal = Number(item.nominal) || 0;
 
-    totalIn += inVal;
-    totalOut += outVal;
+      let dpIn = 0;
+      let pelunasanIn = 0;
+
+      if (isLunas) {
+        if (dpVal > 0 && pelunasanVal > 0) {
+          dpIn = dpVal;
+          pelunasanIn = pelunasanVal;
+        } else if (dpVal > 0 && pelunasanVal === 0) {
+          dpIn = dpVal;
+          pelunasanIn = Math.max(0, total - dpVal);
+        } else {
+          dpIn = total > 0 ? total : nominal;
+          pelunasanIn = 0;
+        }
+      } else if (!isUnpaid) {
+        dpIn = dpVal > 0 ? dpVal : nominal;
+        pelunasanIn = 0;
+      }
+
+      // 1. Alokasi DP ke akun metode pembayaran DP yang sesuai (Shopee, QRIS, BSI, dll)
+      if (dpIn > 0) {
+        const dpMethodKey = normalizePaymentMethod(item.metodeBayarDp || item.metodePembayaran, item.sumber);
+        const acc = ensureAccountExists(dpMethodKey);
+        acc.totalIn += dpIn;
+        acc.txCount += 1;
+        totalIn += dpIn;
+      }
+
+      // 2. Alokasi Pelunasan ke akun metode pembayaran Pelunasan yang sesuai
+      if (pelunasanIn > 0) {
+        const pelMethodKey = normalizePaymentMethod(item.metodeBayarPelunasan || item.metodePembayaran || item.metodeBayarDp, item.sumber);
+        const acc = ensureAccountExists(pelMethodKey);
+        acc.totalIn += pelunasanIn;
+        acc.txCount += 1;
+        totalIn += pelunasanIn;
+      }
+
+    } else if (item.jenis === 'Pengeluaran') {
+      const outVal = Number(item.nominal) || 0;
+      const outMethodKey = normalizePaymentMethod(item.metodePembayaran || item.metode, item.sumber);
+      const acc = ensureAccountExists(outMethodKey);
+      acc.totalOut += outVal;
+      acc.txCount += 1;
+      totalOut += outVal;
+
+    } else if (item.jenis === 'Mutasi' || item.jenis === 'Pindah Saldo') {
+      // Pemindahan Saldo Antar Metode Pembayaran:
+      // Saldo asal berkurang, saldo tujuan bertambah.
+      // Tidak merubah total pemasukan maupun total pengeluaran global.
+      const mutasiVal = Number(item.nominal) || 0;
+      const asalMethodKey = normalizePaymentMethod(item.metodeBayarDp || item.metodeAsal || item.sumber, 'QRIS');
+      const tujuanMethodKey = normalizePaymentMethod(item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan, 'BSI');
+
+      if (mutasiVal > 0) {
+        const accAsal = ensureAccountExists(asalMethodKey);
+        accAsal.totalOut += mutasiVal;
+        accAsal.txCount += 1;
+
+        const accTujuan = ensureAccountExists(tujuanMethodKey);
+        accTujuan.totalIn += mutasiVal;
+        accTujuan.txCount += 1;
+      }
+    }
   });
 
   const saldo = totalIn - totalOut;
-  return { totalIn, totalOut, saldo };
+  return { totalIn, totalOut, saldo, accountsMap };
 }
 window.calculateKeuanganSummary = calculateKeuanganSummary;
 

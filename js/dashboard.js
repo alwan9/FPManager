@@ -47,14 +47,32 @@ function applyDashboardRoleCustomizations() {
   // 2. Hide/Show Financial Chart & Adjust Layout for Non-Financial Roles
   const chartCard = document.getElementById('chartCard');
   const recentProjectsCard = document.getElementById('recentProjectsCard');
+  const incomeDetailBadge = document.getElementById('incomeDetailBadge');
+  const statCardPendapatan = document.getElementById('statCardPendapatan');
 
   if (!canReadFinancials) {
     if (chartCard) chartCard.classList.add('hidden');
+    if (incomeDetailBadge) {
+      incomeDetailBadge.classList.add('hidden');
+      incomeDetailBadge.classList.remove('inline-flex');
+    }
+    if (statCardPendapatan) {
+      statCardPendapatan.classList.remove('cursor-pointer');
+      statCardPendapatan.removeAttribute('title');
+    }
     if (recentProjectsCard) {
       recentProjectsCard.className = 'lg:col-span-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
     }
   } else {
     if (chartCard) chartCard.classList.remove('hidden');
+    if (incomeDetailBadge) {
+      incomeDetailBadge.classList.remove('hidden');
+      incomeDetailBadge.classList.add('inline-flex');
+    }
+    if (statCardPendapatan) {
+      statCardPendapatan.classList.add('cursor-pointer');
+      statCardPendapatan.setAttribute('title', 'Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran');
+    }
     if (recentProjectsCard) {
       recentProjectsCard.className = 'lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
     }
@@ -77,13 +95,14 @@ async function loadDashboardData() {
     const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
     const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
 
-    // Sync financial metrics 100% with Keuangan Parent Consolidated data
+    // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth)
     if (canReadFinancials) {
       try {
         const rawKeuangan = (await API.getKeuangan()) || [];
         const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(rawKeuangan) : rawKeuangan;
         const summary = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
         if (summary) {
+          window.dashboardFinancialSummary = summary;
           if (!dashboardData.stats) dashboardData.stats = {};
           dashboardData.stats.totalPemasukan = summary.totalIn;
           dashboardData.stats.totalPengeluaran = summary.totalOut;
@@ -274,6 +293,7 @@ function renderRecentProjects(recent) {
       'Belum Pembayaran': 'Belum Pembayaran',
       'Dibatalkan': 'Dibatalkan'
     };
+    const displayStatus = statusMap[p.status] || p.status || (isEn ? 'Waiting' : 'Menunggu');
     let badgeKey = String(p.status || '').toLowerCase().replace(/\s+/g, '');
     if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
     const badgeClass = 'badge-' + badgeKey;
@@ -636,6 +656,159 @@ function syncCalendarPromptByProyekId(id) {
     });
   }
 }
+
+/**
+ * Display Modal: Rincian Pendapatan Berdasarkan Metode Pembayaran (QRIS, Shopee, BSI, dll)
+ * Mirroring Keuangan system as the sole Source of Truth.
+ */
+function showIncomeBreakdownModal() {
+  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
+  const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
+  const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
+  const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+
+  if (!canReadFinancials) {
+    window.location.href = 'proyek.html?status=Sedang%20Dikerjakan';
+    return;
+  }
+
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const summary = window.dashboardFinancialSummary || (typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary([]) : { totalIn: 0, totalOut: 0, saldo: 0, accountsMap: {} });
+  const accountsMap = summary.accountsMap || {};
+  const totalIn = summary.totalIn || 0;
+
+  let modal = document.getElementById('dashboardIncomeBreakdownModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'dashboardIncomeBreakdownModal';
+    document.body.appendChild(modal);
+  }
+
+  modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-all duration-200';
+
+  // Extract payment methods list
+  const defaultKeys = ['QRIS', 'Shopee', 'BSI'];
+  const allKeys = Array.from(new Set([...defaultKeys, ...Object.keys(accountsMap)]));
+
+  const breakdownItems = allKeys.map(key => {
+    const acc = accountsMap[key] || {
+      name: key,
+      totalIn: 0,
+      totalOut: 0,
+      txCount: 0,
+      icon: key === 'QRIS' ? 'fa-solid fa-qrcode text-indigo-500' : (key === 'Shopee' ? 'fa-solid fa-bag-shopping text-orange-500' : 'fa-solid fa-building-columns text-emerald-500'),
+      bgClass: key === 'QRIS' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800' : (key === 'Shopee' ? 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800')
+    };
+    const income = acc.totalIn || 0;
+    const percentage = totalIn > 0 ? Math.round((income / totalIn) * 100) : 0;
+    return {
+      key,
+      name: acc.name || key,
+      groupName: acc.groupName || acc.type || 'Metode Pembayaran',
+      income,
+      percentage,
+      txCount: acc.txCount || 0,
+      icon: acc.icon || 'fa-solid fa-wallet text-indigo-500',
+      bgClass: acc.bgClass || 'bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
+    };
+  }).filter(item => defaultKeys.includes(item.key) || item.income > 0 || item.txCount > 0);
+
+  // Sort: highest income first
+  breakdownItems.sort((a, b) => b.income - a.income);
+
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-all text-zinc-800 dark:text-zinc-100">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-950/60 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800 flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base sm:text-lg text-zinc-900 dark:text-white leading-tight">
+              ${isEn ? 'Income Breakdown' : 'Rincian Pendapatan'}
+            </h3>
+            <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+              ${isEn ? 'By payment method · Source of Truth: Keuangan' : 'Berdasarkan metode pembayaran · Terhubung sistem Keuangan'}
+            </p>
+          </div>
+        </div>
+        <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition cursor-pointer" title="Tutup">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <!-- Total Income Summary Card -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm flex items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-semibold text-emerald-100 uppercase tracking-wider block">
+            ${isEn ? 'Total Income' : 'Total Pendapatan'}
+          </span>
+          <span class="text-xl sm:text-2xl font-extrabold block mt-0.5">${formatRupiah(totalIn)}</span>
+        </div>
+        <div class="text-right">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/20 backdrop-blur-xs text-white">
+            <i class="fa-solid fa-shield-halved text-[10px]"></i> 100% Sinkron
+          </span>
+        </div>
+      </div>
+
+      <!-- Breakdown List by Payment Method -->
+      <div class="space-y-2.5">
+        <div class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider px-0.5">
+          ${isEn ? 'Method Breakdown' : 'Rincian Nominal per Metode'}
+        </div>
+
+        <div class="space-y-2">
+          ${breakdownItems.map(item => `
+            <div class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/70 transition-colors">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded-lg ${item.bgClass} flex items-center justify-center text-sm shrink-0">
+                    <i class="${item.icon}"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 truncate">${escapeHtml(item.name)}</div>
+                    <div class="text-[10px] text-zinc-400 dark:text-zinc-500 truncate">${item.txCount} Transaksi (${item.percentage}%)</div>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="font-bold font-mono text-xs sm:text-sm text-green-600 dark:text-green-400">${formatRupiah(item.income)}</div>
+                </div>
+              </div>
+              <!-- Progress Bar -->
+              <div class="w-full bg-zinc-200 dark:bg-zinc-700 h-1.5 rounded-full mt-2.5 overflow-hidden">
+                <div class="bg-green-500 h-full rounded-full transition-all duration-300" style="width: ${item.percentage}%"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2 flex-wrap">
+        <a href="keuangan.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          <span>${isEn ? 'Open Finance Module' : 'Buka Halaman Keuangan'}</span>
+        </a>
+
+        <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition cursor-pointer">
+          ${isEn ? 'Close' : 'Tutup'}
+        </button>
+      </div>
+
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+    }
+  };
+}
+window.showIncomeBreakdownModal = showIncomeBreakdownModal;
 
 
 
