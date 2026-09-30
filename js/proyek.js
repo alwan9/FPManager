@@ -508,17 +508,17 @@ function populateDetailModal(proyek) {
   if (!proyek) return;
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
-  const proyekId = proyek.iDProyek || proyek.id || proyek.idProyek || '-';
-  const userId = proyek.userId || proyek.userid || 'USR-001';
-  const sumber = proyek.sumber || 'WhatsApp';
+  const proyekId = proyek.iDProyek || proyek.idProjek || proyek.id || proyek.idProyek || '-';
+  const userId = proyek.userId || proyek.userid || '-';
+  const sumber = proyek.sumber || '-';
   const namaProyek = proyek.namaProyek || proyek.proyek || proyek.nama || '-';
   const namaPelanggan = proyek.namaPelanggan || proyek.pelanggan || proyek.client || '-';
   const produk = proyek.produk || proyek.jenisProduk || proyek.namaProduk || '-';
-  const jumlah = proyek.jumlah !== undefined ? proyek.jumlah : (proyek.qty || 1);
-  const satuan = proyek.satuan || 'pcs';
-  const nominal = parseFloat(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0)) || 0;
-  const dp = parseFloat(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0)) || 0;
-  const pelunasan = parseFloat(proyek.pelunasan || 0) || 0;
+  const jumlah = (proyek.jumlah !== undefined && proyek.jumlah !== null && String(proyek.jumlah).trim() !== '') ? proyek.jumlah : '-';
+  const satuan = (proyek.satuan && String(proyek.satuan).trim() !== '') ? String(proyek.satuan).trim() : '-';
+  const nominal = parseFloat(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal !== undefined ? proyek.nominal : (proyek.totalPembayaran || 0))) || 0;
+  const dp = parseFloat(proyek.dP !== undefined ? proyek.dP : (proyek.dp !== undefined ? proyek.dp : (proyek.totalDp || 0))) || 0;
+  const pelunasan = parseFloat(proyek.pelunasan !== undefined ? proyek.pelunasan : (proyek.totalPelunasan || 0)) || 0;
   const sisa = parseFloat(proyek.sisaPembayaran !== undefined ? proyek.sisaPembayaran : (proyek.sisa !== undefined ? proyek.sisa : Math.max(0, nominal - dp - pelunasan))) || 0;
   const status = proyek.status || 'Menunggu';
   const catatan = proyek.catatan || proyek.keterangan || '';
@@ -559,15 +559,19 @@ function populateDetailModal(proyek) {
   // 3. Sumber Badge
   const modalSumberEl = document.getElementById('modalSumber');
   if (modalSumberEl) {
-    if (sumber.toLowerCase() === 'shopee') {
+    const sLower = String(sumber).toLowerCase().trim();
+    if (sLower === 'shopee') {
       modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-900/60 border border-orange-200 dark:border-orange-800 transition';
       modalSumberEl.innerHTML = '<a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-orange-700 dark:text-orange-300" title="Buka Toko Shopee"><i class="fa-solid fa-bag-shopping text-orange-500 mr-1.5"></i> Shopee <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-1 opacity-70"></i></a>';
-    } else if (sumber.toLowerCase() === 'fiverr') {
+    } else if (sLower === 'fiverr') {
       modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
       modalSumberEl.innerHTML = '<i class="fa-solid fa-bolt text-emerald-500 mr-1"></i> Fiverr';
-    } else {
+    } else if (sLower === 'whatsapp' || sLower === 'wa') {
       modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800';
       modalSumberEl.innerHTML = '<i class="fa-brands fa-whatsapp text-green-500 mr-1"></i> WhatsApp';
+    } else {
+      modalSumberEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-lg mt-1 bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700';
+      modalSumberEl.innerHTML = escapeHtml(sumber);
     }
     modalSumberEl.classList.remove('hidden');
   }
@@ -576,7 +580,7 @@ function populateDetailModal(proyek) {
   const modalDeadlineEl = document.getElementById('modalDeadline');
   if (modalDeadlineEl) {
     modalDeadlineEl.classList.remove('hidden');
-    if (deadline) {
+    if (deadline && String(deadline).trim() !== '' && String(deadline).trim() !== '-') {
       const cleanDl = (typeof window.parseSafeDateString === 'function')
         ? window.parseSafeDateString(deadline)
         : String(deadline).replace(/^'+/, '').split('T')[0];
@@ -629,7 +633,7 @@ function populateDetailModal(proyek) {
     modalPelangganEl.classList.remove('hidden');
   }
 
-  const contactRaw = String(proyek.nomorWA || proyek.wa || proyek.nomorWa || '').trim();
+  const contactRaw = String(proyek.nomorWA || proyek.wa || proyek.noWa || proyek.nomorWa || '').trim();
   let digitsOnly = contactRaw.replace(/\D/g, '');
   let formattedContact = '-';
   let isPhone = false;
@@ -701,8 +705,13 @@ function populateDetailModal(proyek) {
 
   const modalHargaSatuanEl = document.getElementById('modalHargaSatuan');
   if (modalHargaSatuanEl) {
-    const qty = parseFloat(jumlah) || 1;
-    const hargaSatuan = parseFloat(proyek.hargaSatuan !== undefined ? proyek.hargaSatuan : (qty > 0 ? Math.round(nominal / qty) : 0)) || 0;
+    const qty = parseFloat(jumlah);
+    let hargaSatuan = 0;
+    if (proyek.hargaSatuan !== undefined && proyek.hargaSatuan !== null && Number(proyek.hargaSatuan) > 0) {
+      hargaSatuan = Number(proyek.hargaSatuan);
+    } else if (!isNaN(qty) && qty > 0 && nominal > 0) {
+      hargaSatuan = Math.round(nominal / qty);
+    }
     modalHargaSatuanEl.textContent = formatRupiah(hargaSatuan);
   }
 
@@ -1107,6 +1116,156 @@ async function hapusProyek(id, name) {
     }
   }
 }
+function getGeminiApiKey() {
+  if (typeof CONFIG !== 'undefined' && CONFIG.GEMINI_API_KEY) {
+    return CONFIG.GEMINI_API_KEY;
+  }
+  return localStorage.getItem('cfg_gemini_api_key') || localStorage.getItem('GEMINI_API_KEY') || '';
+}
+
+function buildGeminiProjectPrompt(jenis, customPrompt, proyek, gdriveLink) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const formatRp = (num) => formatRupiah(num);
+  const namaKlien = proyek.namaPelanggan || proyek.pelanggan || proyek.client || 'Kak';
+  const namaProyek = proyek.namaProyek || proyek.proyek || proyek.nama || 'Projek Desain';
+  const produk = proyek.produk || proyek.jenisProduk || '-';
+  const jumlah = (proyek.jumlah !== undefined && proyek.jumlah !== null && String(proyek.jumlah).trim() !== '') ? proyek.jumlah : '-';
+  const satuan = (proyek.satuan && String(proyek.satuan).trim() !== '') ? proyek.satuan : '';
+  const nominal = formatRp(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0));
+  const dp = formatRp(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0));
+  const pelunasan = formatRp(proyek.pelunasan !== undefined ? proyek.pelunasan : (proyek.totalPelunasan || 0));
+  const sisa = formatRp(proyek.sisaPembayaran !== undefined ? proyek.sisaPembayaran : (proyek.sisa !== undefined ? proyek.sisa : 0));
+  const status = proyek.status || 'Menunggu';
+  const deadline = proyek.deadline || '-';
+  const metode = proyek.metodePembayaran || proyek.metode || '-';
+  const catatan = proyek.catatan || proyek.keterangan || '-';
+  const gdrive = gdriveLink || proyek.gdriveLink || proyek.gdrive || '';
+
+  let tugas = '';
+  if (jenis === 'followup') {
+    tugas = 'Buat pesan WhatsApp singkat dan ramah untuk menanyakan kabar / respon / kelanjutan projek kepada klien.';
+  } else if (jenis === 'penawaran') {
+    tugas = 'Buat draf penawaran / konfirmasi pesanan projek secara ringkas, ramah, to the point dengan rincian biaya yang jelas.';
+  } else if (jenis === 'invoice') {
+    tugas = 'Buat pesan pengiriman invoice / tagihan pembayaran projek secara ringkas, ramah, dan santun dengan rincian nominal dan metode pembayaran.';
+  } else if (jenis === 'pelunasan') {
+    tugas = 'Buat pesan pengingat sisa pelunasan pembayaran projek secara ramah, santun, dan to the point, menyebutkan sisa tagihan.';
+  } else if (jenis === 'selesai') {
+    tugas = `Buat pesan ramah bahwa pekerjaan/desain telah selesai dan file final resolusi tinggi sudah diupload di Google Drive. Sertakan link Google Drive: ${gdrive || '[Link Google Drive]'}`;
+  } else if (jenis === 'testimoni') {
+    tugas = 'Buat pesan singkat dan ramah untuk meminta sedikit ulasan / feedback singkat dari klien atas hasil pekerjaan projek ini.';
+  } else if (jenis === 'custom') {
+    tugas = `Jawab pertanyaan atau laksanakan instruksi berikut mengenai project ini secara langsung, ramah, to the point, dan tidak bertele-tele:\n"${customPrompt}"`;
+  }
+
+  return `Kamu adalah AI Assistant untuk freelancer / desainer grafis pada aplikasi FPManager.
+Pedoman Gaya Komunikasi (SANGAT PENTING):
+1. Gunakan Bahasa Indonesia yang natural, santun, ramah, dan terasa seperti manusia asli (freelancer profesional yang akrab dan komunikatif).
+2. Sapa klien dengan "Halo Kak ${namaKlien}" (atau "Halo Kak" jika nama tidak spesifik).
+3. HINDARI bahasa yang terlalu formal, baku, kaku, atau seperti surat dinas (JANGAN gunakan kata seperti "Yth.", "Dengan ini kami informasikan", "Sehubungan dengan", dll).
+4. HINDARI pembuka basa-basi yang tidak perlu seperti "Halo Kak, apa kabar? Semoga harinya menyenangkan." Langsung ke inti pembicaraan!
+5. Jika ada pertanyaan sederhana, langsung jawab intinya secara jelas dan singkat.
+6. Gunakan emoji/emote yang relevan dan secukupnya (misal: 😊, 🙏, 🔗, ✨), jangan berlebihan.
+7. Selalu gunakan fakta dan data proyek yang diberikan di bawah. JANGAN PERNAH MENGARANG informasi jika data tidak tersedia di konteks.
+8. Pola Closing: Jika pekerjaan/pesan sudah selesai, gunakan closing yang singkat, ramah, dan positif yang konsisten, contoh:
+"Semoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja. 😊"
+
+DATA DETAIL PROJECT AKTIF:
+- ID Proyek: ${proyek.iDProyek || proyek.idProjek || proyek.id || '-'}
+- Nama Pelanggan / Klien: ${namaKlien}
+- Nama Projek / Pekerjaan: ${namaProyek}
+- Produk: ${produk}
+- Jumlah: ${jumlah} ${satuan}
+- Total Biaya / Nominal: ${nominal}
+- Uang Muka (DP): ${dp}
+- Pelunasan: ${pelunasan}
+- Sisa Tagihan: ${sisa}
+- Status Pengerjaan: ${status}
+- Tenggat Waktu (Deadline): ${deadline}
+- Metode Pembayaran: ${metode}
+- Catatan / Keterangan: ${catatan}
+- Link Google Drive: ${gdrive || 'Belum tersedia'}
+
+TUGAS / INSTRUKSI:
+${tugas}
+
+Berikan langsung teks output yang siap dikirim/dibaca tanpa kata pengantar tambahan dari AI (seperti "Tentu, ini drafnya:").`;
+}
+
+function generateSmartLocalMessage(jenis, customPrompt, proyek, gdriveLink) {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const formatRp = (num) => formatRupiah(num);
+  const namaKlien = proyek.namaPelanggan || proyek.pelanggan || proyek.client || (isEn ? 'Client' : 'Kak');
+  const namaProyek = proyek.namaProyek || proyek.proyek || proyek.nama || (isEn ? 'Design Project' : 'Projek Desain');
+  const produk = proyek.produk || proyek.jenisProduk || '-';
+  const jumlah = (proyek.jumlah !== undefined && proyek.jumlah !== null && String(proyek.jumlah).trim() !== '') ? proyek.jumlah : 1;
+  const satuan = (proyek.satuan && String(proyek.satuan).trim() !== '') ? proyek.satuan : 'pcs';
+  const nominal = formatRp(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0));
+  const dp = formatRp(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0));
+  const sisa = formatRp(proyek.sisaPembayaran !== undefined ? proyek.sisaPembayaran : (proyek.sisa !== undefined ? proyek.sisa : 0));
+  const deadline = proyek.deadline || '-';
+  const metode = proyek.metodePembayaran || proyek.metode || 'Transfer Bank / QRIS';
+  const gdrive = gdriveLink || proyek.gdriveLink || proyek.gdrive || '';
+
+  if (jenis === 'followup') {
+    return isEn
+      ? `Hello ${namaKlien}, following up on our project *${namaProyek}*. 😊\n\nIs there anything you would like to discuss or adjust further, Kak?\n\nPlease let me know whenever you have a moment. 🙏`
+      : `Halo Kak ${namaKlien}, mau follow up terkait kelanjutan projek *${namaProyek}* ya. 😊\n\nKira-kira ada yang perlu kita diskusikan atau sesuaikan lagi, Kak?\n\nKalau Kakak ada waktu luang, tinggal kabarin aja ya. 🙏`;
+  }
+
+  if (jenis === 'penawaran') {
+    return isEn
+      ? `Hello ${namaKlien}, here is the quotation details for *${namaProyek}*:\n\n• Product: ${produk} (${jumlah} ${satuan})\n• Total Amount: ${nominal}\n• Payment Method: ${metode}\n\nIf everything looks good, please confirm so we can get started right away. 😊\n\nLooking forward to working with you!`
+      : `Halo Kak ${namaKlien}, ini rincian penawaran untuk pengerjaan *${namaProyek}* ya:\n\n• Produk: ${produk} (${jumlah} ${satuan})\n• Total Biaya: ${nominal}\n• Metode Pembayaran: ${metode}\n\nKalau sudah oke, bisa langsung konfirmasi ya Kak biar bisa segera saya jadwalkan pengerjaannya. 😊\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+  }
+
+  if (jenis === 'invoice') {
+    return isEn
+      ? `Hello ${namaKlien}, here is the invoice for project *${namaProyek}*:\n\n• Total Amount: ${nominal}\n• Down Payment (DP): ${dp}\n• Remaining Balance: ${sisa}\n• Payment Method: ${metode}\n\nPlease proceed with the transfer and share the payment receipt here once completed. 😊`
+      : `Halo Kak ${namaKlien}, untuk invoice rincian tagihan projek *${namaProyek}* sudah siap ya, Kak: 😊\n\n• Total Biaya: ${nominal}\n• DP: ${dp}\n• Sisa Tagihan: ${sisa}\n• Metode Pembayaran: ${metode}\n\nNanti kalau sudah transfer, tinggal kirimkan bukti pembayarannya ke sini ya, Kak. Terima kasih banyak! 🙏`;
+  }
+
+  if (jenis === 'pelunasan') {
+    return isEn
+      ? `Hello ${namaKlien}, project *${namaProyek}* is now completed! 🎉\n\nFor the remaining balance of *${sisa}*, please transfer via *${metode}*.\n\nOnce received, I'll send over the final high-resolution files right away. Thank you! 🙏`
+      : `Halo Kak ${namaKlien}, projek *${namaProyek}* sudah selesai dikerjakan ya. 😊\n\nUntuk sisa pelunasannya sebesar *${sisa}* bisa ditransfer melalui *${metode}* ya, Kak.\n\nBegitu pelunasan masuk, file resolusi tingginya langsung saya kirimkan. Makasih banyak ya, Kak! 🙏`;
+  }
+
+  if (jenis === 'selesai') {
+    return isEn
+      ? `Hello ${namaKlien}, the final high-resolution files for *${namaProyek}* have been uploaded to Google Drive: 😊\n🔗 ${gdrive || '[Google Drive link]'}\n\nHope you love the result! If there's anything else you'd like to adjust, just let me know. 😊`
+      : `Halo Kak ${namaKlien}, untuk desain dan file final *${namaProyek}* udah saya upload di Google Drive ini ya, Kak: 😊\n🔗 ${gdrive || '[Link Google Drive]'}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja. 😊`;
+  }
+
+  if (jenis === 'testimoni') {
+    return isEn
+      ? `Hello ${namaKlien}, thank you very much for trusting us with *${namaProyek}*! 😊\n\nIf you have a quick moment, I'd really appreciate your brief feedback or testimonial. It helps a lot!\n\nThank you again and looking forward to our next project together! 🙏✨`
+      : `Halo Kak ${namaKlien}, makasih banyak udah percayain pengerjaan *${namaProyek}* ke saya ya. 😊\n\nKalau Kakak ada waktu luang sebentar, boleh minta sedikit ulasan atau testimoni singkatnya, Kak? Sangat berharga banget buat saya.\n\nMakasih banyak atas kerja samanya, Kak! 🙏✨`;
+  }
+
+  if (jenis === 'custom' && customPrompt) {
+    const qLower = customPrompt.toLowerCase();
+    if (qLower.includes('upload') || qLower.includes('drive') || qLower.includes('file')) {
+      if (gdrive) {
+        return `Udah Kak, file finalnya sudah saya upload ke Google Drive ya. 😊 Link-nya: ${gdrive}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+      } else {
+        return `Untuk file finalnya saat ini belum ada link Google Drive yang terlampir di data projek ini, Kak.`;
+      }
+    }
+    if (qLower.includes('status')) {
+      return `Status projek *${namaProyek}* saat ini adalah: *${proyek.status || 'Menunggu'}*, Kak.`;
+    }
+    if (qLower.includes('deadline') || qLower.includes('tenggat')) {
+      return `Deadline untuk projek *${namaProyek}* adalah *${deadline}*, Kak.`;
+    }
+    if (qLower.includes('sisa') || qLower.includes('bayar') || qLower.includes('biaya') || qLower.includes('nominal')) {
+      return `Total biaya projek *${namaProyek}* adalah ${nominal} dengan DP ${dp} dan sisa tagihan *${sisa}* (${metode}), Kak.`;
+    }
+  }
+
+  return `Halo Kak ${namaKlien}, terkait projek *${namaProyek}* statusnya saat ini *${proyek.status || 'Sedang Dikerjakan'}* ya. 😊\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+}
+
 let isAIGenerating = false;
 async function generateAI(jenis) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -1122,13 +1281,28 @@ async function generateAI(jenis) {
 
   const gdriveContainer = document.getElementById('gdriveInputContainer');
   const gdriveInput = document.getElementById('gdriveLink');
-  const gdriveLink = gdriveInput ? gdriveInput.value.trim() : '';
+  let gdriveLink = gdriveInput ? gdriveInput.value.trim() : (currentProyek.gdriveLink || currentProyek.gdrive || '');
+
+  let customPrompt = '';
+  if (jenis === 'custom') {
+    const customInput = document.getElementById('aiCustomPromptInput');
+    customPrompt = customInput ? customInput.value.trim() : '';
+    if (!customPrompt) {
+      if (customInput) customInput.focus();
+      showToast({
+        title: "AI",
+        message: isEn ? "Please enter your question or prompt." : "Silakan ketik pertanyaan atau instruksi AI.",
+        type: "warning"
+      });
+      return;
+    }
+  }
 
   // Handle visibility of Google Drive input
   if (jenis === 'selesai') {
-    if (gdriveContainer && gdriveContainer.classList.contains('hidden')) {
+    if (gdriveContainer && gdriveContainer.classList.contains('hidden') && !gdriveLink) {
       gdriveContainer.classList.remove('hidden');
-      gdriveInput.focus();
+      if (gdriveInput) gdriveInput.focus();
       showToast({
         title: isEn ? "Google Drive Link" : "Link Google Drive",
         message: isEn ? "Please enter the Google Drive link for the design files above." : "Silakan masukkan link Google Drive hasil desain di atas.",
@@ -1137,92 +1311,91 @@ async function generateAI(jenis) {
       return;
     }
 
-    // If it's shown but empty for 'selesai'
-    if (!gdriveLink) {
-      gdriveInput.focus();
-      showToast({
-        title: isEn ? "Google Drive Link" : "Link Google Drive",
-        message: isEn ? "Google Drive link is required for completion message." : "Link Google Drive wajib diisi untuk ucapan selesai.",
-        type: "warning"
-      });
-      return;
+    if (gdriveInput && gdriveInput.value.trim()) {
+      gdriveLink = gdriveInput.value.trim();
+      currentProyek.gdriveLink = gdriveLink;
     }
   } else {
-    // Hide it for other options (followup, penawaran, invoice, testimoni, pelunasan)
-    if (gdriveContainer) {
+    if (gdriveContainer && jenis !== 'custom') {
       gdriveContainer.classList.add('hidden');
     }
   }
 
-  // Local generation for custom types
-  if (['testimoni', 'pelunasan', 'selesai'].includes(jenis)) {
-    let text = '';
-    const formatRp = (num) => formatRupiah(num);
-    const namaKlien = currentProyek.namaPelanggan || (isEn ? 'Client' : 'Kak');
-    const namaProyek = currentProyek.namaProyek || (isEn ? 'Design Project' : 'Projek Desain');
-    const nominal = formatRp(currentProyek.nominalProyek || 0);
-    const dp = formatRp(currentProyek.dP || 0);
-    const sisa = formatRp(currentProyek.sisaPembayaran || 0);
-
-    if (jenis === 'testimoni') {
-      text = isEn
-        ? `Hello ${namaKlien}, thank you very much for trusting us with the project *${namaProyek}*. 😊\n\nIf you don't mind, we would like to request a quick testimonial or feedback about our design work and service. Your feedback is highly valuable to help us improve.\n\nThank you very much for your time and cooperation! 🙏✨`
-        : `Halo Kak ${namaKlien}, terima kasih banyak telah mempercayakan pengerjaan projek *${namaProyek}* kepada kami. 😊\n\nJika tidak keberatan, kami ingin meminta sedikit testimoni atau feedback singkat mengenai hasil desain dan pelayanan kami. Pendapat Kakak sangat berarti bagi kami untuk terus berkembang.\n\nTerima kasih banyak atas waktu dan kerja samanya, Kak! 🙏✨`;
-    } else if (jenis === 'pelunasan') {
-      text = isEn
-        ? `Hello ${namaKlien}, hope you are doing well.\n\nThe design project *${namaProyek}* has been completed. Here is the payment invoice summary:\n- Total Amount: ${nominal}\n- Down Payment (DP): ${dp}\n- Remaining Balance: ${sisa}\n\nPlease proceed with the remaining payment of *${sisa}*. Once the payment is received, we will send over the final high-resolution files.\n\nThank you very much for your cooperation! 🙏`
-        : `Halo Kak ${namaKlien}, semoga kabarnya baik.\n\nProjek desain *${namaProyek}* saat ini sudah selesai kami kerjakan. Berikut adalah rincian tagihan pembayaran:\n- Total Nominal: ${nominal}\n- Uang Muka (DP): ${dp}\n- Sisa Pelunasan: ${sisa}\n\nMohon untuk melakukan pelunasan sisa pembayaran sebesar *${sisa}*. Setelah pelunasan diterima, kami akan segera mengirimkan file final resolusi tinggi.\n\nTerima kasih banyak atas kerja samanya, Kak! 🙏`;
-    } else if (jenis === 'selesai') {
-      text = isEn
-        ? `Hello ${namaKlien}, great news!\n\nAll final high-resolution design files for the project *${namaProyek}* have been uploaded.\n\nYou can download all the files using the following Google Drive link:\n🔗 ${gdriveLink || '[Google Drive link not entered yet]'}\n\nThank you very much for using our services. Hope the design is helpful and best of luck for your business! Looking forward to working with you again! 🚀✨`
-        : `Halo Kak ${namaKlien}, kabar baik!\n\nSeluruh file desain final resolusi tinggi untuk projek *${namaProyek}* telah selesai diunggah.\n\nKakak dapat mengunduh semua file tersebut melalui tautan Google Drive berikut:\n🔗 ${gdriveLink || '[Link Google Drive belum dimasukkan]'}\n\nTerima kasih banyak telah menggunakan jasa kami. Semoga desainnya bermanfaat dan sukses selalu untuk usahanya! Kami tunggu projek kerja sama berikutnya ya Kak! 🚀✨`;
-    }
-
-    document.getElementById("hasilAI").value = text;
-    showToast({
-      title: "AI",
-      message: isEn ? "Text generated locally." : "Teks berhasil dibuat secara lokal.",
-      type: "success"
-    });
-    return;
-  }
-
   isAIGenerating = true;
   showToast({
-    title: "AI",
-    message: isEn ? "Generating text..." : "Sedang membuat teks...",
+    title: "AI Assistant",
+    message: isEn ? "Generating message..." : "Sedang menyusun respon AI...",
     type: "info"
   });
 
-  const data = {
-    ...currentProyek,
-    jenis,
-    gdriveLink
-  };
+  const promptText = buildGeminiProjectPrompt(jenis, customPrompt, currentProyek, gdriveLink);
+  const geminiKey = getGeminiApiKey();
+  let generatedText = '';
 
-  try {
-    const result = await API.generateAI(data);
-
-    if (!result.success) {
-      showToast({
-        title: "AI",
-        message: result.message,
-        type: "error"
-      });
-      return;
+  // 1. Coba Direct Client-side Gemini API jika ada API Key
+  if (geminiKey) {
+    const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    for (const model of candidateModels) {
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.9,
+              topK: 40
+            }
+          })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const candidateText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText && candidateText.trim()) {
+            generatedText = candidateText.trim();
+            break;
+          }
+        }
+      } catch (clientErr) {
+        console.warn(`Direct Gemini model ${model} error:`, clientErr);
+      }
     }
-
-    document.getElementById("hasilAI").value = result.text;
-  } catch (err) {
-    console.error(err);
-    showToast({
-      title: "AI Error",
-      message: isEn ? "Failed to generate AI response." : "Gagal membuat respon AI.",
-      type: "error"
-    });
-  } finally {
-    isAIGenerating = false;
   }
+
+  // 2. Coba Server-side Apps Script jika client-side belum menghasilkan teks
+  if (!generatedText && typeof API !== 'undefined' && typeof API.generateAI === 'function') {
+    try {
+      const serverRes = await API.generateAI({
+        prompt: promptText,
+        model: 'gemini-1.5-flash'
+      });
+      if (serverRes && serverRes.success && serverRes.result) {
+        generatedText = String(serverRes.result).trim();
+      }
+    } catch (serverErr) {
+      console.warn("Server-side AI call failed:", serverErr);
+    }
+  }
+
+  // 3. Fallback Cerdas Lokal (Konsisten Gaya Natural & Ramah)
+  if (!generatedText) {
+    generatedText = generateSmartLocalMessage(jenis, customPrompt, currentProyek, gdriveLink);
+  }
+
+  const hasilAIEl = document.getElementById("hasilAI");
+  if (hasilAIEl) {
+    hasilAIEl.value = generatedText;
+    hasilAIEl.focus();
+  }
+
+  showToast({
+    title: "AI Assistant",
+    message: isEn ? "Message ready!" : "Pesan siap digunakan! ✨",
+    type: "success"
+  });
+
+  isAIGenerating = false;
 }
 
 function copyAIText() {
@@ -1592,6 +1765,10 @@ function syncCalendarPromptByProyekId(id) {
     });
   }
 }
+
+window.generateAI = generateAI;
+window.copyAIText = copyAIText;
+window.sendAIWhatsapp = sendAIWhatsapp;
 
 
 

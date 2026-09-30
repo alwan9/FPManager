@@ -485,9 +485,15 @@ html.dark .dataTables_wrapper .dataTables_paginate .paginate_button.current {
 }
 
 /* 10. Forms, Inputs, Textareas, Selects & Options */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="range"]),
 html.dark input[type="text"],
 html.dark input[type="number"],
+html.dark input[type="email"],
+html.dark input[type="search"],
 html.dark input[type="date"],
+html.dark input[type="month"],
+html.dark input[type="time"],
+html.dark input[type="datetime-local"],
 html.dark input[type="password"],
 html.dark input[type="tel"],
 html.dark input[type="url"],
@@ -732,4 +738,159 @@ html.dark #errorAlert {
   background-color: rgba(69, 10, 10, 0.5) !important;
   border-color: rgba(153, 27, 27, 0.8) !important;
   color: #fca5a5 !important;
+}
+
+/* ==========================================================================
+   15. COMPREHENSIVE TAILWIND V3 DARK MODE CLASS SELECTORS
+   Guarantees all dark:bg-*, dark:text-*, dark:border-*, dark:hover:* classes
+   render properly when html.dark is active.
+   ========================================================================== */
+
+/* Dark Mode Backgrounds */
+html.dark .dark\:bg-zinc-50 { background-color: #fafafa !important; }
+html.dark .dark\:bg-zinc-100 { background-color: #f4f4f5 !important; }
+html.dark .dark\:bg-zinc-200 { background-color: #e4e4e7 !important; }
+html.dark .dark\:bg-zinc-300 { background-color: #d4d4d8 !important; }
+html.dark .dark\:bg-zinc-700 { background-color: #3f3f46 !important; }
+html.dark .dark\:bg-zinc-800 { background-color: #27272a !important; }
+html.dark .dark\:bg-zinc-900 { background-color: #18181b !important; }
+html.dark .dark\:bg-zinc-950 { background-color: #09090b !important; }
+html.dark .dark\:bg-white { background-color: #ffffff !important; }
+html.dark .dark\:bg-black { background-color: #000000 !important; }
+
+html.dark .dark\:bg-zinc-800\/80 { background-color: rgba(39, 39, 42, 0.8) !important; }
+html.dark .dark\:bg-zinc-800\/60 { background-color: rgba(39, 39, 42, 0.6) !important; }
+html.dark .dark\:bg-zinc-800\/50 { background-color: rgba(39, 39, 42, 0.5) !important; }
+html.dark .dark\:bg-zinc-900\/80 { background-color: rgba(24, 24, 27, 0.8) !important; }
+html.dark .dark\:bg-zinc-900\/50 { background-color: rgba(24, 24, 27, 0.5) !important; }
+html.dark .dark\:bg-zinc-950\/50 { background-color: rgba(9, 9, 11, 0.5) !important; }
+
+html.dark .dark\:bg-emerald-950 { background-color: #022c22 !important; }
+html.dark .dark\:bg-emerald-950\/50 { background-color: rgba(2, 44, 34, 0.5) !important; }
+html.dark .dark\:bg-emerald-950\/40 { background-color: rgba(2, 44, 34, 0.4) !important; }
+html.dark .dark\:bg-emerald-950\/30 { background-color: rgba(2, 44, 34, 0.3) !important; }
+html.dark .dark\:bg-emerald-950\/20 { background-color: rgba(2, 44, 34, 0.2) !important; }
+html.dark .dark\:bg-emerald-900\/50 { background-color: rgba(6, 78, 59, 0.5) !important; }
+
+html.dark .dark\:bg-rose-950 { background-color: #4c0519 !important; }
+html.dark .dark\:bg-rose-950\/60 { background-color: rgba(76, 5, 25, 0.6) !important; }
+html.dark .dark\:bg-rose-950\/50 { background-color: rgba(76, 5, 25, 0.5) !important; }
+html.dark .dark\:bg-rose-950\/40 { background-color: rgba(76, 5, 25, 0.4) !important; }
+html.dark .dark\:bg-rose-950\/30 { background-color: rgba(76, 5, 25, 0.3) !important; }
+html.dark .dark\:bg-rose-950\/20 { background-color: rgba(76, 5, 25, 0.2) !important; }
+html.dark .dark\:bg-rose-900\/80 { background-color: rgba(136, 19, 55, 0.8) !important; }
+html.dark .dark\:bg-rose-900\/50 { background-color: rgba(136, 19, 55, 0.5) !important; }
+
+html.dark .dark\:bg-amber-950 { background-color: #451a03 !important; }
+html.dark .dark\:bg-amber-950\/50 { background-color: rgba(69, 26, 3, 0.5) !important; }
+html.dark .dark\:bg-amber-950\/40 { background-color: rgba(69, 26, 3, 0.4) !important; }
+html.dark .dark\:bg-amber-950\/30 { background-color: rgba(69, 26, 3, 0.3) !important; }
+html.dark .dark\:bg-amber-950\/20 { background-color: rgba(69, 26, 3, 0.2) !important; }
+html.dark .dark\:bg-amber-900\/60 { background-color: rgba(120, 53, 15, 0.6) !important; }
+html.dark .dark\:bg-amber-900\/50 { background-color: rgba(120, 53, 15, 0.5) !important; }
+
+html.dark .dark\:bg-indigo-950 { background-color: #1e1b4b !important; }
+html.dark .dark\:bg-indigo-950\/50 { background-color: rgba(30, 27, 75, 0.5) !important; }
+html.dark .dark\:bg-indigo-950\/40 { background-color: rgba(30, 27, 75, 0.4) !important; }
+html.dark .dark\:bg-indigo-950\/30 { background-color: rgba(30, 27, 75, 0.3) !important; }
+html.dark .dark\:bg-indigo-950\/20 { background-color: rgba(30, 27, 75, 0.2) !important; }
+html.dark .dark\:bg-indigo-900 { background-color: #312e81 !important; }
+html.dark .dark\:bg-indigo-900\/60 { background-color: rgba(49, 46, 129, 0.6) !important; }
+html.dark .dark\:bg-indigo-900\/50 { background-color: rgba(49, 46, 129, 0.5) !important; }
+
+html.dark .dark\:bg-blue-900\/50 { background-color: rgba(30, 58, 138, 0.5) !important; }
+html.dark .dark\:bg-purple-900\/50 { background-color: rgba(88, 28, 135, 0.5) !important; }
+
+/* Dark Mode Texts */
+html.dark .dark\:text-white { color: #ffffff !important; }
+html.dark .dark\:text-zinc-50 { color: #fafafa !important; }
+html.dark .dark\:text-zinc-100 { color: #f4f4f5 !important; }
+html.dark .dark\:text-zinc-200 { color: #e4e4e7 !important; }
+html.dark .dark\:text-zinc-300 { color: #d4d4d8 !important; }
+html.dark .dark\:text-zinc-400 { color: #a1a1aa !important; }
+html.dark .dark\:text-zinc-500 { color: #71717a !important; }
+html.dark .dark\:text-zinc-600 { color: #52525b !important; }
+
+html.dark .dark\:text-emerald-300 { color: #6ee7b7 !important; }
+html.dark .dark\:text-emerald-400 { color: #34d399 !important; }
+html.dark .dark\:text-emerald-500 { color: #10b981 !important; }
+
+html.dark .dark\:text-rose-300 { color: #fda4af !important; }
+html.dark .dark\:text-rose-400 { color: #fb7185 !important; }
+html.dark .dark\:text-rose-500 { color: #f43f5e !important; }
+
+html.dark .dark\:text-amber-300 { color: #fcd34d !important; }
+html.dark .dark\:text-amber-400 { color: #fbbf24 !important; }
+html.dark .dark\:text-amber-500 { color: #f59e0b !important; }
+
+html.dark .dark\:text-indigo-300 { color: #a5b4fc !important; }
+html.dark .dark\:text-indigo-400 { color: #818cf8 !important; }
+html.dark .dark\:text-indigo-500 { color: #6366f1 !important; }
+
+html.dark .dark\:text-blue-300 { color: #93c5fd !important; }
+html.dark .dark\:text-blue-400 { color: #60a5fa !important; }
+html.dark .dark\:text-purple-300 { color: #d8b4fe !important; }
+html.dark .dark\:text-purple-400 { color: #c084fc !important; }
+html.dark .dark\:text-green-300 { color: #86efac !important; }
+html.dark .dark\:text-green-400 { color: #4ade80 !important; }
+html.dark .dark\:text-red-300 { color: #fca5a5 !important; }
+html.dark .dark\:text-red-400 { color: #f87171 !important; }
+
+/* Dark Mode Borders */
+html.dark .dark\:border-zinc-950 { border-color: #09090b !important; }
+html.dark .dark\:border-zinc-900 { border-color: #18181b !important; }
+html.dark .dark\:border-zinc-800 { border-color: #27272a !important; }
+html.dark .dark\:border-zinc-700 { border-color: #3f3f46 !important; }
+html.dark .dark\:border-zinc-600 { border-color: #52525b !important; }
+html.dark .dark\:border-zinc-700\/80 { border-color: rgba(63, 63, 70, 0.8) !important; }
+html.dark .dark\:border-zinc-800\/80 { border-color: rgba(39, 39, 42, 0.8) !important; }
+
+html.dark .dark\:border-emerald-800 { border-color: #065f46 !important; }
+html.dark .dark\:border-emerald-800\/80 { border-color: rgba(6, 95, 70, 0.8) !important; }
+html.dark .dark\:border-emerald-800\/60 { border-color: rgba(6, 95, 70, 0.6) !important; }
+
+html.dark .dark\:border-rose-800 { border-color: #9f1239 !important; }
+html.dark .dark\:border-rose-800\/80 { border-color: rgba(159, 18, 57, 0.8) !important; }
+html.dark .dark\:border-rose-800\/60 { border-color: rgba(159, 18, 57, 0.6) !important; }
+
+html.dark .dark\:border-amber-800 { border-color: #92400e !important; }
+html.dark .dark\:border-amber-600\/60 { border-color: rgba(217, 119, 6, 0.6) !important; }
+html.dark .dark\:border-amber-400\/60 { border-color: rgba(251, 191, 36, 0.6) !important; }
+
+html.dark .dark\:border-indigo-800 { border-color: #3730a3 !important; }
+html.dark .dark\:border-indigo-800\/60 { border-color: rgba(55, 48, 163, 0.6) !important; }
+html.dark .dark\:border-indigo-700 { border-color: #4338ca !important; }
+html.dark .dark\:border-blue-800 { border-color: #1e40af !important; }
+html.dark .dark\:border-purple-800 { border-color: #6b21a8 !important; }
+
+/* Dark Mode Hover States */
+html.dark .dark\:hover\:bg-zinc-700:hover { background-color: #3f3f46 !important; }
+html.dark .dark\:hover\:bg-zinc-800:hover { background-color: #27272a !important; }
+html.dark .dark\:hover\:bg-zinc-800\/50:hover { background-color: rgba(39, 39, 42, 0.5) !important; }
+html.dark .dark\:hover\:bg-zinc-900:hover { background-color: #18181b !important; }
+
+html.dark .dark\:hover\:bg-emerald-900\/80:hover { background-color: rgba(6, 78, 59, 0.8) !important; }
+html.dark .dark\:hover\:bg-rose-900\/80:hover { background-color: rgba(136, 19, 55, 0.8) !important; }
+html.dark .dark\:hover\:bg-indigo-950\/40:hover { background-color: rgba(30, 27, 75, 0.4) !important; }
+html.dark .dark\:hover\:bg-indigo-900\/80:hover { background-color: rgba(49, 46, 129, 0.8) !important; }
+
+html.dark .dark\:hover\:text-white:hover { color: #ffffff !important; }
+html.dark .dark\:hover\:text-zinc-100:hover { color: #f4f4f5 !important; }
+html.dark .dark\:hover\:text-zinc-200:hover { color: #e4e4e7 !important; }
+html.dark .dark\:hover\:text-zinc-300:hover { color: #d4d4d8 !important; }
+html.dark .dark\:hover\:text-indigo-400:hover { color: #818cf8 !important; }
+html.dark .dark\:hover\:text-indigo-300:hover { color: #a5b4fc !important; }
+html.dark .dark\:hover\:text-amber-400:hover { color: #fbbf24 !important; }
+
+/* Dark Mode Gradients */
+html.dark .dark\:from-slate-950 { --tw-gradient-from: #020617; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(2, 6, 23, 0)); }
+html.dark .dark\:via-zinc-900 { --tw-gradient-stops: var(--tw-gradient-from), #18181b, var(--tw-gradient-to, rgba(24, 24, 27, 0)); }
+html.dark .dark\:to-indigo-950 { --tw-gradient-to: #1e1b4b; }
+
+/* Card Checked in Dark Mode */
+html.dark label:has(input[type="radio"]:checked),
+html.dark label:has(input[type="checkbox"]:checked) {
+  border-color: #059669 !important;
+  background-color: rgba(2, 44, 34, 0.35) !important;
+  color: #6ee7b7 !important;
 }

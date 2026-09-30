@@ -186,8 +186,8 @@ const Auth = {
     const role = (user.role || "service").toLowerCase().trim();
     const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
 
-    // 1. Check sidebar and bottom navigation links inside navMenu
-    const navLinks = document.querySelectorAll("#navMenu .sidebar-link");
+    // 1. Check sidebar and bottom navigation links inside navMenu and mobileBottomNav
+    const navLinks = document.querySelectorAll("#navMenu .sidebar-link, #mobileBottomNav a");
     navLinks.forEach(el => {
       if (el.id === "pwaInstallBtn") return; // Let PWA manager control install button visibility
 
