@@ -761,6 +761,7 @@ html.dark .dark\:bg-black { background-color: #000000 !important; }
 html.dark .dark\:bg-zinc-800\/80 { background-color: rgba(39, 39, 42, 0.8) !important; }
 html.dark .dark\:bg-zinc-800\/60 { background-color: rgba(39, 39, 42, 0.6) !important; }
 html.dark .dark\:bg-zinc-800\/50 { background-color: rgba(39, 39, 42, 0.5) !important; }
+html.dark .dark\:bg-zinc-900\/95 { background-color: rgba(24, 24, 27, 0.95) !important; }
 html.dark .dark\:bg-zinc-900\/80 { background-color: rgba(24, 24, 27, 0.8) !important; }
 html.dark .dark\:bg-zinc-900\/50 { background-color: rgba(24, 24, 27, 0.5) !important; }
 html.dark .dark\:bg-zinc-950\/50 { background-color: rgba(9, 9, 11, 0.5) !important; }

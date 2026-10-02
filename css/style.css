@@ -678,7 +678,58 @@ label:has(input[type="checkbox"]:checked) {
 .focus\:ring-zinc-500:focus { --tw-ring-color: #71717a; }
 
 
-/* Mobile Bottom Navbar Light Mode Styling */
+/* Mobile Bottom Navigation Bar (#mobileBottomNav) Styling */
+#mobileBottomNav {
+  background-color: #18181b !important;
+  background-color: rgba(24, 24, 27, 0.96) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #27272a !important;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+#mobileBottomNav .border-zinc-900 {
+  border-color: #18181b !important;
+}
+
+html:not(.dark) #mobileBottomNav {
+  background-color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-top: 1px solid #e4e4e7 !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+html:not(.dark) #mobileBottomNav .text-zinc-400 {
+  color: #71717a !important;
+}
+
+html:not(.dark) #mobileBottomNav a:hover {
+  color: #18181b !important;
+}
+
+html:not(.dark) #mobileBottomNav a.text-indigo-400 {
+  color: #4f46e5 !important;
+}
+
+html:not(.dark) #mobileBottomNav .border-zinc-900 {
+  border-color: #ffffff !important;
+}
+
+html:not(.dark) #mobileBottomNav span.text-zinc-200 {
+  color: #3f3f46 !important;
+}
+
+.bg-zinc-900\/95 {
+  background-color: rgba(24, 24, 27, 0.95);
+}
+
+@media (max-width: 767px) {
+  main {
+    padding-bottom: 72px !important;
+  }
+}
+
+/* Legacy Mobile Bottom Navbar (aside.fixed) Light Mode Styling */
 @media (max-width: 767px) {
   html:not(.dark) aside.fixed {
     background-color: #ffffff !important;

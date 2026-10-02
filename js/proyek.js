@@ -1640,9 +1640,11 @@ function updateBulkDeleteButton() {
     countEl.textContent = count;
     if (count > 0) {
       btn.classList.remove('hidden');
+      btn.style.display = 'inline-flex';
       btn.disabled = false;
     } else {
       btn.classList.add('hidden');
+      btn.style.display = 'none';
       btn.disabled = true;
     }
   }
@@ -1769,6 +1771,32 @@ function syncCalendarPromptByProyekId(id) {
 window.generateAI = generateAI;
 window.copyAIText = copyAIText;
 window.sendAIWhatsapp = sendAIWhatsapp;
+
+// Excel Dropdown Menu Handlers
+function toggleExcelDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('excelDropdownMenu');
+  if (menu) {
+    menu.classList.toggle('hidden');
+  }
+}
+
+function closeExcelDropdown() {
+  const menu = document.getElementById('excelDropdownMenu');
+  if (menu && !menu.classList.contains('hidden')) {
+    menu.classList.add('hidden');
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const group = document.getElementById('excelDropdownGroup');
+  if (group && !group.contains(e.target)) {
+    closeExcelDropdown();
+  }
+});
+
+window.toggleExcelDropdown = toggleExcelDropdown;
+window.closeExcelDropdown = closeExcelDropdown;
 
 
 

@@ -188,7 +188,7 @@
         class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
         <div class="flex items-center space-x-3">
           <button
-            class="sidebarToggleBtn text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            class="sidebarToggleBtn hidden md:inline-flex text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             title="Buka / Tutup Sidebar">
             <i class="fa-solid fa-bars text-xl"></i>
           </button>
@@ -223,14 +223,19 @@
                 <span>Profil Saya</span>
               </a>
               <a href="keuangan.html" data-permission-allow="keuangan:read"
-                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-wallet w-4 text-zinc-500"></i>
                 <span data-i18n="nav-keuangan">Keuangan</span>
               </a>
               <a href="laporan.html" data-permission-allow="laporan:read"
-                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-file-invoice-dollar w-4 text-zinc-500"></i>
                 <span data-i18n="nav-laporan">Laporan</span>
+              </a>
+              <a href="admin-tasks.html" data-permission-allow="admin_tasks:read"
+                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <i class="fa-solid fa-clipboard-check w-4 text-zinc-500"></i>
+                <span>Aktivitas Admin</span>
               </a>
               <a href="tools.html" data-permission-allow="tools:read"
                 class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
@@ -238,7 +243,7 @@
                 <span>Tools</span>
               </a>
               <a href="user-management.html" data-permission-allow="users:read"
-                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-users-gear w-4 text-zinc-500"></i>
                 <span>Manajemen User</span>
               </a>

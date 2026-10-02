@@ -1233,9 +1233,11 @@ function updateBulkDeleteKeuanganButton() {
     countEl.textContent = count;
     if (count > 0) {
       btn.classList.remove('hidden');
+      btn.style.display = 'inline-flex';
       btn.disabled = false;
     } else {
       btn.classList.add('hidden');
+      btn.style.display = 'none';
       btn.disabled = true;
     }
   }

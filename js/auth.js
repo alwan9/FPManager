@@ -268,7 +268,7 @@ const Auth = {
 
     const permButtons = document.querySelectorAll("[data-permission-allow]");
     permButtons.forEach(btn => {
-      if (btn.closest("#navMenu") || btn.closest("#profileDropdown")) return; // Skip menu items handled in applyMenuPermissions
+      if (btn.closest("#navMenu") || btn.closest("#profileDropdown") || btn.id === "btnBulkDelete" || btn.id === "btnBulkDeleteKeuangan" || btn.classList.contains("btn-bulk-action")) return; // Skip menu & bulk action items
       const permNeeded = btn.getAttribute("data-permission-allow");
       const isAllowed = isSuperAdmin || Auth.hasPermission(permNeeded);
       if (isAllowed) {

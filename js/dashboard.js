@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     apiStatusBadge.textContent = 'Live Google Sheets';
     apiStatusBadge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
-  
+
   // Apply role & permission customizations to dashboard UI
   applyDashboardRoleCustomizations();
 
@@ -589,7 +589,7 @@ function showDashboardSkeletons() {
   if (loader) loader.classList.add('hidden');
 
   const skeletonText = '<div class="h-6 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse inline-block mt-1"></div>';
-  
+
   // Stats
   document.getElementById('statTotalProyek').innerHTML = skeletonText;
   document.getElementById('statPendapatan').innerHTML = skeletonText;
@@ -728,10 +728,7 @@ function showIncomeBreakdownModal() {
           <div>
             <h3 class="font-bold text-base sm:text-lg text-zinc-900 dark:text-white leading-tight">
               ${isEn ? 'Income Breakdown' : 'Rincian Pendapatan'}
-            </h3>
-            <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-              ${isEn ? 'By payment method · Source of Truth: Keuangan' : 'Berdasarkan metode pembayaran · Terhubung sistem Keuangan'}
-            </p>
+           
           </div>
         </div>
         <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition cursor-pointer" title="Tutup">
