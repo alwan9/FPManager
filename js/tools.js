@@ -1,3 +1,30 @@
+// Global Helpers for escaping HTML & sanitizing URLs
+if (typeof window !== 'undefined' && typeof window.escapeHtml !== 'function') {
+  window.escapeHtml = function (str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, function (m) {
+      return ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      })[m];
+    });
+  };
+}
+
+if (typeof window !== 'undefined' && typeof window.sanitizeUrl !== 'function') {
+  window.sanitizeUrl = function (url) {
+    if (!url) return '#';
+    var clean = String(url).trim();
+    if (/^(https?:\/\/|mailto:|tel:|\/|\.\/|blob:|data:image\/)/i.test(clean)) {
+      return clean;
+    }
+    return 'https://' + clean;
+  };
+}
+
 let toolsData = [];
 let shortcutsData = [];
 let referencesData = [];
@@ -1745,8 +1772,6 @@ Panjang: ${lengthInstruction}
 Langsung tulis narasi filosofinya tanpa pembuka seperti "Berikut analisis..." atau "Tentu, mari kita bahas...". Mulai langsung dengan deskripsi elemen visual logo.`;
 
   let modelsToTry = [
-    'gemini-3.0-flash',
-    'gemini-3.0-pro',
     'gemini-2.5-flash',
     'gemini-2.0-flash',
     'gemini-1.5-flash',
@@ -2444,6 +2469,9 @@ function updatePbCanvas() {
     tempCtx.globalCompositeOperation = document.getElementById('pbBlendMode').value || 'source-over';
 
     tempCtx.translate(posX, posY);
+    if (pbParams.Rotate !== 0) {
+      tempCtx.rotate((pbParams.Rotate * Math.PI) / 180);
+    }
 
     if (pbParams.Radius > 0) {
       tempCtx.beginPath();
@@ -2926,7 +2954,7 @@ async function saveReference() {
 }
 
 function editReference(id) {
-  const ref = referencesData.find(r => r.id === id);
+  const ref = referencesData.find(r => String(r.id) === String(id));
   if (!ref) return;
 
   document.getElementById('refFormTitle').textContent = 'Edit Referensi';

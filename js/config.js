@@ -191,13 +191,13 @@ function isModalInputFilled(modal) {
 
   // 2. Check for tool-specific active state
   if (el.id === 'watermarkGeneratorModal') {
-    if (typeof wmSourceImg !== 'undefined' && wmSourceImg) return true;
+    if ((typeof currentWmImage !== 'undefined' && currentWmImage) || (typeof wmSourceImg !== 'undefined' && wmSourceImg)) return true;
   }
   if (el.id === 'projectPreviewBlenderModal') {
-    if (typeof pbMockupImg !== 'undefined' && (pbMockupImg || pbDesignImg)) return true;
+    if ((typeof pbMockupImage !== 'undefined' && (pbMockupImage || pbDesignImage)) || (typeof pbMockupImg !== 'undefined' && (pbMockupImg || pbDesignImg))) return true;
   }
   if (el.id === 'logoPhilosophyModal') {
-    if (typeof logoSourceImg !== 'undefined' && logoSourceImg) return true;
+    if ((typeof currentLogoImage !== 'undefined' && currentLogoImage) || (typeof logoSourceImg !== 'undefined' && logoSourceImg)) return true;
   }
 
   return false;
