@@ -278,14 +278,13 @@ function renderDeviceInfo() {
     browser = "Internet Explorer";
   }
 
-  // Get login time from sessionStorage (set it if not found)
-  let loginTime = sessionStorage.getItem("login_time");
-  if (!loginTime) {
-    loginTime = new Date().toISOString();
-    sessionStorage.setItem("login_time", loginTime);
-  }
+  // Get login time from SessionManager / Storage
+  let loginTimestamp = (typeof SessionManager !== 'undefined' && SessionManager.getLoginTime) 
+    ? SessionManager.getLoginTime() 
+    : (sessionStorage.getItem("auth_login_time") || sessionStorage.getItem("login_time") || Date.now());
+  
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const formattedTime = new Date(loginTime).toLocaleString(isEn ? 'en-US' : 'id-ID', {
+  const formattedTime = new Date(loginTimestamp).toLocaleString(isEn ? 'en-US' : 'id-ID', {
     dateStyle: 'medium',
     timeStyle: 'short'
   });

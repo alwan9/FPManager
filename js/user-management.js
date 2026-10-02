@@ -26,10 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const defaultRolePerms = {
     service: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
-      "laporan:read", "laporan:export",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete"
     ],
     desainer: [
       "proyek:read", "proyek:create", "proyek:update",
@@ -39,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     super_admin: [
       "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
       "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
-      "laporan:read", "laporan:export",
+      "laporan:read", "laporan:export", "laporan:create", "laporan:update", "laporan:delete",
       "tools:read", "tools:create", "tools:update", "tools:delete",
       "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
       "users:read", "users:create", "users:update", "users:delete"

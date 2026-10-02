@@ -686,6 +686,7 @@ label:has(input[type="checkbox"]:checked) {
   backdrop-filter: blur(12px);
   border-top: 1px solid #27272a !important;
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4) !important;
+  padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 #mobileBottomNav .border-zinc-900 {
@@ -725,7 +726,7 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 
 @media (max-width: 767px) {
   main {
-    padding-bottom: 72px !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -1235,6 +1236,31 @@ button.rounded-full {
 #globalPaymentModal,
 [id$="Modal"] {
   background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ======================================================= */
+/* Sticky Bottom Footer Enforcer                           */
+/* ======================================================= */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 100vh;
+}
+
+main > section {
+  flex: 1 0 auto;
+}
+
+footer {
+  margin-top: auto !important;
+  width: 100%;
 }
 
 

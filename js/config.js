@@ -976,12 +976,12 @@ window.addEventListener('load', () => {
 async function clearWebCacheAndHistory(keepLogin = true) {
   try {
     // 1. Backup login session and core configuration
-    const authKeys = ['token', 'user', 'currentUser', 'fp_auth_token', 'fp_auth_user'];
+    const authKeys = ['token', 'user', 'currentUser', 'fp_auth_token', 'fp_auth_user', 'auth_login_time'];
     const configKeys = [
       'cfg_api_url', 'cfg_api_key', 'cfg_gemini_api_key', 'cfg_wa_template',
       'cfg_reminder_interval', 'cfg_notif_style', 'cfg_notif_vibrate',
       'cfg_notif_silent', 'cfg_toast_position', 'cfg_toast_duration',
-      'cfg_lang', 'theme', 'sidebar_collapsed', 'shortcutsOrder'
+      'cfg_lang', 'theme', 'sidebar_collapsed', 'shortcutsOrder', 'last_daily_cleanup'
     ];
 
     const savedSession = {};

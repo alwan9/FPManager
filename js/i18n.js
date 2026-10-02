@@ -8,6 +8,9 @@ const TRANSLATIONS = {
     "nav-laporan": "Laporan",
     "nav-admin-tasks": "Aktivitas Admin",
     "nav-pengaturan": "Pengaturan",
+    "nav-tools": "Tools",
+    "nav-profile": "Profile",
+    "nav-profil": "Profile",
     "nav-logout": "Logout",
     "nav-install": "Install Aplikasi",
 
@@ -263,6 +266,9 @@ const TRANSLATIONS = {
     "nav-laporan": "Reports",
     "nav-admin-tasks": "Admin Tasks",
     "nav-pengaturan": "Settings",
+    "nav-tools": "Tools",
+    "nav-profile": "Profile",
+    "nav-profil": "Profile",
     "nav-logout": "Logout",
     "nav-install": "Install App",
 

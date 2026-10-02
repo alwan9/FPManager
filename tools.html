@@ -17,7 +17,8 @@
   <title>Tools & Prompts - FPManager</title>
   <!-- meta informasi -->
   <meta name="title" content="Tools & Prompts - FPManager">
-  <meta name="description" content="Koleksi shortcut prompt AI desain, preview & gabung mockup blender, watermark generator, dan panduan ukuran standar desain.">
+  <meta name="description"
+    content="Koleksi shortcut prompt AI desain, preview & gabung mockup blender, watermark generator, dan panduan ukuran standar desain.">
   <meta name="author" content="Alwan">
   <meta name="theme-color" content="#2563EB">
 
@@ -37,10 +38,8 @@
   <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Desktop Sidebar Navigation -->
-    <aside
-      class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
-      <div
-        class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
+    <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
+      <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
         <a href="index.html" class="flex items-center space-x-3 logo-full">
           <img src="./assets/img/logo.png" class="w-36" alt="FPManager Logo">
         </a>
@@ -50,8 +49,7 @@
       </div>
 
       <!-- Navigation Links (Desktop) -->
-      <nav id="navMenu"
-        class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
+      <nav id="navMenu" class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
         <a href="index.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-base w-5"></i>
@@ -133,7 +131,8 @@
       <!-- 3. Tambah (Center Prominent Action) -->
       <a href="tambah-proyek.html" data-permission-allow="proyek:create"
         class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none" title="Tambah Projek">
-        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
+        <div
+          class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
           <i class="fa-solid fa-plus text-base"></i>
         </div>
         <span class="text-[10px] font-bold text-zinc-200 mt-0.5" data-i18n="nav-tambah">Tambah</span>
@@ -251,7 +250,8 @@
             class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 font-bold rounded-xl shadow-xs text-xs active:scale-95 transition-transform gap-1">
             <i id="shortcutsToggleIconMobile" class="fa-solid fa-eye text-emerald-500 text-xs"></i>
             <span id="shortcutsToggleTextMobile">Shortcuts</span>
-            <span id="shortcutsToggleBadgeMobile" class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-0.5">ON</span>
+            <span id="shortcutsToggleBadgeMobile"
+              class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-0.5">ON</span>
           </button>
           <button onclick="openAddShortcutModal()" data-permission-allow="tools:create"
             class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
@@ -285,7 +285,8 @@
               class="tool-banner-slide w-full flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 transition-all duration-500 ease-out transform translate-x-0 opacity-100 relative">
               <div class="pr-4">
                 <div class="flex items-center space-x-2">
-                  <span class="px-2 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 text-[10px] font-bold tracking-wider uppercase border border-indigo-400/20">Shortcuts</span>
+                  <span
+                    class="px-2 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 text-[10px] font-bold tracking-wider uppercase border border-indigo-400/20">Shortcuts</span>
                   <h3 class="text-xl md:text-2xl font-bold tracking-tight flex items-center text-white">
                     <span>Web Shortcuts</span>
                     <i class="fa-solid fa-globe ml-2 text-indigo-200 text-lg"></i>
@@ -303,7 +304,8 @@
                   title="Tampilkan / Sembunyikan Shortcuts">
                   <i id="shortcutsToggleIcon" class="fa-solid fa-eye text-xs text-emerald-300"></i>
                   <span id="shortcutsToggleText">Shortcuts</span>
-                  <span id="shortcutsToggleBadge" class="px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">ON</span>
+                  <span id="shortcutsToggleBadge"
+                    class="px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">ON</span>
                 </button>
 
                 <button onclick="openAddShortcutModal()" data-permission-allow="tools:create"
@@ -319,7 +321,9 @@
               class="tool-banner-slide w-full flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 transition-all duration-500 ease-out transform translate-x-8 opacity-0 pointer-events-none absolute inset-0">
               <div class="pr-4">
                 <div class="flex items-center space-x-2">
-                  <span class="px-2 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 text-[10px] font-bold tracking-wider uppercase border border-indigo-400/20">AI Prompts</span>
+                  <span
+                    class="px-2 py-0.5 rounded-md bg-indigo-500/30 text-indigo-200 text-[10px] font-bold tracking-wider uppercase border border-indigo-400/20">AI
+                    Prompts</span>
                   <h3 class="text-xl md:text-2xl font-bold tracking-tight flex items-center text-white">
                     <span>Kumpulan Shortcut Prompt</span>
                     <i class="fa-solid fa-terminal ml-2 text-indigo-200 text-lg"></i>
@@ -345,18 +349,26 @@
           <div class="flex items-center justify-between pt-3 mt-2 border-t border-white/10 dark:border-zinc-800/80">
             <!-- Left & Right Arrow Buttons -->
             <div class="flex items-center space-x-1.5">
-              <button onclick="prevToolBannerSlide()" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-[10px] transition-colors focus:outline-none" title="Slide Sebelumnya">
+              <button onclick="prevToolBannerSlide()"
+                class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-[10px] transition-colors focus:outline-none"
+                title="Slide Sebelumnya">
                 <i class="fa-solid fa-chevron-left"></i>
               </button>
-              <button onclick="nextToolBannerSlide()" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-[10px] transition-colors focus:outline-none" title="Slide Berikutnya">
+              <button onclick="nextToolBannerSlide()"
+                class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-[10px] transition-colors focus:outline-none"
+                title="Slide Berikutnya">
                 <i class="fa-solid fa-chevron-right"></i>
               </button>
             </div>
 
             <!-- Slide Dots -->
             <div class="flex items-center space-x-1.5">
-              <button onclick="goToToolBannerSlide(0)" id="toolBannerDot-0" class="tool-banner-dot w-6 h-1.5 rounded-full bg-white transition-all duration-300 focus:outline-none" aria-label="Web Shortcuts Slide"></button>
-              <button onclick="goToToolBannerSlide(1)" id="toolBannerDot-1" class="tool-banner-dot w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 focus:outline-none" aria-label="Shortcut Prompt Slide"></button>
+              <button onclick="goToToolBannerSlide(0)" id="toolBannerDot-0"
+                class="tool-banner-dot w-6 h-1.5 rounded-full bg-white transition-all duration-300 focus:outline-none"
+                aria-label="Web Shortcuts Slide"></button>
+              <button onclick="goToToolBannerSlide(1)" id="toolBannerDot-1"
+                class="tool-banner-dot w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 focus:outline-none"
+                aria-label="Shortcut Prompt Slide"></button>
             </div>
           </div>
 
@@ -366,43 +378,7 @@
           <!-- Web shortcuts populated here -->
         </div>
 
-        <!-- Excel Tools & Prompt Management Card (Import & Export - Hidden on Mobile) -->
-        <div class="hidden md:flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-6 shadow-sm flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div class="flex items-start space-x-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 border border-emerald-100 dark:border-emerald-800/60 shadow-xs">
-              <i class="fa-solid fa-file-excel"></i>
-            </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <h3 class="text-base md:text-lg font-bold text-zinc-900 dark:text-zinc-100">Import & Export Tools & Prompt Excel</h3>
-                <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">Tools & Prompt</span>
-              </div>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-2xl leading-relaxed">
-                Kelola data tools dan prompt secara massal dengan format Excel (.xlsx). Unduh template resmi, import batch tools dan prompt baru dengan validasi otomatis, atau export seluruh data database.
-              </p>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 md:gap-2.5 shrink-0">
-            <button onclick="downloadProjectTemplateExcel()"
-              class="inline-flex items-center px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold border border-zinc-200 dark:border-zinc-700 shadow-xs transition-all"
-              title="Unduh Template Excel Format Resmi">
-              <i class="fa-solid fa-file-arrow-down mr-1.5 text-indigo-500"></i>
-              <span>Template Excel</span>
-            </button>
-            <button onclick="openImportModal()" data-permission-allow="proyek:create"
-              class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md hover:shadow-indigo-500/20 transition-all"
-              title="Upload File Excel untuk Menambah Tools & Prompt Massal">
-              <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>
-              <span>Import Tools & Prompt</span>
-            </button>
-            <button onclick="openExportModal()" data-permission-allow="proyek:read"
-              class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md hover:shadow-emerald-500/20 transition-all"
-              title="Ekspor Data Tools & Prompt ke Excel">
-              <i class="fa-solid fa-download mr-1.5"></i>
-              <span>Export Tools & Prompt</span>
-            </button>
-          </div>
-        </div>
+
 
         <!-- Search Bar for Prompts -->
         <div class="relative">
@@ -634,7 +610,7 @@
       <!-- Footer -->
       <footer
         class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
-        &copy; <span id="currentYear"></span> Freelance Projek Manager. All rights reserved.
+        &copy; 2026 Freelance Projek Manager. Created by Alwan.
       </footer>
     </main>
   </div>
@@ -736,7 +712,8 @@
   </div>
 
   <!-- Modal Project Preview Blender -->
-  <div id="projectPreviewBlenderModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeProjectPreviewBlenderModal()"
+  <div id="projectPreviewBlenderModal"
+    onclick="if(event.target === this && !isModalInputFilled(this)) closeProjectPreviewBlenderModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div
@@ -1056,7 +1033,8 @@
                 class="hidden space-y-3.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/40 animate-fade-in">
                 <div>
                   <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Isi Teks</label>
-                  <input type="text" id="pbWmText" value="@premium_dz" placeholder="@premium_dz" oninput="updatePbCanvas()"
+                  <input type="text" id="pbWmText" value="@premium_dz" placeholder="@premium_dz"
+                    oninput="updatePbCanvas()"
                     class="w-full px-3 py-2 text-base bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-medium focus:ring-2 focus:ring-indigo-500">
                 </div>
 
@@ -1155,7 +1133,8 @@
   </div>
 
   <!-- Modal Watermark Generator (Tanpa Permission - Dashboard 2 Kolom Sejajar) -->
-  <div id="watermarkGeneratorModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeWatermarkModal()"
+  <div id="watermarkGeneratorModal"
+    onclick="if(event.target === this && !isModalInputFilled(this)) closeWatermarkModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div
@@ -1229,14 +1208,16 @@
               <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
                 <i class="fa-solid fa-stamp text-indigo-500"></i> Pengaturan Foto Watermark
               </span>
-              <span id="wmAutoBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+              <span id="wmAutoBadge"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
                 Auto Detect
               </span>
             </div>
 
             <!-- 1. Pilihan Varian Foto Watermark -->
             <div>
-              <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Pilih Foto Watermark</label>
+              <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Pilih Foto
+                Watermark</label>
               <div class="grid grid-cols-2 gap-1.5" id="wmVariantGroup">
                 <button type="button" onclick="selectWmVariant('auto')" id="wmVariantBtn-auto"
                   class="wm-variant-btn active px-2 py-1.5 rounded-xl border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
@@ -1244,34 +1225,45 @@
                 </button>
                 <button type="button" onclick="selectWmVariant('white')" id="wmVariantBtn-white"
                   class="wm-variant-btn px-2 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:border-zinc-300 dark:hover:border-zinc-600 flex items-center justify-center gap-1.5 transition-all">
-                  <span class="w-3 h-3 rounded-full bg-white border border-zinc-300 shadow-2xs inline-block"></span> Putih
+                  <span class="w-3 h-3 rounded-full bg-white border border-zinc-300 shadow-2xs inline-block"></span>
+                  Putih
                 </button>
                 <button type="button" onclick="selectWmVariant('black')" id="wmVariantBtn-black"
                   class="wm-variant-btn px-2 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:border-zinc-300 dark:hover:border-zinc-600 flex items-center justify-center gap-1.5 transition-all">
-                  <span class="w-3 h-3 rounded-full bg-zinc-900 border border-zinc-700 shadow-2xs inline-block"></span> Hitam
+                  <span class="w-3 h-3 rounded-full bg-zinc-900 border border-zinc-700 shadow-2xs inline-block"></span>
+                  Hitam
                 </button>
                 <button type="button" onclick="selectWmVariant('warna')" id="wmVariantBtn-warna"
                   class="wm-variant-btn px-2 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:border-zinc-300 dark:hover:border-zinc-600 flex items-center justify-center gap-1.5 transition-all">
-                  <span class="w-3 h-3 rounded-full bg-gradient-to-tr from-pink-500 via-amber-400 to-indigo-500 shadow-2xs inline-block"></span> Berwarna
+                  <span
+                    class="w-3 h-3 rounded-full bg-gradient-to-tr from-pink-500 via-amber-400 to-indigo-500 shadow-2xs inline-block"></span>
+                  Berwarna
                 </button>
               </div>
 
               <!-- Mini Watermark Preview & Custom Upload Button -->
-              <div class="mt-2 p-2 bg-white dark:bg-zinc-800/80 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-between">
+              <div
+                class="mt-2 p-2 bg-white dark:bg-zinc-800/80 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-between">
                 <div class="flex items-center space-x-2 overflow-hidden">
-                  <div class="w-9 h-9 rounded-lg bg-zinc-200 dark:bg-zinc-700/60 p-1 flex items-center justify-center shrink-0 border border-zinc-300 dark:border-zinc-600">
-                    <img id="wmActiveThumb" src="assets/watermark/wm_white.png" alt="Watermark Preview" class="max-w-full max-h-full object-contain">
+                  <div
+                    class="w-9 h-9 rounded-lg bg-zinc-200 dark:bg-zinc-700/60 p-1 flex items-center justify-center shrink-0 border border-zinc-300 dark:border-zinc-600">
+                    <img id="wmActiveThumb" src="assets/watermark/wm_white.png" alt="Watermark Preview"
+                      class="max-w-full max-h-full object-contain">
                   </div>
                   <div class="truncate">
-                    <p class="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 truncate" id="wmActiveName">Watermark Putih</p>
+                    <p class="text-[11px] font-bold text-zinc-800 dark:text-zinc-200 truncate" id="wmActiveName">
+                      Watermark Putih</p>
                     <p class="text-[10px] text-zinc-400 dark:text-zinc-500" id="wmActiveStatus">Auto: Kontras Gelap</p>
                   </div>
                 </div>
 
-                <label class="cursor-pointer px-2 py-1 bg-zinc-100 dark:bg-zinc-700/80 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 text-[10px] font-bold rounded-lg transition-colors shrink-0 flex items-center gap-1" title="Upload watermark kustom (PNG transparan)">
+                <label
+                  class="cursor-pointer px-2 py-1 bg-zinc-100 dark:bg-zinc-700/80 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 text-[10px] font-bold rounded-lg transition-colors shrink-0 flex items-center gap-1"
+                  title="Upload watermark kustom (PNG transparan)">
                   <i class="fa-solid fa-upload text-[10px]"></i>
                   <span>Kustom</span>
-                  <input type="file" id="wmCustomFileInput" accept="image/png,image/webp,image/jpeg" onchange="handleCustomWmFile(event)" class="hidden">
+                  <input type="file" id="wmCustomFileInput" accept="image/png,image/webp,image/jpeg"
+                    onchange="handleCustomWmFile(event)" class="hidden">
                 </label>
               </div>
             </div>
@@ -1367,7 +1359,8 @@
   </div>
 
   <!-- Modal Panduan Ukuran & Konversi Satuan (Tanpa Permission - Clean UI) -->
-  <div id="sizeCheatSheetModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeSizeCheatSheetModal()"
+  <div id="sizeCheatSheetModal"
+    onclick="if(event.target === this && !isModalInputFilled(this)) closeSizeCheatSheetModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 overflow-y-auto backdrop-blur-md transition-all duration-300">
     <div
@@ -1440,7 +1433,8 @@
   </div>
 
   <!-- Modal AI Generator Filosofi Logo & Brand Story -->
-  <div id="logoPhilosophyModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeLogoPhilosophyModal()"
+  <div id="logoPhilosophyModal"
+    onclick="if(event.target === this && !isModalInputFilled(this)) closeLogoPhilosophyModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div
@@ -1652,37 +1646,46 @@
   <div id="exportModal" onclick="if(event.target === this) closeExportModal()"
     style="background-color: rgba(0, 0, 0, 0.65);"
     class="fixed inset-0 hidden items-center justify-center z-50 p-4 backdrop-blur-sm transition-all duration-300">
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+    <div
+      class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800 mb-5">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <i class="fa-solid fa-file-excel text-lg"></i>
           </div>
           <div>
             <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">Export Data Tools & Prompt</h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Unduh data tools dan prompt dalam format Excel (.xlsx)</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Unduh data tools dan prompt dalam format Excel (.xlsx)
+            </p>
           </div>
         </div>
-        <button onclick="closeExportModal()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg">
+        <button onclick="closeExportModal()"
+          class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">Pilih Rentang Data</label>
+          <label
+            class="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">Pilih
+            Rentang Data</label>
           <div class="grid grid-cols-3 gap-2">
-            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
+            <label
+              class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
               <input type="radio" name="periode" value="all" checked class="hidden">
               <i class="fa-solid fa-layer-group mb-1"></i>
               <span class="text-xs font-semibold">Semua Data</span>
             </label>
-            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
+            <label
+              class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
               <input type="radio" name="periode" value="month" class="hidden">
               <i class="fa-solid fa-calendar-days mb-1"></i>
               <span class="text-xs font-semibold">Bulanan</span>
             </label>
-            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
+            <label
+              class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
               <input type="radio" name="periode" value="year" class="hidden">
               <i class="fa-solid fa-calendar mb-1"></i>
               <span class="text-xs font-semibold">Tahunan</span>
@@ -1693,7 +1696,8 @@
         <div class="grid grid-cols-2 gap-3 pt-2">
           <div>
             <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Bulan</label>
-            <select id="bulan" class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <select id="bulan"
+              class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
               <option value="1">Januari</option>
               <option value="2">Februari</option>
               <option value="3">Maret</option>
@@ -1710,13 +1714,16 @@
           </div>
           <div>
             <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Tahun</label>
-            <input id="tahun" type="number" value="2026" class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <input id="tahun" type="number" value="2026"
+              class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
         </div>
 
-        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-start space-x-2">
+        <div
+          class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-start space-x-2">
           <i class="fa-solid fa-circle-check mt-0.5"></i>
-          <span>Data hasil export menggunakan format resmi dan dapat digunakan langsung untuk keperluan Import / backup.</span>
+          <span>Data hasil export menggunakan format resmi dan dapat digunakan langsung untuk keperluan Import /
+            backup.</span>
         </div>
       </div>
 
@@ -1738,21 +1745,25 @@
   <div id="importExcelModal" onclick="if(event.target === this) closeImportModal()"
     style="background-color: rgba(0, 0, 0, 0.65);"
     class="fixed inset-0 hidden items-center justify-center z-50 p-3 md:p-6 backdrop-blur-sm transition-all duration-300 overflow-y-auto">
-    
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-4xl p-5 md:p-6 shadow-2xl my-auto flex flex-col max-h-[90vh]">
-      
+
+    <div
+      class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-4xl p-5 md:p-6 shadow-2xl my-auto flex flex-col max-h-[90vh]">
+
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800 flex-shrink-0">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
             <i class="fa-solid fa-file-arrow-up text-lg"></i>
           </div>
           <div>
             <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-100">Import Tools & Prompt melalui Excel</h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Tambah data tools dan prompt secara massal dengan validasi otomatis</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Tambah data tools dan prompt secara massal dengan
+              validasi otomatis</p>
           </div>
         </div>
-        <button onclick="closeImportModal()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-lg">
+        <button onclick="closeImportModal()"
+          class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-lg">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -1760,13 +1771,15 @@
       <!-- STEP 1: Upload File & Panduan -->
       <div id="importStep1" class="py-6 space-y-6 flex-1 overflow-y-auto">
         <!-- Quick Template Download Card -->
-        <div class="p-4 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div
+          class="p-4 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div class="flex items-start space-x-3">
             <i class="fa-solid fa-lightbulb text-indigo-600 dark:text-indigo-400 text-lg mt-0.5"></i>
             <div>
               <h4 class="text-xs font-bold text-indigo-900 dark:text-indigo-200">Gunakan Template Resmi</h4>
               <p class="text-[11px] text-indigo-700 dark:text-indigo-300 mt-0.5">
-                Pastikan file mengikuti format template resmi dengan pilihan status & metode pembayaran yang valid di sistem.
+                Pastikan file mengikuti format template resmi dengan pilihan status & metode pembayaran yang valid di
+                sistem.
               </p>
             </div>
           </div>
@@ -1778,14 +1791,15 @@
         </div>
 
         <!-- Drag & Drop Zone -->
-        <div id="importDropzone"
-          onclick="document.getElementById('excelFileInput').click()"
+        <div id="importDropzone" onclick="document.getElementById('excelFileInput').click()"
           ondragover="event.preventDefault(); this.classList.add('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/20')"
           ondragleave="this.classList.remove('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/20')"
           ondrop="event.preventDefault(); this.classList.remove('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/20'); if(event.dataTransfer.files.length) handleProjectExcelFile(event.dataTransfer.files[0])"
           class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-500 transition-all">
-          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="if(this.files.length) handleProjectExcelFile(this.files[0])">
-          <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-indigo-500">
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden"
+            onchange="if(this.files.length) handleProjectExcelFile(this.files[0])">
+          <div
+            class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-indigo-500">
             <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-500"></i>
           </div>
           <h4 class="text-sm font-bold text-zinc-800 dark:text-zinc-200">Klik atau seret file Excel ke sini</h4>
@@ -1793,15 +1807,18 @@
         </div>
 
         <!-- Selected File Indicator -->
-        <div id="importFileInfo" class="hidden p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl flex items-center justify-between">
+        <div id="importFileInfo"
+          class="hidden p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl flex items-center justify-between">
           <div class="flex items-center space-x-3 truncate">
             <i class="fa-solid fa-file-excel text-emerald-600 text-lg"></i>
             <div class="truncate">
-              <span id="importFileName" class="text-xs font-bold text-zinc-800 dark:text-zinc-200 block truncate">nama_file.xlsx</span>
+              <span id="importFileName"
+                class="text-xs font-bold text-zinc-800 dark:text-zinc-200 block truncate">nama_file.xlsx</span>
               <span id="importFileSize" class="text-[10px] text-zinc-400">0 KB</span>
             </div>
           </div>
-          <button onclick="document.getElementById('excelFileInput').click()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+          <button onclick="document.getElementById('excelFileInput').click()"
+            class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
             Ganti File
           </button>
         </div>
@@ -1809,25 +1826,29 @@
 
       <!-- STEP 2: Preview & Validasi Detail -->
       <div id="importStep2" class="hidden py-4 space-y-4 flex-1 flex flex-col min-h-0 overflow-hidden">
-        
+
         <!-- Summary Stats Cards -->
         <div class="grid grid-cols-3 gap-3 flex-shrink-0">
-          <div class="p-3 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
+          <div
+            class="p-3 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block">Total Baris</span>
             <span id="importCountTotal" class="text-xl font-extrabold text-zinc-800 dark:text-zinc-100">0</span>
           </div>
-          <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
+          <div
+            class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Siap Diimport</span>
             <span id="importCountValid" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
-          <div class="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
+          <div
+            class="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 block">Bermasalah / Error</span>
             <span id="importCountInvalid" class="text-xl font-extrabold text-rose-600 dark:text-rose-400">0</span>
           </div>
         </div>
 
         <!-- Warning Banner for Errors -->
-        <div id="importWarningBanner" class="hidden p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-start space-x-2 flex-shrink-0">
+        <div id="importWarningBanner"
+          class="hidden p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-start space-x-2 flex-shrink-0">
           <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
           <span id="importWarningText">Terdapat data bermasalah.</span>
         </div>
@@ -1835,17 +1856,23 @@
         <!-- Filter Tabs -->
         <div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 flex-shrink-0">
           <div class="flex space-x-4">
-            <button id="tabPreviewAll" onclick="filterImportPreview('all')" class="pb-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600">
+            <button id="tabPreviewAll" onclick="filterImportPreview('all')"
+              class="pb-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600">
               Semua Baris
             </button>
-            <button id="tabPreviewValid" onclick="filterImportPreview('valid')" class="pb-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 border-b-2 border-transparent flex items-center gap-1.5">
-              Siap Import <span id="badgeTabValid" class="px-1.5 py-0.2 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 rounded-full text-[10px] font-bold">0</span>
+            <button id="tabPreviewValid" onclick="filterImportPreview('valid')"
+              class="pb-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 border-b-2 border-transparent flex items-center gap-1.5">
+              Siap Import <span id="badgeTabValid"
+                class="px-1.5 py-0.2 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 rounded-full text-[10px] font-bold">0</span>
             </button>
-            <button id="tabPreviewInvalid" onclick="filterImportPreview('invalid')" class="pb-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 border-b-2 border-transparent flex items-center gap-1.5">
-              Bermasalah <span id="badgeTabInvalid" class="px-1.5 py-0.2 bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400 rounded-full text-[10px] font-bold">0</span>
+            <button id="tabPreviewInvalid" onclick="filterImportPreview('invalid')"
+              class="pb-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 border-b-2 border-transparent flex items-center gap-1.5">
+              Bermasalah <span id="badgeTabInvalid"
+                class="px-1.5 py-0.2 bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400 rounded-full text-[10px] font-bold">0</span>
             </button>
           </div>
-          <button onclick="document.getElementById('excelFileInput').click()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline pb-2">
+          <button onclick="document.getElementById('excelFileInput').click()"
+            class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline pb-2">
             <i class="fa-solid fa-rotate mr-1"></i> Ganti File
           </button>
         </div>
@@ -1872,14 +1899,17 @@
 
         <!-- Actions -->
         <div class="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800 flex-shrink-0">
-          <button onclick="showImportStep(1)" class="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition-colors">
+          <button onclick="showImportStep(1)"
+            class="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition-colors">
             <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali
           </button>
           <div class="flex items-center space-x-3">
-            <button onclick="closeImportModal()" class="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition-colors">
+            <button onclick="closeImportModal()"
+              class="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold transition-colors">
               Batal
             </button>
-            <button id="btnExecuteImport" onclick="executeBatchImport()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md transition-all flex items-center">
+            <button id="btnExecuteImport" onclick="executeBatchImport()"
+              class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md transition-all flex items-center">
               <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Import Data Valid
             </button>
           </div>
@@ -1888,12 +1918,14 @@
 
       <!-- STEP 3: Progress & Hasil Import -->
       <div id="importStep3" class="hidden py-8 space-y-6 flex-1 text-center">
-        <div class="w-16 h-16 mx-auto rounded-2xl bg-indigo-100 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-2xl">
+        <div
+          class="w-16 h-16 mx-auto rounded-2xl bg-indigo-100 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-2xl">
           <i class="fa-solid fa-spinner fa-spin"></i>
         </div>
         <div>
           <h4 class="text-base font-bold text-zinc-900 dark:text-zinc-100">Memproses Import Data ke Sistem</h4>
-          <p id="importProgressDetail" class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Menyimpan data tools & prompt ke sistem...</p>
+          <p id="importProgressDetail" class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Menyimpan data tools &
+            prompt ke sistem...</p>
         </div>
 
         <!-- Progress Bar -->
@@ -1908,7 +1940,8 @@
         </div>
 
         <div id="btnFinishImport" class="hidden pt-4">
-          <button onclick="closeImportModal()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg transition-all">
+          <button onclick="closeImportModal()"
+            class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg transition-all">
             <i class="fa-solid fa-check mr-2"></i> Selesai & Tutup
           </button>
         </div>
@@ -1917,27 +1950,27 @@
     </div>
   </div>
 
-    <!-- Load Global Scripts -->
-    <script src="js/toast.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/pwa.js"></script>
-    <script src="js/theme.js"></script>
-    <script src="js/api.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="js/excel.js"></script>
-    <script src="js/tools.js"></script>
+  <!-- Load Global Scripts -->
+  <script src="js/toast.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/api.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="js/excel.js"></script>
+  <script src="js/tools.js"></script>
 
 
-    <script>
-      // Populate footer current year
-      document.addEventListener('DOMContentLoaded', () => {
-        const yr = document.getElementById('currentYear');
-        if (yr) yr.textContent = new Date().getFullYear();
-      });
-    </script>
+  <script>
+    // Populate footer current year
+    document.addEventListener('DOMContentLoaded', () => {
+      const yr = document.getElementById('currentYear');
+      if (yr) yr.textContent = new Date().getFullYear();
+    });
+  </script>
 </body>
 
 </html>
