@@ -348,7 +348,7 @@
             #invoiceArea {
                 border: none !important;
                 box-shadow: none !important;
-                padding: 10mm !important;
+                padding: 0 8mm 8mm 8mm !important;
                 margin: 0 !important;
                 width: 100% !important;
                 max-height: 297mm !important;
@@ -437,7 +437,7 @@
         <!-- Invoice -->
 
         <div id="invoiceArea"
-            class="bg-white invoice-light-mode rounded-xl shadow-xl border border-zinc-200 p-4 sm:p-6 md:p-10 relative overflow-hidden text-xs md:text-base">
+            class="bg-white invoice-light-mode rounded-xl shadow-xl border border-zinc-200 px-4 sm:px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-10 relative overflow-hidden text-xs md:text-base">
 
             <!-- Top Accent Gradient Line -->
             <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-600 to-purple-600 z-20"></div>
@@ -449,8 +449,8 @@
             <div class="ornament-1 absolute top-0 right-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(40px); background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
             <div class="ornament-2 absolute bottom-0 left-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(-40px); background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
 
-            <div class="relative z-10 space-y-8">
-                <div class="flex justify-between border-b pb-6 invoice-header-border">
+            <div class="relative z-10 space-y-6 md:space-y-8">
+                <div class="flex justify-between border-b pb-4 md:pb-6 invoice-header-border">
 
                     <div>
 
@@ -698,43 +698,37 @@
 
         <!-- Action -->
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-8 no-print ">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-8 no-print">
 
             <button id="btnSaveInvoice"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
-                <i class="fa fa-save mr-2"></i>
-                <span>Simpan Perubahan</span>
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-3.5 rounded-lg font-semibold flex items-center justify-center text-xs sm:text-sm shadow-sm transition-all">
+                <i class="fa fa-save mr-1.5 sm:mr-2"></i>
+                <span>Simpan</span>
             </button>
             <button id="btnResetInvoice"
-                class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
-                <i class="fa fa-undo mr-2"></i>
+                class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-3.5 rounded-lg font-semibold flex items-center justify-center text-xs sm:text-sm shadow-sm transition-all">
+                <i class="fa fa-undo mr-1.5 sm:mr-2"></i>
                 <span>Reset</span>
             </button>
+            <button id="btnPNG"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-3.5 rounded-lg font-semibold flex items-center justify-center text-xs sm:text-sm shadow-sm transition-all">
+                <i class="fa-solid fa-file-image mr-1.5 sm:mr-2"></i>
+                <span>Download PNG</span>
+            </button>
             <button id="btnPDF"
-                class="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
-
-                <i class="fa fa-file-pdf mr-2"></i>
-
+                class="bg-red-600 hover:bg-red-700 text-white px-3 py-3.5 rounded-lg font-semibold flex items-center justify-center text-xs sm:text-sm shadow-sm transition-all">
+                <i class="fa fa-file-pdf mr-1.5 sm:mr-2"></i>
                 <span data-i18n="inv-btn-pdf">Download PDF</span>
-
             </button>
-
             <button onclick="window.print()"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
-
-                <i class="fa fa-print mr-2"></i>
-
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-3.5 rounded-lg font-semibold flex items-center justify-center text-xs sm:text-sm shadow-sm transition-all">
+                <i class="fa fa-print mr-1.5 sm:mr-2"></i>
                 <span data-i18n="inv-btn-print">Print</span>
-
             </button>
-
             <button onclick="history.back()"
-                class="bg-zinc-700 hover:bg-zinc-800 text-white px-6 py-4 rounded-lg font-semibold flex items-center justify-center">
-
-                <i class="fa fa-arrow-left mr-2"></i>
-
+                class="bg-zinc-700 hover:bg-zinc-800 text-white px-3 py-3.5 rounded-lg font-semibold flex items-center justify-center text-xs sm:text-sm shadow-sm transition-all">
+                <i class="fa fa-arrow-left mr-1.5 sm:mr-2"></i>
                 <span data-i18n="inv-btn-back">Kembali</span>
-
             </button>
 
         </div>

@@ -28,11 +28,20 @@ const Invoice = {
             }
             this.loadInvoice(id);
             this.setupEditable();
-            document
-                .getElementById("btnPDF")
-                .addEventListener("click", () => {
+
+            const btnPDF = document.getElementById("btnPDF");
+            if (btnPDF) {
+                btnPDF.addEventListener("click", () => {
                     this.exportPDF();
                 });
+            }
+
+            const btnPNG = document.getElementById("btnPNG");
+            if (btnPNG) {
+                btnPNG.addEventListener("click", () => {
+                    this.exportPNG();
+                });
+            }
         } catch (err) {
             console.error(err);
             Toast.error(
@@ -359,7 +368,7 @@ const Invoice = {
         }
 
         const invoice = document.getElementById("invoiceArea");
-        const invNo = document.getElementById("previewInvoiceNo") ? document.getElementById("previewInvoiceNo").innerText : 'FPManager';
+        const invNo = document.getElementById("previewInvoiceNo") ? document.getElementById("previewInvoiceNo").innerText.trim() : 'FPManager';
         const prefix = (this.docType === 'nota') ? 'Nota' : 'Invoice';
         const fileName = `${prefix}-${invNo}.pdf`;
 
@@ -381,7 +390,7 @@ const Invoice = {
         if (typeof html2pdf !== 'undefined') {
             const isDark = (this.invoiceTheme === 'dark');
             html2pdf().set({
-                margin: 0.2,
+                margin: [0, 0, 0, 0],
                 filename: fileName,
                 image: {
                     type: "jpeg",
@@ -391,10 +400,12 @@ const Invoice = {
                     scale: 2,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: isDark ? '#121215' : '#ffffff'
+                    backgroundColor: isDark ? '#121215' : '#ffffff',
+                    scrollY: 0,
+                    scrollX: 0
                 },
                 jsPDF: {
-                    unit: "in",
+                    unit: "mm",
                     format: "a4",
                     orientation: "portrait"
                 }
@@ -414,6 +425,76 @@ const Invoice = {
         } else {
             resetBtn();
             window.print();
+        }
+    },
+
+    exportPNG() {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        const btnPNG = document.getElementById("btnPNG");
+        if (btnPNG && btnPNG.disabled) return;
+
+        const origHtml = btnPNG ? btnPNG.innerHTML : '';
+        if (btnPNG) {
+            btnPNG.disabled = true;
+            btnPNG.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+            btnPNG.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> ' + (isEn ? 'Exporting...' : 'Mengunduh PNG...');
+        }
+
+        const invoice = document.getElementById("invoiceArea");
+        const invNo = document.getElementById("previewInvoiceNo") ? document.getElementById("previewInvoiceNo").innerText.trim() : 'FPManager';
+        const prefix = (this.docType === 'nota') ? 'Nota' : 'Invoice';
+        const fileName = `${prefix}-${invNo}.png`;
+
+        const resetBtn = () => {
+            if (btnPNG) {
+                btnPNG.disabled = false;
+                btnPNG.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+                btnPNG.innerHTML = origHtml;
+            }
+        };
+
+        if (typeof Toast !== 'undefined') {
+            Toast.info(
+                isEn ? "Generating PNG..." : `Membuat Gambar ${prefix}...`,
+                isEn ? "Please wait while your PNG image is being generated." : `Mohon tunggu, file gambar ${prefix} sedang diproses.`
+            );
+        }
+
+        const isDark = (this.invoiceTheme === 'dark');
+
+        if (typeof html2canvas !== 'undefined') {
+            html2canvas(invoice, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: isDark ? '#121215' : '#ffffff',
+                scrollY: 0,
+                scrollX: 0
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                resetBtn();
+                if (typeof Toast !== 'undefined') {
+                    Toast.success(
+                        isEn ? "PNG Exported" : "PNG Berhasil Diunduh",
+                        isEn ? `${prefix} ${fileName} has been saved.` : `File gambar ${fileName} berhasil disimpan.`
+                    );
+                }
+            }).catch(err => {
+                resetBtn();
+                console.error("html2canvas export error:", err);
+                if (typeof Toast !== 'undefined') {
+                    Toast.error(
+                        isEn ? "Export Failed" : "Gagal Mengunduh PNG",
+                        err.message || (isEn ? "Could not generate PNG image." : "Tidak dapat membuat file PNG.")
+                    );
+                }
+            });
+        } else {
+            resetBtn();
+            if (typeof Toast !== 'undefined') Toast.error('Error', 'Library html2canvas tidak ditemukan.');
         }
     },
     setDocumentType(type) {
