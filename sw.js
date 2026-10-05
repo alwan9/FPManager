@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v142';
+const CACHE_NAME = 'fpmanager-v147';
 
 const urlsToCache = [
   './',
@@ -10,6 +10,7 @@ const urlsToCache = [
   './pengaturan.html',
   './profil.html',
   './invoice.html',
+  './history-invoice.html',
   './tools.html',
   './admin-tasks.html',
   './login.html',
@@ -32,6 +33,7 @@ const urlsToCache = [
   './js/pengaturan.js',
   './js/profil.js',
   './js/invoice.js',
+  './js/history-invoice.js',
   './js/tools.js',
   './js/theme.js',
   './js/toast.js',

@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Active Link Highlight
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  const links = document.querySelectorAll('.sidebar-link');
+  const links = document.querySelectorAll('#navMenu a.sidebar-link:not(.sidebar-sublink)');
   links.forEach(link => {
     const href = link.getAttribute('href');
     if (href === currentPath || (currentPath === '' && href === 'index.html')) {
@@ -71,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
       link.classList.add('text-zinc-400', 'hover:bg-zinc-800', 'hover:text-zinc-100');
     }
   });
+
+  if (typeof Auth !== 'undefined' && Auth.initSidebarNavGroup) {
+    Auth.initSidebarNavGroup();
+  }
 
   // Profile Dropdown Toggle
   const profileDropdownBtn = document.getElementById('profileDropdownBtn');

@@ -1629,25 +1629,215 @@ $(document).on('change', '.proyek-checkbox', function () {
   updateBulkDeleteButton();
 });
 
-// Update status button batch delete
+// Update status button batch delete & batch create invoice
 function updateBulkDeleteButton() {
   const checkedBoxes = $('.proyek-checkbox:checked');
   const count = checkedBoxes.length;
-  const btn = document.getElementById('btnBulkDelete');
-  const countEl = document.getElementById('selectedCount');
-
-  if (btn && countEl) {
-    countEl.textContent = count;
+  
+  // Tombol Hapus Terpilih
+  const btnDelete = document.getElementById('btnBulkDelete');
+  const countDeleteEl = document.getElementById('selectedCount');
+  if (btnDelete && countDeleteEl) {
+    countDeleteEl.textContent = count;
     if (count > 0) {
-      btn.classList.remove('hidden');
-      btn.style.display = 'inline-flex';
-      btn.disabled = false;
+      btnDelete.classList.remove('hidden');
+      btnDelete.style.display = 'inline-flex';
+      btnDelete.disabled = false;
     } else {
-      btn.classList.add('hidden');
-      btn.style.display = 'none';
-      btn.disabled = true;
+      btnDelete.classList.add('hidden');
+      btnDelete.style.display = 'none';
+      btnDelete.disabled = true;
     }
   }
+
+  // Tombol Create Invoice dari Checklist
+  const btnInvoice = document.getElementById('btnBulkCreateInvoice');
+  const countInvoiceEl = document.getElementById('selectedInvoiceCount');
+  if (btnInvoice && countInvoiceEl) {
+    countInvoiceEl.textContent = count;
+    if (count > 0) {
+      btnInvoice.classList.remove('hidden');
+      btnInvoice.style.display = 'inline-flex';
+      btnInvoice.disabled = false;
+    } else {
+      btnInvoice.classList.add('hidden');
+      btnInvoice.style.display = 'none';
+      btnInvoice.disabled = true;
+    }
+  }
+}
+
+// Global helper variables for bulk invoice modal
+window.selectedBulkProyekData = [];
+
+function openBulkInvoiceModal() {
+  const checkedBoxes = $('.proyek-checkbox:checked');
+  const ids = [];
+  checkedBoxes.each(function () {
+    ids.push(String($(this).val()).trim());
+  });
+
+  if (ids.length === 0) {
+    if (typeof Toast !== 'undefined') {
+      Toast.warning("Pilih Item", "Silakan checklist minimal satu projek/item untuk membuat invoice.");
+    }
+    return;
+  }
+
+  // Ambil list objek proyek terpilih
+  const allList = window.allProyekList || [];
+  const selectedProyek = [];
+  ids.forEach(id => {
+    const found = allList.find(p => String(p.iDProyek).trim() === id);
+    if (found) {
+      selectedProyek.push(found);
+    } else {
+      selectedProyek.push({ iDProyek: id, namaProyek: `Projek ${id}`, nominalProyek: 0, namaPelanggan: '-' });
+    }
+  });
+
+  window.selectedBulkProyekData = selectedProyek;
+
+  // Hitung total & ringkasan
+  let totalNom = 0;
+  const itemsContainer = document.getElementById('bulkInvoiceItemsList');
+  if (itemsContainer) {
+    itemsContainer.innerHTML = '';
+    selectedProyek.forEach((item, idx) => {
+      const nom = Number(item.nominalProyek || item.totalPembayaran || 0) || 0;
+      totalNom += nom;
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'flex justify-between items-center py-1 border-b border-indigo-100/50 dark:border-indigo-900/30';
+      rowDiv.innerHTML = `
+        <span class="truncate max-w-[280px]">${idx + 1}. <strong class="text-zinc-800 dark:text-zinc-200">${escapeHtml(item.produk || item.namaProyek || '-')}</strong> (${escapeHtml(String(item.jumlah || 1))} ${escapeHtml(item.satuan || 'pcs')})</span>
+        <span class="font-semibold text-zinc-900 dark:text-zinc-100 ml-2 whitespace-nowrap">${formatRupiah(nom)}</span>
+      `;
+      itemsContainer.appendChild(rowDiv);
+    });
+  }
+
+  const countBadge = document.getElementById('bulkInvoiceSelectedCountBadge');
+  if (countBadge) countBadge.textContent = `${selectedProyek.length} Checklist / Item Dipilih`;
+
+  const totalNomEl = document.getElementById('bulkInvoiceTotalNominal');
+  if (totalNomEl) totalNomEl.textContent = formatRupiah(totalNom);
+
+  // Set default customer name
+  const defaultCustomer = selectedProyek[0] ? (selectedProyek[0].namaPelanggan || 'Pelanggan') : 'Pelanggan';
+  const labelDefaultCust = document.getElementById('labelDefaultCustomerName');
+  if (labelDefaultCust) labelDefaultCust.textContent = defaultCustomer;
+
+  // Reset radio & inputs
+  const optDefault = document.getElementById('optCustomerDefault');
+  if (optDefault) optDefault.checked = true;
+  toggleCustomerCustomInput(false);
+  const customInput = document.getElementById('customCustomerNameInput');
+  if (customInput) customInput.value = defaultCustomer;
+
+  // Tampilkan modal
+  const modal = document.getElementById('modalBulkInvoice');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+}
+
+function closeBulkInvoiceModal() {
+  const modal = document.getElementById('modalBulkInvoice');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+}
+
+function toggleCustomerCustomInput(show) {
+  const container = document.getElementById('customNameInputContainer');
+  if (container) {
+    if (show) {
+      container.classList.remove('hidden');
+      const input = document.getElementById('customCustomerNameInput');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+}
+
+function proceedToBulkInvoice() {
+  const selectedProyek = window.selectedBulkProyekData || [];
+  if (selectedProyek.length === 0) {
+    closeBulkInvoiceModal();
+    return;
+  }
+
+  const isCustom = document.getElementById('optCustomerCustom') && document.getElementById('optCustomerCustom').checked;
+  const defaultName = selectedProyek[0] ? (selectedProyek[0].namaPelanggan || 'Pelanggan') : 'Pelanggan';
+  const customInputVal = document.getElementById('customCustomerNameInput') ? document.getElementById('customCustomerNameInput').value.trim() : '';
+  const finalCustomerName = (isCustom && customInputVal) ? customInputVal : defaultName;
+
+  const phone = selectedProyek[0] ? (selectedProyek[0].nomorWA || '') : '';
+  const projectIds = selectedProyek.map(p => p.iDProyek);
+
+  let totalNominal = 0;
+  let totalDp = 0;
+  let totalPelunasan = 0;
+
+  const items = selectedProyek.map((p, idx) => {
+    const qty = Number(p.jumlah) || 1;
+    const harga = Number(p.hargaSatuan) || (Number(p.nominalProyek || 0) / (qty || 1));
+    const nom = Number(p.nominalProyek || 0);
+    const dpVal = Number(p.dP !== undefined ? p.dP : (p.totalDp || p.dp || 0)) || 0;
+    const pelunasanVal = Number(p.pelunasan !== undefined ? p.pelunasan : (p.totalPelunasan || 0)) || 0;
+
+    totalNominal += nom;
+    totalDp += dpVal;
+    totalPelunasan += pelunasanVal;
+
+    return {
+      no: idx + 1,
+      projectId: p.iDProyek,
+      produk: p.produk || p.namaProyek || `Item ${idx + 1}`,
+      jumlah: qty,
+      satuan: p.satuan || 'pcs',
+      hargaSatuan: harga,
+      nominal: nom,
+      dp: dpVal,
+      pelunasan: pelunasanVal,
+      sisa: Math.max(0, nom - dpVal - pelunasanVal)
+    };
+  });
+
+  const totalSisa = Math.max(0, totalNominal - totalDp - totalPelunasan);
+  const catatanCombined = selectedProyek.map(p => p.catatan).filter(Boolean).join(' | ');
+
+  const invoicePayload = {
+    projectIds: projectIds,
+    primaryProjectId: projectIds[0] || '',
+    customerName: finalCustomerName,
+    customerPhone: phone,
+    isCustomCustomerName: isCustom,
+    originalCustomerName: defaultName,
+    items: items,
+    totalNominal: totalNominal,
+    totalDp: totalDp,
+    totalPelunasan: totalPelunasan,
+    totalSisa: totalSisa,
+    catatan: catatanCombined || '-'
+  };
+
+  try {
+    sessionStorage.setItem('pending_invoice_payload', JSON.stringify(invoicePayload));
+  } catch (e) {
+    console.error("Gagal menyimpan pending_invoice_payload:", e);
+  }
+
+  closeBulkInvoiceModal();
+
+  // Redirect ke invoice.html dengan parameter fromSelection
+  window.location.href = `invoice.html?fromSelection=true&id=${encodeURIComponent(projectIds[0] || '')}`;
 }
 
 // Setup custom search handling

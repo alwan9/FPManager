@@ -1542,6 +1542,229 @@ const API = {
 
     localStorage.setItem("fpmanager_admin_task_settings", JSON.stringify(settingsData));
     return { success: true, message: "Pengaturan pengingat tugas berhasil disimpan." };
+  },
+
+  // ==========================================
+  // INVOICE & HISTORY INVOICE MANAGEMENT APIS
+  // ==========================================
+  getInvoices: async (forceRefresh = false) => {
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "super_admin";
+    const userId = currUser.id || "USR-001";
+    const permissions = JSON.stringify(currUser.permissions || []);
+
+    const getLocalInvoices = () => {
+      try {
+        const local = localStorage.getItem("fpmanager_invoices_db");
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {
+        console.warn("Gagal membaca lokal invoice DB:", e);
+      }
+      return [];
+    };
+
+    try {
+      const url = `${CONFIG.API_URL}?action=getInvoices&apiKey=${CONFIG.API_KEY}&token=${API.getToken()}&role=${encodeURIComponent(role)}&userId=${encodeURIComponent(userId)}&permissions=${encodeURIComponent(permissions)}`;
+      const res = await fetch(url);
+      const json = await res.json();
+
+      if (handleUnauthorized(json)) return [];
+
+      if (json && json.success && Array.isArray(json.data)) {
+        localStorage.setItem("fpmanager_invoices_db", JSON.stringify(json.data));
+        return json.data;
+      }
+    } catch (err) {
+      console.warn("Backend API getInvoices tidak tersedia / offline, menggunakan cache lokal:", err);
+    }
+
+    return getLocalInvoices();
+  },
+
+  getInvoiceById: async (id) => {
+    if (!id) return null;
+    const cleanId = String(id).trim();
+    const invoices = await API.getInvoices();
+    const found = invoices.find(inv => 
+      String(inv.id || '').trim() === cleanId || 
+      String(inv.invoice_id || inv.iDInvoice || inv.invoiceId || '').trim() === cleanId ||
+      String(inv.project_id || inv.iDProyek || '').trim() === cleanId
+    );
+    if (found) return found;
+
+    // Cek juga di localStorage individual edit cache
+    try {
+      const editKey = 'invoice_edit_' + cleanId;
+      const cached = localStorage.getItem(editKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        return {
+          id: cleanId,
+          invoice_id: cleanId,
+          ...parsed
+        };
+      }
+    } catch (e) {}
+
+    return null;
+  },
+
+  saveInvoice: async (invoiceData) => {
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "super_admin";
+    const userId = currUser.id || "USR-001";
+    const permissions = JSON.stringify(currUser.permissions || []);
+
+    const nowIso = new Date().toISOString();
+    const invoiceId = invoiceData.invoice_id || invoiceData.iDInvoice || invoiceData.id || `INV-${Date.now()}`;
+    
+    const prepared = {
+      id: invoiceId,
+      invoice_id: invoiceId,
+      iDInvoice: invoiceId,
+      project_ids: Array.isArray(invoiceData.project_ids) ? invoiceData.project_ids : (invoiceData.project_id ? [invoiceData.project_id] : []),
+      project_id: invoiceData.project_id || (Array.isArray(invoiceData.project_ids) ? invoiceData.project_ids.join(', ') : ''),
+      customer_id: invoiceData.customer_id || '',
+      customer_name: invoiceData.customer_name || invoiceData.namaPelanggan || 'Pelanggan',
+      customer_phone: invoiceData.customer_phone || invoiceData.nomorWA || '',
+      tanggal: invoiceData.tanggal || invoiceData.invoice_date || nowIso.split('T')[0],
+      total: Number(invoiceData.total || 0),
+      dp: Number(invoiceData.dp || 0),
+      pelunasan: Number(invoiceData.pelunasan || 0),
+      sisa: Number(invoiceData.sisa || 0),
+      doc_type: invoiceData.doc_type || 'invoice',
+      invoice_theme: invoiceData.invoice_theme || 'light',
+      show_signature: invoiceData.show_signature !== undefined ? invoiceData.show_signature : true,
+      sign_title: invoiceData.sign_title || 'Hormat Kami,',
+      sign_name: invoiceData.sign_name || 'Premium Designz',
+      catatan: invoiceData.catatan || '',
+      items: Array.isArray(invoiceData.items) ? invoiceData.items : [],
+      tableHtml: invoiceData.tableHtml || '',
+      status: invoiceData.status || (Number(invoiceData.sisa || 0) <= 0 ? 'Lunas' : (Number(invoiceData.dp || 0) > 0 ? 'Sebagian' : 'Belum Bayar')),
+      created_by: invoiceData.created_by || userId,
+      created_at: invoiceData.created_at || nowIso,
+      updated_at: nowIso
+    };
+
+    // 1. Simpan ke database lokal
+    try {
+      let localInvoices = [];
+      const local = localStorage.getItem("fpmanager_invoices_db");
+      if (local) {
+        try { localInvoices = JSON.parse(local) || []; } catch(e) {}
+      }
+      
+      const existingIdx = localInvoices.findIndex(inv => String(inv.invoice_id || inv.id) === String(invoiceId));
+      if (existingIdx >= 0) {
+        prepared.created_at = localInvoices[existingIdx].created_at || prepared.created_at;
+        localInvoices[existingIdx] = prepared;
+      } else {
+        localInvoices.unshift(prepared);
+      }
+      localStorage.setItem("fpmanager_invoices_db", JSON.stringify(localInvoices));
+
+      // Simpan juga ke cache invoice_edit_ID agar kompatibel 100% dengan alur view existing
+      localStorage.setItem('invoice_edit_' + invoiceId, JSON.stringify({
+        tableHtml: prepared.tableHtml,
+        totalHtml: prepared.total,
+        dpHtml: prepared.dp,
+        pelunasanHtml: prepared.pelunasan,
+        sisaHtml: prepared.sisa,
+        catatanHtml: prepared.catatan,
+        signTitle: prepared.sign_title,
+        signName: prepared.sign_name,
+        showSignature: prepared.show_signature,
+        docType: prepared.doc_type,
+        invoiceTheme: prepared.invoice_theme,
+        rawData: {
+          total: prepared.total,
+          dp: prepared.dp,
+          pelunasan: prepared.pelunasan,
+          sisa: prepared.sisa,
+          items: prepared.items
+        },
+        invoiceRecord: prepared
+      }));
+    } catch (e) {
+      console.error("Gagal menyimpan invoice ke lokal:", e);
+    }
+
+    // 2. Coba simpan ke backend GAS jika aktif
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "saveInvoice");
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", role);
+      body.append("userId", userId);
+      body.append("permissions", permissions);
+      body.append("data", JSON.stringify(prepared));
+
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      const json = await res.json();
+      if (json && json.success) {
+        return { success: true, message: json.message || "Invoice berhasil disimpan.", data: prepared };
+      }
+    } catch (err) {
+      console.warn("Backend GAS saveInvoice offline/fallback ke lokal:", err);
+    }
+
+    return {
+      success: true,
+      message: isEn ? "Invoice successfully saved to database." : "Invoice berhasil disimpan ke sistem.",
+      data: prepared
+    };
+  },
+
+  deleteInvoice: async (id) => {
+    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+    const currUser = API.getCurrentUser();
+    const role = currUser.role || "super_admin";
+    const userId = currUser.id || "USR-001";
+    const cleanId = String(id).trim();
+
+    // 1. Hapus dari database lokal
+    try {
+      let localInvoices = [];
+      const local = localStorage.getItem("fpmanager_invoices_db");
+      if (local) {
+        try { localInvoices = JSON.parse(local) || []; } catch(e) {}
+      }
+      const filtered = localInvoices.filter(inv => String(inv.invoice_id || inv.id) !== cleanId);
+      localStorage.setItem("fpmanager_invoices_db", JSON.stringify(filtered));
+      localStorage.removeItem('invoice_edit_' + cleanId);
+    } catch (e) {
+      console.error("Gagal menghapus invoice dari lokal:", e);
+    }
+
+    // 2. Coba hapus di backend GAS
+    try {
+      const body = new URLSearchParams();
+      body.append("action", "deleteInvoice");
+      body.append("id", cleanId);
+      body.append("token", API.getToken());
+      body.append("apiKey", CONFIG.API_KEY);
+      body.append("role", role);
+      body.append("userId", userId);
+
+      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+      const json = await res.json();
+      if (json && json.success) {
+        return json;
+      }
+    } catch (err) {
+      console.warn("Backend GAS deleteInvoice offline:", err);
+    }
+
+    return {
+      success: true,
+      message: isEn ? "Invoice successfully deleted." : "Invoice berhasil dihapus."
+    };
   }
 };
 

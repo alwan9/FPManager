@@ -16,7 +16,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aktivitas & Checklist Harian Admin - FPManager</title>
   <meta name="title" content="Aktivitas & Checklist Harian Admin - FPManager">
-  <meta name="description" content="Kelola tindakan, tugas harian, dan checklist per jam admin dengan sistem notifikasi pengingat dan auto-reset otomatis.">
+  <meta name="description"
+    content="Kelola tindakan, tugas harian, dan checklist per jam admin dengan sistem notifikasi pengingat dan auto-reset otomatis.">
   <meta name="author" content="Alwan">
 
   <!-- Favicon -->
@@ -37,10 +38,8 @@
   <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
     <!-- Desktop Sidebar Navigation -->
-    <aside
-      class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
-      <div
-        class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
+    <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
+      <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
         <a href="index.html" class="flex items-center space-x-3 logo-full">
           <img src="./assets/img/logo.png" class="w-36" alt="FPManager Logo">
         </a>
@@ -50,8 +49,7 @@
       </div>
 
       <!-- Navigation Links (Desktop) -->
-      <nav id="navMenu"
-        class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
+      <nav id="navMenu" class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
         <a href="index.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-base w-5"></i>
@@ -67,16 +65,40 @@
           <i class="fa-solid fa-circle-plus text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
         </a>
-        <a href="keuangan.html" data-permission-allow="keuangan:read"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-wallet text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-keuangan">Keuangan</span>
-        </a>
-        <a href="laporan.html" data-permission-allow="laporan:read"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-file-invoice-dollar text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-laporan">Laporan</span>
-        </a>
+        <!-- Group Keuangan (Collapsible Dropdown) -->
+        <div class="sidebar-nav-group w-full" id="navKeuanganGroup">
+          <button type="button" id="btnNavKeuanganToggle"
+            class="sidebar-group-btn sidebar-link w-full flex flex-row items-center justify-between px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors focus:outline-none"
+            aria-expanded="false" aria-controls="submenuKeuangan">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-wallet text-base w-5"></i>
+              <span class="text-sm font-medium" data-i18n="nav-keuangan-group">Keuangan</span>
+            </div>
+            <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 transform group-chevron"></i>
+          </button>
+
+          <div id="submenuKeuangan"
+            class="sidebar-submenu flex-col space-y-1 pl-4 pr-1 py-1 mt-1 border-l-2 border-zinc-700/60 ml-5 hidden">
+            <!-- 1. Keuangan -->
+            <a href="keuangan.html" data-permission-allow="keuangan:read"
+              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+              <i class="fa-solid fa-coins text-xs w-4"></i>
+              <span data-i18n="nav-keuangan">Keuangan</span>
+            </a>
+            <!-- 2. History Invoice -->
+            <a href="history-invoice.html" data-permission-allow="proyek:read"
+              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+              <i class="fa-solid fa-receipt text-xs w-4"></i>
+              <span data-i18n="nav-history-invoice">History Invoice</span>
+            </a>
+            <!-- 3. Laporan -->
+            <a href="laporan.html" data-permission-allow="laporan:read"
+              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+              <i class="fa-solid fa-file-invoice-dollar text-xs w-4"></i>
+              <span data-i18n="nav-laporan">Laporan</span>
+            </a>
+          </div>
+        </div>
         <a href="admin-tasks.html" data-permission-allow="admin_tasks:read"
           class="sidebar-link active flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-indigo-400 bg-zinc-800 font-semibold">
           <i class="fa-solid fa-clipboard-check text-base w-5"></i>
@@ -133,7 +155,8 @@
       <!-- 3. Tambah (Center Prominent Action) -->
       <a href="tambah-proyek.html" data-permission-allow="proyek:create"
         class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none" title="Tambah Projek">
-        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
+        <div
+          class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
           <i class="fa-solid fa-plus text-base"></i>
         </div>
         <span class="text-[10px] font-bold text-zinc-200 mt-0.5" data-i18n="nav-tambah">Tambah</span>
@@ -159,17 +182,22 @@
 
       <!-- Top navbar header -->
       <header
-        class="bg-white border-b border-zinc-200 py-4 px-6 md:px-8 flex justify-between items-center z-10 shadow-sm">
+        class="bg-white border-b border-zinc-200 py-3 px-4 md:px-8 flex justify-between items-center z-10 shadow-sm">
         <div class="flex items-center space-x-3">
-          <button class="sidebarToggleBtn hidden md:inline-flex text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          <button
+            class="sidebarToggleBtn hidden md:inline-flex text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             title="Buka / Tutup Sidebar">
-            <i class="fa-solid fa-bars text-xl"></i>
+            <i class="fa-solid fa-bars text-lg"></i>
           </button>
-          <div>
-            <h2 class="text-xl font-bold text-zinc-800 flex items-center space-x-2">
-              <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
-              <span><span class="hidden sm:inline">Aktivitas & Checklist </span><span>Tugas Admin</span></span>
-            </h2>
+          <!-- Mobile Logo (Shown only on mobile) -->
+          <a href="index.html" class="md:hidden flex items-center">
+            <img src="./assets/img/logo.png" class="h-7 w-auto" alt="FPManager">
+          </a>
+          <!-- Desktop Page Icon & Title (Hidden on mobile) -->
+          <div class="hidden md:flex items-center space-x-2">
+            <i class="fa-solid fa-clipboard-check text-sm text-indigo-600 dark:text-indigo-400"></i>
+            <h2 class="text-sm font-semibold text-zinc-800 dark:text-zinc-100" data-i18n="nav-admin-tasks">Aktivitas &
+              Tugas Admin</h2>
           </div>
         </div>
         <div class="flex items-center space-x-3 sm:space-x-4">
@@ -249,27 +277,33 @@
       <section class="flex-grow p-4 sm:p-6 md:p-8 space-y-6">
 
         <!-- Top Welcome & Status Banner -->
-        <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-5 md:p-6 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div
+          class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-5 md:p-6 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="space-y-1.5 z-10">
             <div class="flex flex-wrap items-center gap-2">
-              <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-indigo-200 border border-white/15">
+              <div
+                class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-indigo-200 border border-white/15">
                 <i class="fa-solid fa-rotate text-indigo-300 animate-spin" style="animation-duration: 8s;"></i>
                 <span id="bannerAutoResetDate">Auto-Reset: Aktif Tiap 00:00</span>
               </div>
-              <div id="syncStatusBadge" class="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-emerald-300 border border-emerald-400/30 transition-all">
+              <div id="syncStatusBadge"
+                class="inline-flex items-center space-x-1.5 bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold tracking-wide text-emerald-300 border border-emerald-400/30 transition-all">
                 <span id="syncStatusDot" class="h-2 w-2 rounded-full bg-emerald-400"></span>
                 <span id="syncStatusText">Sinkronisasi Cloud: Siap</span>
               </div>
             </div>
             <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
               <span>Rutinitas Tindakan & SOP Admin</span>
-              <span class="text-xs font-medium px-2 py-0.5 rounded-lg bg-emerald-500/30 text-emerald-300 border border-emerald-400/30">Live Daily Tracker</span>
+              <span
+                class="text-xs font-medium px-2 py-0.5 rounded-lg bg-emerald-500/30 text-emerald-300 border border-emerald-400/30">Live
+                Daily Tracker</span>
             </h1>
             <p class="text-xs md:text-sm text-indigo-100/80 max-w-2xl leading-relaxed">
-              Catat dan pantau seluruh tindakan penting harian dan berkala per jam. Status tugas akan ter-reset otomatis setiap hari baru agar ritme kerja selalu produktif.
+              Catat dan pantau seluruh tindakan penting harian dan berkala per jam. Status tugas akan ter-reset otomatis
+              setiap hari baru agar ritme kerja selalu produktif.
             </p>
           </div>
-          
+
           <div class="flex flex-wrap items-center gap-2 z-10">
             <!-- Super Admin Only Setting Button -->
             <button id="openSettingsModalBtn" data-permission-allow="admin_tasks:delete"
@@ -292,70 +326,91 @@
         <!-- Stats Cards (4 Cards) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <!-- Total Tugas -->
-          <div class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl flex-shrink-0">
+          <div
+            class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl flex-shrink-0">
               <i class="fa-solid fa-list-check"></i>
             </div>
             <div class="min-w-0 flex-1">
-              <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total Tugas</div>
-              <div id="statTotalTasks" class="text-xl sm:text-2xl font-extrabold text-zinc-800 dark:text-white mt-0.5">0</div>
+              <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total Tugas
+              </div>
+              <div id="statTotalTasks" class="text-xl sm:text-2xl font-extrabold text-zinc-800 dark:text-white mt-0.5">0
+              </div>
               <div class="text-[11px] text-zinc-400 truncate">Checklist harian</div>
             </div>
           </div>
 
           <!-- Selesai -->
-          <div class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl flex-shrink-0">
+          <div
+            class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl flex-shrink-0">
               <i class="fa-solid fa-circle-check"></i>
             </div>
             <div class="min-w-0 flex-1">
               <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Selesai</div>
-              <div id="statDoneTasks" class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
+              <div id="statDoneTasks"
+                class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
               <div id="statProgressPercent" class="text-[11px] font-semibold text-emerald-500">0% tercapai</div>
             </div>
           </div>
 
           <!-- Belum Selesai -->
-          <div class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="h-12 w-12 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl flex-shrink-0">
+          <div
+            class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl flex-shrink-0">
               <i class="fa-solid fa-clock"></i>
             </div>
             <div class="min-w-0 flex-1">
-              <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Belum Selesai</div>
-              <div id="statPendingTasks" class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-0.5">0</div>
+              <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Belum Selesai
+              </div>
+              <div id="statPendingTasks"
+                class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-0.5">0</div>
               <div class="text-[11px] text-zinc-400 truncate">Menunggu tindakan</div>
             </div>
           </div>
 
           <!-- Total Metrik / Target -->
-          <div class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
-            <div class="h-12 w-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl flex-shrink-0">
+          <div
+            class="bg-white dark:bg-zinc-800 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center space-x-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl flex-shrink-0">
               <i class="fa-solid fa-bullseye"></i>
             </div>
             <div class="min-w-0 flex-1">
-              <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Interval Pengingat</div>
-              <div id="statActiveInterval" class="text-base sm:text-lg font-bold text-zinc-800 dark:text-white mt-0.5 truncate">Tiap 1 Jam</div>
+              <div class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Interval
+                Pengingat</div>
+              <div id="statActiveInterval"
+                class="text-base sm:text-lg font-bold text-zinc-800 dark:text-white mt-0.5 truncate">Tiap 1 Jam</div>
               <div class="text-[11px] text-zinc-400 truncate">Notifikasi berkala aktif</div>
             </div>
           </div>
         </div>
 
         <!-- Section: Distribusi Tugas & Beban Kerja Tiap Admin (Cards) -->
-        <div class="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4 sm:p-5 shadow-sm space-y-3.5">
+        <div
+          class="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4 sm:p-5 shadow-sm space-y-3.5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center space-x-2.5">
-              <div class="h-8 w-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
+              <div
+                class="h-8 w-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold">
                 <i class="fa-solid fa-users-gear"></i>
               </div>
               <div>
                 <h3 class="text-sm font-bold text-zinc-800 dark:text-white flex items-center gap-1.5">
                   <span>Distribusi Tugas & Beban Kerja Per Admin</span>
-                  <span id="adminCountBadge" class="text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-bold">0 Admin</span>
+                  <span id="adminCountBadge"
+                    class="text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-bold">0
+                    Admin</span>
                 </h3>
-                <p class="text-[11px] text-zinc-400">Klik admin untuk memfilter checklist tugas atau langsung beri tugas baru.</p>
+                <p class="text-[11px] text-zinc-400">Klik admin untuk memfilter checklist tugas atau langsung beri tugas
+                  baru.</p>
               </div>
             </div>
-            <button id="toggleWorkloadCardsBtn" onclick="toggleWorkloadCards()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-1 self-start sm:self-auto">
+            <button id="toggleWorkloadCardsBtn" onclick="toggleWorkloadCards()"
+              class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-1 self-start sm:self-auto">
               <span id="toggleWorkloadText">Sembunyikan Ringkasan</span>
               <i id="toggleWorkloadIcon" class="fa-solid fa-chevron-up text-[10px]"></i>
             </button>
@@ -364,33 +419,40 @@
           <!-- Dynamic Admin Workload Cards Grid -->
           <div id="adminWorkloadContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             <!-- Loaded via JS -->
-            <div class="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/40 text-center text-zinc-400 text-xs py-6 col-span-full">
+            <div
+              class="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/40 text-center text-zinc-400 text-xs py-6 col-span-full">
               <i class="fa-solid fa-spinner fa-spin mr-1.5 text-indigo-500"></i> Memuat data admin dan penugasan...
             </div>
           </div>
         </div>
 
         <!-- Main Task List Card -->
-        <div class="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col">
-          
+        <div
+          class="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex flex-col">
+
           <!-- Admin Tabs Filter Bar -->
-          <div class="px-4 sm:px-5 pt-3.5 pb-2 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50/80 dark:bg-zinc-900/50">
-            <div class="flex items-center space-x-1.5 overflow-x-auto scrollbar-none pb-1" id="adminFilterTabsContainer">
+          <div
+            class="px-4 sm:px-5 pt-3.5 pb-2 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50/80 dark:bg-zinc-900/50">
+            <div class="flex items-center space-x-1.5 overflow-x-auto scrollbar-none pb-1"
+              id="adminFilterTabsContainer">
               <!-- Rendered via JS -->
-              <button onclick="setFilterAdmin('all')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs whitespace-nowrap">
+              <button onclick="setFilterAdmin('all')"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-xs whitespace-nowrap">
                 Semua Admin
               </button>
             </div>
           </div>
 
           <!-- Toolbar (Search, Filter, Actions) -->
-          <div class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-700 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 bg-white dark:bg-zinc-800">
-            
+          <div
+            class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-700 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 bg-white dark:bg-zinc-800">
+
             <!-- Left Filters -->
             <div class="flex flex-wrap items-center gap-2.5 flex-1">
               <!-- Search Bar -->
               <div class="relative flex-1 min-w-[200px] sm:min-w-[240px]">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                <i
+                  class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
                 <input type="text" id="taskSearchInput" placeholder="Cari nama tugas, admin, catatan..."
                   class="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
               </div>
@@ -439,23 +501,28 @@
           </div>
 
           <!-- Progress Bar Header -->
-          <div class="px-5 py-2.5 bg-zinc-100/60 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between text-xs font-semibold">
+          <div
+            class="px-5 py-2.5 bg-zinc-100/60 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between text-xs font-semibold">
             <span class="text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
               <i class="fa-solid fa-battery-half text-indigo-500"></i>
               <span>Progres Checklist Hari Ini:</span>
             </span>
             <div class="flex items-center space-x-3">
               <div class="w-28 sm:w-48 bg-zinc-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
-                <div id="progressBarFill" class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                <div id="progressBarFill"
+                  class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                  style="width: 0%;"></div>
               </div>
-              <span id="progressBarText" class="text-zinc-700 dark:text-zinc-200 font-mono text-[11px]">0/0 Selesai</span>
+              <span id="progressBarText" class="text-zinc-700 dark:text-zinc-200 font-mono text-[11px]">0/0
+                Selesai</span>
             </div>
           </div>
 
           <!-- Task Table (Desktop & Mobile Card View) -->
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs sm:text-sm text-zinc-700 dark:text-zinc-200">
-              <thead class="bg-zinc-50 dark:bg-zinc-900/80 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase border-b border-zinc-200 dark:border-zinc-700 select-none">
+              <thead
+                class="bg-zinc-50 dark:bg-zinc-900/80 text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase border-b border-zinc-200 dark:border-zinc-700 select-none">
                 <tr>
                   <th class="px-4 py-3.5 text-center w-14">Cek</th>
                   <th class="px-4 py-3.5">Nama Tindakan / Tugas</th>
@@ -480,12 +547,16 @@
           </div>
 
           <!-- Table Footer / Count -->
-          <div class="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/30 flex flex-col sm:flex-row justify-between items-center text-xs text-zinc-500 dark:text-zinc-400 gap-2">
+          <div
+            class="p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/30 flex flex-col sm:flex-row justify-between items-center text-xs text-zinc-500 dark:text-zinc-400 gap-2">
             <div id="tableRecordCount">Menampilkan 0 tugas</div>
             <div class="flex items-center space-x-2 text-[11px]">
-              <span class="inline-flex items-center"><span class="h-2 w-2 rounded-full bg-rose-500 mr-1"></span> Belum Selesai</span>
-              <span class="inline-flex items-center"><span class="h-2 w-2 rounded-full bg-amber-500 mr-1"></span> Sedang Pengerjaan</span>
-              <span class="inline-flex items-center"><span class="h-2 w-2 rounded-full bg-emerald-500 mr-1"></span> Selesai</span>
+              <span class="inline-flex items-center"><span class="h-2 w-2 rounded-full bg-rose-500 mr-1"></span> Belum
+                Selesai</span>
+              <span class="inline-flex items-center"><span class="h-2 w-2 rounded-full bg-amber-500 mr-1"></span> Sedang
+                Pengerjaan</span>
+              <span class="inline-flex items-center"><span class="h-2 w-2 rounded-full bg-emerald-500 mr-1"></span>
+                Selesai</span>
             </div>
           </div>
         </div>
@@ -495,9 +566,12 @@
   </div>
 
   <!-- MODAL: Tambah / Edit Tugas Admin -->
-  <div id="taskModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeTaskModal()" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all max-h-[92vh] flex flex-col animate-fade-in">
-      <div class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50/80 dark:bg-zinc-900/50">
+  <div id="taskModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeTaskModal()"
+    class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div
+      class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all max-h-[92vh] flex flex-col animate-fade-in">
+      <div
+        class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50/80 dark:bg-zinc-900/50">
         <h3 id="taskModalTitle" class="text-base font-bold text-zinc-800 dark:text-white flex items-center gap-2">
           <i class="fa-solid fa-pen-to-square text-indigo-600"></i>
           <span>Tambah Tindakan Baru</span>
@@ -511,7 +585,8 @@
         <input type="hidden" id="taskIdInput">
 
         <!-- Quick SOP Template Picker (Opsional) -->
-        <div class="p-3 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/50 space-y-1.5">
+        <div
+          class="p-3 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/50 space-y-1.5">
           <div class="flex items-center justify-between">
             <label class="block font-bold text-purple-950 dark:text-purple-200 text-xs">
               <i class="fa-solid fa-wand-magic-sparkles mr-1 text-purple-600"></i> Template SOP / Tindakan Standar:
@@ -551,7 +626,8 @@
 
         <!-- Penugasan Admin (Khusus Admin yang Berwenang Check) -->
         <div>
-          <label for="taskAdminSelect" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+          <label for="taskAdminSelect"
+            class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
             <span>Penugasan Admin Pelaksana</span>
             <span class="text-[10px] text-zinc-400 font-normal">Pilih admin yang berhak mencentang</span>
           </label>
@@ -591,7 +667,8 @@
 
         <!-- Kolom Total / Target Capaian (Opsional) -->
         <div>
-          <label for="taskTotalInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+          <label for="taskTotalInput"
+            class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
             <span>Total / Target Capaian</span>
             <span class="text-[10px] text-zinc-400 font-normal">Opsional</span>
           </label>
@@ -601,7 +678,8 @@
 
         <!-- Kolom Link (Opsional) -->
         <div>
-          <label for="taskLinkInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+          <label for="taskLinkInput"
+            class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
             <span>Kolom Tautan / URL Terkait (Link)</span>
             <span class="text-[10px] text-zinc-400 font-normal">Opsional</span>
           </label>
@@ -614,11 +692,13 @@
 
         <!-- Kolom Catatan / SOP (Opsional) -->
         <div>
-          <label for="taskNotesInput" class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+          <label for="taskNotesInput"
+            class="block font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
             <span>Kolom Catatan / Instruksi SOP</span>
             <span class="text-[10px] text-zinc-400 font-normal">Opsional</span>
           </label>
-          <textarea id="taskNotesInput" rows="2.5" placeholder="Tuliskan catatan pengerjaan atau instruksi SOP (Opsional)..."
+          <textarea id="taskNotesInput" rows="2.5"
+            placeholder="Tuliskan catatan pengerjaan atau instruksi SOP (Opsional)..."
             class="w-full px-3.5 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"></textarea>
         </div>
 
@@ -638,9 +718,12 @@
   </div>
 
   <!-- MODAL: Pengaturan Notifikasi & Interval (Khusus Super Admin) -->
-  <div id="settingsModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeSettingsModal()" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all animate-fade-in flex flex-col">
-      <div class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-indigo-900 text-white">
+  <div id="settingsModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeSettingsModal()"
+    class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div
+      class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all animate-fade-in flex flex-col">
+      <div
+        class="p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-indigo-900 text-white">
         <h3 class="text-base font-bold flex items-center gap-2">
           <i class="fa-solid fa-bell-concierge text-amber-400"></i>
           <span>Pengaturan Notifikasi Pengingat</span>
@@ -651,8 +734,10 @@
       </div>
 
       <form id="settingsForm" class="p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
-        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-amber-800 dark:text-amber-200 text-xs">
-          <i class="fa-solid fa-shield-halved mr-1"></i> Khusus <strong>Super Admin</strong>: Waktu pengingat berkala & auto-reset harian akan disinkronkan ke seluruh sistem.
+        <div
+          class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-amber-800 dark:text-amber-200 text-xs">
+          <i class="fa-solid fa-shield-halved mr-1"></i> Khusus <strong>Super Admin</strong>: Waktu pengingat berkala &
+          auto-reset harian akan disinkronkan ke seluruh sistem.
         </div>
 
         <!-- Default Interval -->
@@ -675,39 +760,47 @@
         <!-- Toggles -->
         <div class="space-y-2.5 pt-1">
           <!-- Sound Chime -->
-          <label class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
+          <label
+            class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
             <span class="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
               <i class="fa-solid fa-volume-high text-indigo-500"></i>
               <span>Suara Pengingat (Audio Chime)</span>
             </span>
-            <input type="checkbox" id="settingSoundToggle" class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
+            <input type="checkbox" id="settingSoundToggle"
+              class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
           </label>
 
           <!-- Browser Notification -->
-          <label class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
+          <label
+            class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
             <span class="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
               <i class="fa-solid fa-desktop text-purple-500"></i>
               <span>Notifikasi Sistem / Browser (PWA)</span>
             </span>
-            <input type="checkbox" id="settingBrowserNotifToggle" class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
+            <input type="checkbox" id="settingBrowserNotifToggle"
+              class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
           </label>
 
           <!-- In-App Floating Reminder -->
-          <label class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
+          <label
+            class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
             <span class="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
               <i class="fa-solid fa-bullhorn text-amber-500"></i>
               <span>Pop-up Reminder Dalam Aplikasi</span>
             </span>
-            <input type="checkbox" id="settingToastToggle" class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
+            <input type="checkbox" id="settingToastToggle"
+              class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
           </label>
 
           <!-- Auto Daily Reset -->
-          <label class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
+          <label
+            class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 cursor-pointer">
             <span class="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
               <i class="fa-solid fa-arrows-rotate text-emerald-500"></i>
               <span>Auto-Reset Harian (00:00 WIB)</span>
             </span>
-            <input type="checkbox" id="settingAutoResetToggle" class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
+            <input type="checkbox" id="settingAutoResetToggle"
+              class="form-checkbox h-5 w-5 text-indigo-600 rounded cursor-pointer" checked>
           </label>
         </div>
 
@@ -741,15 +834,18 @@
   </div>
 
   <!-- FLOATING IN-APP REMINDER POP-UP -->
-  <div id="floatingReminderPopup" class="hidden fixed bottom-20 right-4 sm:right-6 md:bottom-6 max-w-sm w-full bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl border-2 border-indigo-500 dark:border-indigo-400 p-4 z-50 transform transition-all duration-300 animate-bounce">
+  <div id="floatingReminderPopup"
+    class="hidden fixed bottom-20 right-4 sm:right-6 md:bottom-6 max-w-sm w-full bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl border-2 border-indigo-500 dark:border-indigo-400 p-4 z-50 transform transition-all duration-300 animate-bounce">
     <div class="flex items-start space-x-3">
-      <div class="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg flex-shrink-0">
+      <div
+        class="h-10 w-10 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg flex-shrink-0">
         <i class="fa-solid fa-bell-ring"></i>
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between">
           <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Pengingat Tugas Admin!</h4>
-          <button onclick="dismissFloatingReminder()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-white text-xs">
+          <button onclick="dismissFloatingReminder()"
+            class="text-zinc-400 hover:text-zinc-600 dark:hover:text-white text-xs">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -757,10 +853,12 @@
           Ada tugas harian berkala yang belum selesai dikerjakan. Silakan cek checklist Anda.
         </p>
         <div class="mt-3 flex items-center space-x-2">
-          <button onclick="focusPendingTasks()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition-colors">
+          <button onclick="focusPendingTasks()"
+            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition-colors">
             Lihat Tugas
           </button>
-          <button onclick="dismissFloatingReminder()" class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-semibold rounded-lg text-xs transition-colors">
+          <button onclick="dismissFloatingReminder()"
+            class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-semibold rounded-lg text-xs transition-colors">
             Tutup
           </button>
         </div>

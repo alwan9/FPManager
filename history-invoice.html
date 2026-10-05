@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark' || !theme) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History Invoice - Kelola FPManager</title>
+  <!-- meta infoemasi -->
+  <meta name="title" content="FPM - Freelance Project Manager - by Alwan">
+  <meta name="description"
+    content="History Invoice FPManager untuk memantau, melihat detail, mencetak, dan mengunduh seluruh arsip invoice freelance yang telah disimpan.">
+  <meta name="keywords"
+    content="Freelance, Project Manager, Invoice, History Invoice, Keuangan, Manajemen Proyek, Dashboard">
+  <meta name="author" content="Alwan">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="Indonesian">
+  <meta name="theme-color" content="#2563EB">
+  <meta name="application-name" content="FPManager">
+
+  <!-- Mobile -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FPManager">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="History Invoice - FPManager">
+  <meta property="og:description"
+    content="Daftar riwayat invoice dan nota freelance yang berhasil dibuat dan disimpan.">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="FPManager">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <!-- Tailwind CSS v2 CDN -->
+  <link href="css/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- jQuery (Required for DataTables) -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <!-- DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+  <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body class="bg-zinc-50 text-zinc-800">
+  <!-- Layout Wrapper -->
+  <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
+
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
+      <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
+        <a href="index.html" class="flex items-center space-x-3 logo-full">
+          <img src="./assets/img/logo.png" class="w-36" alt="FPManager Logo">
+        </a>
+        <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
+          <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
+        </a>
+      </div>
+
+      <!-- Navigation Links (Desktop) -->
+      <nav id="navMenu" class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
+        <a href="index.html"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-chart-line text-base w-5"></i>
+          <span class="text-sm font-medium" data-i18n="nav-home">Home</span>
+        </a>
+        <a href="proyek.html" data-permission-allow="proyek:read"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-list-check text-base w-5"></i>
+          <span class="text-sm font-medium" data-i18n="nav-proyek">Projek</span>
+        </a>
+        <a href="tambah-proyek.html" data-permission-allow="proyek:create"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-circle-plus text-base w-5"></i>
+          <span class="text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
+        </a>
+        <!-- Group Keuangan (Collapsible Dropdown - Active Parent) -->
+        <div class="sidebar-nav-group w-full" id="navKeuanganGroup">
+          <button type="button" id="btnNavKeuanganToggle"
+            class="sidebar-group-btn sidebar-link active-parent expanded w-full flex flex-row items-center justify-between px-4 py-3 rounded-xl text-indigo-400 bg-zinc-800/80 font-semibold transition-colors focus:outline-none"
+            aria-expanded="true" aria-controls="submenuKeuangan">
+            <div class="flex items-center space-x-3">
+              <i class="fa-solid fa-wallet text-base w-5"></i>
+              <span class="text-sm font-medium" data-i18n="nav-keuangan-group">Keuangan</span>
+            </div>
+            <i
+              class="fa-solid fa-chevron-down text-xs transition-transform duration-200 transform group-chevron rotate-180"></i>
+          </button>
+
+          <div id="submenuKeuangan"
+            class="sidebar-submenu flex flex-col space-y-1 pl-4 pr-1 py-1 mt-1 border-l-2 border-indigo-500/60 ml-5">
+            <!-- 1. Keuangan -->
+            <a href="keuangan.html" data-permission-allow="keuangan:read"
+              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+              <i class="fa-solid fa-coins text-xs w-4"></i>
+              <span data-i18n="nav-keuangan">Keuangan</span>
+            </a>
+            <!-- 2. History Invoice (Active) -->
+            <a href="history-invoice.html" data-permission-allow="proyek:read"
+              class="sidebar-link sidebar-sublink active flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-indigo-400 bg-zinc-800 transition-colors">
+              <i class="fa-solid fa-receipt text-xs w-4"></i>
+              <span data-i18n="nav-history-invoice">History Invoice</span>
+            </a>
+            <!-- 3. Laporan -->
+            <a href="laporan.html" data-permission-allow="laporan:read"
+              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+              <i class="fa-solid fa-file-invoice-dollar text-xs w-4"></i>
+              <span data-i18n="nav-laporan">Laporan</span>
+            </a>
+          </div>
+        </div>
+        <a href="admin-tasks.html" data-permission-allow="admin_tasks:read"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-clipboard-check text-base w-5"></i>
+          <span class="text-sm font-medium" data-i18n="nav-admin-tasks">Aktivitas Admin</span>
+        </a>
+        <a href="tools.html" data-permission-allow="tools:read"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-toolbox text-base w-5"></i>
+          <span class="text-sm font-medium">Tools</span>
+        </a>
+        <a href="user-management.html" data-permission-allow="users:read"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-users-gear text-base w-5"></i>
+          <span class="text-sm font-medium">Manajemen User</span>
+        </a>
+        <a href="pengaturan.html"
+          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <i class="fa-solid fa-gear text-base w-5"></i>
+          <span class="text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
+        </a>
+        <button id="pwaInstallBtn"
+          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-indigo-400 hover:bg-indigo-950 hover:bg-opacity-30 hover:text-indigo-300 transition-all text-left w-full">
+          <i class="fa-solid fa-download text-base w-5"></i>
+          <span data-i18n="nav-install">Install Aplikasi</span>
+        </button>
+        <div class="pt-4 border-t border-zinc-800 mt-4">
+          <button onclick="Auth.logout()"
+            class="sidebar-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left"
+            title="Logout">
+            <i class="fa-solid fa-right-from-bracket text-base w-5"></i>
+            <span data-i18n="nav-logout">Logout</span>
+          </button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav id="mobileBottomNav"
+      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-1.5 flex items-center justify-around">
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="flex-1 flex flex-col min-w-0 bg-zinc-50 dark:bg-zinc-950">
+
+      <!-- Top Header Bar -->
+      <header
+        class="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-3">
+          <button id="sidebarToggleBtn"
+            class="hidden md:flex p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none transition-colors"
+            title="Toggle Sidebar">
+            <i class="fa-solid fa-bars text-lg"></i>
+          </button>
+          <!-- Mobile Logo (Shown only on mobile) -->
+          <div class="md:hidden flex items-center">
+            <a href="index.html">
+              <img src="./assets/img/logo.png" class="h-7 w-auto" alt="FPManager">
+            </a>
+          </div>
+          <!-- Desktop Page Icon & Title (Hidden on mobile) -->
+          <div class="hidden md:flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-sm text-indigo-600 dark:text-indigo-400"></i>
+            <h1 class="text-sm font-semibold text-zinc-900 dark:text-white" data-i18n="nav-history-invoice">History
+              Invoice</h1>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Dark Mode Toggle -->
+          <button id="darkModeToggle"
+            class="p-2 sm:px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            title="Ganti Mode Gelap / Terang">
+            <i id="darkModeIcon" class="fa-solid fa-moon"></i>
+            <span class="hidden sm:inline" id="darkModeText">Mode Gelap</span>
+          </button>
+
+          <!-- User Profile Dropdown Button -->
+          <div class="relative">
+            <button id="profileDropdownBtn"
+              class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus:outline-none">
+              <div
+                class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-xs shadow-sm"
+                id="userAvatarText">
+                U
+              </div>
+              <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-200 hidden sm:inline"
+                id="userNameText">Admin</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-zinc-400 hidden sm:inline"></i>
+            </button>
+            <div id="profileDropdown"
+              class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1.5 z-50">
+              <a href="profil.html"
+                class="flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700">
+                <i class="fa-solid fa-user w-4 mr-2 text-indigo-500"></i> Profil Saya
+              </a>
+              <a href="pengaturan.html"
+                class="flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700">
+                <i class="fa-solid fa-gear w-4 mr-2 text-zinc-400"></i> Pengaturan
+              </a>
+              <div class="border-t border-zinc-100 dark:border-zinc-700 my-1"></div>
+              <button onclick="Auth.logout()"
+                class="w-full flex items-center px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-left">
+                <i class="fa-solid fa-right-from-bracket w-4 mr-2"></i> Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Page Body -->
+      <main class="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+        <!-- Banner & Action Header -->
+        <div
+          class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-zinc-900 rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
+          <div class="relative z-10">
+
+            <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">Arsip & Riwayat Invoice</h2>
+            <p class="text-xs sm:text-sm text-indigo-200 mt-1 max-w-xl">
+              Seluruh invoice dan nota yang berhasil disimpan dari checklist projek. Anda dapat mencari, membuka detail,
+              mencetak, atau mengunduh ulang file sewaktu-waktu.
+            </p>
+          </div>
+
+          <div class="relative z-10 flex flex-wrap gap-2.5">
+
+            <button onclick="HistoryInvoice.loadData(true)"
+              class="px-4 py-2.5 bg-indigo-700/60 hover:bg-indigo-700 text-white border border-indigo-500/50 text-xs font-semibold rounded-xl transition-all flex items-center gap-2"
+              title="Refresh Data">
+              <i class="fa-solid fa-rotate mr-1" id="refreshIcon"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          <!-- Decorative Glow -->
+          <div
+            class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none">
+          </div>
+        </div>
+
+        <!-- 4 Stat Summary Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Card 1: Total Invoice -->
+          <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+            <div
+              class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl flex-shrink-0">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total
+                Invoice</p>
+              <h3 class="text-lg sm:text-xl font-extrabold text-zinc-900 dark:text-white mt-0.5 truncate"
+                id="statTotalCount">0</h3>
+            </div>
+          </div>
+
+          <!-- Card 2: Akumulasi Nilai -->
+          <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+            <div
+              class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl flex-shrink-0">
+              <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Nilai
+                Invoice</p>
+              <h3 class="text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate"
+                id="statTotalNominal">Rp. 0</h3>
+            </div>
+          </div>
+
+          <!-- Card 3: Status Lunas -->
+          <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+            <div
+              class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl flex-shrink-0">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Invoice
+                Lunas</p>
+              <h3 class="text-lg sm:text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 truncate"
+                id="statPaidCount">0</h3>
+            </div>
+          </div>
+
+          <!-- Card 4: Sisa Piutang / Belum Lunas -->
+          <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+            <div
+              class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl flex-shrink-0">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Sisa
+                Pembayaran</p>
+              <h3 class="text-lg sm:text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-0.5 truncate"
+                id="statTotalSisa">Rp. 0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Container Card -->
+        <div
+          class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+
+          <!-- Filters & Search Toolbar -->
+          <div
+            class="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3.5 bg-zinc-50/50 dark:bg-zinc-900/50">
+            <!-- Search Box -->
+            <div class="relative flex-1 max-w-md">
+              <i
+                class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+              <input type="text" id="customSearchInput" placeholder="Cari nomor invoice, nama pelanggan, produk..."
+                class="w-full pl-9 pr-3.5 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium">
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              <!-- Filter Status -->
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs text-zinc-500 font-semibold hidden sm:inline">Status:</span>
+                <select id="filterStatus" onchange="HistoryInvoice.applyFilters()"
+                  class="px-3 py-1.5 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-semibold rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="all">Semua Status</option>
+                  <option value="Lunas">Lunas</option>
+                  <option value="Sebagian">Sebagian (Ada Sisa)</option>
+                  <option value="Belum Bayar">Belum Bayar</option>
+                </select>
+              </div>
+
+              <!-- Filter Tipe Dokumen -->
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs text-zinc-500 font-semibold hidden sm:inline">Tipe:</span>
+                <select id="filterType" onchange="HistoryInvoice.applyFilters()"
+                  class="px-3 py-1.5 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-semibold rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="all">Semua Tipe</option>
+                  <option value="invoice">Invoice</option>
+                  <option value="nota">Nota</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Table Wrapper -->
+          <div class="p-4 sm:p-5 overflow-x-auto">
+            <table id="historyInvoiceTable" class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr
+                  class="bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-300 font-bold uppercase tracking-wider text-[11px] border-b border-zinc-200 dark:border-zinc-700">
+                  <th class="p-3 text-center w-12">No</th>
+                  <th class="p-3">No. Invoice</th>
+                  <th class="p-3">Tanggal</th>
+                  <th class="p-3">Pelanggan</th>
+                  <th class="p-3">Item / Projek Terkait</th>
+                  <th class="p-3 text-right">Total (Rp)</th>
+                  <th class="p-3 text-right">Sisa (Rp)</th>
+                  <th class="p-3 text-center">Status</th>
+                  <th class="p-3 text-center w-36">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="historyInvoiceTableBody" class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                <!-- Populated by DataTables -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State (Hidden when table has data) -->
+          <div id="historyEmptyState" class="hidden py-16 px-4 text-center space-y-3">
+            <div
+              class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-500 flex items-center justify-center text-2xl mx-auto">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+            <h4 class="text-base font-bold text-zinc-800 dark:text-zinc-200">Belum Ada History Invoice</h4>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
+              Anda belum menyimpan invoice apapun. Buat invoice dari checklist daftar projek untuk mulai mencatat
+              riwayat.
+            </p>
+            <div class="pt-2">
+              <a href="proyek.html"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow transition-all">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Buka Daftar Projek</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Hapus Invoice -->
+  <div id="modalDeleteInvoice"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden p-4">
+    <div
+      class="bg-white dark:bg-zinc-800 w-full max-w-md rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden animate-fadeIn p-6 space-y-4">
+      <div
+        class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center text-xl mx-auto">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+      <div class="text-center space-y-1">
+        <h3 class="text-base font-bold text-zinc-900 dark:text-white">Hapus Invoice?</h3>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400">
+          Apakah Anda yakin ingin menghapus invoice <strong id="deleteInvoiceIdLabel"
+            class="text-zinc-800 dark:text-zinc-200">-</strong> dari arsip history? Tindakan ini tidak dapat dibatalkan.
+        </p>
+      </div>
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button type="button" onclick="HistoryInvoice.closeDeleteModal()"
+          class="px-4 py-2 rounded-xl border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-semibold">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmDeleteInvoice" onclick="HistoryInvoice.confirmDelete()"
+          class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md">
+          Hapus Invoice
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Global Scripts -->
+  <script src="js/toast.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/pwa.js"></script>
+
+  <!-- History Invoice Script -->
+  <script src="js/history-invoice.js"></script>
+</body>
+
+</html>

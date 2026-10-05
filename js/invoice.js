@@ -1,8 +1,13 @@
 const Invoice = {
     proyek: [],
+    currentInvoiceId: null,
+    currentProjectIds: [],
+    currentCustomerName: '',
     docType: 'invoice',
     showSignature: true,
     invoiceTheme: 'light',
+    draggedRow: null,
+
     async init() {
         // Inisialisasi tema invoice - default selalu putih (light)
         const savedTheme = localStorage.getItem('invoice_theme');
@@ -16,18 +21,32 @@ const Invoice = {
         this.setupThemeListeners();
 
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        const urlParams = new URLSearchParams(window.location.search);
+        const invoiceId = urlParams.get("invoiceId");
+        const fromSelection = urlParams.get("fromSelection");
+        const id = urlParams.get("id");
+
         try {
             this.proyek = await API.getProyek();
-            const id = new URLSearchParams(window.location.search).get("id");
-            if (!id) {
+
+            if (invoiceId) {
+                // Skenario 1: Membuka dari History Invoice
+                await this.loadInvoiceRecord(invoiceId);
+            } else if (fromSelection === 'true' || fromSelection === '1') {
+                // Skenario 2: Membuka dari Checklist Terpilih
+                this.loadFromSelectionPayload(id);
+            } else if (id) {
+                // Skenario 3: Membuka dari 1 Proyek Existing (backward compatible)
+                this.loadInvoice(id);
+            } else {
                 Toast.warning(
                     isEn ? "Invoice Not Found" : "Invoice Tidak Ditemukan",
-                    isEn ? "Project ID not found." : "ID proyek tidak ditemukan."
+                    isEn ? "No project or invoice specified." : "ID proyek atau invoice tidak ditemukan."
                 );
-                return;
             }
-            this.loadInvoice(id);
+
             this.setupEditable();
+            this.setupDragAndDrop();
 
             const btnPDF = document.getElementById("btnPDF");
             if (btnPDF) {
@@ -67,6 +86,238 @@ const Invoice = {
         return digits ? parseInt(digits, 10) : 0;
     },
 
+    // Helper: Buat Nomor Invoice Unik
+    generateInvoiceNumber() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const random = Math.floor(1000 + Math.random() * 9000);
+        return `INV-${year}${month}${day}-${random}`;
+    },
+
+    // ==========================================
+    // SKENARIO 1: LOAD DARI CHECKLIST SELECTION
+    // ==========================================
+    loadFromSelectionPayload(fallbackId) {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        let payload = null;
+        try {
+            const raw = sessionStorage.getItem('pending_invoice_payload');
+            if (raw) payload = JSON.parse(raw);
+        } catch (e) {
+            console.error("Gagal parse pending_invoice_payload:", e);
+        }
+
+        // Jika payload tidak ada, fallback ke loadInvoice biasa
+        if (!payload || !Array.isArray(payload.items) || payload.items.length === 0) {
+            if (fallbackId) {
+                this.loadInvoice(fallbackId);
+                return;
+            }
+            Toast.warning("Data Kosong", "Tidak ada item checklist yang dipilih.");
+            return;
+        }
+
+        const dateLocale = isEn ? "en-US" : "id-ID";
+        const dateRaw = new Date();
+        const formatter = new Intl.DateTimeFormat(dateLocale, {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            timeZone: "Asia/Jakarta"
+        });
+
+        // 1. Header
+        const autoInvNo = this.generateInvoiceNumber();
+        this.currentInvoiceId = autoInvNo;
+        this.currentProjectIds = payload.projectIds || [];
+        this.currentCustomerName = payload.customerName || 'Pelanggan';
+
+        document.getElementById("previewInvoiceNo").innerText = autoInvNo;
+        document.getElementById("previewTanggal").innerText = formatter.format(dateRaw);
+
+        // 2. Customer
+        document.getElementById("previewPelanggan").innerText = payload.customerName || "-";
+        document.getElementById("previewWA").innerText = payload.customerPhone || "-";
+
+        // Urutkan item berdasarkan sort_order jika ada
+        const sortedItems = payload.items.slice().sort((a, b) => (Number(a.sort_order || a.no || 0) - Number(b.sort_order || b.no || 0)));
+
+        // 3. Populate Tabel Invoice dengan item terpilih (hingga 10 baris)
+        const tableBody = document.getElementById("invoiceTableBody");
+        if (tableBody) {
+            let html = '';
+            for (let i = 0; i < 10; i++) {
+                const item = sortedItems[i];
+                const rowNo = i + 1;
+                if (item) {
+                    const prodName = escapeHtml(item.produk || '');
+                    const qtySatuan = `${escapeHtml(String(item.jumlah || item.qty || 1))} ${escapeHtml(item.satuan || '')}`.trim();
+                    const hargaFormatted = this.format(item.hargaSatuan || item.harga || item.nominal || 0);
+                    const nomFormatted = this.format(item.nominal || 0);
+
+                    html += `
+                        <tr class="invoice-row" draggable="true" data-sort-order="${rowNo}">
+                            <td class="border p-1 md:p-3 text-center">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                                    <span class="row-num">${rowNo}</span>
+                                </div>
+                            </td>
+                            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewProduk' : ''}">${prodName}</td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewJumlah' : ''}">${qtySatuan}</td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewHarga' : ''}">${hargaFormatted}</td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewNominal' : ''}">${nomFormatted}</td>
+                        </tr>
+                    `;
+                } else {
+                    html += `
+                        <tr class="invoice-row" draggable="true" data-sort-order="${rowNo}">
+                            <td class="border p-1 md:p-3 text-center">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                                    <span class="row-num">${rowNo}</span>
+                                </div>
+                            </td>
+                            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                        </tr>
+                    `;
+                }
+            }
+            tableBody.innerHTML = html;
+        }
+
+        // 4. Total, DP, Pelunasan, Sisa
+        document.getElementById("previewTotal").innerText = this.format(payload.totalNominal || 0);
+        document.getElementById("previewDP").innerText = this.format(payload.totalDp || 0);
+        const pelunasanEl = document.getElementById("previewPelunasan");
+        if (pelunasanEl) {
+            pelunasanEl.innerText = this.format(payload.totalPelunasan || 0);
+        }
+        document.getElementById("previewSisa").innerText = this.format(payload.totalSisa || 0);
+
+        // 5. Catatan
+        document.getElementById("previewCatatan").innerText = payload.catatan || "-";
+
+        this.setDocumentType("invoice");
+        this.toggleSignature(true);
+    },
+
+    // ==========================================
+    // SKENARIO 2: LOAD DARI RECORD HISTORY INVOICE
+    // ==========================================
+    async loadInvoiceRecord(invId) {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        const record = await API.getInvoiceById(invId);
+        if (!record) {
+            Toast.warning(
+                isEn ? "Invoice Not Found" : "Invoice Tidak Ditemukan",
+                isEn ? "Selected invoice is unavailable." : "Invoice yang dipilih tidak ditemukan."
+            );
+            return;
+        }
+
+        this.currentInvoiceId = record.invoice_id || record.id || invId;
+        this.currentProjectIds = Array.isArray(record.project_ids) ? record.project_ids : (record.project_id ? [record.project_id] : []);
+        this.currentCustomerName = record.customer_name || record.namaPelanggan || 'Pelanggan';
+
+        // 1. Header
+        document.getElementById("previewInvoiceNo").innerText = this.currentInvoiceId;
+        document.getElementById("previewTanggal").innerText = record.tanggal || "-";
+
+        // 2. Customer
+        document.getElementById("previewPelanggan").innerText = record.customer_name || record.namaPelanggan || "-";
+        document.getElementById("previewWA").innerText = record.customer_phone || record.nomorWA || "-";
+
+        // 3. Tabel items
+        const tableBody = document.getElementById("invoiceTableBody");
+        if (tableBody) {
+            if (record.tableHtml) {
+                tableBody.innerHTML = record.tableHtml;
+            } else if (Array.isArray(record.items) && record.items.length > 0) {
+                // Urutkan item berdasarkan sort_order
+                const sortedItems = record.items.slice().sort((a, b) => (Number(a.sort_order || a.no || 0) - Number(b.sort_order || b.no || 0)));
+                let html = '';
+                for (let i = 0; i < 10; i++) {
+                    const item = sortedItems[i];
+                    const rowNo = i + 1;
+                    if (item) {
+                        const prodName = escapeHtml(item.produk || item.namaProyek || '');
+                        const qtyStr = item.qty !== undefined ? String(item.qty) : `${item.jumlah || 1} ${item.satuan || 'pcs'}`;
+                        const hargaVal = item.harga !== undefined ? item.harga : (item.hargaSatuan || 0);
+                        const nomVal = item.nominal !== undefined ? item.nominal : (item.nominalProyek || 0);
+
+                        html += `
+                            <tr class="invoice-row" draggable="true" data-sort-order="${rowNo}">
+                                <td class="border p-1 md:p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                                        <span class="row-num">${rowNo}</span>
+                                    </div>
+                                </td>
+                                <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewProduk' : ''}">${prodName}</td>
+                                <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewJumlah' : ''}">${escapeHtml(qtyStr)}</td>
+                                <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewHarga' : ''}">${this.format(hargaVal)}</td>
+                                <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true" id="${rowNo === 1 ? 'previewNominal' : ''}">${this.format(nomVal)}</td>
+                            </tr>
+                        `;
+                    } else {
+                        html += `
+                            <tr class="invoice-row" draggable="true" data-sort-order="${rowNo}">
+                                <td class="border p-1 md:p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                                        <span class="row-num">${rowNo}</span>
+                                    </div>
+                                </td>
+                                <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
+                                <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
+                                <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
+                                <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            </tr>
+                        `;
+                    }
+                }
+                tableBody.innerHTML = html;
+            }
+        }
+
+        // 4. Totals
+        document.getElementById("previewTotal").innerText = this.format(record.total);
+        document.getElementById("previewDP").innerText = this.format(record.dp);
+        const pelunasanEl = document.getElementById("previewPelunasan");
+        if (pelunasanEl) {
+            pelunasanEl.innerText = this.format(record.pelunasan);
+        }
+        document.getElementById("previewSisa").innerText = this.format(record.sisa);
+
+        // 5. Notes & Sign
+        document.getElementById("previewCatatan").innerText = record.catatan || "-";
+        if (record.sign_title || record.signTitle) {
+            document.getElementById("previewSignTitle").innerText = record.sign_title || record.signTitle;
+        }
+        if (record.sign_name || record.signName) {
+            document.getElementById("previewSignName").innerText = record.sign_name || record.signName;
+        }
+
+        if (record.doc_type || record.docType) {
+            this.setDocumentType(record.doc_type || record.docType);
+        }
+        if (record.show_signature !== undefined || record.showSignature !== undefined) {
+            this.toggleSignature(record.show_signature !== undefined ? record.show_signature : record.showSignature);
+        }
+        if (record.invoice_theme || record.invoiceTheme) {
+            this.setInvoiceTheme(record.invoice_theme || record.invoiceTheme, false);
+        }
+    },
+
+    // ==========================================
+    // SKENARIO 3: LOAD DARI 1 PROYEK EXISTING
+    // ==========================================
     loadInvoice(id) {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         const data = this.proyek.find(
@@ -80,10 +331,12 @@ const Invoice = {
             return;
         }
 
+        this.currentInvoiceId = data.iDProyek;
+        this.currentProjectIds = [data.iDProyek];
+        this.currentCustomerName = data.namaPelanggan || 'Pelanggan';
+
         // HEADER
-        // ==========================
-        document.getElementById("previewInvoiceNo").innerText =
-            data.iDProyek;
+        document.getElementById("previewInvoiceNo").innerText = data.iDProyek;
         const dateLocale = isEn ? "en-US" : "id-ID";
         const dateRaw = new Date();
         const formatter = new Intl.DateTimeFormat(dateLocale, {
@@ -93,41 +346,28 @@ const Invoice = {
             timeZone: "Asia/Jakarta"
         });
         document.getElementById("previewTanggal").innerText = formatter.format(dateRaw);
-        // ==========================
+
         // CUSTOMER
-        // ==========================
-        document.getElementById("previewPelanggan").innerText =
-            data.namaPelanggan || "-";
-        document.getElementById("previewWA").innerText =
-            data.nomorWA || "-";
-        // ==========================
+        document.getElementById("previewPelanggan").innerText = data.namaPelanggan || "-";
+        document.getElementById("previewWA").innerText = data.nomorWA || "-";
+
         // PRODUK
-        // ==========================
-        document.getElementById("previewProduk").innerText =
-            data.produk || "-";
-        document.getElementById("previewJumlah").innerText =
-            `${data.jumlah} ${data.satuan}`;
-        document.getElementById("previewHarga").innerText =
-            this.format(data.hargaSatuan);
-        document.getElementById("previewNominal").innerText =
-            this.format(data.nominalProyek);
-        // ==========================
+        document.getElementById("previewProduk").innerText = data.produk || data.namaProyek || "-";
+        document.getElementById("previewJumlah").innerText = `${data.jumlah || 1} ${data.satuan || 'pcs'}`;
+        document.getElementById("previewHarga").innerText = this.format(data.hargaSatuan || data.nominalProyek);
+        document.getElementById("previewNominal").innerText = this.format(data.nominalProyek);
+
         // TOTAL, DP, PELUNASAN, SISA
-        // ==========================
-        document.getElementById("previewTotal").innerText =
-            this.format(data.nominalProyek);
-        document.getElementById("previewDP").innerText =
-            this.format(data.dP);
+        document.getElementById("previewTotal").innerText = this.format(data.nominalProyek);
+        document.getElementById("previewDP").innerText = this.format(data.dP);
         const pelunasanVal = this.getRawNumber(data.pelunasan);
         const pelunasanEl = document.getElementById("previewPelunasan");
         if (pelunasanEl) {
             pelunasanEl.innerText = this.format(pelunasanVal);
         }
-        document.getElementById("previewSisa").innerText =
-            this.format(data.sisaPembayaran);
-        // ==========================
+        document.getElementById("previewSisa").innerText = this.format(data.sisaPembayaran);
+
         // CATATAN
-        // ==========================
         document.getElementById("previewCatatan").innerText = data.catatan || "-";
 
         let docType = "invoice";
@@ -155,6 +395,136 @@ const Invoice = {
 
         this.setDocumentType(docType);
         this.toggleSignature(showSignature);
+    },
+
+    // ==========================================
+    // DRAG AND DROP ITEM SORTING IMPLEMENTATION
+    // ==========================================
+    setupDragAndDrop() {
+        const tableBody = document.getElementById('invoiceTableBody');
+        if (!tableBody) return;
+
+        // Pastikan setiap row memiliki elemen handle dan nomor urut
+        const rows = tableBody.querySelectorAll('.invoice-row');
+        rows.forEach((row, idx) => {
+            row.setAttribute('draggable', 'true');
+            row.setAttribute('data-sort-order', idx + 1);
+
+            const firstCell = row.cells[0];
+            if (firstCell && !firstCell.querySelector('.drag-handle')) {
+                const rowNo = idx + 1;
+                firstCell.innerHTML = `
+                    <div class="flex items-center justify-center gap-1">
+                        <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                        <span class="row-num">${rowNo}</span>
+                    </div>
+                `;
+            }
+
+            // Dragstart listener
+            row.addEventListener('dragstart', (e) => {
+                this.draggedRow = row;
+                row.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', row.innerHTML);
+            });
+
+            // Dragover listener
+            row.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                if (!this.draggedRow || this.draggedRow === row) return;
+
+                const bounding = row.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+
+                // Paruh atas vs bawah
+                if (offset < bounding.height / 2) {
+                    row.classList.add('drag-over-top');
+                    row.classList.remove('drag-over-bottom');
+                } else {
+                    row.classList.add('drag-over-bottom');
+                    row.classList.remove('drag-over-top');
+                }
+            });
+
+            // Dragleave listener
+            row.addEventListener('dragleave', () => {
+                row.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+
+            // Drop listener
+            row.addEventListener('drop', (e) => {
+                e.preventDefault();
+                row.classList.remove('drag-over-top', 'drag-over-bottom');
+
+                if (!this.draggedRow || this.draggedRow === row) return;
+
+                const bounding = row.getBoundingClientRect();
+                const offset = e.clientY - bounding.top;
+
+                if (offset < bounding.height / 2) {
+                    tableBody.insertBefore(this.draggedRow, row);
+                } else {
+                    tableBody.insertBefore(this.draggedRow, row.nextSibling);
+                }
+
+                // Perbarui penomoran & kalkulasi
+                this.reindexRows();
+                this.setupEditable();
+                this.saveEditedInvoice(true); // Silent auto-save urutan baru
+            });
+
+            // Dragend listener
+            row.addEventListener('dragend', () => {
+                row.classList.remove('dragging');
+                rows.forEach(r => r.classList.remove('drag-over-top', 'drag-over-bottom'));
+                this.draggedRow = null;
+            });
+        });
+    },
+
+    // Perbarui nomor urut (1, 2, 3...) pada seluruh baris tabel
+    reindexRows() {
+        const tableBody = document.getElementById('invoiceTableBody');
+        if (!tableBody) return;
+
+        const rows = tableBody.querySelectorAll('.invoice-row');
+        rows.forEach((row, idx) => {
+            const rowNo = idx + 1;
+            row.setAttribute('data-sort-order', rowNo);
+
+            const numSpan = row.querySelector('.row-num');
+            if (numSpan) {
+                numSpan.textContent = rowNo;
+            } else if (row.cells[0]) {
+                row.cells[0].innerHTML = `
+                    <div class="flex items-center justify-center gap-1">
+                        <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                        <span class="row-num">${rowNo}</span>
+                    </div>
+                `;
+            }
+
+            // Sync ID first-row elements
+            const prodCell = row.querySelector('.editable-cell:not(.qty-cell):not(.price-cell):not(.nominal-cell)');
+            const qtyCell = row.querySelector('.qty-cell');
+            const priceCell = row.querySelector('.price-cell');
+            const nomCell = row.querySelector('.nominal-cell');
+
+            if (rowNo === 1) {
+                if (prodCell) prodCell.id = 'previewProduk';
+                if (qtyCell) qtyCell.id = 'previewJumlah';
+                if (priceCell) priceCell.id = 'previewHarga';
+                if (nomCell) nomCell.id = 'previewNominal';
+            } else {
+                if (prodCell && prodCell.id === 'previewProduk') prodCell.removeAttribute('id');
+                if (qtyCell && qtyCell.id === 'previewJumlah') qtyCell.removeAttribute('id');
+                if (priceCell && priceCell.id === 'previewHarga') priceCell.removeAttribute('id');
+                if (nomCell && nomCell.id === 'previewNominal') nomCell.removeAttribute('id');
+            }
+        });
     },
 
     setupEditable() {
@@ -247,60 +617,68 @@ const Invoice = {
 
         const btnSave = document.getElementById('btnSaveInvoice');
         if (btnSave) {
-            btnSave.addEventListener('click', () => {
-                this.saveEditedInvoice();
-            });
+            btnSave.onclick = async () => {
+                await this.saveEditedInvoice(false);
+            };
         }
 
         const btnReset = document.getElementById('btnResetInvoice');
         if (btnReset) {
-            btnReset.addEventListener('click', async () => {
-                const id = new URLSearchParams(window.location.search).get("id");
-                if (id) {
-                    if (await showConfirmModal({
-                        title: "Reset Perubahan Invoice",
-                        message: "Apakah Anda yakin ingin menghapus semua perubahan dan mengembalikan invoice ini seperti semula?",
-                        type: "warning",
-                        confirmText: "Kembalikan Semula"
-                    })) {
+            btnReset.onclick = async () => {
+                const id = this.currentInvoiceId || new URLSearchParams(window.location.search).get("id") || new URLSearchParams(window.location.search).get("invoiceId");
+                if (await showConfirmModal({
+                    title: "Reset Perubahan Invoice",
+                    message: "Apakah Anda yakin ingin menghapus semua perubahan dan mengembalikan invoice ini seperti semula?",
+                    type: "warning",
+                    confirmText: "Kembalikan Semula"
+                })) {
+                    if (id) {
                         localStorage.removeItem('invoice_edit_' + id);
-                        localStorage.removeItem('invoice_theme');
-                        window.location.reload();
                     }
+                    sessionStorage.removeItem('pending_invoice_payload');
+                    localStorage.removeItem('invoice_theme');
+                    window.location.reload();
                 }
-            });
+            };
         }
 
         // Setup Document Type switcher listeners
         const btnInvoice = document.getElementById('btnTypeInvoice');
         const btnNota = document.getElementById('btnTypeNota');
         if (btnInvoice) {
-            btnInvoice.addEventListener('click', () => {
+            btnInvoice.onclick = () => {
                 this.setDocumentType('invoice');
-            });
+            };
         }
         if (btnNota) {
-            btnNota.addEventListener('click', () => {
+            btnNota.onclick = () => {
                 this.setDocumentType('nota');
-            });
+            };
         }
 
         // Setup Signature toggle listener
         const chkShowSignature = document.getElementById('chkShowSignature');
         if (chkShowSignature) {
-            chkShowSignature.addEventListener('change', (e) => {
+            chkShowSignature.onchange = (e) => {
                 this.toggleSignature(e.target.checked);
-            });
+            };
         }
 
         recalculateTable();
     },
 
-    saveEditedInvoice() {
-        const id = new URLSearchParams(window.location.search).get("id");
-        if (!id) return;
+    async saveEditedInvoice(isSilent = false) {
+        const previewInvNo = document.getElementById('previewInvoiceNo');
+        let invNo = previewInvNo ? previewInvNo.innerText.trim() : '';
+        if (!invNo || invNo === '-') {
+            invNo = this.generateInvoiceNumber();
+            if (previewInvNo) previewInvNo.innerText = invNo;
+        }
 
         const tableBody = document.getElementById('invoiceTableBody');
+        const previewTanggal = document.getElementById('previewTanggal');
+        const previewPelanggan = document.getElementById('previewPelanggan');
+        const previewWA = document.getElementById('previewWA');
         const previewTotal = document.getElementById('previewTotal');
         const previewDP = document.getElementById('previewDP');
         const previewPelunasan = document.getElementById('previewPelunasan');
@@ -310,15 +688,12 @@ const Invoice = {
         const previewSignName = document.getElementById('previewSignName');
         const chkShowSignature = document.getElementById('chkShowSignature');
 
-        // Data murni (hanya numbering saja tanpa Rp. dan tanda baca)
-        const rawData = {
-            total: this.getRawNumber(previewTotal ? previewTotal.innerText : 0),
-            dp: this.getRawNumber(previewDP ? previewDP.innerText : 0),
-            pelunasan: this.getRawNumber(previewPelunasan ? previewPelunasan.innerText : 0),
-            sisa: this.getRawNumber(previewSisa ? previewSisa.innerText : 0),
-            items: []
-        };
+        const totalVal = this.getRawNumber(previewTotal ? previewTotal.innerText : 0);
+        const dpVal = this.getRawNumber(previewDP ? previewDP.innerText : 0);
+        const pelunasanVal = this.getRawNumber(previewPelunasan ? previewPelunasan.innerText : 0);
+        const sisaVal = this.getRawNumber(previewSisa ? previewSisa.innerText : 0);
 
+        const itemsList = [];
         if (tableBody) {
             const rows = tableBody.querySelectorAll('.invoice-row');
             rows.forEach((row, idx) => {
@@ -326,35 +701,83 @@ const Invoice = {
                 const qty = row.querySelector('.qty-cell');
                 const price = row.querySelector('.price-cell');
                 const nom = row.querySelector('.nominal-cell');
-                rawData.items.push({
-                    no: idx + 1,
-                    produk: prod ? prod.innerText.trim() : '',
-                    qty: qty ? this.getRawNumber(qty.innerText) : 0,
-                    harga: price ? this.getRawNumber(price.innerText) : 0,
-                    nominal: nom ? this.getRawNumber(nom.innerText) : 0
-                });
+                const prodText = prod ? prod.innerText.trim() : '';
+
+                if (prodText || this.getRawNumber(nom ? nom.innerText : 0) > 0) {
+                    itemsList.push({
+                        sort_order: idx + 1,
+                        no: idx + 1,
+                        produk: prodText,
+                        qty: qty ? qty.innerText.trim() : '1 pcs',
+                        harga: price ? this.getRawNumber(price.innerText) : 0,
+                        nominal: nom ? this.getRawNumber(nom.innerText) : 0
+                    });
+                }
             });
         }
 
-        const dataToSave = {
+        const invoiceRecord = {
+            id: invNo,
+            invoice_id: invNo,
+            iDInvoice: invNo,
+            project_ids: this.currentProjectIds && this.currentProjectIds.length > 0 ? this.currentProjectIds : [invNo],
+            customer_name: previewPelanggan ? previewPelanggan.innerText.trim() : (this.currentCustomerName || 'Pelanggan'),
+            customer_phone: previewWA ? previewWA.innerText.trim() : '',
+            tanggal: previewTanggal ? previewTanggal.innerText.trim() : new Date().toISOString().split('T')[0],
+            total: totalVal,
+            dp: dpVal,
+            pelunasan: pelunasanVal,
+            sisa: sisaVal,
+            doc_type: this.docType || 'invoice',
+            invoice_theme: this.invoiceTheme || 'light',
+            show_signature: chkShowSignature ? chkShowSignature.checked : true,
+            sign_title: previewSignTitle ? previewSignTitle.innerText.trim() : 'Hormat Kami,',
+            sign_name: previewSignName ? previewSignName.innerText.trim() : 'Premium Designz',
+            catatan: previewCatatan ? previewCatatan.innerText.trim() : '-',
+            items: itemsList,
             tableHtml: tableBody ? tableBody.innerHTML : '',
-            totalHtml: previewTotal ? previewTotal.innerHTML : '',
-            dpHtml: previewDP ? previewDP.innerHTML : '',
-            pelunasanHtml: previewPelunasan ? previewPelunasan.innerHTML : '',
-            sisaHtml: previewSisa ? previewSisa.innerHTML : '',
-            catatanHtml: previewCatatan ? previewCatatan.innerHTML : '',
-            signTitle: previewSignTitle ? previewSignTitle.innerText : 'Hormat Kami,',
-            signName: previewSignName ? previewSignName.innerText : 'Premium Designz',
-            showSignature: chkShowSignature ? chkShowSignature.checked : true,
-            docType: this.docType || 'invoice',
-            invoiceTheme: this.invoiceTheme || 'light',
-            rawData: rawData
+            status: (sisaVal <= 0) ? 'Lunas' : ((dpVal > 0 || pelunasanVal > 0) ? 'Sebagian' : 'Belum Bayar')
         };
 
-        localStorage.setItem('invoice_edit_' + id, JSON.stringify(dataToSave));
-        if (typeof Toast !== 'undefined') Toast.success('Tersimpan', 'Perubahan invoice berhasil disimpan di penyimpanan lokal browser.');
+        const btnSave = document.getElementById('btnSaveInvoice');
+        const origHtml = btnSave ? btnSave.innerHTML : '';
+        if (btnSave && !isSilent) {
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...';
+        }
+
+        try {
+            await API.saveInvoice(invoiceRecord);
+            this.currentInvoiceId = invNo;
+
+            // Update URL query params agar reload tetap di invoice yang tersimpan
+            try {
+                const newUrl = `${window.location.pathname}?invoiceId=${encodeURIComponent(invNo)}`;
+                window.history.replaceState({ path: newUrl }, '', newUrl);
+            } catch (e) {}
+
+            if (!isSilent && typeof Toast !== 'undefined') {
+                Toast.success(
+                    'Invoice Tersimpan!',
+                    `Invoice ${invNo} berhasil disimpan. Anda dapat melihatnya kapan saja di menu History Invoice.`
+                );
+            }
+        } catch (err) {
+            console.error("Gagal simpan invoice:", err);
+            if (!isSilent && typeof Toast !== 'undefined') {
+                Toast.error('Gagal Menyimpan', err.message || 'Terjadi kesalahan saat menyimpan data invoice.');
+            }
+        } finally {
+            if (btnSave && !isSilent) {
+                btnSave.disabled = false;
+                btnSave.innerHTML = origHtml;
+            }
+        }
     },
 
+    // ==========================================
+    // EXPORT PDF DENGAN LAYOUT BERSIH & PROPORSIONAL
+    // ==========================================
     exportPDF() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         const btnPDF = document.getElementById("btnPDF");
@@ -387,14 +810,17 @@ const Invoice = {
             );
         }
 
+        // Scroll window ke paling atas untuk mencegah viewport scroll offset issue pada html2canvas
+        window.scrollTo(0, 0);
+
         if (typeof html2pdf !== 'undefined') {
             const isDark = (this.invoiceTheme === 'dark');
-            html2pdf().set({
-                margin: [0, 0, 0, 0],
+            const opt = {
+                margin: [6, 6, 6, 6], // Margin seimbang di 4 sisi (mm)
                 filename: fileName,
                 image: {
                     type: "jpeg",
-                    quality: 1
+                    quality: 0.98
                 },
                 html2canvas: {
                     scale: 2,
@@ -408,8 +834,14 @@ const Invoice = {
                     unit: "mm",
                     format: "a4",
                     orientation: "portrait"
+                },
+                pagebreak: {
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    avoid: ['.invoice-row', '#previewTotalBox', '#signatureSection', '.invoice-header-border']
                 }
-            }).from(invoice).save().then(() => {
+            };
+
+            html2pdf().set(opt).from(invoice).save().then(() => {
                 resetBtn();
                 if (typeof Toast !== 'undefined') {
                     Toast.success(
@@ -460,6 +892,9 @@ const Invoice = {
             );
         }
 
+        // Scroll window ke atas sebelum capture
+        window.scrollTo(0, 0);
+
         const isDark = (this.invoiceTheme === 'dark');
 
         if (typeof html2canvas !== 'undefined') {
@@ -497,6 +932,7 @@ const Invoice = {
             if (typeof Toast !== 'undefined') Toast.error('Error', 'Library html2canvas tidak ditemukan.');
         }
     },
+
     setDocumentType(type) {
         this.docType = type;
         const titleEl = document.getElementById("previewDocTitle");
@@ -524,6 +960,7 @@ const Invoice = {
             }
         }
     },
+
     setupThemeListeners() {
         const btnLight = document.getElementById('btnThemeLight');
         const btnDark = document.getElementById('btnThemeDark');
@@ -561,6 +998,7 @@ const Invoice = {
             document.body.classList.remove('print-dark-mode');
         });
     },
+
     setInvoiceTheme(theme, save = true) {
         this.invoiceTheme = theme;
         const invoice = document.getElementById('invoiceArea');
@@ -602,6 +1040,7 @@ const Invoice = {
             localStorage.setItem('invoice_theme', theme);
         }
     },
+
     toggleSignature(show) {
         this.showSignature = show;
         const signatureSection = document.getElementById("signatureSection");
@@ -616,6 +1055,7 @@ const Invoice = {
             }
         }
     },
+
     generateWatermark() {
         const grid = document.getElementById('watermarkGrid');
         if (!grid) return;
@@ -652,6 +1092,7 @@ const Invoice = {
         }
     }
 };
+
 document.addEventListener("DOMContentLoaded", () => {
     Invoice.init();
 });

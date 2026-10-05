@@ -5,8 +5,11 @@ const TRANSLATIONS = {
     "nav-proyek": "Projek",
     "nav-tambah": "Tambah",
     "nav-keuangan": "Keuangan",
+    "nav-keuangan-group": "Keuangan",
     "nav-laporan": "Laporan",
     "nav-admin-tasks": "Aktivitas Admin",
+    "nav-history-invoice": "History Invoice",
+    "nav-invoice": "Invoice",
     "nav-pengaturan": "Pengaturan",
     "nav-tools": "Tools",
     "nav-profile": "Profile",
@@ -145,6 +148,7 @@ const TRANSLATIONS = {
     "proj-title": "Daftar Projek",
     "proj-desc": "Kelola status, pembayaran, dan tenggat waktu projek secara langsung.",
     "proj-btn-delete": "Hapus Terpilih",
+    "proj-btn-invoice": "Create Invoice",
     "proj-btn-excel": "Export Excel",
     "proj-btn-new": "Tambah Projek Baru",
     "proj-badge-all": "Semua",
@@ -263,8 +267,11 @@ const TRANSLATIONS = {
     "nav-proyek": "Projects",
     "nav-tambah": "Add New",
     "nav-keuangan": "Finance",
+    "nav-keuangan-group": "Finance",
     "nav-laporan": "Reports",
     "nav-admin-tasks": "Admin Tasks",
+    "nav-history-invoice": "Invoice History",
+    "nav-invoice": "Invoice",
     "nav-pengaturan": "Settings",
     "nav-tools": "Tools",
     "nav-profile": "Profile",
@@ -404,6 +411,7 @@ const TRANSLATIONS = {
     "proj-title": "Project List",
     "proj-desc": "Directly manage project status, payments, and deadlines.",
     "proj-btn-delete": "Delete Selected",
+    "proj-btn-invoice": "Create Invoice",
     "proj-btn-excel": "Export Excel",
     "proj-btn-new": "Add New Project",
     "proj-badge-all": "All",
@@ -578,6 +586,8 @@ const i18n = {
       document.title = currentLang === 'en' ? 'Financial Reports - FPManager' : 'Laporan Keuangan & Statistik - FPManager';
     } else if (currentPath === 'invoice.html') {
       document.title = currentLang === 'en' ? 'Invoice Preview - FPManager' : 'Preview Invoice - FPManager';
+    } else if (currentPath === 'history-invoice.html') {
+      document.title = currentLang === 'en' ? 'Invoice History - FPManager' : 'History Invoice - Kelola FPManager';
     } else if (currentPath === 'tools.html') {
       document.title = currentLang === 'en' ? 'Tools & Prompts - FPManager' : 'Tools & Prompts - FPManager';
     } else if (currentPath === 'profil.html') {

@@ -43,6 +43,25 @@ document.addEventListener("DOMContentLoaded", () => {
     ]
   };
 
+  const getUserEffectivePerms = (user) => {
+    if (!user) return [];
+    if (user.role === 'super_admin' || user.username === 'wansmin') {
+      return [...defaultRolePerms.super_admin];
+    }
+    const role = (user.role || 'service').toLowerCase().trim();
+    const basePerms = (role !== 'custom' && defaultRolePerms[role]) ? defaultRolePerms[role] : [];
+    
+    let directPerms = [];
+    if (Array.isArray(user.permissions)) {
+      directPerms = user.permissions.map(p => String(p).toLowerCase().trim().replace(/^projek:/i, "proyek:"));
+    } else if (user.permissions && typeof user.permissions === 'object') {
+      for (const [k, v] of Object.entries(user.permissions)) {
+        if (v === true) directPerms.push(k.toLowerCase().trim().replace(/^projek:/i, "proyek:"));
+      }
+    }
+    return Array.from(new Set([...basePerms, ...directPerms]));
+  };
+
   const loadUsers = async () => {
     if (typeof Auth !== 'undefined' && !Auth.hasPermission('users:read')) {
       const mainArea = document.querySelector('main section') || document.querySelector('main');
@@ -77,13 +96,18 @@ document.addEventListener("DOMContentLoaded", () => {
   window.loadUsers = loadUsers;
 
   const userHasPerm = (user, permKey) => {
-    if (user.role === 'super_admin') return true;
-    if (!user || !user.permissions) return false;
-    if (typeof user.permissions === 'object' && !Array.isArray(user.permissions)) {
-      return user.permissions[permKey] === true;
+    if (!user) return false;
+    if (user.role === 'super_admin' || user.username === 'wansmin') return true;
+    const normKey = String(permKey).toLowerCase().trim().replace(/^projek:/i, "proyek:");
+
+    // Handle Object format
+    if (user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)) {
+      if (user.permissions[normKey] !== undefined) return user.permissions[normKey] === true;
+      if (user.permissions[permKey] !== undefined) return user.permissions[permKey] === true;
     }
-    const perms = Array.isArray(user.permissions) ? user.permissions : [];
-    return perms.includes(permKey);
+
+    const effectivePerms = getUserEffectivePerms(user);
+    return effectivePerms.includes(normKey) || effectivePerms.includes(permKey);
   };
 
   const renderUsers = (users) => {
@@ -202,16 +226,23 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const syncSessionUserIfMatch = (updatedUser) => {
-    if (typeof Auth !== 'undefined' && Auth.getUser) {
-      const currentUser = Auth.getUser();
-      if (currentUser && (currentUser.id === updatedUser.id || currentUser.username === updatedUser.username)) {
-        const newSessionUser = { ...currentUser, ...updatedUser };
-        sessionStorage.setItem("user", JSON.stringify(newSessionUser));
-        if (localStorage.getItem("user")) {
-          localStorage.setItem("user", JSON.stringify(newSessionUser));
+    if (typeof APICache !== 'undefined' && APICache.clear) {
+      APICache.clear();
+    }
+    if (typeof Auth !== 'undefined') {
+      if (typeof Auth.syncUserSession === 'function') {
+        Auth.syncUserSession(updatedUser);
+      } else if (typeof Auth.getUser === 'function') {
+        const currentUser = Auth.getUser();
+        if (currentUser && (currentUser.id === updatedUser.id || currentUser.username === updatedUser.username)) {
+          const newSessionUser = { ...currentUser, ...updatedUser };
+          sessionStorage.setItem("user", JSON.stringify(newSessionUser));
+          if (localStorage.getItem("user")) {
+            localStorage.setItem("user", JSON.stringify(newSessionUser));
+          }
+          if (Auth.applyMenuPermissions) Auth.applyMenuPermissions();
+          if (Auth.applyButtonPermissions) Auth.applyButtonPermissions();
         }
-        if (Auth.applyMenuPermissions) Auth.applyMenuPermissions();
-        if (Auth.applyButtonPermissions) Auth.applyButtonPermissions();
       }
     }
   };
@@ -410,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const targetActions = moduleActionsMap[moduleKey] || [];
-    let currentPerms = Array.isArray(user.permissions) ? [...user.permissions] : (defaultRolePerms[user.role] || defaultRolePerms.service);
+    let currentPerms = getUserEffectivePerms(user);
 
     if (isChecked) {
       targetActions.forEach(act => {
@@ -439,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = usersData.find(u => u.id === id);
     if (!user) return;
 
-    let perms = defaultRolePerms[newRole] || (Array.isArray(user.permissions) ? user.permissions : defaultRolePerms.service);
+    let perms = defaultRolePerms[newRole] || (newRole === 'custom' ? getUserEffectivePerms(user) : defaultRolePerms.service);
 
     user.role = newRole;
     user.permissions = perms;

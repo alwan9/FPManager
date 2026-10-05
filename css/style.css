@@ -1263,4 +1263,202 @@ footer {
   width: 100%;
 }
 
+/* ======================================================= */
+/* Collapsible Navigation Group (Keuangan, History Invoice, Laporan) */
+/* ======================================================= */
+.sidebar-nav-group {
+  width: 100%;
+}
+
+.sidebar-group-btn {
+  width: 100%;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.sidebar-group-btn .group-chevron {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-group-btn.expanded .group-chevron {
+  transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-submenu.hidden {
+  display: none !important;
+}
+
+.sidebar-sublink {
+  transition: all 0.15s ease-in-out;
+}
+
+.sidebar-sublink:hover {
+  transform: translateX(3px);
+}
+
+.sidebar-sublink.active {
+  background-color: #27272a !important; /* bg-zinc-800 */
+  color: #818cf8 !important; /* text-indigo-400 */
+  font-weight: 600 !important;
+}
+
+html:not(.dark) aside .sidebar-group-btn.active-parent {
+  color: #4f46e5 !important;
+  background-color: #f4f4f5 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) aside .sidebar-sublink.active {
+  background-color: #e0e7ff !important;
+  color: #4f46e5 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) aside .sidebar-sublink:not(.active) {
+  color: #71717a !important;
+}
+
+html:not(.dark) aside .sidebar-sublink:not(.active):hover {
+  color: #18181b !important;
+  background-color: #f4f4f5 !important;
+}
+
+html.dark aside .sidebar-group-btn.active-parent {
+  color: #818cf8 !important;
+  background-color: rgba(39, 39, 42, 0.7) !important;
+  font-weight: 600 !important;
+}
+
+html.dark aside .sidebar-sublink.active {
+  background-color: #27272a !important;
+  color: #818cf8 !important;
+  font-weight: 600 !important;
+}
+
+aside.sidebar-collapsed .group-chevron,
+aside.sidebar-collapsed .sidebar-submenu {
+  display: none !important;
+}
+
+/* ======================================================= */
+/* Mobile Keuangan Popover & Dark Backdrop Overlay         */
+/* ======================================================= */
+#mobileKeuanganBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 45;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#mobileKeuanganBackdrop.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#mobileKeuanganPopover {
+  position: fixed;
+  bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  right: 12px;
+  width: 250px;
+  max-width: calc(100vw - 24px);
+  background-color: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  box-shadow: 0 -8px 24px -4px rgba(0, 0, 0, 0.4), 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  z-index: 55;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.95);
+  transform-origin: bottom right;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s;
+  pointer-events: none;
+}
+
+#mobileKeuanganPopover.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+#mobileKeuanganPopover .popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid #27272a;
+  margin-bottom: 4px;
+}
+
+#mobileKeuanganPopover .popover-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #d4d4d8;
+  min-height: 44px;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+
+#mobileKeuanganPopover .popover-link:active,
+#mobileKeuanganPopover .popover-link:hover {
+  background-color: #27272a;
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+#mobileKeuanganPopover .popover-link.active-sub {
+  background-color: #27272a;
+  color: #818cf8 !important;
+  font-weight: 600;
+}
+
+/* Light mode overrides for Popover */
+html:not(.dark) #mobileKeuanganPopover {
+  background-color: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  box-shadow: 0 -6px 20px -2px rgba(0, 0, 0, 0.08), 0 16px 24px -4px rgba(0, 0, 0, 0.12) !important;
+}
+
+html:not(.dark) #mobileKeuanganPopover .popover-header {
+  border-bottom-color: #f4f4f5 !important;
+}
+
+html:not(.dark) #mobileKeuanganPopover .popover-title {
+  color: #18181b !important;
+}
+
+html:not(.dark) #mobileKeuanganPopover .popover-link {
+  color: #3f3f46 !important;
+}
+
+html:not(.dark) #mobileKeuanganPopover .popover-link:hover,
+html:not(.dark) #mobileKeuanganPopover .popover-link:active {
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+}
+
+html:not(.dark) #mobileKeuanganPopover .popover-link.active-sub {
+  background-color: #e0e7ff !important;
+  color: #4f46e5 !important;
+}
+
+
 

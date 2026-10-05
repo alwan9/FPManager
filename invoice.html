@@ -323,6 +323,45 @@
             background: linear-gradient(to right, rgba(99, 102, 241, 0.22), rgba(236, 72, 153, 0.06)) !important;
         }
 
+        /* Drag and Drop Item Sorting Styles */
+        .invoice-row {
+            transition: background-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .drag-handle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            padding: 2px 3px;
+            border-radius: 4px;
+            transition: color 0.15s ease, background-color 0.15s ease;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .drag-handle:hover {
+            color: #4f46e5 !important;
+            background-color: rgba(99, 102, 241, 0.12);
+        }
+
+        .invoice-row.dragging {
+            opacity: 0.35 !important;
+            background-color: rgba(99, 102, 241, 0.12) !important;
+        }
+
+        .invoice-row.drag-over-top {
+            box-shadow: inset 0 3px 0 0 #4f46e5 !important;
+        }
+
+        .invoice-row.drag-over-bottom {
+            box-shadow: inset 0 -3px 0 0 #4f46e5 !important;
+        }
+
         @page {
             size: A4 portrait;
             margin: 0;
@@ -331,7 +370,6 @@
         @media print {
             html, body {
                 width: 210mm !important;
-                height: 297mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: transparent !important;
@@ -344,7 +382,7 @@
             body.print-dark-mode {
                 background: #121215 !important;
             }
-            .no-print, .no-print * {
+            .no-print, .no-print *, .drag-handle {
                 display: none !important;
                 visibility: hidden !important;
             }
@@ -360,13 +398,13 @@
                 border-radius: 0 !important;
                 margin: 0 !important;
                 width: 210mm !important;
-                min-height: 297mm !important;
-                max-height: 297mm !important;
-                padding: 10mm 12mm !important;
+                min-height: auto !important;
+                max-height: none !important;
+                padding: 8mm 12mm !important;
                 box-sizing: border-box !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-                overflow: hidden !important;
+                page-break-after: auto !important;
+                page-break-inside: auto !important;
+                overflow: visible !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -385,11 +423,18 @@
 
         <!-- Header -->
         <div class="no-print flex justify-between items-center mb-6">
-            <button onclick="history.back()"
-                class="no-print bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center">
-                <i class="fa fa-arrow-left mr-2"></i>
-                Kembali
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="history.back()"
+                    class="no-print bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center text-xs sm:text-sm">
+                    <i class="fa fa-arrow-left mr-2"></i>
+                    Kembali
+                </button>
+                <a href="history-invoice.html"
+                    class="no-print bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all flex items-center text-xs sm:text-sm">
+                    <i class="fa-solid fa-receipt mr-2 text-indigo-500"></i>
+                    <span>History Invoice</span>
+                </a>
+            </div>
             <button id="darkModeToggle"
                 class="no-print p-2.5 px-4 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm transition-all flex items-center gap-2"
                 title="Ganti Mode Gelap / Terang">

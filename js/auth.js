@@ -258,68 +258,106 @@ const Auth = {
     return u ? (u.role || "service") : "service";
   },
 
+  ROLE_DEFAULTS: {
+    service: [
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete"
+    ],
+    desainer: [
+      "proyek:read", "proyek:create", "proyek:update",
+      "tools:read", "tools:create", "tools:update", "tools:delete",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
+    ],
+    super_admin: [
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
+      "laporan:read", "laporan:export", "laporan:create", "laporan:update", "laporan:delete",
+      "tools:read", "tools:create", "tools:update", "tools:delete",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
+      "users:read", "users:create", "users:update", "users:delete"
+    ]
+  },
+
   hasPermission: (action) => {
+    if (!action) return true;
     const user = Auth.getUser();
     if (!user) return false;
+
     const role = (user.role || "").toLowerCase().trim();
-    const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+    const isSuperAdmin = (
+      user.username === "wansmin" ||
+      role === "super_admin" ||
+      role === "super admin" ||
+      role === "superadmin" ||
+      role.includes("super_admin") ||
+      role.includes("superadmin") ||
+      role.includes("admin")
+    );
     if (isSuperAdmin) return true;
 
-    // Handle Object/Map format: { "proyek:read": true, "proyek:delete": false }
+    // Normalize action (support both 'projek' and 'proyek')
+    const normalizedAction = String(action).toLowerCase().trim().replace(/^projek:/i, "proyek:");
+    const altAction = normalizedAction.replace(/^proyek:/i, "projek:");
+    const [mod, act] = normalizedAction.split(":");
+
+    // 1. Handle Object/Map format: { "proyek:read": true, "proyek:delete": false }
     const permissions = user.permissions;
     if (permissions && typeof permissions === 'object' && !Array.isArray(permissions)) {
+      if (permissions[normalizedAction] !== undefined) return permissions[normalizedAction] === true;
+      if (permissions[altAction] !== undefined) return permissions[altAction] === true;
       if (permissions[action] !== undefined) return permissions[action] === true;
-      const mod = action.split(":")[0];
-      if (!action.split(":")[1] && permissions[mod + ":read"] !== undefined) {
-        return permissions[mod + ":read"] === true;
+      if (mod && permissions[mod + ":*"] !== undefined) return permissions[mod + ":*"] === true;
+      if (mod && permissions[mod] !== undefined) return permissions[mod] === true;
+      if (!act || act === 'read') {
+        if (permissions[mod + ":read"] !== undefined) return permissions[mod + ":read"] === true;
       }
-      if (permissions[mod] !== undefined) return permissions[mod] === true;
     }
 
-    // Handle Array format: ["proyek:read", "proyek:create"]
-    const userPerms = Array.isArray(permissions) ? permissions : [];
+    // 2. Determine Effective Permissions (Base Role Defaults + Direct Permissions Array)
+    const baseRolePerms = (role && role !== "custom" && Auth.ROLE_DEFAULTS[role]) ? Auth.ROLE_DEFAULTS[role] : [];
+    let directPerms = [];
+    if (Array.isArray(permissions)) {
+      directPerms = permissions.map(p => String(p).toLowerCase().trim().replace(/^projek:/i, "proyek:"));
+    }
 
-    // 1. Exact match (e.g. 'proyek:read', 'proyek:delete')
-    if (userPerms.includes(action)) return true;
+    // Union of base role permissions and direct permissions
+    const effectiveSet = new Set([...baseRolePerms, ...directPerms]);
 
-    const [mod, act] = action.split(":");
+    // Exact match
+    if (effectiveSet.has(normalizedAction) || effectiveSet.has(altAction) || effectiveSet.has(action.toLowerCase())) {
+      return true;
+    }
 
-    // 2. Full module wildcard (e.g. 'proyek:*' or 'proyek')
-    if (userPerms.includes(mod + ":*") || userPerms.includes(mod)) return true;
+    // Full module wildcard (e.g. 'proyek:*' or 'proyek')
+    if (effectiveSet.has(mod + ":*") || effectiveSet.has(mod) || (mod === "proyek" && (effectiveSet.has("projek:*") || effectiveSet.has("projek")))) {
+      return true;
+    }
 
-    // 3. Module read check (when checking module access, e.g. action='proyek:read' or 'proyek')
+    // Module read check (when checking module access, e.g. action='proyek:read' or 'proyek')
     if (!act || act === 'read') {
-      if (userPerms.includes(mod)) return true;
-      return userPerms.some(p => p.startsWith(mod + ":") || p === mod);
-    }
-
-    // 4. Fallback to default role matrix if permissions array is empty
-    if ((!userPerms || userPerms.length === 0) && user.role) {
-      const roleDefaults = {
-        service: [
-          "proyek:read", "proyek:create", "proyek:update", "proyek:delete"
-        ],
-        desainer: [
-          "proyek:read", "proyek:create", "proyek:update",
-          "tools:read", "tools:create", "tools:update", "tools:delete",
-          "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
-        ],
-        super_admin: [
-          "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
-          "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
-          "laporan:read", "laporan:export", "laporan:create", "laporan:update", "laporan:delete",
-          "tools:read", "tools:create", "tools:update", "tools:delete",
-          "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
-          "users:read", "users:create", "users:update", "users:delete"
-        ]
-      };
-      const defs = roleDefaults[user.role] || [];
-      if (defs.includes(action)) return true;
-      if (defs.includes(mod) || defs.includes(mod + ":*")) return true;
-      if (!act || act === 'read') return defs.some(p => p.startsWith(mod + ":") || p === mod);
+      if (effectiveSet.has(mod) || (mod === "proyek" && effectiveSet.has("projek"))) return true;
+      for (const p of effectiveSet) {
+        if (p.startsWith(mod + ":") || p === mod || (mod === "proyek" && (p.startsWith("projek:") || p === "projek"))) {
+          return true;
+        }
+      }
     }
 
     return false;
+  },
+
+  syncUserSession: (updatedUser) => {
+    if (!updatedUser) return;
+    const currentUser = Auth.getUser();
+    if (!currentUser) return;
+    if (currentUser.id === updatedUser.id || currentUser.username === updatedUser.username) {
+      const mergedUser = { ...currentUser, ...updatedUser };
+      sessionStorage.setItem("user", JSON.stringify(mergedUser));
+      if (localStorage.getItem("user")) {
+        localStorage.setItem("user", JSON.stringify(mergedUser));
+      }
+      if (Auth.applyMenuPermissions) Auth.applyMenuPermissions();
+      if (Auth.applyButtonPermissions) Auth.applyButtonPermissions();
+    }
   },
 
   checkLogin: () => {
@@ -361,6 +399,7 @@ const Auth = {
     let isDenied = false;
     if (/(^|\/)proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
     if (/(^|\/)invoice(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
+    if (/(^|\/)history-invoice(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
     if (/(^|\/)tambah-proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:create")) isDenied = true;
     if (/(^|\/)keuangan(\.html)?$/i.test(path) && !Auth.hasPermission("keuangan:read")) isDenied = true;
     if (/(^|\/)laporan(\.html)?$/i.test(path) && !Auth.hasPermission("laporan:read")) isDenied = true;
@@ -397,7 +436,9 @@ const Auth = {
     const isProyek = filename === "proyek.html" || filename === "proyek" || filename === "invoice.html" || filename === "invoice";
     const isTambah = filename === "tambah-proyek.html" || filename === "tambah-proyek";
     const isKeuangan = filename === "keuangan.html" || filename === "keuangan";
+    const isHistory = filename === "history-invoice.html" || filename === "history-invoice";
     const isLaporan = filename === "laporan.html" || filename === "laporan";
+    const isKeuanganGroup = isKeuangan || isHistory || isLaporan;
     const isTools = filename === "tools.html" || filename === "tools";
     const isProfil = filename === "profil.html" || filename === "profil";
 
@@ -432,15 +473,11 @@ const Auth = {
         </a>
       `;
     } else {
-      // Role Service / Super Admin / Default: 5 Menus [ Home | Project | + Tambah Project | Keuangan | Profile ]
+      // Role Service / Super Admin / Default: 5 Menus [ Home | Project | + Tambah Project | Keuangan Group | Profile ]
       const canKeuangan = isSuperAdmin || Auth.hasPermission("keuangan:read");
+      const canHistory = isSuperAdmin || Auth.hasPermission("proyek:read");
       const canLaporan = isSuperAdmin || Auth.hasPermission("laporan:read");
-      const fourthHref = (canKeuangan || !canLaporan) ? "keuangan.html" : "laporan.html";
-      const fourthLabel = (canKeuangan || !canLaporan) ? "Keuangan" : "Laporan";
-      const fourthI18n = (canKeuangan || !canLaporan) ? "nav-keuangan" : "nav-laporan";
-      const fourthIcon = (canKeuangan || !canLaporan) ? "fa-wallet" : "fa-file-invoice-dollar";
-      const fourthPerm = (canKeuangan || !canLaporan) ? "keuangan:read" : "laporan:read";
-      const isFourthActive = isKeuangan || (fourthHref === "laporan.html" && isLaporan);
+      const hasAnyKeuangan = canKeuangan || canHistory || canLaporan;
 
       bottomNav.innerHTML = `
         <!-- 1. Home -->
@@ -464,11 +501,16 @@ const Auth = {
           <span class="text-[10px] font-bold ${isTambah ? 'text-indigo-400' : 'text-zinc-200'} mt-0.5" data-i18n="nav-tambah">Tambah</span>
         </a>
 
-        <!-- 4. Keuangan / Laporan -->
-        <a href="${fourthHref}" data-permission-allow="${fourthPerm}" class="${isFourthActive ? activeClass : inactiveClass}">
-          <i class="fa-solid ${fourthIcon} text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="${fourthI18n}">${fourthLabel}</span>
-        </a>
+        <!-- 4. Keuangan Group (Collapsible / Action Menu) -->
+        ${hasAnyKeuangan ? `
+        <button type="button" id="btnMobileKeuanganNav" onclick="Auth.toggleMobileKeuanganMenu()"
+          class="${isKeuanganGroup ? activeClass : inactiveClass} focus:outline-none cursor-pointer">
+          <i class="fa-solid fa-wallet text-base"></i>
+          <span class="text-[10px] mt-0.5 flex items-center gap-0.5" data-i18n="nav-keuangan-group">
+            Keuangan <i class="fa-solid fa-chevron-up text-[8px] opacity-70"></i>
+          </span>
+        </button>
+        ` : ''}
 
         <!-- 5. Profile -->
         <a href="profil.html" class="${isProfil ? activeClass : inactiveClass}">
@@ -476,12 +518,157 @@ const Auth = {
           <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
         </a>
       `;
+
+      // Render Mobile Keuangan Backdrop Overlay Container if not exists
+      let backdrop = document.getElementById("mobileKeuanganBackdrop");
+      if (!backdrop && hasAnyKeuangan) {
+        backdrop = document.createElement("div");
+        backdrop.id = "mobileKeuanganBackdrop";
+        backdrop.className = "md:hidden fixed inset-0";
+        backdrop.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          Auth.toggleMobileKeuanganMenu(false);
+        };
+        document.body.appendChild(backdrop);
+      }
+
+      // Render Mobile Keuangan Popover Container if not exists
+      let popover = document.getElementById("mobileKeuanganPopover");
+      if (!popover && hasAnyKeuangan) {
+        popover = document.createElement("div");
+        popover.id = "mobileKeuanganPopover";
+        popover.className = "md:hidden fixed";
+        document.body.appendChild(popover);
+      }
+
+      if (popover && hasAnyKeuangan) {
+        popover.innerHTML = `
+          <div class="popover-header">
+            <span class="text-xs font-bold popover-title flex items-center gap-2">
+              <i class="fa-solid fa-wallet text-indigo-500"></i>
+              <span data-i18n="nav-keuangan-group">Keuangan</span>
+            </span>
+            <button type="button" onclick="Auth.toggleMobileKeuanganMenu(false)" class="text-zinc-400 hover:text-white p-1 focus:outline-none" title="Tutup">
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+          <div class="flex flex-col space-y-1">
+            ${canKeuangan ? `
+            <a href="keuangan.html" data-permission-allow="keuangan:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
+              <i class="fa-solid fa-coins text-sm text-indigo-400 w-5"></i>
+              <span data-i18n="nav-keuangan">Keuangan</span>
+            </a>` : ''}
+            ${canHistory ? `
+            <a href="history-invoice.html" data-permission-allow="proyek:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
+              <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
+              <span data-i18n="nav-history-invoice">History Invoice</span>
+            </a>` : ''}
+            ${canLaporan ? `
+            <a href="laporan.html" data-permission-allow="laporan:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isLaporan ? 'active-sub' : ''}">
+              <i class="fa-solid fa-file-invoice-dollar text-sm text-indigo-400 w-5"></i>
+              <span data-i18n="nav-laporan">Laporan</span>
+            </a>` : ''}
+          </div>
+        `;
+      }
     }
 
     // Apply translations if i18n is available
     if (typeof i18n !== 'undefined' && i18n.translatePage) {
       i18n.translatePage();
     }
+  },
+
+  toggleMobileKeuanganMenu: (forceState) => {
+    const backdrop = document.getElementById("mobileKeuanganBackdrop");
+    const popover = document.getElementById("mobileKeuanganPopover");
+    const navBtn = document.getElementById("btnMobileKeuanganNav");
+    if (!popover || !backdrop) return;
+
+    let shouldOpen = false;
+    if (forceState !== undefined) {
+      shouldOpen = !!forceState;
+    } else {
+      shouldOpen = !popover.classList.contains("active");
+    }
+
+    if (shouldOpen) {
+      backdrop.classList.add("active");
+      popover.classList.add("active");
+      if (navBtn) {
+        navBtn.setAttribute("aria-expanded", "true");
+        const icon = navBtn.querySelector(".fa-chevron-up, .fa-chevron-down");
+        if (icon) icon.className = "fa-solid fa-chevron-down text-[8px] opacity-70";
+      }
+    } else {
+      backdrop.classList.remove("active");
+      popover.classList.remove("active");
+      if (navBtn) {
+        navBtn.setAttribute("aria-expanded", "false");
+        const icon = navBtn.querySelector(".fa-chevron-up, .fa-chevron-down");
+        if (icon) icon.className = "fa-solid fa-chevron-up text-[8px] opacity-70";
+      }
+    }
+  },
+
+  initSidebarNavGroup: () => {
+    const group = document.getElementById("navKeuanganGroup");
+    const toggleBtn = document.getElementById("btnNavKeuanganToggle");
+    const submenu = document.getElementById("submenuKeuangan");
+    if (!group || !toggleBtn || !submenu) return;
+
+    const currentPath = (window.location.pathname || "").toLowerCase();
+    const filename = currentPath.split("/").pop() || "index.html";
+
+    const isKeuangan = filename === "keuangan.html" || filename === "keuangan";
+    const isHistory = filename === "history-invoice.html" || filename === "history-invoice";
+    const isLaporan = filename === "laporan.html" || filename === "laporan";
+    const isKeuanganGroup = isKeuangan || isHistory || isLaporan;
+
+    // Highlight parent and open submenu if on one of the group pages
+    if (isKeuanganGroup) {
+      toggleBtn.classList.add("active-parent", "expanded");
+      toggleBtn.setAttribute("aria-expanded", "true");
+      submenu.classList.remove("hidden");
+      submenu.classList.add("flex");
+    } else {
+      toggleBtn.classList.remove("active-parent", "expanded");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      submenu.classList.add("hidden");
+      submenu.classList.remove("flex");
+    }
+
+    // Mark active submenu item
+    const sublinks = submenu.querySelectorAll(".sidebar-sublink");
+    sublinks.forEach(link => {
+      const href = link.getAttribute("href") || "";
+      if ((isKeuangan && href.includes("keuangan.html")) ||
+          (isHistory && href.includes("history-invoice.html")) ||
+          (isLaporan && href.includes("laporan.html"))) {
+        link.classList.add("active", "text-indigo-400", "font-semibold");
+      } else {
+        link.classList.remove("active");
+      }
+    });
+
+    // Attach click toggle handler safely
+    toggleBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isCurrentlyHidden = submenu.classList.contains("hidden");
+      if (isCurrentlyHidden) {
+        submenu.classList.remove("hidden");
+        submenu.classList.add("flex");
+        toggleBtn.classList.add("expanded");
+        toggleBtn.setAttribute("aria-expanded", "true");
+      } else {
+        submenu.classList.add("hidden");
+        submenu.classList.remove("flex");
+        toggleBtn.classList.remove("expanded");
+        toggleBtn.setAttribute("aria-expanded", "false");
+      }
+    };
   },
 
   applyMenuPermissions: () => {
@@ -494,16 +681,20 @@ const Auth = {
     // 1. Render Mobile Bottom Navigation according to role
     Auth.renderMobileBottomNav();
 
-    // 2. Check sidebar navigation links inside navMenu
+    // 2. Initialize desktop sidebar group accordion & active state
+    Auth.initSidebarNavGroup();
+
+    // 3. Check sidebar navigation links inside navMenu
     const navLinks = document.querySelectorAll("#navMenu .sidebar-link");
     navLinks.forEach(el => {
-      if (el.id === "pwaInstallBtn") return; // Let PWA manager control install button visibility
+      if (el.id === "pwaInstallBtn" || el.id === "btnNavKeuanganToggle") return; // Let dedicated logic control install & group button
 
       const href = el.getAttribute("href") || "";
       let permNeeded = el.getAttribute("data-permission-allow");
 
       if (!permNeeded && href) {
         if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
+        else if (href.includes("history-invoice.html")) permNeeded = "proyek:read";
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
@@ -523,14 +714,34 @@ const Auth = {
       }
     });
 
-    // 3. Check profile dropdown links for permissions
+    // 4. Check if any sublink is visible inside Keuangan Group; if none, hide the whole group
+    const groupEl = document.getElementById("navKeuanganGroup");
+    const submenuEl = document.getElementById("submenuKeuangan");
+    if (groupEl && submenuEl) {
+      const sublinks = submenuEl.querySelectorAll(".sidebar-sublink");
+      let visibleCount = 0;
+      sublinks.forEach(sub => {
+        if (!sub.classList.contains("hidden") && sub.style.display !== "none") {
+          visibleCount++;
+        }
+      });
+      if (visibleCount > 0) {
+        groupEl.classList.remove("hidden");
+        groupEl.style.display = "";
+      } else {
+        groupEl.classList.add("hidden");
+        groupEl.style.display = "none";
+      }
+    }
+
+    // 5. Check profile dropdown links for permissions
     const dropdownLinks = document.querySelectorAll("#profileDropdown a");
     dropdownLinks.forEach(el => {
       const href = el.getAttribute("href") || "";
       let permNeeded = el.getAttribute("data-permission-allow");
 
       if (!permNeeded && href) {
-        if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
+        if (href.endsWith("proyek.html") || href.includes("invoice.html") || href.includes("history-invoice.html")) permNeeded = "proyek:read";
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
@@ -546,6 +757,17 @@ const Auth = {
       } else {
         el.classList.add("hidden");
         el.style.display = "none";
+      }
+    });
+
+    // Close mobile Keuangan popover when clicking anywhere outside
+    document.addEventListener("click", (e) => {
+      const popover = document.getElementById("mobileKeuanganPopover");
+      const btn = document.getElementById("btnMobileKeuanganNav");
+      if (popover && popover.classList.contains("active")) {
+        if (!popover.contains(e.target) && (!btn || !btn.contains(e.target))) {
+          Auth.toggleMobileKeuanganMenu(false);
+        }
       }
     });
 
