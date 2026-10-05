@@ -878,20 +878,25 @@
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">Pilih Rentang Data</label>
-          <div class="grid grid-cols-3 gap-2">
-            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 text-center">
               <input type="radio" name="periode" value="all" checked class="hidden">
-              <i class="fa-solid fa-layer-group mb-1"></i>
+              <i class="fa-solid fa-layer-group mb-1 text-sm"></i>
               <span class="text-xs font-semibold">Semua Data</span>
             </label>
-            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 text-center">
+              <input type="radio" name="periode" value="current" class="hidden">
+              <i class="fa-solid fa-filter mb-1 text-sm"></i>
+              <span class="text-xs font-semibold">Filter Tabel</span>
+            </label>
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 text-center">
               <input type="radio" name="periode" value="month" class="hidden">
-              <i class="fa-solid fa-calendar-days mb-1"></i>
+              <i class="fa-solid fa-calendar-days mb-1 text-sm"></i>
               <span class="text-xs font-semibold">Bulanan</span>
             </label>
-            <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300">
+            <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 cursor-pointer hover:border-emerald-500 transition-colors has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-950/30 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-300 text-center">
               <input type="radio" name="periode" value="year" class="hidden">
-              <i class="fa-solid fa-calendar mb-1"></i>
+              <i class="fa-solid fa-calendar mb-1 text-sm"></i>
               <span class="text-xs font-semibold">Tahunan</span>
             </label>
           </div>
@@ -1018,18 +1023,22 @@
       <div id="importStep2" class="hidden py-4 space-y-4 flex-1 flex flex-col min-h-0 overflow-hidden">
         
         <!-- Summary Stats Cards -->
-        <div class="grid grid-cols-3 gap-3 flex-shrink-0">
-          <div class="p-3 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 flex-shrink-0">
+          <div class="p-2.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block">Total Baris</span>
-            <span id="importCountTotal" class="text-xl font-extrabold text-zinc-800 dark:text-zinc-100">0</span>
+            <span id="importCountTotal" class="text-lg font-extrabold text-zinc-800 dark:text-zinc-100">0</span>
           </div>
-          <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
+          <div class="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Siap Diimport</span>
-            <span id="importCountValid" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+            <span id="importCountValid" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
-          <div class="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
+          <div class="p-2.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 block">Bermasalah / Error</span>
-            <span id="importCountInvalid" class="text-xl font-extrabold text-rose-600 dark:text-rose-400">0</span>
+            <span id="importCountInvalid" class="text-lg font-extrabold text-rose-600 dark:text-rose-400">0</span>
+          </div>
+          <div class="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 rounded-xl text-center">
+            <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 block">Potensi Duplikat</span>
+            <span id="importCountDuplicate" class="text-lg font-extrabold text-amber-600 dark:text-amber-400">0</span>
           </div>
         </div>
 
@@ -1040,8 +1049,8 @@
         </div>
 
         <!-- Filter Tabs -->
-        <div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 flex-shrink-0">
-          <div class="flex space-x-4">
+        <div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 flex-shrink-0 overflow-x-auto pb-1">
+          <div class="flex space-x-3 whitespace-nowrap">
             <button id="tabPreviewAll" onclick="filterImportPreview('all')" class="pb-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600">
               Semua Baris
             </button>
@@ -1051,8 +1060,11 @@
             <button id="tabPreviewInvalid" onclick="filterImportPreview('invalid')" class="pb-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 border-b-2 border-transparent flex items-center gap-1.5">
               Bermasalah <span id="badgeTabInvalid" class="px-1.5 py-0.2 bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400 rounded-full text-[10px] font-bold">0</span>
             </button>
+            <button id="tabPreviewDuplicate" onclick="filterImportPreview('duplicate')" class="pb-2 text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 border-b-2 border-transparent flex items-center gap-1.5">
+              Duplikat <span id="badgeTabDuplicate" class="px-1.5 py-0.2 bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 rounded-full text-[10px] font-bold">0</span>
+            </button>
           </div>
-          <button onclick="document.getElementById('excelFileInput').click()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline pb-2">
+          <button onclick="document.getElementById('excelFileInput').click()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline pb-2 whitespace-nowrap ml-2">
             <i class="fa-solid fa-rotate mr-1"></i> Ganti File
           </button>
         </div>

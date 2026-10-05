@@ -4,13 +4,12 @@ const Invoice = {
     showSignature: true,
     invoiceTheme: 'light',
     async init() {
-        // Inisialisasi tema invoice (Terang / Gelap)
+        // Inisialisasi tema invoice - default selalu putih (light)
         const savedTheme = localStorage.getItem('invoice_theme');
         if (savedTheme === 'dark' || savedTheme === 'light') {
             this.setInvoiceTheme(savedTheme, false);
         } else {
-            const isDarkApp = document.documentElement.classList.contains('dark');
-            this.setInvoiceTheme(isDarkApp ? 'dark' : 'light', false);
+            this.setInvoiceTheme('light', false);
         }
 
         this.generateWatermark();
@@ -21,14 +20,11 @@ const Invoice = {
             this.proyek = await API.getProyek();
             const id = new URLSearchParams(window.location.search).get("id");
             if (!id) {
-
                 Toast.warning(
                     isEn ? "Invoice Not Found" : "Invoice Tidak Ditemukan",
                     isEn ? "Project ID not found." : "ID proyek tidak ditemukan."
                 );
-
                 return;
-
             }
             this.loadInvoice(id);
             this.setupEditable();
@@ -38,30 +34,41 @@ const Invoice = {
                     this.exportPDF();
                 });
         } catch (err) {
-
             console.error(err);
-
             Toast.error(
                 isEn ? "Failed to Load Invoice" : "Gagal Memuat Invoice",
                 err.message || (isEn ? "An error occurred while fetching invoice details." : "Terjadi kesalahan saat mengambil data invoice.")
             );
-
         }
     },
+
+    // Format harga/angka di UI: "Rp. " diikuti titik setelah tiap 3 digit
+    format(val) {
+        if (val === null || val === undefined || val === '') return 'Rp. 0';
+        const digits = String(val).replace(/\D/g, '');
+        if (!digits) return 'Rp. 0';
+        const num = parseInt(digits, 10) || 0;
+        return 'Rp. ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    },
+
+    // Ambil data murni (hanya numbering saja tanpa Rp. dan titik)
+    getRawNumber(val) {
+        if (val === null || val === undefined || val === '') return 0;
+        const digits = String(val).replace(/\D/g, '');
+        return digits ? parseInt(digits, 10) : 0;
+    },
+
     loadInvoice(id) {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         const data = this.proyek.find(
             p => String(p.iDProyek).trim() === String(id).trim()
         );
         if (!data) {
-
             Toast.warning(
                 isEn ? "Data Not Found" : "Data Tidak Ditemukan",
                 isEn ? "Selected project is unavailable or has been deleted." : "Proyek yang dipilih tidak tersedia atau sudah dihapus."
             );
-
             return;
-
         }
 
         // HEADER
@@ -96,73 +103,19 @@ const Invoice = {
         document.getElementById("previewNominal").innerText =
             this.format(data.nominalProyek);
         // ==========================
-        // TOTAL
+        // TOTAL, DP, PELUNASAN, SISA
         // ==========================
         document.getElementById("previewTotal").innerText =
             this.format(data.nominalProyek);
         document.getElementById("previewDP").innerText =
             this.format(data.dP);
-        const pelunasanVal = Number(data.pelunasan) || 0;
-        const pelunasanRow = document.getElementById("previewPelunasanRow");
+        const pelunasanVal = this.getRawNumber(data.pelunasan);
         const pelunasanEl = document.getElementById("previewPelunasan");
         if (pelunasanEl) {
             pelunasanEl.innerText = this.format(pelunasanVal);
         }
-        if (pelunasanRow) {
-            if (pelunasanVal > 0) {
-                pelunasanRow.classList.remove("hidden");
-            } else {
-                pelunasanRow.classList.add("hidden");
-            }
-        }
         document.getElementById("previewSisa").innerText =
             this.format(data.sisaPembayaran);
-        // ==========================
-        // STATUS
-        // ==========================
-        const statusMap = isEn ? {
-            'Menunggu': 'Waiting',
-            'Sedang Dikerjakan': 'In Progress',
-            'Revisi': 'Revision',
-            'Selesai': 'Completed',
-            'Belum Pembayaran': 'Unpaid',
-            'Dibatalkan': 'Cancelled'
-        } : {
-            'Menunggu': 'Menunggu',
-            'Sedang Dikerjakan': 'Sedang Dikerjakan',
-            'Revisi': 'Revisi',
-            'Selesai': 'Selesai',
-            'Belum Pembayaran': 'Belum Pembayaran',
-            'Dibatalkan': 'Dibatalkan'
-        };
-        const status = document.getElementById("previewStatus");
-        if (status) {
-            status.innerText = statusMap[data.status] || data.status;
-            status.className = "px-4 py-1 rounded-full text-white";
-            switch (data.status) {
-                case "Menunggu":
-                    status.classList.add("bg-yellow-500");
-                    break;
-                case "Sedang Dikerjakan":
-                    status.classList.add("bg-blue-600");
-                    break;
-                case "Selesai":
-                    status.classList.add("bg-green-600");
-                    break;
-                case "Belum Pembayaran":
-                    status.classList.add("bg-red-600");
-                    break;
-                default:
-                    status.classList.add("bg-gray-500");
-            }
-        }
-        // ==========================
-        // DEADLINE
-        // ==========================
-        const deadlineEl = document.getElementById("previewDeadline");
-        if (deadlineEl) {
-            deadlineEl.innerText = data.deadline || "-";
-        }
         // ==========================
         // CATATAN
         // ==========================
@@ -178,6 +131,9 @@ const Invoice = {
                 if (parsed.tableHtml) document.getElementById('invoiceTableBody').innerHTML = parsed.tableHtml;
                 if (parsed.totalHtml) document.getElementById('previewTotal').innerHTML = parsed.totalHtml;
                 if (parsed.dpHtml) document.getElementById('previewDP').innerHTML = parsed.dpHtml;
+                if (parsed.pelunasanHtml && document.getElementById('previewPelunasan')) {
+                    document.getElementById('previewPelunasan').innerHTML = parsed.pelunasanHtml;
+                }
                 if (parsed.sisaHtml) document.getElementById('previewSisa').innerHTML = parsed.sisaHtml;
                 if (parsed.catatanHtml) document.getElementById('previewCatatan').innerHTML = parsed.catatanHtml;
                 if (parsed.signTitle) document.getElementById('previewSignTitle').innerText = parsed.signTitle;
@@ -196,66 +152,89 @@ const Invoice = {
         const tableBody = document.getElementById('invoiceTableBody');
         const previewTotal = document.getElementById('previewTotal');
         const previewDP = document.getElementById('previewDP');
+        const previewPelunasan = document.getElementById('previewPelunasan');
         const previewSisa = document.getElementById('previewSisa');
 
-        const parseCurrency = (str) => {
-            if (!str) return 0;
-            let cleaned = str.replace(/[^0-9,.-]+/g, "");
-            cleaned = cleaned.replace(/\./g, '').replace(',', '.');
-            return Number(cleaned) || 0;
-        };
-
-        const formatCurrency = (num) => {
-            return this.format(num);
+        const recalculateSisa = () => {
+            const total = this.getRawNumber(previewTotal ? previewTotal.innerText : 0);
+            const dp = this.getRawNumber(previewDP ? previewDP.innerText : 0);
+            const pelunasan = this.getRawNumber(previewPelunasan ? previewPelunasan.innerText : 0);
+            const sisa = total - dp - pelunasan;
+            if (previewSisa && document.activeElement !== previewSisa) {
+                previewSisa.innerText = this.format(sisa);
+            }
         };
 
         const recalculateTable = () => {
             let total = 0;
-            const rows = tableBody.querySelectorAll('.invoice-row');
-            rows.forEach(row => {
-                const qtyCell = row.querySelector('.qty-cell');
-                const priceCell = row.querySelector('.price-cell');
-                const nominalCell = row.querySelector('.nominal-cell');
+            let hasCalculatedItems = false;
+            if (tableBody) {
+                const rows = tableBody.querySelectorAll('.invoice-row');
+                rows.forEach(row => {
+                    const qtyCell = row.querySelector('.qty-cell');
+                    const priceCell = row.querySelector('.price-cell');
+                    const nominalCell = row.querySelector('.nominal-cell');
 
-                if (qtyCell && priceCell && nominalCell) {
-                    const qty = parseCurrency(qtyCell.innerText);
-                    const price = parseCurrency(priceCell.innerText);
+                    if (qtyCell && priceCell && nominalCell) {
+                        const qty = this.getRawNumber(qtyCell.innerText);
+                        const price = this.getRawNumber(priceCell.innerText);
 
-                    if (qty > 0 || price > 0) {
-                        const nominal = qty * price;
-                        if (document.activeElement !== nominalCell) {
-                            nominalCell.innerText = formatCurrency(nominal);
+                        if (qty > 0 && price > 0) {
+                            const nominal = qty * price;
+                            if (document.activeElement !== nominalCell) {
+                                nominalCell.innerText = this.format(nominal);
+                            }
+                            total += nominal;
+                            hasCalculatedItems = true;
+                        } else {
+                            const directNominal = this.getRawNumber(nominalCell.innerText);
+                            if (directNominal > 0) {
+                                total += directNominal;
+                                hasCalculatedItems = true;
+                            }
                         }
-                        total += nominal;
-                    } else if (document.activeElement !== nominalCell) {
-                        const explicitNominal = parseCurrency(nominalCell.innerText);
-                        total += explicitNominal;
-                    } else {
-                        total += parseCurrency(nominalCell.innerText);
                     }
-                }
-            });
+                });
+            }
 
-            if (document.activeElement !== previewTotal) {
-                previewTotal.innerText = formatCurrency(total);
+            if (hasCalculatedItems && previewTotal && document.activeElement !== previewTotal) {
+                previewTotal.innerText = this.format(total);
             }
             recalculateSisa();
         };
 
-        const recalculateSisa = () => {
-            const total = parseCurrency(previewTotal.innerText);
-            const dp = parseCurrency(previewDP.innerText);
-            const sisa = Math.round(total - dp);
-            if (document.activeElement !== previewSisa) {
-                previewSisa.innerText = formatCurrency(sisa);
-            }
+        // Event listener blur untuk memformat angka dengan Rp. dan titik secara rapi
+        const bindBlurFormatter = (el) => {
+            if (!el) return;
+            el.addEventListener('blur', () => {
+                const raw = this.getRawNumber(el.innerText);
+                el.innerText = this.format(raw);
+                recalculateTable();
+            });
         };
 
+        // Pasang blur formatter pada total, DP, pelunasan, sisa
+        bindBlurFormatter(previewTotal);
+        bindBlurFormatter(previewDP);
+        bindBlurFormatter(previewPelunasan);
+        bindBlurFormatter(previewSisa);
+
+        // Pasang blur formatter pada sel harga & nominal di tabel
         if (tableBody) {
+            const bindRowFormatters = () => {
+                const priceCells = tableBody.querySelectorAll('.price-cell');
+                const nominalCells = tableBody.querySelectorAll('.nominal-cell');
+                priceCells.forEach(cell => bindBlurFormatter(cell));
+                nominalCells.forEach(cell => bindBlurFormatter(cell));
+            };
+            bindRowFormatters();
+
             tableBody.addEventListener('input', recalculateTable);
         }
+
         if (previewTotal) previewTotal.addEventListener('input', recalculateSisa);
         if (previewDP) previewDP.addEventListener('input', recalculateSisa);
+        if (previewPelunasan) previewPelunasan.addEventListener('input', recalculateSisa);
 
         const btnSave = document.getElementById('btnSaveInvoice');
         if (btnSave) {
@@ -315,38 +294,58 @@ const Invoice = {
         const tableBody = document.getElementById('invoiceTableBody');
         const previewTotal = document.getElementById('previewTotal');
         const previewDP = document.getElementById('previewDP');
+        const previewPelunasan = document.getElementById('previewPelunasan');
         const previewSisa = document.getElementById('previewSisa');
         const previewCatatan = document.getElementById('previewCatatan');
         const previewSignTitle = document.getElementById('previewSignTitle');
         const previewSignName = document.getElementById('previewSignName');
         const chkShowSignature = document.getElementById('chkShowSignature');
 
+        // Data murni (hanya numbering saja tanpa Rp. dan tanda baca)
+        const rawData = {
+            total: this.getRawNumber(previewTotal ? previewTotal.innerText : 0),
+            dp: this.getRawNumber(previewDP ? previewDP.innerText : 0),
+            pelunasan: this.getRawNumber(previewPelunasan ? previewPelunasan.innerText : 0),
+            sisa: this.getRawNumber(previewSisa ? previewSisa.innerText : 0),
+            items: []
+        };
+
+        if (tableBody) {
+            const rows = tableBody.querySelectorAll('.invoice-row');
+            rows.forEach((row, idx) => {
+                const prod = row.querySelector('.editable-cell:not(.qty-cell):not(.price-cell):not(.nominal-cell)');
+                const qty = row.querySelector('.qty-cell');
+                const price = row.querySelector('.price-cell');
+                const nom = row.querySelector('.nominal-cell');
+                rawData.items.push({
+                    no: idx + 1,
+                    produk: prod ? prod.innerText.trim() : '',
+                    qty: qty ? this.getRawNumber(qty.innerText) : 0,
+                    harga: price ? this.getRawNumber(price.innerText) : 0,
+                    nominal: nom ? this.getRawNumber(nom.innerText) : 0
+                });
+            });
+        }
+
         const dataToSave = {
             tableHtml: tableBody ? tableBody.innerHTML : '',
             totalHtml: previewTotal ? previewTotal.innerHTML : '',
             dpHtml: previewDP ? previewDP.innerHTML : '',
+            pelunasanHtml: previewPelunasan ? previewPelunasan.innerHTML : '',
             sisaHtml: previewSisa ? previewSisa.innerHTML : '',
             catatanHtml: previewCatatan ? previewCatatan.innerHTML : '',
             signTitle: previewSignTitle ? previewSignTitle.innerText : 'Hormat Kami,',
             signName: previewSignName ? previewSignName.innerText : '@premium_dz',
             showSignature: chkShowSignature ? chkShowSignature.checked : true,
             docType: this.docType || 'invoice',
-            invoiceTheme: this.invoiceTheme || 'light'
+            invoiceTheme: this.invoiceTheme || 'light',
+            rawData: rawData
         };
 
         localStorage.setItem('invoice_edit_' + id, JSON.stringify(dataToSave));
         if (typeof Toast !== 'undefined') Toast.success('Tersimpan', 'Perubahan invoice berhasil disimpan di penyimpanan lokal browser.');
     },
 
-    format(angka) {
-        return Number(angka || 0).toLocaleString(
-            "id-ID",
-            {
-                style: "currency",
-                currency: "IDR"
-            }
-        );
-    },
     exportPDF() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
         const btnPDF = document.getElementById("btnPDF");
@@ -486,6 +485,11 @@ const Invoice = {
         const invoice = document.getElementById('invoiceArea');
         const btnLight = document.getElementById('btnThemeLight');
         const btnDark = document.getElementById('btnThemeDark');
+        const logoEl = document.getElementById('previewLogo');
+
+        if (logoEl) {
+            logoEl.src = (theme === 'dark') ? 'assets/watermark/wm_white.png' : 'assets/watermark/wm_warna.png';
+        }
 
         if (theme === 'dark') {
             if (invoice) {
@@ -536,36 +540,32 @@ const Invoice = {
         if (!grid) return;
         grid.innerHTML = '';
 
-        const logoWidth = 120; // Enlarge watermark logos by 50%
-        const gap = 180;      // Proportionally larger gap/margin for clean spacing
+        const logoWidth = 120; // Ukuran logo watermark
+        const gap = 180;      // Jarak antar watermark
 
-        // Populate enough cols and rows to cover typical A4 height
         const cols = 8;
         const rows = 12;
 
         const isDark = (this.invoiceTheme === 'dark');
 
         for (let r = 0; r < rows; r++) {
-            // Stagger alternate rows to form a beautiful diamond watermark mesh
             const stagger = (r % 2 === 0) ? (gap / 2) : 0;
             for (let c = 0; c < cols; c++) {
                 const img = document.createElement('img');
-                img.src = 'assets/img/logo.png';
+                img.src = isDark ? 'assets/watermark/wm_white.png' : 'assets/watermark/wm_warna.png';
                 img.style.position = 'absolute';
                 img.style.width = `${logoWidth}px`;
                 img.style.height = 'auto';
                 if (isDark) {
                     img.style.opacity = '0.04';
-                    img.style.filter = 'brightness(0) invert(1)';
                 } else {
                     img.style.opacity = '0.08';
-                    img.style.filter = 'none';
                 }
                 img.style.pointerEvents = 'none';
                 img.style.left = `${c * gap + stagger - 30}px`;
                 img.style.top = `${r * gap - 20}px`;
                 img.style.transform = 'rotate(-20deg)';
-                img.setAttribute('data-html2canvas-ignore', 'false'); // Force html2pdf to render it
+                img.setAttribute('data-html2canvas-ignore', 'false');
                 grid.appendChild(img);
             }
         }
