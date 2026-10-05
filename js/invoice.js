@@ -344,7 +344,7 @@ const Invoice = {
             sisaHtml: previewSisa ? previewSisa.innerHTML : '',
             catatanHtml: previewCatatan ? previewCatatan.innerHTML : '',
             signTitle: previewSignTitle ? previewSignTitle.innerText : 'Hormat Kami,',
-            signName: previewSignName ? previewSignName.innerText : '@premium_dz',
+            signName: previewSignName ? previewSignName.innerText : 'Premium Designz',
             showSignature: chkShowSignature ? chkShowSignature.checked : true,
             docType: this.docType || 'invoice',
             invoiceTheme: this.invoiceTheme || 'light',
