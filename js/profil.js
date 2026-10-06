@@ -26,8 +26,8 @@ function loadProfileData() {
   const role = (user.role || 'service').toLowerCase();
   const roleDisplay = role.replace('_', ' ').toUpperCase();
   const email = user.email || (username + '@fpmanager.com');
-  const phone = user.phone || user.wa || '';
-  const avatar = user.avatar || '';
+  const phone = user.phone || user.wa || user.nowa || '';
+  const avatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
 
   // Update Hero Section
   const displayNameEl = document.getElementById('profileDisplayName');
@@ -41,10 +41,12 @@ function loadProfileData() {
 
   const avatarEl = document.getElementById('profileAvatarLarge');
   if (avatarEl) {
-    if (avatar) {
-      avatarEl.innerHTML = `<img src="${sanitizeUrl(avatar)}" class="w-full h-full rounded-full object-cover">`;
+    const formatted = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(avatar) : avatar;
+    const initial = (name || 'A').charAt(0).toUpperCase();
+    if (formatted) {
+      avatarEl.innerHTML = `<img src="${sanitizeUrl(formatted)}" alt="${initial}" class="w-full h-full rounded-full object-cover" onerror="this.outerHTML='<div class=\\'w-full h-full rounded-full flex items-center justify-center font-bold text-4xl text-white\\'>${initial}</div>'">`;
     } else {
-      avatarEl.textContent = (name || 'A').charAt(0).toUpperCase();
+      avatarEl.textContent = initial;
     }
   }
 
@@ -65,7 +67,21 @@ function loadProfileData() {
   if (pInput) pInput.value = phone;
 
   const aInput = document.getElementById('profAvatarUrl');
-  if (aInput) aInput.value = avatar;
+  if (aInput) {
+    aInput.value = avatar;
+    aInput.oninput = () => {
+      const liveVal = aInput.value.trim();
+      const liveFormatted = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(liveVal) : liveVal;
+      const initial = (nInput && nInput.value.trim() ? nInput.value.trim() : name || 'A').charAt(0).toUpperCase();
+      if (avatarEl) {
+        if (liveFormatted) {
+          avatarEl.innerHTML = `<img src="${sanitizeUrl(liveFormatted)}" alt="${initial}" class="w-full h-full rounded-full object-cover" onerror="this.outerHTML='<div class=\\'w-full h-full rounded-full flex items-center justify-center font-bold text-4xl text-white\\'>${initial}</div>'">`;
+        } else {
+          avatarEl.textContent = initial;
+        }
+      }
+    };
+  }
 
   // Render Session Browser Info
   const browserEl = document.getElementById('sessionBrowser');

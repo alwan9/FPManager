@@ -1,3 +1,62 @@
+// Privacy feature: Hide/Show financial amounts on Dashboard (Default: HIDE)
+let isFinancialsHidden = localStorage.getItem('dashboard_hide_financials') !== 'false'; // Default: true (Hidden)
+
+function formatFinancialDisplay(number) {
+  if (isFinancialsHidden) {
+    return 'Rp ••••••••';
+  }
+  return formatRupiah(number || 0);
+}
+
+function updatePrivacyUI() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const btn = document.getElementById('toggleHideNominalBtn');
+  const icon = document.getElementById('toggleHideNominalIcon');
+  const text = document.getElementById('toggleHideNominalText');
+  const cardEye = document.getElementById('cardPrivacyEyeIcon');
+
+  if (isFinancialsHidden) {
+    if (icon) icon.className = 'fa-solid fa-eye-slash mr-1.5 text-indigo-200';
+    if (text) text.textContent = isEn ? 'Show Balance' : 'Tampilkan Saldo';
+    if (btn) btn.title = isEn ? 'Click to show financial amounts' : 'Klik untuk menampilkan nominal saldo';
+    if (cardEye) {
+      cardEye.className = 'fa-solid fa-eye-slash text-zinc-400';
+      if (cardEye.parentElement) cardEye.parentElement.title = isEn ? 'Click to show balance' : 'Klik untuk menampilkan nominal saldo';
+    }
+  } else {
+    if (icon) icon.className = 'fa-solid fa-eye mr-1.5 text-emerald-300';
+    if (text) text.textContent = isEn ? 'Hide Balance' : 'Sembunyikan Saldo';
+    if (btn) btn.title = isEn ? 'Click to hide financial amounts' : 'Klik untuk menyembunyikan nominal saldo';
+    if (cardEye) {
+      cardEye.className = 'fa-solid fa-eye text-indigo-500';
+      if (cardEye.parentElement) cardEye.parentElement.title = isEn ? 'Click to hide balance' : 'Klik untuk menyembunyikan nominal saldo';
+    }
+  }
+}
+
+function toggleDashboardNominalPrivacy() {
+  isFinancialsHidden = !isFinancialsHidden;
+  localStorage.setItem('dashboard_hide_financials', isFinancialsHidden ? 'true' : 'false');
+  updatePrivacyUI();
+
+  if (window.lastDashboardStats) {
+    renderSummaryStats(window.lastDashboardStats);
+  }
+  if (window.lastRecentProjects) {
+    renderRecentProjects(window.lastRecentProjects);
+  }
+  if (window.lastChartData) {
+    renderDashboardChart(window.lastChartData);
+  }
+  const modal = document.getElementById('dashboardIncomeBreakdownModal');
+  if (modal && !modal.classList.contains('hidden')) {
+    showIncomeBreakdownModal();
+  }
+}
+
+window.toggleDashboardNominalPrivacy = toggleDashboardNominalPrivacy;
+window.formatFinancialDisplay = formatFinancialDisplay;
+
 document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
@@ -5,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
     apiStatusBadge.textContent = 'Live Google Sheets';
     apiStatusBadge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
   }
+
+  // Update Privacy UI State
+  updatePrivacyUI();
 
   // Apply role & permission customizations to dashboard UI
   applyDashboardRoleCustomizations();
@@ -139,6 +201,7 @@ async function loadDashboardData() {
 
 // Render statistic card counters dynamically according to role & permissions
 function renderSummaryStats(stats) {
+  window.lastDashboardStats = stats;
   const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
   const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
   const isSuperAdmin = (user && (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin")));
@@ -161,7 +224,7 @@ function renderSummaryStats(stats) {
     if (title2) title2.textContent = isEn ? 'Income' : 'Pendapatan';
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
-      val2.textContent = formatRupiah(totalPemasukan);
+      val2.textContent = formatFinancialDisplay(totalPemasukan);
       val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-green-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
@@ -171,7 +234,7 @@ function renderSummaryStats(stats) {
     if (title3) title3.textContent = isEn ? 'Expenses' : 'Pengeluaran';
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
-      val3.textContent = formatRupiah(totalPengeluaran);
+      val3.textContent = formatFinancialDisplay(totalPengeluaran);
       val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
     }
     const icon3 = document.getElementById('statCard3Icon');
@@ -181,8 +244,8 @@ function renderSummaryStats(stats) {
     if (title4) title4.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
-      val4.textContent = formatRupiah(labaBersih);
-      if (labaBersih < 0) {
+      val4.textContent = formatFinancialDisplay(labaBersih);
+      if (labaBersih < 0 && !isFinancialsHidden) {
         val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
       } else {
         val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 mt-1 block truncate';
@@ -270,6 +333,7 @@ function renderDeadlineAlerts(deadlineAlerts) {
 }
 // Render the 5 most recent projects in lists
 function renderRecentProjects(recent) {
+  window.lastRecentProjects = recent;
   const container = document.getElementById('recentProyekList');
   container.innerHTML = '';
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -323,7 +387,7 @@ function renderRecentProjects(recent) {
         </div>
       </div>
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block">${formatRupiah(p.nominalProyek)}</span>
+        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block">${formatFinancialDisplay(p.nominalProyek)}</span>
         <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${p.tanggal}</span>
       </div>
     `;
@@ -332,6 +396,7 @@ function renderRecentProjects(recent) {
 }
 // Compile monthly finance data and render double-bar Chart
 function renderDashboardChart(chartData) {
+  window.lastChartData = chartData;
   const canvas = document.getElementById('dashboardChart');
   if (!canvas) return;
 
@@ -402,7 +467,7 @@ function renderDashboardChart(chartData) {
           callbacks: {
             label: function (context) {
               const val = context.raw || 0;
-              return `${context.dataset.label}: ${formatRupiah(val)}`;
+              return `${context.dataset.label}: ${formatFinancialDisplay(val)}`;
             }
           }
         }
@@ -728,12 +793,19 @@ function showIncomeBreakdownModal() {
           <div>
             <h3 class="font-bold text-base sm:text-lg text-zinc-900 dark:text-white leading-tight">
               ${isEn ? 'Income Breakdown' : 'Rincian Pendapatan'}
-           
+            </h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">${isEn ? 'Payment methods summary' : 'Ringkasan per metode pembayaran'}</p>
           </div>
         </div>
-        <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition cursor-pointer" title="Tutup">
-          <i class="fa-solid fa-xmark text-base"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="toggleDashboardNominalPrivacy()" class="px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer" title="${isFinancialsHidden ? 'Tampilkan Nominal' : 'Sembunyikan Nominal'}">
+            <i class="fa-solid ${isFinancialsHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            <span>${isFinancialsHidden ? (isEn ? 'Show' : 'Tampilkan') : (isEn ? 'Hide' : 'Sembunyikan')}</span>
+          </button>
+          <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition cursor-pointer" title="Tutup">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Total Income Summary Card -->
@@ -742,7 +814,7 @@ function showIncomeBreakdownModal() {
           <span class="text-xs font-semibold text-emerald-100 uppercase tracking-wider block">
             ${isEn ? 'Total Income' : 'Total Pendapatan'}
           </span>
-          <span class="text-xl sm:text-2xl font-extrabold block mt-0.5">${formatRupiah(totalIn)}</span>
+          <span class="text-xl sm:text-2xl font-extrabold block mt-0.5">${formatFinancialDisplay(totalIn)}</span>
         </div>
         <div class="text-right">
           <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/20 backdrop-blur-xs text-white">
@@ -771,7 +843,7 @@ function showIncomeBreakdownModal() {
                   </div>
                 </div>
                 <div class="text-right shrink-0">
-                  <div class="font-bold font-mono text-xs sm:text-sm text-green-600 dark:text-green-400">${formatRupiah(item.income)}</div>
+                  <div class="font-bold font-mono text-xs sm:text-sm text-green-600 dark:text-green-400">${formatFinancialDisplay(item.income)}</div>
                 </div>
               </div>
               <!-- Progress Bar -->

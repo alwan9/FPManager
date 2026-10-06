@@ -28,13 +28,26 @@ if (typeof window.escapeHtml === 'undefined') {
   };
 }
 
-// Helper URL Sanitizer to prevent javascript: or data: URL injection (XSS)
+// Helper URL Sanitizer to prevent javascript: or dangerous injection
 if (typeof window.sanitizeUrl === 'undefined') {
   window.sanitizeUrl = function(url) {
     if (!url) return '#';
     const clean = String(url).trim();
-    if (clean.toLowerCase().startsWith('javascript:') || clean.toLowerCase().startsWith('data:')) {
+    if (clean.toLowerCase().startsWith('javascript:')) {
       return '#';
+    }
+    if (clean.toLowerCase().startsWith('data:') && !clean.toLowerCase().startsWith('data:image/')) {
+      return '#';
+    }
+    if (clean.includes('drive.google.com') || clean.includes('docs.google.com')) {
+      const matchD = clean.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (matchD && matchD[1]) {
+        return `https://lh3.googleusercontent.com/d/${matchD[1]}`;
+      }
+      const matchId = clean.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (matchId && matchId[1]) {
+        return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+      }
     }
     return clean;
   };

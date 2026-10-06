@@ -697,19 +697,6 @@
       </button>
     </div>
 
-    <!-- AI Filosofi Logo Floating Button -->
-    <div class="relative flex items-center group">
-      <span
-        class="absolute right-full mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 bg-black dark:bg-black text-white text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-zinc-800 backdrop-blur-xs z-50">
-        AI Generator Filosofi Logo
-      </span>
-      <button onclick="openLogoPhilosophyModal()"
-        class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 border border-indigo-300/30 focus:outline-none"
-        title="AI Generator Filosofi Logo">
-        <i class="fa-solid fa-lightbulb text-base md:text-lg text-indigo-100"></i>
-      </button>
-    </div>
-
 
     <!-- Go to Top Floating Button -->
     <div class="relative flex items-center group">
@@ -1152,7 +1139,7 @@
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
     <div
-      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
+      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
 
       <!-- Modal Header -->
       <div
@@ -1175,12 +1162,12 @@
         </button>
       </div>
 
-      <!-- Main Modal Content: Side-by-Side 2 Columns (No Scroll) -->
-      <div class="p-4 flex flex-col md:flex-row gap-4 flex-1 min-h-0 overflow-hidden">
+      <!-- Main Modal Content: Side-by-Side 2 Columns (Proportional Layout) -->
+      <div class="p-4 md:p-5 flex flex-col md:flex-row gap-4 md:gap-5 flex-1 min-h-0 overflow-hidden">
 
-        <!-- Left Column: Upload Dropzone & Live Canvas Preview -->
+        <!-- Left Column: Upload Dropzone & Live Canvas Preview (Spacious Workspace) -->
         <div
-          class="flex-1 min-h-[260px] md:min-h-0 flex flex-col justify-center items-center relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 overflow-hidden p-2">
+          class="flex-1 min-w-0 min-h-[300px] md:min-h-0 flex flex-col justify-center items-center relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 overflow-hidden p-3 md:p-4">
 
           <!-- Dropzone (Shown when no image loaded) -->
           <div id="wmDropzone" onclick="triggerWmFileInput()"
@@ -1215,7 +1202,7 @@
 
         <!-- Right Column: Settings Panel -->
         <div
-          class="w-full md:w-84 shrink-0 bg-zinc-50/70 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 flex flex-col justify-between space-y-3 overflow-y-auto max-h-full">
+          class="w-full md:w-80 lg:w-[350px] shrink-0 bg-zinc-50/70 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 flex flex-col justify-between space-y-3 overflow-y-auto max-h-full">
 
           <div class="space-y-3">
             <div class="flex items-center justify-between border-b border-zinc-200/60 dark:border-zinc-700/60 pb-2">
@@ -1441,216 +1428,6 @@
         <span>* Nilai pixel dihitung otomatis berdasarkan rasio DPI</span>
         <button onclick="closeSizeCheatSheetModal()"
           class="px-3 py-1 bg-zinc-200/70 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 font-semibold rounded-lg text-zinc-600 dark:text-zinc-300 transition-colors">Tutup</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Modal AI Generator Filosofi Logo & Brand Story -->
-  <div id="logoPhilosophyModal"
-    onclick="if(event.target === this && !isModalInputFilled(this)) closeLogoPhilosophyModal()"
-    style="background-color: rgba(0, 0, 0, 0.6);"
-    class="hidden fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6 backdrop-blur-md transition-all duration-300">
-    <div
-      class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-zinc-200/80 dark:border-zinc-800">
-
-      <!-- Modal Header -->
-      <div
-        class="px-6 py-3.5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800/80 flex justify-between items-center shrink-0">
-        <div class="flex items-center space-x-3">
-          <div
-            class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-lightbulb text-sm"></i>
-          </div>
-          <div>
-            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">AI Generator
-              Filosofi Logo </h3>
-            <p class="text-[11px] text-zinc-400 dark:text-zinc-500 italic">Buat makna, filosofi warna, simbol, dan
-              narasi brand profesional dari logo Anda</p>
-          </div>
-        </div>
-        <button onclick="closeLogoPhilosophyModal()"
-          class="w-8 h-8 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <!-- Main Content Area: 2 Column Side-by-Side -->
-      <div class="p-4 flex flex-col md:flex-row gap-4 flex-1 min-h-0 overflow-y-auto md:overflow-hidden">
-
-        <!-- Left Column: Upload Dropzone & Form Controls -->
-        <div class="w-full md:w-80 shrink-0 flex flex-col space-y-3 overflow-y-auto">
-
-          <!-- Dropzone Upload Logo -->
-          <div
-            class="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950/80 p-3 min-h-[140px] flex flex-col items-center justify-center">
-
-            <div id="logoDropzone" onclick="triggerLogoFileInput()"
-              class="cursor-pointer flex flex-col items-center justify-center w-full text-center py-3 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl hover:border-indigo-500 transition-all">
-              <input type="file" id="logoFileInput" accept="image/*" onchange="handleLogoFileSelect(event)"
-                class="hidden">
-              <div
-                class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg mb-1.5">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-              </div>
-              <p class="text-xs font-bold text-zinc-700 dark:text-zinc-200">Upload / Paste Gambar Logo</p>
-              <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5"><kbd
-                  class="px-1 py-0.5 bg-zinc-200 dark:bg-zinc-700 rounded font-mono">Ctrl + V</kbd> </p>
-            </div>
-
-            <!-- Logo Preview Container -->
-            <div id="logoPreviewWrapper" class="hidden relative w-full h-32 flex items-center justify-center">
-              <button onclick="resetLogoImage()" title="Ganti Logo"
-                class="absolute top-1 left-1 z-10 px-2 py-0.5 bg-white/90 dark:bg-zinc-800/90 hover:bg-white border border-zinc-200 dark:border-zinc-700 rounded text-[10px] font-bold text-zinc-700 dark:text-zinc-200 shadow-xs flex items-center gap-1">
-                <i class="fa-solid fa-rotate-left"></i> Ganti
-              </button>
-              <img id="logoDisplayImg" src="" alt="Logo Preview"
-                class="max-h-full max-w-full object-contain rounded-lg shadow-sm">
-            </div>
-
-          </div>
-
-          <!-- Form Options -->
-          <div class="space-y-3">
-
-            <!-- Opsi Bidang / Catatan Usaha (Pilih Salah Satu) -->
-            <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Bidang / Catatan
-                Usaha</label>
-
-              <!-- Tab Choice: Pilih salah satu -->
-              <div class="grid grid-cols-2 gap-2 mb-2">
-                <button type="button" id="lblModeSelect" onclick="setLogoIndustryMode('select')"
-                  class="px-3 py-1.5 rounded-xl border border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-normal text-xs flex items-center justify-center gap-1.5 transition-all">
-                  <i class="fa-solid fa-list-check"></i>
-                  <span>Pilih Bidang</span>
-                </button>
-                <button type="button" id="lblModeText" onclick="setLogoIndustryMode('text')"
-                  class="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-normal text-xs flex items-center justify-center gap-1.5 transition-all">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                  <span>Tulis Catatan</span>
-                </button>
-              </div>
-
-              <!-- Mode A: Dropdown Select -->
-              <div id="logoIndustrySelectWrapper" class="space-y-1.5">
-                <div class="relative">
-                  <i
-                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400"></i>
-                  <input type="text" id="logoIndustrySearch" oninput="filterLogoIndustries(this.value)"
-                    placeholder="Cari bidang / industri..."
-                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                </div>
-                <select id="logoIndustry"
-                  class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
-                  <option value="fnb">FNB (Kuliner, Cafe, Kopi &amp; Bakery)</option>
-                  <option value="tech">TECH (IT, Web, Startup &amp; Software)</option>
-                  <option value="fashion">FASHION (Pakaian, Muslim &amp; Hijab)</option>
-                  <option value="beauty">BEAUTY (Skincare, Kosmetik &amp; Salon)</option>
-                  <option value="property">PROPERTY (Rumah, Interior &amp; Arsitek)</option>
-                  <option value="automotive">OTOMOTIF (Kendaraan &amp; Bengkel)</option>
-                  <option value="creative">KREATIF (Desain, Foto &amp; Media)</option>
-                  <option value="finance">KEUANGAN &amp; JASA (Fintech &amp; Konsultan)</option>
-                  <option value="health">KESEHATAN (Klinik, Medis &amp; Farmasi)</option>
-                  <option value="logistics">LOGISTIK (Ekspedisi &amp; Travel)</option>
-                  <option value="education">EDUKASI (Sekolah &amp; Kursus)</option>
-                  <option value="general">UMUM (Bidang Lainnya)</option>
-                </select>
-              </div>
-
-              <!-- Mode B: Custom Text Notes -->
-              <div id="logoIndustryTextWrapper" class="hidden">
-                <textarea id="logoIndustryCustomText" rows="3"
-                  placeholder="Tuliskan catatan / deskripsi bidang usaha Anda secara bebas..."
-                  class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
-              </div>
-            </div>
-
-            <!-- Versi Model Gemini AI -->
-            <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Model AI Gemini</label>
-              <select id="logoGeminiModel"
-                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                <option value="auto" selected>Terbaru (Gemini 3.0 / 2.0 Flash)</option>
-                <option value="gemini-3.0-flash">Gemini 3.0 Flash (Next-Gen Ultrafast)</option>
-                <option value="gemini-3.0-pro">Gemini 3.0 Pro (Deep Reasoning)</option>
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast Multimodal)</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Creative Analysis)</option>
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Standard Stable)</option>
-              </select>
-            </div>
-
-            <!-- Banyaknya Kalimat / Kata -->
-            <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Panjang Analisis</label>
-              <select id="logoLength"
-                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 cursor-pointer font-normal">
-                <option value="short">Singkat (100 Kata)</option>
-                <option value="medium" selected>Sedang (200 Kata)</option>
-                <option value="long">Panjang (350 Kata)</option>
-                <option value="verylong">Sangat Detail (600+ Kata)</option>
-              </select>
-            </div>
-
-            <!-- Catatan Opsional -->
-            <div>
-              <label class="block text-sm font-normal text-zinc-700 dark:text-zinc-300 mb-1">Catatan <span
-                  class="font-normal text-zinc-400">(Opsional)</span></label>
-              <textarea id="logoCatatan" rows="2"
-                placeholder='Contoh: "Ingin terlihat premium", "Logo terinspirasi dari gunung", "Target anak muda"'
-                class="w-full px-3 py-2 text-xs md:text-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none text-zinc-800 dark:text-zinc-100 font-normal focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"></textarea>
-            </div>
-
-            <!-- Action Generate Button -->
-            <button onclick="generateLogoPhilosophy()" id="btnGeneratePhilosophy"
-              class="w-full py-2.5 rounded-xl text-xs md:text-sm font-normal transition-all bg-indigo-600 hover:bg-indigo-700 text-white shadow-md flex items-center justify-center space-x-2 border border-indigo-300/30 mt-2">
-              <i class="fa-solid fa-wand-magic-sparkles text-indigo-200"></i>
-              <span id="labelGeneratePhilosophy">Generate Filosofi Logo</span>
-            </button>
-          </div>
-
-        </div>
-
-        <!-- Right Column: Results Display Box -->
-        <div
-          class="flex-1 min-w-0 min-h-0 flex flex-col rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/80 overflow-hidden">
-
-          <!-- Result Header -->
-          <div
-            class="px-4 py-2.5 bg-white dark:bg-zinc-900 border-b border-zinc-200/60 dark:border-zinc-800 flex justify-between items-center shrink-0">
-            <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-book-open text-xs"></i> Hasil Filosofi &amp; Narasi Brand
-            </span>
-            <div class="flex items-center space-x-1.5">
-              <button onclick="copyPhilosophyText()" id="btnCopyPhilosophy" disabled
-                class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-200/60 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-indigo-600 hover:text-white disabled:opacity-40 transition-colors flex items-center gap-1">
-                <i class="fa-regular fa-copy"></i> Salin
-              </button>
-              <button onclick="downloadPhilosophyDoc()" id="btnDownloadPhilosophy" disabled
-                class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-200/60 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-indigo-600 hover:text-white disabled:opacity-40 transition-colors flex items-center gap-1">
-                <i class="fa-solid fa-download"></i> Unduh
-              </button>
-            </div>
-          </div>
-
-          <!-- Result Content Body -->
-          <div id="philosophyResultBox"
-            class="p-4 md:p-6 overflow-y-auto flex-1 text-zinc-800 dark:text-zinc-200 leading-relaxed text-xs md:text-sm space-y-4">
-
-            <div class="flex flex-col items-center justify-center h-full text-center text-zinc-400 py-12">
-              <div
-                class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 flex items-center justify-center text-xl mb-3">
-                <i class="fa-solid fa-lightbulb"></i>
-              </div>
-              <p class="font-bold text-zinc-700 dark:text-zinc-300">Belum Ada Filosofi Dibuat</p>
-              <p class="text-xs max-w-xs mt-1 text-zinc-400">Upload logo Anda dan klik tombol "Generate Filosofi Logo"
-                untuk melihat makna & narasi brand otomatis.</p>
-            </div>
-
-          </div>
-
-        </div>
-
       </div>
 
     </div>

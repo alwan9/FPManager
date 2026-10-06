@@ -15,8 +15,18 @@ const HistoryInvoice = {
       if (user) {
         const avatarEl = document.getElementById('userAvatarText');
         const nameEl = document.getElementById('userNameText');
-        if (avatarEl) avatarEl.textContent = (user.username || 'A').charAt(0).toUpperCase();
-        if (nameEl) nameEl.textContent = user.username || 'User';
+        const rawAvatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
+        const avatarUrl = (typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(rawAvatar) : (rawAvatar || '');
+        const initial = (user.name || user.username || 'A').charAt(0).toUpperCase();
+        if (avatarEl) {
+          avatarEl.classList.add('overflow-hidden');
+          if (avatarUrl) {
+            avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-xl" onerror="this.outerHTML='${initial}'">`;
+          } else {
+            avatarEl.textContent = initial;
+          }
+        }
+        if (nameEl) nameEl.textContent = user.name || user.username || 'User';
       }
     }
 

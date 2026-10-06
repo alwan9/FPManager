@@ -157,10 +157,13 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }).join("");
 
-      const avatarHtml = u.avatar ? 
-        `<img src="${escapeHtml(u.avatar)}" class="h-9 w-9 rounded-full object-cover shadow-sm border border-zinc-200 dark:border-zinc-700">` : 
+      const rawAvatar = u.avatar || u.url_profile || u.urlprofile || u.foto || u.photo || u.avatar_url || u.avatarUrl || u.urlProfile || u.Url_profile || '';
+      const formattedAvatar = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(rawAvatar) : (rawAvatar || '');
+      const initial = escapeHtml((u.name || u.username || "U").charAt(0).toUpperCase());
+      const avatarHtml = formattedAvatar ? 
+        `<img src="${escapeHtml(formattedAvatar)}" class="h-9 w-9 rounded-full object-cover shadow-sm border border-zinc-200 dark:border-zinc-700" onerror="this.outerHTML='<div class=\\'h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-xs flex items-center justify-center shadow-sm\\'>${initial}</div>'">` : 
         `<div class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-xs flex items-center justify-center shadow-sm">
-           ${escapeHtml((u.name || u.username || "U").charAt(0).toUpperCase())}
+           ${initial}
          </div>`;
 
       return `
@@ -280,10 +283,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!user) return;
 
     if (detailAvatarContainer) {
-      detailAvatarContainer.innerHTML = user.avatar ? 
-        `<img src="${escapeHtml(user.avatar)}" class="h-12 w-12 rounded-full object-cover shadow border border-zinc-200 dark:border-zinc-700">` : 
+      const rawAvatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
+      const formattedAvatar = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(rawAvatar) : (rawAvatar || '');
+      const initial = escapeHtml((user.name || user.username || "U").charAt(0).toUpperCase());
+      detailAvatarContainer.innerHTML = formattedAvatar ? 
+        `<img src="${escapeHtml(formattedAvatar)}" class="h-12 w-12 rounded-full object-cover shadow border border-zinc-200 dark:border-zinc-700" onerror="this.outerHTML='<div class=\\'h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-base flex items-center justify-center shadow\\'>${initial}</div>'">` : 
         `<div class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-base flex items-center justify-center shadow">
-           ${escapeHtml((user.name || user.username || "U").charAt(0).toUpperCase())}
+           ${initial}
          </div>`;
     }
 
@@ -387,9 +393,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isEdit) {
       if (nameFieldContainer) nameFieldContainer.classList.remove("hidden");
+      if (avatarFieldContainer) avatarFieldContainer.classList.remove("hidden");
       if (permissionsTableContainer) permissionsTableContainer.classList.remove("hidden");
     } else {
       if (nameFieldContainer) nameFieldContainer.classList.add("hidden");
+      if (avatarFieldContainer) avatarFieldContainer.classList.add("hidden");
       if (permissionsTableContainer) permissionsTableContainer.classList.add("hidden");
     }
   };
@@ -598,7 +606,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: editId ? (nameInput ? nameInput.value.trim() : uname) : (uname.charAt(0).toUpperCase() + uname.slice(1)),
       email: existingUser ? (existingUser.email || `${uname}@fpmanager.com`) : `${uname}@fpmanager.com`,
       phone: existingUser ? (existingUser.phone || "") : "",
-      avatar: existingUser ? (existingUser.avatar || "") : "",
+      avatar: (avatarInput && avatarInput.value.trim()) ? avatarInput.value.trim() : (existingUser ? (existingUser.avatar || "") : ""),
       role: roleSelect.value,
       permissions: selectedPerms
     };

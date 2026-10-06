@@ -238,6 +238,9 @@ const Auth = {
       if (u) {
         if (!u.role && u.username === "wansmin") u.role = "super_admin";
         if (!u.role) u.role = "super_admin";
+        if (!u.avatar) {
+          u.avatar = u.url_profile || u.urlprofile || u.foto || u.photo || u.avatar_url || u.avatarUrl || u.urlProfile || u.Url_profile || "";
+        }
       }
       return u;
     } catch (e) {
@@ -345,11 +348,31 @@ const Auth = {
     return false;
   },
 
+  formatAvatarUrl: (url) => {
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) return trimmed;
+
+    // Convert Google Drive view/open links to direct embeddable links
+    if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
+      const matchD = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (matchD && matchD[1]) {
+        return `https://lh3.googleusercontent.com/d/${matchD[1]}`;
+      }
+      const matchId = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (matchId && matchId[1]) {
+        return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+      }
+    }
+    return trimmed;
+  },
+
   syncUserSession: (updatedUser) => {
     if (!updatedUser) return;
     const currentUser = Auth.getUser();
     if (!currentUser) return;
-    if (currentUser.id === updatedUser.id || currentUser.username === updatedUser.username) {
+    if (String(currentUser.id) === String(updatedUser.id) || String(currentUser.username).toLowerCase() === String(updatedUser.username).toLowerCase()) {
       const mergedUser = { ...currentUser, ...updatedUser };
       sessionStorage.setItem("user", JSON.stringify(mergedUser));
       if (localStorage.getItem("user")) {
@@ -357,6 +380,38 @@ const Auth = {
       }
       if (Auth.applyMenuPermissions) Auth.applyMenuPermissions();
       if (Auth.applyButtonPermissions) Auth.applyButtonPermissions();
+    }
+  },
+
+  refreshCurrentUserProfile: async () => {
+    try {
+      const currentUser = Auth.getUser();
+      if (!currentUser) return;
+
+      if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
+        const role = (currentUser.role || '').toLowerCase();
+        const isSuper = (currentUser.username === 'wansmin' || role.includes('admin') || role === 'super_admin');
+        if (isSuper || Auth.hasPermission('users:read')) {
+          const users = await API.getUsers();
+          if (Array.isArray(users) && users.length > 0) {
+            const freshUser = users.find(u => 
+              (currentUser.id && String(u.id) === String(currentUser.id)) || 
+              (currentUser.username && String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase())
+            );
+            if (freshUser) {
+              if (!freshUser.avatar) {
+                freshUser.avatar = freshUser.url_profile || freshUser.urlprofile || freshUser.foto || freshUser.photo || freshUser.Url_profile || "";
+              }
+              Auth.syncUserSession(freshUser);
+              if (typeof loadProfileData === 'function') {
+                loadProfileData();
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Background sync is non-blocking
     }
   },
 
@@ -383,6 +438,9 @@ const Auth = {
       Auth.guardCurrentPage();
       Auth.applyMenuPermissions();
       Auth.applyButtonPermissions();
+
+      // Non-blocking background sync for fresh profile/avatar
+      Auth.refreshCurrentUserProfile();
     }
   },
 
@@ -771,15 +829,42 @@ const Auth = {
       }
     });
 
-    // Update Profile Name / Badge display if elements exist
+    // Update Profile Name / Badge / Avatar in Top Navbar
     const profileBtn = document.getElementById("profileDropdownBtn");
     if (profileBtn) {
-      if (user.avatar) {
-        profileBtn.innerHTML = `<img src="${user.avatar}" class="h-full w-full rounded-full object-cover">`;
-      } else {
-        profileBtn.innerText = (user.name || user.username || "A").charAt(0).toUpperCase();
+      const rawAvatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
+      const avatarUrl = Auth.formatAvatarUrl(rawAvatar);
+      const initial = (user.name || user.username || "A").charAt(0).toUpperCase();
+      const displayName = user.name || user.username || "User";
+
+      // Case 1: Header button with custom child layout (e.g., history-invoice.html)
+      const userAvatarText = profileBtn.querySelector("#userAvatarText") || document.getElementById("userAvatarText");
+      const userNameText = profileBtn.querySelector("#userNameText") || document.getElementById("userNameText");
+
+      if (userAvatarText) {
+        userAvatarText.classList.add("overflow-hidden");
+        if (avatarUrl) {
+          userAvatarText.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-xl" onerror="this.outerHTML='${initial}'">`;
+        } else {
+          userAvatarText.textContent = initial;
+        }
       }
-      profileBtn.title = `${user.name || user.username} (${role})`;
+
+      if (userNameText) {
+        userNameText.textContent = displayName;
+      }
+
+      // Case 2: Standard round button (index.html, proyek.html, profil.html, etc.)
+      if (!userAvatarText) {
+        profileBtn.classList.add("overflow-hidden", "flex", "items-center", "justify-center", "p-0");
+        if (avatarUrl) {
+          profileBtn.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-full block" onerror="this.outerHTML='<span class=\\'font-bold text-sm text-zinc-600 dark:text-zinc-200\\'>${initial}</span>'">`;
+        } else {
+          profileBtn.innerHTML = `<span class="font-bold text-sm text-zinc-600 dark:text-zinc-200">${initial}</span>`;
+        }
+      }
+
+      profileBtn.title = `${displayName} (${role})`;
     }
 
     const userRoleBadge = document.getElementById("headerUserRoleBadge");

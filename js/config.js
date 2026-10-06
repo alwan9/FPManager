@@ -127,8 +127,23 @@ window.escapeHtml = escapeHtml;
 function sanitizeUrl(url) {
   if (!url) return '#';
   const clean = String(url).trim();
-  if (clean.toLowerCase().startsWith('javascript:') || clean.toLowerCase().startsWith('data:')) {
+  if (clean.toLowerCase().startsWith('javascript:')) {
     return '#';
+  }
+  // Disallow non-image data URLs for safety, allow data:image/ and blob:
+  if (clean.toLowerCase().startsWith('data:') && !clean.toLowerCase().startsWith('data:image/')) {
+    return '#';
+  }
+  // Convert Google Drive view/open links to direct embeddable links
+  if (clean.includes('drive.google.com') || clean.includes('docs.google.com')) {
+    const matchD = clean.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (matchD && matchD[1]) {
+      return `https://lh3.googleusercontent.com/d/${matchD[1]}`;
+    }
+    const matchId = clean.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (matchId && matchId[1]) {
+      return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
+    }
   }
   return clean;
 }
@@ -195,9 +210,6 @@ function isModalInputFilled(modal) {
   }
   if (el.id === 'projectPreviewBlenderModal') {
     if ((typeof pbMockupImage !== 'undefined' && (pbMockupImage || pbDesignImage)) || (typeof pbMockupImg !== 'undefined' && (pbMockupImg || pbDesignImg))) return true;
-  }
-  if (el.id === 'logoPhilosophyModal') {
-    if ((typeof currentLogoImage !== 'undefined' && currentLogoImage) || (typeof logoSourceImg !== 'undefined' && logoSourceImg)) return true;
   }
 
   return false;

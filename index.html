@@ -321,6 +321,13 @@
             </p>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
+            <!-- Privacy Toggle Button (Hide/Show Money) -->
+            <button id="toggleHideNominalBtn" type="button" onclick="toggleDashboardNominalPrivacy()"
+              class="inline-flex items-center justify-center px-3.5 py-2.5 bg-white/15 hover:bg-white/25 text-white font-semibold rounded-xl text-xs md:text-sm backdrop-blur-md border border-white/20 shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              title="Tampilkan / Sembunyikan Nominal">
+              <i id="toggleHideNominalIcon" class="fa-solid fa-eye-slash mr-1.5"></i>
+              <span id="toggleHideNominalText">Tampilkan Saldo</span>
+            </button>
 
             <a href="tambah-proyek.html" data-permission-allow="proyek:create"
               class="inline-flex items-center justify-center px-4 py-2.5 bg-white text-indigo-700 font-semibold rounded-xl text-sm shadow hover:bg-zinc-100 transition-colors">
@@ -375,9 +382,14 @@
                   class="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/60 transition-colors">
                   <i class="fa-solid fa-list-ul mr-1 text-[8px]"></i> Rincian
                 </span>
+                <button type="button" onclick="event.stopPropagation(); toggleDashboardNominalPrivacy();"
+                  class="text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-0.5 text-xs transition-colors focus:outline-none"
+                  title="Sembunyikan / Tampilkan Nominal">
+                  <i id="cardPrivacyEyeIcon" class="fa-solid fa-eye-slash"></i>
+                </button>
               </div>
               <span id="statPendapatan"
-                class="text-base sm:text-lg md:text-2xl font-bold text-green-600 mt-1 block truncate">Rp0</span>
+                class="text-base sm:text-lg md:text-2xl font-bold text-green-600 mt-1 block truncate">Rp ••••••••</span>
             </div>
             <div id="statCard2Icon"
               class="bg-green-50 text-green-600 p-2.5 md:p-3.5 rounded-xl shrink-0 group-hover:scale-105 transition-transform">
@@ -394,7 +406,7 @@
                 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
                 data-i18n="dash-expense">Pengeluaran</span>
               <span id="statPengeluaran"
-                class="text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate">Rp0</span>
+                class="text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate">Rp ••••••••</span>
             </div>
             <div id="statCard3Icon"
               class="bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0 group-hover:scale-105 transition-transform">
@@ -411,7 +423,7 @@
                 data-i18n="dash-profit">Laba
                 Bersih</span>
               <span id="statKeuntungan"
-                class="text-base sm:text-lg md:text-2xl font-bold text-indigo-600 mt-1 block truncate">Rp0</span>
+                class="text-base sm:text-lg md:text-2xl font-bold text-indigo-600 mt-1 block truncate">Rp ••••••••</span>
             </div>
             <div id="statCard4Icon" class="bg-indigo-50 text-indigo-600 p-2.5 md:p-3.5 rounded-xl shrink-0">
               <i class="fa-solid fa-scale-balanced text-base md:text-lg"></i>
