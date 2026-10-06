@@ -172,7 +172,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       this.isProcessing = false;
-      updateSyncIndicator("synced", "Cloud Tersinkronisasi");
     }
   };
 
@@ -412,7 +411,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateStats();
       applySettingsToUI();
       scheduleNotificationChecker();
-      updateSyncIndicator("synced", "Cloud Tersinkronisasi");
     } catch (err) {
       console.warn("Background load tasks issue:", err);
       updateSyncIndicator("error", "Mode Offline / Tersimpan Lokal");
