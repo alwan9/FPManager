@@ -215,8 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateApiStatusBadge() {
   const badge = document.getElementById('apiStatusBadge');
   if (badge) {
-    badge.textContent = 'Live Google Sheets';
-    badge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+    badge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>';
+    badge.className = 'inline-flex items-center justify-center p-1.5';
+    badge.title = 'Live Google Sheets Connected';
   }
 }
 

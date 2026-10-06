@@ -61,8 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    apiStatusBadge.textContent = 'Live Google Sheets';
-    apiStatusBadge.className = 'hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+    apiStatusBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>';
+    apiStatusBadge.className = 'inline-flex items-center justify-center p-1.5';
+    apiStatusBadge.title = 'Live Google Sheets Connected';
   }
 
   // Update Privacy UI State
