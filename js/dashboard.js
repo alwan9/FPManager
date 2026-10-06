@@ -115,9 +115,14 @@ function applyDashboardRoleCustomizations() {
   const recentProjectsCard = document.getElementById('recentProjectsCard');
   const incomeDetailBadge = document.getElementById('incomeDetailBadge');
   const statCardPendapatan = document.getElementById('statCardPendapatan');
+  const statCardPengeluaran = document.getElementById('statCardPengeluaran');
+  const toggleHideNominalBtn = document.getElementById('toggleHideNominalBtn');
+  const cardPrivacyEyeIcon = document.getElementById('cardPrivacyEyeIcon');
 
   if (!canReadFinancials) {
     if (chartCard) chartCard.classList.add('hidden');
+    if (toggleHideNominalBtn) toggleHideNominalBtn.classList.add('hidden');
+    if (cardPrivacyEyeIcon) cardPrivacyEyeIcon.classList.add('hidden');
     if (incomeDetailBadge) {
       incomeDetailBadge.classList.add('hidden');
       incomeDetailBadge.classList.remove('inline-flex');
@@ -126,11 +131,18 @@ function applyDashboardRoleCustomizations() {
       statCardPendapatan.classList.remove('cursor-pointer');
       statCardPendapatan.removeAttribute('title');
     }
+    if (statCardPengeluaran) {
+      statCardPengeluaran.removeAttribute('href');
+      statCardPengeluaran.classList.remove('cursor-pointer');
+      statCardPengeluaran.removeAttribute('title');
+    }
     if (recentProjectsCard) {
       recentProjectsCard.className = 'lg:col-span-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
     }
   } else {
     if (chartCard) chartCard.classList.remove('hidden');
+    if (toggleHideNominalBtn) toggleHideNominalBtn.classList.remove('hidden');
+    if (cardPrivacyEyeIcon) cardPrivacyEyeIcon.classList.remove('hidden');
     if (incomeDetailBadge) {
       incomeDetailBadge.classList.remove('hidden');
       incomeDetailBadge.classList.add('inline-flex');
@@ -138,6 +150,10 @@ function applyDashboardRoleCustomizations() {
     if (statCardPendapatan) {
       statCardPendapatan.classList.add('cursor-pointer');
       statCardPendapatan.setAttribute('title', 'Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran');
+    }
+    if (statCardPengeluaran) {
+      statCardPengeluaran.setAttribute('href', 'keuangan.html');
+      statCardPengeluaran.setAttribute('title', 'Buka modul Keuangan untuk melihat detail Pengeluaran');
     }
     if (recentProjectsCard) {
       recentProjectsCard.className = 'lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
