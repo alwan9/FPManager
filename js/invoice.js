@@ -739,6 +739,14 @@ const Invoice = {
             status: (sisaVal <= 0) ? 'Lunas' : ((dpVal > 0 || pelunasanVal > 0) ? 'Sebagian' : 'Belum Bayar')
         };
 
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:create') && !Auth.hasPermission('invoice:update')) {
+            if (!isSilent && typeof Toast !== 'undefined') {
+                Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to save invoices.' : 'Anda tidak memiliki hak akses untuk menyimpan invoice.');
+            }
+            return;
+        }
+
         const btnSave = document.getElementById('btnSaveInvoice');
         const origHtml = btnSave ? btnSave.innerHTML : '';
         if (btnSave && !isSilent) {
@@ -780,6 +788,10 @@ const Invoice = {
     // ==========================================
     exportPDF() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:download')) {
+            if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to download PDF.' : 'Anda tidak memiliki hak akses untuk mengunduh PDF.');
+            return;
+        }
         const btnPDF = document.getElementById("btnPDF");
         if (btnPDF && btnPDF.disabled) return;
 
@@ -862,6 +874,10 @@ const Invoice = {
 
     exportPNG() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:download')) {
+            if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to download PNG.' : 'Anda tidak memiliki hak akses untuk mengunduh PNG.');
+            return;
+        }
         const btnPNG = document.getElementById("btnPNG");
         if (btnPNG && btnPNG.disabled) return;
 

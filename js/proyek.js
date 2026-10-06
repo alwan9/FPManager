@@ -1269,6 +1269,14 @@ function generateSmartLocalMessage(jenis, customPrompt, proyek, gdriveLink) {
 let isAIGenerating = false;
 async function generateAI(jenis) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:generate') && !Auth.hasPermission('proyek:update') && !Auth.hasPermission('proyek:read')) {
+    showToast({
+      title: isEn ? "Access Denied" : "Akses Ditolak",
+      message: isEn ? "You do not have permission (tools:generate) to use the AI generator." : "Anda tidak memiliki izin (tools:generate) untuk membuat pesan otomatis dengan AI.",
+      type: "error"
+    });
+    return;
+  }
   if (isAIGenerating) return;
   if (!currentProyek) {
     showToast({

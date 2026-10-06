@@ -104,6 +104,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const isSuperAdmin = (currentUser.username === "wansmin" || userRole === "super_admin" || userRole === "superadmin" || userRole.includes("admin"));
   const canDeleteTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:delete"));
   const canCreateTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:create"));
+  const canUpdateTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:update"));
+  const canManageSettings = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:settings"));
 
   // ==========================================
   // DECOUPLED SYNC STATUS MANAGER
@@ -172,6 +174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       this.isProcessing = false;
+      updateSyncIndicator("synced", "Cloud Tersinkronisasi");
     }
   };
 
@@ -411,6 +414,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateStats();
       applySettingsToUI();
       scheduleNotificationChecker();
+      updateSyncIndicator("synced", "Cloud Tersinkronisasi");
     } catch (err) {
       console.warn("Background load tasks issue:", err);
       updateSyncIndicator("error", "Mode Offline / Tersimpan Lokal");
@@ -861,6 +865,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // TASK CRUD ACTIONS (OPTIMISTIC & DECOUPLED)
   // ==========================================
   window.openAddTaskModal = () => {
+    if (!canCreateTask) {
+      if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Anda tidak memiliki hak akses (admin_tasks:create) untuk menambah tugas.");
+      return;
+    }
     if (taskForm) taskForm.reset();
     if (taskIdInput) taskIdInput.value = "";
     if (taskModalTitle) taskModalTitle.innerHTML = `<i class="fa-solid fa-plus-circle text-indigo-600 mr-1.5"></i><span>Tambah Tindakan / Tugas Baru</span>`;
@@ -874,6 +882,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   window.openEditTaskModal = (id) => {
+    if (!canUpdateTask) {
+      if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Anda tidak memiliki hak akses (admin_tasks:update) untuk mengedit tugas.");
+      return;
+    }
     const task = tasksData.find(t => t.id === id);
     if (!task) return;
 
@@ -1045,10 +1057,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     TaskSyncEngine.dispatch("updateStatus", { id, payload: { status: newStatus } });
   };
 
-  // Delete Task (Super Admin Only)
+  // Delete Task
   window.deleteAdminTaskConfirm = async (id, name) => {
     if (!canDeleteTask) {
-      if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Hanya Super Admin yang dapat menghapus tugas.");
+      if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Anda tidak memiliki hak akses (admin_tasks:delete) untuk menghapus tugas.");
       return;
     }
 
@@ -1112,8 +1124,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // SUPER ADMIN SETTINGS MODAL (GLOBAL INTERVAL & NOTIF)
   // ==========================================
   function openSettingsModal() {
-    if (!isSuperAdmin) {
-      if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Hanya Super Admin yang dapat mengubah pengaturan notifikasi.");
+    if (!canManageSettings) {
+      if (typeof Toast !== "undefined") Toast.error("Akses Ditolak", "Anda tidak memiliki hak akses (admin_tasks:settings) untuk mengubah pengaturan notifikasi.");
       return;
     }
     applySettingsToUI();

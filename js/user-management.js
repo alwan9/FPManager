@@ -26,20 +26,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const defaultRolePerms = {
     service: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete"
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
+      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
+      "history_invoice:read",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:export",
+      "laporan:read", "laporan:export", "laporan:print",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
     ],
     desainer: [
-      "proyek:read", "proyek:create", "proyek:update",
-      "tools:read", "tools:create", "tools:update", "tools:delete",
+      "proyek:read", "proyek:create", "proyek:update", "proyek:export",
+      "invoice:read", "invoice:download", "invoice:print",
+      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
       "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
     ],
     super_admin: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
-      "laporan:read", "laporan:export", "laporan:create", "laporan:update", "laporan:delete",
-      "tools:read", "tools:create", "tools:update", "tools:delete",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
-      "users:read", "users:create", "users:update", "users:delete"
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
+      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
+      "history_invoice:read", "history_invoice:delete",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
+      "laporan:read", "laporan:export", "laporan:print",
+      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings",
+      "users:read", "users:create", "users:update", "users:delete", "users:manage_role"
     ]
   };
 
@@ -131,12 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updateStats(users);
 
     const modules = [
-      { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete"] },
-      { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete"] },
-      { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export"] },
-      { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete"] },
-      { key: "admin_tasks", label: "Aktivitas Admin", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete"] },
-      { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
+      { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export"] },
+      { key: "invoice", label: "Invoice", actions: ["invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print"] },
+      { key: "history_invoice", label: "Histori", actions: ["history_invoice:read", "history_invoice:delete"] },
+      { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export"] },
+      { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export", "laporan:print"] },
+      { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"] },
+      { key: "admin_tasks", label: "Aktivitas", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"] },
+      { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete", "users:manage_role"] }
     ];
 
     userTableBody.innerHTML = users.map((u, idx) => {
@@ -147,12 +157,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const isPartial = !isAllChecked && m.actions.some(permKey => userHasPerm(u, permKey));
 
         return `
-          <label class="inline-flex items-center space-x-1.5 bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-1 rounded-lg text-xs cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors select-none ${isPartial ? 'border border-amber-400/60 dark:border-amber-600/60' : ''}" 
-            title="${m.label}: ${isAllChecked ? 'Akses Penuh (CRUD Ceklis)' : isPartial ? 'Akses Sebagian (Kosong, klik Edit untuk detail)' : 'Kosong (Tidak Ada Akses)'}">
+          <label class="inline-flex items-center space-x-1.5 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-1 rounded-lg text-[11px] cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors select-none ${isPartial ? 'border border-amber-400/60 dark:border-amber-600/60' : ''}" 
+            title="${m.label}: ${isAllChecked ? 'Akses Penuh' : isPartial ? 'Akses Sebagian (Klik Edit untuk detail)' : 'Tidak Ada Akses'}">
             <input type="checkbox" onchange="toggleUserModuleDirectly('${u.id}', '${m.key}', this.checked)"
-              class="form-checkbox h-4 w-4 text-indigo-600 rounded transition cursor-pointer" ${isAllChecked ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''}>
+              class="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded transition cursor-pointer" ${isAllChecked ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''}>
             <span class="font-semibold ${isAllChecked ? 'text-indigo-600 dark:text-indigo-400' : isPartial ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-zinc-600 dark:text-zinc-400'}">${m.label}</span>
-            ${isPartial ? '<span class="text-[10px] text-amber-500 font-mono" title="Akses Sebagian - Klik Edit untuk ubah">*</span>' : ''}
+            ${isPartial ? '<span class="text-[10px] text-amber-500 font-mono" title="Akses Sebagian">*</span>' : ''}
           </label>
         `;
       }).join("");
@@ -199,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `}
           </td>
           <td class="px-4 py-3">
-            <div class="flex flex-wrap items-center gap-1.5 max-w-xl">
+            <div class="flex flex-wrap items-center gap-1.5 max-w-2xl">
               ${moduleCheckboxesHtml}
             </div>
           </td>
@@ -337,12 +347,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (detailPermissions) {
       const modules = [
-        { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete"] },
-        { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete"] },
-        { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export"] },
-        { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete"] },
-        { key: "admin_tasks", label: "Tugas Admin", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete"] },
-        { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete"] }
+        { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export"] },
+        { key: "invoice", label: "Invoice", actions: ["invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print"] },
+        { key: "history_invoice", label: "Histori", actions: ["history_invoice:read", "history_invoice:delete"] },
+        { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export"] },
+        { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export", "laporan:print"] },
+        { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"] },
+        { key: "admin_tasks", label: "Aktivitas", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"] },
+        { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete", "users:manage_role"] }
       ];
 
       detailPermissions.innerHTML = modules.map(m => {
@@ -366,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (detailEditBtn) {
-      if (typeof Auth !== 'undefined' && !Auth.hasPermission('users:update')) {
+      if (typeof Auth !== 'undefined' && !Auth.hasPermission('users:update') && !Auth.hasPermission('users:manage_role')) {
         detailEditBtn.classList.add('hidden');
       } else {
         detailEditBtn.classList.remove('hidden');
@@ -402,7 +414,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Open Edit User Modal with Prefilled Role & CRUD Permissions
+  // Helper Check All / Uncheck All Perms in Modal
+  window.checkAllUserPerms = (isChecked) => {
+    const checkboxes = document.querySelectorAll(".perm-crud-cb");
+    checkboxes.forEach(cb => {
+      cb.checked = isChecked;
+    });
+    if (roleSelect) roleSelect.value = "custom";
+  };
+
+  // Helper Toggle Module Specific Perms in Modal
+  window.toggleModulePermsInModal = (moduleKey) => {
+    const checkboxes = document.querySelectorAll(`.perm-crud-cb[data-module="${moduleKey}"]`);
+    if (!checkboxes || checkboxes.length === 0) return;
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    checkboxes.forEach(cb => {
+      cb.checked = !allChecked;
+    });
+    if (roleSelect) roleSelect.value = "custom";
+  };
+
+  // Open Edit User Modal with Prefilled Role & Modular Permissions
   window.openEditUserModal = (id) => {
     const user = usersData.find(u => u.id === id);
     if (!user) return;
@@ -410,6 +442,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const isSuperAdmin = (user.role === 'super_admin' || user.username === 'wansmin');
 
     modalTitle.innerText = `Edit User & Hak Akses (${user.username})`;
+    const modalSubtitle = document.getElementById("modalSubtitle");
+    if (modalSubtitle) modalSubtitle.innerText = `Kustomisasi peran dan hak akses individual untuk @${user.username}`;
     userIdInput.value = user.id;
     usernameInput.value = user.username;
     usernameInput.setAttribute("readonly", "readonly");
@@ -426,7 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     configureModalMode(true);
 
-    permCrudCheckboxes.forEach(cb => {
+    const checkboxes = document.querySelectorAll(".perm-crud-cb");
+    checkboxes.forEach(cb => {
       const permKey = cb.getAttribute("data-perm");
       cb.checked = userHasPerm(user, permKey);
     });
@@ -440,12 +475,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!user) return;
 
     const moduleActionsMap = {
-      proyek: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete"],
-      keuangan: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete"],
-      laporan: ["laporan:read", "laporan:export"],
-      tools: ["tools:read", "tools:create", "tools:update", "tools:delete"],
-      admin_tasks: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete"],
-      users: ["users:read", "users:create", "users:update", "users:delete"]
+      proyek: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export"],
+      invoice: ["invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print"],
+      history_invoice: ["history_invoice:read", "history_invoice:delete"],
+      keuangan: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export"],
+      laporan: ["laporan:read", "laporan:export", "laporan:print"],
+      tools: ["tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"],
+      admin_tasks: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"],
+      users: ["users:read", "users:create", "users:update", "users:delete", "users:manage_role"]
     };
 
     const targetActions = moduleActionsMap[moduleKey] || [];
@@ -498,7 +535,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedRole = e.target.value;
     if (defaultRolePerms[selectedRole]) {
       const allowed = defaultRolePerms[selectedRole];
-      permCrudCheckboxes.forEach(cb => {
+      const checkboxes = document.querySelectorAll(".perm-crud-cb");
+      checkboxes.forEach(cb => {
         const permKey = cb.getAttribute("data-perm");
         cb.checked = allowed.includes(permKey);
       });
@@ -506,15 +544,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Checkbox change listener inside modal to switch preset role to custom
-  permCrudCheckboxes.forEach(cb => {
-    cb.addEventListener("change", () => {
-      roleSelect.value = "custom";
+  const attachCheckboxListeners = () => {
+    const checkboxes = document.querySelectorAll(".perm-crud-cb");
+    checkboxes.forEach(cb => {
+      cb.addEventListener("change", () => {
+        roleSelect.value = "custom";
+      });
     });
-  });
+  };
+  attachCheckboxListeners();
 
   // Modal Handlers (Tambah User Baru)
   openAddUserModalBtn.addEventListener("click", () => {
     modalTitle.innerText = "Tambah User Baru";
+    const modalSubtitle = document.getElementById("modalSubtitle");
+    if (modalSubtitle) modalSubtitle.innerText = "Kelola akun dan kustomisasi izin hak akses sistem.";
     userIdInput.value = "";
     usernameInput.value = "";
     usernameInput.removeAttribute("readonly");
@@ -530,7 +574,8 @@ document.addEventListener("DOMContentLoaded", () => {
     configureModalMode(false); // Mode Tambah: Hanya Username, Password, Role
 
     const servicePerms = defaultRolePerms.service;
-    permCrudCheckboxes.forEach(cb => {
+    const checkboxes = document.querySelectorAll(".perm-crud-cb");
+    checkboxes.forEach(cb => {
       const permKey = cb.getAttribute("data-perm");
       cb.checked = servicePerms.includes(permKey);
     });
@@ -591,7 +636,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let selectedPerms = [];
     if (editId && roleSelect.value === "custom") {
-      permCrudCheckboxes.forEach(cb => {
+      const checkboxes = document.querySelectorAll(".perm-crud-cb");
+      checkboxes.forEach(cb => {
         if (cb.checked) {
           const permKey = cb.getAttribute("data-perm");
           if (permKey) selectedPerms.push(permKey);

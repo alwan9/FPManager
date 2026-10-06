@@ -86,7 +86,7 @@
               <span data-i18n="nav-keuangan">Keuangan</span>
             </a>
             <!-- 2. History Invoice -->
-            <a href="history-invoice.html" data-permission-allow="proyek:read"
+            <a href="history-invoice.html" data-permission-allow="history_invoice:read"
               class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
               <i class="fa-solid fa-receipt text-xs w-4"></i>
               <span data-i18n="nav-history-invoice">History Invoice</span>
@@ -286,7 +286,7 @@
 
           <div class="flex flex-wrap items-center gap-2 z-10">
             <!-- Super Admin Only Setting Button -->
-            <button id="openSettingsModalBtn" data-permission-allow="admin_tasks:delete"
+            <button id="openSettingsModalBtn" data-permission-allow="admin_tasks:settings"
               class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all flex items-center space-x-2 shadow backdrop-blur-sm"
               title="Khusus Super Admin: Atur Interval Waktu & Notifikasi Pengingat">
               <i class="fa-solid fa-bell-concierge"></i>
@@ -294,7 +294,7 @@
             </button>
 
             <!-- Manual Reset Button -->
-            <button id="manualResetBtn" data-permission-allow="admin_tasks:delete"
+            <button id="manualResetBtn" data-permission-allow="admin_tasks:update"
               class="px-3.5 py-2 rounded-xl bg-purple-600/60 hover:bg-purple-600 border border-purple-400/40 text-white text-xs font-bold transition-all flex items-center space-x-2 shadow"
               title="Reset manual status semua tugas hari ini ke 'Belum Selesai'">
               <i class="fa-solid fa-arrows-rotate"></i>

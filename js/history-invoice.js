@@ -250,6 +250,7 @@ const HistoryInvoice = {
           className: 'text-center whitespace-nowrap',
           render: (data) => {
             const invId = data.invoice_id || data.id || data.iDInvoice;
+            const canDelete = (typeof Auth === 'undefined' || Auth.hasPermission('history_invoice:delete'));
             return `
               <div class="flex items-center justify-center space-x-1.5">
                 <a href="invoice.html?invoiceId=${encodeURIComponent(invId)}" class="p-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-semibold transition-colors" title="Lihat & Edit Invoice">
@@ -258,9 +259,11 @@ const HistoryInvoice = {
                 <a href="invoice.html?invoiceId=${encodeURIComponent(invId)}" target="_blank" class="p-1.5 px-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-xs font-semibold transition-colors" title="Buka di Tab Baru">
                   <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </a>
+                ${canDelete ? `
                 <button onclick="HistoryInvoice.promptDelete('${invId}')" class="p-1.5 px-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-lg text-xs font-semibold transition-colors" title="Hapus Invoice">
                   <i class="fa-solid fa-trash"></i>
                 </button>
+                ` : ''}
               </div>
             `;
           }
@@ -310,6 +313,10 @@ const HistoryInvoice = {
   },
 
   promptDelete(invId) {
+    if (typeof Auth !== 'undefined' && !Auth.hasPermission('history_invoice:delete')) {
+      if (typeof Toast !== 'undefined') Toast.error("Akses Ditolak", "Anda tidak memiliki hak akses untuk menghapus invoice.");
+      return;
+    }
     this.pendingDeleteId = invId;
     const label = document.getElementById('deleteInvoiceIdLabel');
     if (label) label.textContent = invId;
@@ -331,6 +338,10 @@ const HistoryInvoice = {
   },
 
   async confirmDelete() {
+    if (typeof Auth !== 'undefined' && !Auth.hasPermission('history_invoice:delete')) {
+      if (typeof Toast !== 'undefined') Toast.error("Akses Ditolak", "Anda tidak memiliki izin menghapus invoice.");
+      return;
+    }
     const id = this.pendingDeleteId;
     if (!id) return;
 

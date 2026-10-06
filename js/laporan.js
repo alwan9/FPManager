@@ -894,6 +894,10 @@ function renderPieChart(accountsMap) {
  */
 async function exportToExcel() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('laporan:export')) {
+    if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to export reports.' : 'Anda tidak memiliki hak akses (laporan:export) untuk mengekspor laporan.');
+    return;
+  }
   try {
     if (typeof Toast !== 'undefined') {
       Toast.info(isEn ? 'Exporting' : 'Mengekspor', isEn ? 'Generating Excel report...' : 'Menyiapkan file Excel laporan...');
@@ -1027,6 +1031,11 @@ window.exportToExcel = exportToExcel;
 
 // Export PDF Trigger (Print Optimized)
 function exportToPdf() {
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('laporan:print') && !Auth.hasPermission('laporan:export')) {
+    if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to print/export PDF.' : 'Anda tidak memiliki izin (laporan:print) untuk mencetak laporan.');
+    return;
+  }
   updatePrintDate();
   window.print();
 }

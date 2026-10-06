@@ -263,20 +263,28 @@ const Auth = {
 
   ROLE_DEFAULTS: {
     service: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete"
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
+      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
+      "history_invoice:read",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:export",
+      "laporan:read", "laporan:export", "laporan:print",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
     ],
     desainer: [
-      "proyek:read", "proyek:create", "proyek:update",
-      "tools:read", "tools:create", "tools:update", "tools:delete",
+      "proyek:read", "proyek:create", "proyek:update", "proyek:export",
+      "invoice:read", "invoice:download", "invoice:print",
+      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
       "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
     ],
     super_admin: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete",
-      "laporan:read", "laporan:export", "laporan:create", "laporan:update", "laporan:delete",
-      "tools:read", "tools:create", "tools:update", "tools:delete",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete",
-      "users:read", "users:create", "users:update", "users:delete"
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
+      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
+      "history_invoice:read", "history_invoice:delete",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
+      "laporan:read", "laporan:export", "laporan:print",
+      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings",
+      "users:read", "users:create", "users:update", "users:delete", "users:manage_role"
     ]
   },
 
@@ -456,9 +464,9 @@ const Auth = {
 
     let isDenied = false;
     if (/(^|\/)proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
-    if (/(^|\/)invoice(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
-    if (/(^|\/)history-invoice(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
     if (/(^|\/)tambah-proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:create")) isDenied = true;
+    if (/(^|\/)invoice(\.html)?$/i.test(path) && !Auth.hasPermission("invoice:read") && !Auth.hasPermission("proyek:read")) isDenied = true;
+    if (/(^|\/)history-invoice(\.html)?$/i.test(path) && !Auth.hasPermission("history_invoice:read") && !Auth.hasPermission("proyek:read")) isDenied = true;
     if (/(^|\/)keuangan(\.html)?$/i.test(path) && !Auth.hasPermission("keuangan:read")) isDenied = true;
     if (/(^|\/)laporan(\.html)?$/i.test(path) && !Auth.hasPermission("laporan:read")) isDenied = true;
     if (/(^|\/)tools(\.html)?$/i.test(path) && !Auth.hasPermission("tools:read")) isDenied = true;
@@ -533,7 +541,7 @@ const Auth = {
     } else {
       // Role Service / Super Admin / Default: 5 Menus [ Home | Project | + Tambah Project | Keuangan Group | Profile ]
       const canKeuangan = isSuperAdmin || Auth.hasPermission("keuangan:read");
-      const canHistory = isSuperAdmin || Auth.hasPermission("proyek:read");
+      const canHistory = isSuperAdmin || Auth.hasPermission("history_invoice:read") || Auth.hasPermission("proyek:read");
       const canLaporan = isSuperAdmin || Auth.hasPermission("laporan:read");
       const hasAnyKeuangan = canKeuangan || canHistory || canLaporan;
 
@@ -618,7 +626,7 @@ const Auth = {
               <span data-i18n="nav-keuangan">Keuangan</span>
             </a>` : ''}
             ${canHistory ? `
-            <a href="history-invoice.html" data-permission-allow="proyek:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
+            <a href="history-invoice.html" data-permission-allow="history_invoice:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
               <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
               <span data-i18n="nav-history-invoice">History Invoice</span>
             </a>` : ''}
@@ -752,7 +760,7 @@ const Auth = {
 
       if (!permNeeded && href) {
         if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
-        else if (href.includes("history-invoice.html")) permNeeded = "proyek:read";
+        else if (href.includes("history-invoice.html")) permNeeded = "history_invoice:read";
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
@@ -799,7 +807,8 @@ const Auth = {
       let permNeeded = el.getAttribute("data-permission-allow");
 
       if (!permNeeded && href) {
-        if (href.endsWith("proyek.html") || href.includes("invoice.html") || href.includes("history-invoice.html")) permNeeded = "proyek:read";
+        if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
+        else if (href.includes("history-invoice.html")) permNeeded = "history_invoice:read";
         else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
         else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
         else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";

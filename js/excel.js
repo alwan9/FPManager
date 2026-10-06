@@ -54,6 +54,10 @@ let importState = {
 // 2. MODAL EXPORT & LOGIC EXPORT EXCEL
 // ==========================================
 function openExportModal() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:export') && !Auth.hasPermission('keuangan:export')) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki hak akses (proyek:export) untuk mengekspor data.');
+    return;
+  }
   const modal = document.getElementById("exportModal");
   if (!modal) return;
   modal.classList.remove("hidden");
@@ -68,6 +72,10 @@ function closeExportModal() {
 }
 
 async function exportExcel() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:export') && !Auth.hasPermission('keuangan:export')) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin ekspor.');
+    return;
+  }
   const btn = document.querySelector('#exportModal button.bg-emerald-600') ||
               document.querySelector('#exportModal button.bg-green-600') ||
               document.querySelector('#exportModal button:last-child');
@@ -416,6 +424,10 @@ function downloadProjectTemplateExcel() {
 // 4. MODAL IMPORT EXCEL & STATE MANAGEMENT
 // ==========================================
 function openImportModal() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:import')) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki hak akses (proyek:import) untuk import data projek.');
+    return;
+  }
   resetImportState();
   const modal = document.getElementById("importExcelModal");
   if (!modal) return;
@@ -1091,6 +1103,10 @@ function renderImportTable() {
 // 7. EKSEKUSI BATCH IMPORT PROJEK
 // ==========================================
 async function executeBatchImport() {
+  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:import')) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin (proyek:import) untuk import projek.');
+    return;
+  }
   if (importState.isImporting) return;
   const validItems = importState.validRows;
   if (!validItems || validItems.length === 0) {
