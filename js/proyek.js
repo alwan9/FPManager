@@ -319,6 +319,7 @@ function initTable(data) {
             const statusStr = String(data || '').trim();
             let badgeKey = statusStr.toLowerCase().replace(/\s+/g, '');
             if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
+            const badgeClass = 'badge-' + badgeKey;
             const canUpdateStatus = (typeof Auth === 'undefined' || Auth.hasPermission('proyek:update'));
             if (!canUpdateStatus) {
               return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${badgeClass}">${statusLabels[statusStr] || statusStr}</span>`;
