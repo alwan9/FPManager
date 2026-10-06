@@ -26,12 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const defaultRolePerms = {
     service: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
-      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
-      "history_invoice:read",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:export",
-      "laporan:read", "laporan:export", "laporan:print",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
+      "proyek:read",
+      "tools:read"
     ],
     desainer: [
       "proyek:read", "proyek:create", "proyek:update", "proyek:export",
