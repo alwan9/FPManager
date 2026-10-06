@@ -323,6 +323,9 @@ const Auth = {
       const currentUser = Auth.getUser();
       if (!currentUser) return;
 
+      const path = (window.location.pathname || '').toLowerCase();
+      if (!path.includes('profil.html')) return;
+
       if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
         if (Auth.isSuperAdmin()) {
           const users = await API.getUsers();

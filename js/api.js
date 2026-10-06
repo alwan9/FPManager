@@ -283,11 +283,10 @@ const API = {
     return sessionStorage.getItem("token") || localStorage.getItem("token") || "";
   },
 
-  // Helper untuk membuat URL dengan otentikasi lengkap (termasuk permissions & role)
+  // Helper untuk membuat URL dengan otentikasi role-based
   getAuthUrl: (action, extraParams = {}) => {
     const currUser = API.getCurrentUser();
-    const perms = Array.isArray(currUser.permissions) ? JSON.stringify(currUser.permissions) : (typeof currUser.permissions === 'object' && currUser.permissions ? JSON.stringify(currUser.permissions) : "[]");
-    let url = `${CONFIG.API_URL}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(API.getToken())}&apiKey=${encodeURIComponent(CONFIG.API_KEY)}&role=${encodeURIComponent(currUser.role || '')}&userId=${encodeURIComponent(currUser.id || '')}&permissions=${encodeURIComponent(perms)}`;
+    let url = `${CONFIG.API_URL}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(API.getToken())}&apiKey=${encodeURIComponent(CONFIG.API_KEY)}&role=${encodeURIComponent(currUser.role || '')}&userId=${encodeURIComponent(currUser.id || '')}`;
     for (const [k, v] of Object.entries(extraParams)) {
       if (v !== undefined && v !== null && v !== '') {
         url += `&${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
@@ -297,7 +296,7 @@ const API = {
     return url;
   },
 
-  // Helper untuk mengisi body POST dengan otentikasi lengkap
+  // Helper untuk mengisi body POST dengan otentikasi role-based
   appendAuthBody: (body, action) => {
     const currUser = API.getCurrentUser();
     body.append("action", action);
@@ -305,8 +304,6 @@ const API = {
     body.append("apiKey", CONFIG.API_KEY);
     body.append("role", currUser.role || "");
     body.append("userId", currUser.id || "");
-    const perms = Array.isArray(currUser.permissions) ? JSON.stringify(currUser.permissions) : (typeof currUser.permissions === 'object' && currUser.permissions ? JSON.stringify(currUser.permissions) : "[]");
-    body.append("permissions", perms);
   },
   
   // Ambil semua data proyek (mendukung pagination dan pencarian)
