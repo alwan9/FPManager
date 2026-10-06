@@ -21,7 +21,7 @@ const SessionManager = {
     }
   },
 
-  // Get effective login timestamp (fallback to current time if missing for active session)
+  // Get effective login timestamp
   getLoginTime: () => {
     const raw = sessionStorage.getItem('auth_login_time') || localStorage.getItem('auth_login_time');
     if (raw && !isNaN(Number(raw))) {
@@ -71,7 +71,6 @@ const SessionManager = {
   // Daily Cleanup: Purges temporary cookies & non-auth cache, PRESERVES LOGIN CREDENTIALS
   performDailyCleanup: () => {
     try {
-      // Clean non-auth cookies
       if (document.cookie) {
         const cookies = document.cookie.split(';');
         const loginCookiePatterns = ['token', 'user', 'fp_auth', 'auth', 'session', 'login'];
@@ -88,7 +87,6 @@ const SessionManager = {
         });
       }
 
-      // Clean temporary sessionStorage keys (preserving auth & essential keys)
       const tempSessionKeys = [
         'toast_denied', 'cached_edit_proyek',
         'pwa_notif_prompt_dismissed', 'pwa_ios_prompt_dismissed', 'pwa_install_prompt_dismissed',
@@ -96,12 +94,10 @@ const SessionManager = {
       ];
       tempSessionKeys.forEach(k => sessionStorage.removeItem(k));
 
-      // Clean API cache if available
       if (typeof APICache !== 'undefined' && typeof APICache.clear === 'function') {
         APICache.clear();
       }
 
-      // Record cleanup timestamp
       localStorage.setItem('last_daily_cleanup', Date.now().toString());
       console.log('[SessionManager] Pembersihan harian (1 hari) selesai. Status login tetap aktif.');
     } catch (e) {
@@ -121,20 +117,17 @@ const SessionManager = {
       }
     } catch (e) {}
 
-    // Invalidate local caches
     if (typeof APICache !== 'undefined' && APICache.clear) APICache.clear();
     if (typeof FPManagerDB !== 'undefined' && FPManagerDB.clearAllStores) {
       try { await FPManagerDB.clearAllStores(); } catch (e) {}
     }
 
-    // Clear session storage & auth local storage
     sessionStorage.clear();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('auth_login_time');
     localStorage.removeItem('fpm_offline_queue');
 
-    // Remove all cookies
     if (document.cookie) {
       const cookies = document.cookie.split(';');
       cookies.forEach(cookie => {
@@ -149,45 +142,6 @@ const SessionManager = {
     }
 
     window.location.href = `login.html?reason=${reason}`;
-  },
-
-  // Simulation & Testing Toolkit
-  test: {
-    simulateDailyCleanup: () => {
-      console.log('[SessionManager:Test] Menjalankan simulasi pembersihan 1 hari...');
-      SessionManager.performDailyCleanup();
-      return {
-        success: true,
-        isLoggedIn: Boolean(Auth.getToken()),
-        token: Auth.getToken(),
-        user: Auth.getUser()
-      };
-    },
-
-    simulateTimeElapsed: (days) => {
-      const ms = days * 24 * 60 * 60 * 1000;
-      const currentLogin = SessionManager.getLoginTime() || Date.now();
-      const newLoginTime = currentLogin - ms;
-      sessionStorage.setItem('auth_login_time', newLoginTime.toString());
-      localStorage.setItem('auth_login_time', newLoginTime.toString());
-      console.log(`[SessionManager:Test] Simulasi waktu berjalan ${days} hari. Timestamp login baru: ${new Date(newLoginTime).toLocaleString()}`);
-      return SessionManager.checkLifecycle();
-    },
-
-    getDiagnostics: () => {
-      const now = Date.now();
-      const loginTime = SessionManager.getLoginTime();
-      const lastCleanup = Number(localStorage.getItem('last_daily_cleanup') || 0);
-      return {
-        isLoggedIn: Boolean(Auth.getToken()),
-        currentUser: Auth.getUser(),
-        loginTimestamp: loginTime ? new Date(loginTime).toLocaleString() : 'Belum tercatat',
-        sessionAgeDays: loginTime ? ((now - loginTime) / (24 * 60 * 60 * 1000)).toFixed(2) : 0,
-        lastDailyCleanup: lastCleanup ? new Date(lastCleanup).toLocaleString() : 'Belum pernah',
-        nextAutoLogoutDays: loginTime ? Math.max(0, ((SessionManager.SESSION_MAX_AGE_MS - (now - loginTime)) / (24 * 60 * 60 * 1000))).toFixed(2) : 7,
-        activeCookies: document.cookie || '(Tidak ada cookie aktif)'
-      };
-    }
   }
 };
 
@@ -196,7 +150,6 @@ window.SessionManager = SessionManager;
 const Auth = {
   login: async (username, password, rememberMe = false) => {
     try {
-      // Live Login via Apps Script API
       const body = new URLSearchParams();
       body.append("action", "login");
       body.append("username", username);
@@ -212,6 +165,15 @@ const Auth = {
         const token = result.token || ("token-" + Date.now());
         sessionStorage.setItem("token", token);
         if (result.user) {
+          // Normalize role
+          const rawRole = String(result.user.role || "").toLowerCase().trim();
+          if (rawRole === "super_admin" || rawRole === "super admin" || rawRole === "superadmin" || rawRole.includes("admin") || result.user.username === "wansmin") {
+            result.user.role = "super_admin";
+          } else if (rawRole === "desainer" || rawRole === "designer") {
+            result.user.role = "designer";
+          } else {
+            result.user.role = "service";
+          }
           sessionStorage.setItem("user", JSON.stringify(result.user));
         }
         if (rememberMe) {
@@ -237,7 +199,18 @@ const Auth = {
       const u = JSON.parse(uStr);
       if (u) {
         if (!u.role && u.username === "wansmin") u.role = "super_admin";
-        if (!u.role) u.role = "super_admin";
+        if (u.role) {
+          const r = String(u.role).toLowerCase().trim();
+          if (r === "super_admin" || r === "super admin" || r === "superadmin" || r.includes("admin") || u.username === "wansmin") {
+            u.role = "super_admin";
+          } else if (r === "desainer" || r === "designer") {
+            u.role = "designer";
+          } else {
+            u.role = "service";
+          }
+        } else {
+          u.role = "service";
+        }
         if (!u.avatar) {
           u.avatar = u.url_profile || u.urlprofile || u.foto || u.photo || u.avatar_url || u.avatarUrl || u.urlProfile || u.Url_profile || "";
         }
@@ -258,97 +231,54 @@ const Auth = {
 
   getRole: () => {
     const u = Auth.getUser();
-    return u ? (u.role || "service") : "service";
+    if (!u) return "service";
+    const r = String(u.role || "").toLowerCase().trim();
+    if (r === "super_admin" || r === "super admin" || r === "superadmin" || r.includes("admin") || u.username === "wansmin") return "super_admin";
+    if (r === "desainer" || r === "designer") return "designer";
+    return "service";
   },
 
-  ROLE_DEFAULTS: {
-    service: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
-      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
-      "history_invoice:read", "history_invoice:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
-      "laporan:read", "laporan:export", "laporan:print",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"
-    ],
-    desainer: [
-      "proyek:read",
-      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"
-    ],
-    super_admin: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
-      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
-      "history_invoice:read", "history_invoice:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
-      "laporan:read", "laporan:export", "laporan:print",
-      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings",
-      "users:read", "users:create", "users:update", "users:delete", "users:manage_role"
-    ]
+  isSuperAdmin: () => {
+    return Auth.getRole() === "super_admin";
+  },
+
+  isDesigner: () => {
+    return Auth.getRole() === "designer";
+  },
+
+  isService: () => {
+    return Auth.getRole() === "service";
   },
 
   hasPermission: (action) => {
     if (!action) return true;
-    const user = Auth.getUser();
-    if (!user) return false;
+    const role = Auth.getRole();
 
-    const role = (user.role || "").toLowerCase().trim();
-    const isSuperAdmin = (
-      user.username === "wansmin" ||
-      role === "super_admin" ||
-      role === "super admin" ||
-      role === "superadmin" ||
-      role.includes("super_admin") ||
-      role.includes("superadmin") ||
-      role.includes("admin")
-    );
-    if (isSuperAdmin) return true;
+    // 1. Super Admin: full unrestricted access
+    if (role === "super_admin") return true;
 
-    // Normalize action (support both 'projek' and 'proyek')
-    const normalizedAction = String(action).toLowerCase().trim().replace(/^projek:/i, "proyek:");
-    const altAction = normalizedAction.replace(/^proyek:/i, "projek:");
-    const [mod, act] = normalizedAction.split(":");
+    const normAction = String(action).toLowerCase().trim().replace(/^projek:/i, "proyek:");
 
-    // 1. Handle Object/Map format: { "proyek:read": true, "proyek:delete": false }
-    const permissions = user.permissions;
-    if (permissions && typeof permissions === 'object' && !Array.isArray(permissions)) {
-      if (permissions[normalizedAction] !== undefined) return permissions[normalizedAction] === true;
-      if (permissions[altAction] !== undefined) return permissions[altAction] === true;
-      if (permissions[action] !== undefined) return permissions[action] === true;
-      if (mod && permissions[mod + ":*"] !== undefined) return permissions[mod + ":*"] === true;
-      if (mod && permissions[mod] !== undefined) return permissions[mod] === true;
-      if (!act || act === 'read') {
-        if (permissions[mod + ":read"] !== undefined) return permissions[mod + ":read"] === true;
+    // 2. Designer: View project + CRUD own & super admin tools + Settings + Profile
+    if (role === "designer") {
+      const allowedActions = [
+        "home", "proyek:read", "proyek", "projek",
+        "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate", "tools",
+        "settings", "pengaturan", "profile", "profil"
+      ];
+      return allowedActions.includes(normAction) || normAction.startsWith("tools:");
+    }
+
+    // 3. Service: Full CRUD Project + Import/Export + Financials + Admin Tasks + Settings + Profile
+    if (role === "service") {
+      const forbiddenForService = [
+        "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate", "tools",
+        "users:read", "users:create", "users:update", "users:delete", "users:manage_role", "users", "user_management"
+      ];
+      if (forbiddenForService.includes(normAction) || normAction.startsWith("tools:") || normAction.startsWith("users:")) {
+        return false;
       }
-    }
-
-    // 2. Determine Effective Permissions (Base Role Defaults + Direct Permissions Array)
-    const baseRolePerms = (role && role !== "custom" && Auth.ROLE_DEFAULTS[role]) ? Auth.ROLE_DEFAULTS[role] : [];
-    let directPerms = [];
-    if (Array.isArray(permissions)) {
-      directPerms = permissions.map(p => String(p).toLowerCase().trim().replace(/^projek:/i, "proyek:"));
-    }
-
-    // Union of base role permissions and direct permissions
-    const effectiveSet = new Set([...baseRolePerms, ...directPerms]);
-
-    // Exact match
-    if (effectiveSet.has(normalizedAction) || effectiveSet.has(altAction) || effectiveSet.has(action.toLowerCase())) {
       return true;
-    }
-
-    // Full module wildcard (e.g. 'proyek:*' or 'proyek')
-    if (effectiveSet.has(mod + ":*") || effectiveSet.has(mod) || (mod === "proyek" && (effectiveSet.has("projek:*") || effectiveSet.has("projek")))) {
-      return true;
-    }
-
-    // Module read check (when checking module access, e.g. action='proyek:read' or 'proyek')
-    if (!act || act === 'read') {
-      if (effectiveSet.has(mod) || (mod === "proyek" && effectiveSet.has("projek"))) return true;
-      for (const p of effectiveSet) {
-        if (p.startsWith(mod + ":") || p === mod || (mod === "proyek" && (p.startsWith("projek:") || p === "projek"))) {
-          return true;
-        }
-      }
     }
 
     return false;
@@ -360,7 +290,6 @@ const Auth = {
     if (!trimmed) return '';
     if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) return trimmed;
 
-    // Convert Google Drive view/open links to direct embeddable links
     if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
       const matchD = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (matchD && matchD[1]) {
@@ -395,9 +324,7 @@ const Auth = {
       if (!currentUser) return;
 
       if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
-        const role = (currentUser.role || '').toLowerCase();
-        const isSuper = (currentUser.username === 'wansmin' || role.includes('admin') || role === 'super_admin');
-        if (isSuper || Auth.hasPermission('users:read')) {
+        if (Auth.isSuperAdmin()) {
           const users = await API.getUsers();
           if (Array.isArray(users) && users.length > 0) {
             const freshUser = users.find(u => 
@@ -416,9 +343,7 @@ const Auth = {
           }
         }
       }
-    } catch (e) {
-      // Background sync is non-blocking
-    }
+    } catch (e) {}
   },
 
   checkLogin: () => {
@@ -435,7 +360,6 @@ const Auth = {
     }
 
     if (token && !isLoginPage) {
-      // Check 7-Day Expiration & 1-Day Daily Cleanup Lifecycle
       const lifecycle = SessionManager.checkLifecycle();
       if (lifecycle && lifecycle.status === 'expired') {
         return;
@@ -445,7 +369,6 @@ const Auth = {
       Auth.applyMenuPermissions();
       Auth.applyButtonPermissions();
 
-      // Non-blocking background sync for fresh profile/avatar
       Auth.refreshCurrentUserProfile();
     }
   },
@@ -454,30 +377,30 @@ const Auth = {
     const user = Auth.getUser();
     if (!user) return;
 
-    const role = (user.role || "").toLowerCase().trim();
-    const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
-    if (isSuperAdmin) return;
+    if (Auth.isSuperAdmin()) return;
 
     const path = window.location.pathname.toLowerCase();
+    const role = Auth.getRole();
 
     let isDenied = false;
-    if (/(^|\/)proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:read")) isDenied = true;
-    if (/(^|\/)tambah-proyek(\.html)?$/i.test(path) && !Auth.hasPermission("proyek:create")) isDenied = true;
-    if (/(^|\/)invoice(\.html)?$/i.test(path) && !Auth.hasPermission("invoice:read") && !Auth.hasPermission("proyek:read")) isDenied = true;
-    if (/(^|\/)history-invoice(\.html)?$/i.test(path) && !Auth.hasPermission("history_invoice:read") && !Auth.hasPermission("proyek:read")) isDenied = true;
-    if (/(^|\/)keuangan(\.html)?$/i.test(path) && !Auth.hasPermission("keuangan:read")) isDenied = true;
-    if (/(^|\/)laporan(\.html)?$/i.test(path) && !Auth.hasPermission("laporan:read")) isDenied = true;
-    if (/(^|\/)tools(\.html)?$/i.test(path) && !Auth.hasPermission("tools:read")) isDenied = true;
-    if (/(^|\/)admin-tasks(\.html)?$/i.test(path) && !Auth.hasPermission("admin_tasks:read")) isDenied = true;
-    if (/(^|\/)user-management(\.html)?$/i.test(path) && !Auth.hasPermission("users:read")) isDenied = true;
+
+    if (role === "designer") {
+      // Designer can ONLY access: index.html, proyek.html, tools.html, pengaturan.html, profil.html
+      const forbiddenForDesigner = [
+        "tambah-proyek.html", "keuangan.html", "history-invoice.html", "laporan.html",
+        "admin-tasks.html", "user-management.html"
+      ];
+      isDenied = forbiddenForDesigner.some(p => path.includes(p));
+    } else if (role === "service") {
+      // Service can access: index.html, proyek.html, tambah-proyek.html, keuangan.html, history-invoice.html, laporan.html, admin-tasks.html, pengaturan.html, profil.html
+      // Service CANNOT access: tools.html, user-management.html
+      const forbiddenForService = ["tools.html", "user-management.html"];
+      isDenied = forbiddenForService.some(p => path.includes(p));
+    }
 
     if (isDenied) {
-      sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman tersebut.");
-      if (Auth.hasPermission("proyek:read")) {
-        window.location.href = "proyek.html";
-      } else {
-        window.location.href = "index.html";
-      }
+      sessionStorage.setItem("toast_denied", "Akses Ditolak: Role " + (role === "designer" ? "Designer" : "Service") + " tidak memiliki izin untuk halaman ini.");
+      window.location.href = role === "designer" ? "proyek.html" : "index.html";
     }
   },
 
@@ -488,9 +411,7 @@ const Auth = {
     const user = Auth.getUser();
     if (!user) return;
 
-    const role = (user.role || "service").toLowerCase().trim();
-    const isDesainer = (role === "desainer" || role === "designer");
-    const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+    const isDesigner = Auth.isDesigner();
 
     // Determine current active page
     const currentPath = (window.location.pathname || "").toLowerCase();
@@ -509,8 +430,8 @@ const Auth = {
     const activeClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-indigo-400 font-bold";
     const inactiveClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium";
 
-    if (isDesainer) {
-      // Role Desainer: EXACTLY 4 Menus [ Home ] — [ Project ] — [ Tools ] — [ Profile ]
+    if (isDesigner) {
+      // Role Designer: EXACTLY 4 Menus [ Home ] — [ Project ] — [ Tools ] — [ Profile ]
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
@@ -519,13 +440,13 @@ const Auth = {
         </a>
 
         <!-- 2. Project -->
-        <a href="proyek.html" data-permission-allow="proyek:read" class="${isProyek ? activeClass : inactiveClass}">
+        <a href="proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-folder-open text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tools -->
-        <a href="tools.html" data-permission-allow="tools:read" class="${isTools ? activeClass : inactiveClass}">
+        <a href="tools.html" class="${isTools ? activeClass : inactiveClass}">
           <i class="fa-solid fa-toolbox text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-tools">Tools</span>
         </a>
@@ -537,12 +458,7 @@ const Auth = {
         </a>
       `;
     } else {
-      // Role Service / Super Admin / Default: 5 Menus [ Home | Project | + Tambah Project | Keuangan Group | Profile ]
-      const canKeuangan = isSuperAdmin || Auth.hasPermission("keuangan:read");
-      const canHistory = isSuperAdmin || Auth.hasPermission("history_invoice:read") || Auth.hasPermission("proyek:read");
-      const canLaporan = isSuperAdmin || Auth.hasPermission("laporan:read");
-      const hasAnyKeuangan = canKeuangan || canHistory || canLaporan;
-
+      // Role Service / Super Admin: 5 Menus [ Home | Project | + Tambah | Keuangan Group | Profile ]
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
@@ -551,13 +467,13 @@ const Auth = {
         </a>
 
         <!-- 2. Project -->
-        <a href="proyek.html" data-permission-allow="proyek:read" class="${isProyek ? activeClass : inactiveClass}">
+        <a href="proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tambah (Center Prominent Action) -->
-        <a href="tambah-proyek.html" data-permission-allow="proyek:create"
+        <a href="tambah-proyek.html"
           class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none" title="Tambah Projek">
           <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 ${isTambah ? 'ring-2 ring-indigo-400' : ''} group-hover:scale-105 active:scale-95 transition-all">
             <i class="fa-solid fa-plus text-base"></i>
@@ -566,7 +482,6 @@ const Auth = {
         </a>
 
         <!-- 4. Keuangan Group (Collapsible / Action Menu) -->
-        ${hasAnyKeuangan ? `
         <button type="button" id="btnMobileKeuanganNav" onclick="Auth.toggleMobileKeuanganMenu()"
           class="${isKeuanganGroup ? activeClass : inactiveClass} focus:outline-none cursor-pointer">
           <i class="fa-solid fa-wallet text-base"></i>
@@ -574,7 +489,6 @@ const Auth = {
             Keuangan <i class="fa-solid fa-chevron-up text-[8px] opacity-70"></i>
           </span>
         </button>
-        ` : ''}
 
         <!-- 5. Profile -->
         <a href="profil.html" class="${isProfil ? activeClass : inactiveClass}">
@@ -583,9 +497,8 @@ const Auth = {
         </a>
       `;
 
-      // Render Mobile Keuangan Backdrop Overlay Container if not exists
       let backdrop = document.getElementById("mobileKeuanganBackdrop");
-      if (!backdrop && hasAnyKeuangan) {
+      if (!backdrop) {
         backdrop = document.createElement("div");
         backdrop.id = "mobileKeuanganBackdrop";
         backdrop.className = "md:hidden fixed inset-0";
@@ -597,16 +510,15 @@ const Auth = {
         document.body.appendChild(backdrop);
       }
 
-      // Render Mobile Keuangan Popover Container if not exists
       let popover = document.getElementById("mobileKeuanganPopover");
-      if (!popover && hasAnyKeuangan) {
+      if (!popover) {
         popover = document.createElement("div");
         popover.id = "mobileKeuanganPopover";
         popover.className = "md:hidden fixed";
         document.body.appendChild(popover);
       }
 
-      if (popover && hasAnyKeuangan) {
+      if (popover) {
         popover.innerHTML = `
           <div class="popover-header">
             <span class="text-xs font-bold popover-title flex items-center gap-2">
@@ -618,27 +530,23 @@ const Auth = {
             </button>
           </div>
           <div class="flex flex-col space-y-1">
-            ${canKeuangan ? `
-            <a href="keuangan.html" data-permission-allow="keuangan:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
+            <a href="keuangan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
               <i class="fa-solid fa-coins text-sm text-indigo-400 w-5"></i>
               <span data-i18n="nav-keuangan">Keuangan</span>
-            </a>` : ''}
-            ${canHistory ? `
-            <a href="history-invoice.html" data-permission-allow="history_invoice:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
+            </a>
+            <a href="history-invoice.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
               <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
               <span data-i18n="nav-history-invoice">History Invoice</span>
-            </a>` : ''}
-            ${canLaporan ? `
-            <a href="laporan.html" data-permission-allow="laporan:read" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isLaporan ? 'active-sub' : ''}">
+            </a>
+            <a href="laporan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isLaporan ? 'active-sub' : ''}">
               <i class="fa-solid fa-file-invoice-dollar text-sm text-indigo-400 w-5"></i>
               <span data-i18n="nav-laporan">Laporan</span>
-            </a>` : ''}
+            </a>
           </div>
         `;
       }
     }
 
-    // Apply translations if i18n is available
     if (typeof i18n !== 'undefined' && i18n.translatePage) {
       i18n.translatePage();
     }
@@ -652,7 +560,7 @@ const Auth = {
 
     let shouldOpen = false;
     if (forceState !== undefined) {
-      shouldOpen = !!forceState;
+      shouldOpen = !forceState;
     } else {
       shouldOpen = !popover.classList.contains("active");
     }
@@ -690,7 +598,6 @@ const Auth = {
     const isLaporan = filename === "laporan.html" || filename === "laporan";
     const isKeuanganGroup = isKeuangan || isHistory || isLaporan;
 
-    // Highlight parent and open submenu if on one of the group pages
     if (isKeuanganGroup) {
       toggleBtn.classList.add("active-parent", "expanded");
       toggleBtn.setAttribute("aria-expanded", "true");
@@ -703,7 +610,6 @@ const Auth = {
       submenu.classList.remove("flex");
     }
 
-    // Mark active submenu item
     const sublinks = submenu.querySelectorAll(".sidebar-sublink");
     sublinks.forEach(link => {
       const href = link.getAttribute("href") || "";
@@ -716,7 +622,6 @@ const Auth = {
       }
     });
 
-    // Attach click toggle handler safely
     toggleBtn.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -739,35 +644,43 @@ const Auth = {
     const user = Auth.getUser();
     if (!user) return;
 
-    const role = (user.role || "service").toLowerCase().trim();
-    const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+    const isSuperAdmin = Auth.isSuperAdmin();
+    const isDesigner = Auth.isDesigner();
+    const isService = Auth.isService();
 
-    // 1. Render Mobile Bottom Navigation according to role
+    // 1. Render Mobile Bottom Navigation
     Auth.renderMobileBottomNav();
 
-    // 2. Initialize desktop sidebar group accordion & active state
+    // 2. Initialize desktop sidebar group
     Auth.initSidebarNavGroup();
 
-    // 3. Check sidebar navigation links inside navMenu
+    // 3. Filter sidebar navigation links inside navMenu
     const navLinks = document.querySelectorAll("#navMenu .sidebar-link");
     navLinks.forEach(el => {
-      if (el.id === "pwaInstallBtn" || el.id === "btnNavKeuanganToggle") return; // Let dedicated logic control install & group button
+      if (el.id === "pwaInstallBtn" || el.id === "btnNavKeuanganToggle") return;
 
-      const href = el.getAttribute("href") || "";
-      let permNeeded = el.getAttribute("data-permission-allow");
+      const href = (el.getAttribute("href") || "").toLowerCase();
 
-      if (!permNeeded && href) {
-        if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
-        else if (href.includes("history-invoice.html")) permNeeded = "history_invoice:read";
-        else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
-        else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
-        else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
-        else if (href.endsWith("tools.html")) permNeeded = "tools:read";
-        else if (href.endsWith("admin-tasks.html")) permNeeded = "admin_tasks:read";
-        else if (href.endsWith("user-management.html")) permNeeded = "users:read";
+      let isAllowed = true;
+      if (isSuperAdmin) {
+        isAllowed = true;
+      } else if (isDesigner) {
+        // Designer only has: Home, Project (view), Tools, Settings, Profile
+        if (href.includes("tambah-proyek.html") ||
+            href.includes("keuangan.html") ||
+            href.includes("history-invoice.html") ||
+            href.includes("laporan.html") ||
+            href.includes("admin-tasks.html") ||
+            href.includes("user-management.html")) {
+          isAllowed = false;
+        }
+      } else if (isService) {
+        // Service has: Home, Project, Tambah, Keuangan, History Invoice, Laporan, Admin Tasks, Settings, Profile
+        // Service CANNOT access: Tools, User Management
+        if (href.includes("tools.html") || href.includes("user-management.html")) {
+          isAllowed = false;
+        }
       }
-
-      const isAllowed = isSuperAdmin || !permNeeded || Auth.hasPermission(permNeeded);
 
       if (isAllowed) {
         el.classList.remove("hidden");
@@ -778,44 +691,40 @@ const Auth = {
       }
     });
 
-    // 4. Check if any sublink is visible inside Keuangan Group; if none, hide the whole group
+    // 4. Handle Keuangan Group in Sidebar (Hidden for Designer, Shown for Service & Super Admin)
     const groupEl = document.getElementById("navKeuanganGroup");
-    const submenuEl = document.getElementById("submenuKeuangan");
-    if (groupEl && submenuEl) {
-      const sublinks = submenuEl.querySelectorAll(".sidebar-sublink");
-      let visibleCount = 0;
-      sublinks.forEach(sub => {
-        if (!sub.classList.contains("hidden") && sub.style.display !== "none") {
-          visibleCount++;
-        }
-      });
-      if (visibleCount > 0) {
-        groupEl.classList.remove("hidden");
-        groupEl.style.display = "";
-      } else {
+    if (groupEl) {
+      if (isDesigner) {
         groupEl.classList.add("hidden");
         groupEl.style.display = "none";
+      } else {
+        groupEl.classList.remove("hidden");
+        groupEl.style.display = "";
       }
     }
 
-    // 5. Check profile dropdown links for permissions
+    // 5. Filter profile dropdown links
     const dropdownLinks = document.querySelectorAll("#profileDropdown a");
     dropdownLinks.forEach(el => {
-      const href = el.getAttribute("href") || "";
-      let permNeeded = el.getAttribute("data-permission-allow");
-
-      if (!permNeeded && href) {
-        if (href.endsWith("proyek.html") || href.includes("invoice.html")) permNeeded = "proyek:read";
-        else if (href.includes("history-invoice.html")) permNeeded = "history_invoice:read";
-        else if (href.endsWith("tambah-proyek.html")) permNeeded = "proyek:create";
-        else if (href.endsWith("keuangan.html")) permNeeded = "keuangan:read";
-        else if (href.endsWith("laporan.html")) permNeeded = "laporan:read";
-        else if (href.endsWith("tools.html")) permNeeded = "tools:read";
-        else if (href.endsWith("admin-tasks.html")) permNeeded = "admin_tasks:read";
-        else if (href.endsWith("user-management.html")) permNeeded = "users:read";
+      const href = (el.getAttribute("href") || "").toLowerCase();
+      let isAllowed = true;
+      if (isSuperAdmin) {
+        isAllowed = true;
+      } else if (isDesigner) {
+        if (href.includes("tambah-proyek.html") ||
+            href.includes("keuangan.html") ||
+            href.includes("history-invoice.html") ||
+            href.includes("laporan.html") ||
+            href.includes("admin-tasks.html") ||
+            href.includes("user-management.html")) {
+          isAllowed = false;
+        }
+      } else if (isService) {
+        if (href.includes("tools.html") || href.includes("user-management.html")) {
+          isAllowed = false;
+        }
       }
 
-      const isAllowed = isSuperAdmin || !permNeeded || Auth.hasPermission(permNeeded);
       if (isAllowed) {
         el.classList.remove("hidden");
         el.style.display = "";
@@ -843,8 +752,8 @@ const Auth = {
       const avatarUrl = Auth.formatAvatarUrl(rawAvatar);
       const initial = (user.name || user.username || "A").charAt(0).toUpperCase();
       const displayName = user.name || user.username || "User";
+      const displayRole = isSuperAdmin ? "Super Admin" : (isDesigner ? "Designer" : "Service");
 
-      // Case 1: Header button with custom child layout (e.g., history-invoice.html)
       const userAvatarText = profileBtn.querySelector("#userAvatarText") || document.getElementById("userAvatarText");
       const userNameText = profileBtn.querySelector("#userNameText") || document.getElementById("userNameText");
 
@@ -861,7 +770,6 @@ const Auth = {
         userNameText.textContent = displayName;
       }
 
-      // Case 2: Standard round button (index.html, proyek.html, profil.html, etc.)
       if (!userAvatarText) {
         profileBtn.classList.add("overflow-hidden", "flex", "items-center", "justify-center", "p-0");
         if (avatarUrl) {
@@ -871,12 +779,13 @@ const Auth = {
         }
       }
 
-      profileBtn.title = `${displayName} (${role})`;
+      profileBtn.title = `${displayName} (${displayRole})`;
     }
 
     const userRoleBadge = document.getElementById("headerUserRoleBadge");
     if (userRoleBadge) {
-      userRoleBadge.innerText = role.replace("_", " ").toUpperCase();
+      const displayRole = isSuperAdmin ? "SUPER ADMIN" : (isDesigner ? "DESIGNER" : "SERVICE");
+      userRoleBadge.innerText = displayRole;
       userRoleBadge.classList.remove("hidden");
     }
   },
@@ -885,12 +794,42 @@ const Auth = {
     const user = Auth.getUser();
     if (!user) return;
 
-    const role = (user.role || "service").toLowerCase().trim();
-    const isSuperAdmin = (user.username === "wansmin" || role === "super_admin" || role === "super admin" || role === "superadmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin"));
+    const isSuperAdmin = Auth.isSuperAdmin();
+    const isDesigner = Auth.isDesigner();
+    const isService = Auth.isService();
 
+    // If Designer on Proyek page, hide CUD buttons, bulk actions, import/export
+    if (isDesigner) {
+      const elementsToHide = document.querySelectorAll(`
+        #btnTambahProyek,
+        #btnTambahProyekMobile,
+        #btnBulkDelete,
+        #btnBulkCreateInvoice,
+        #excelDropdownGroup,
+        #btnImportExcel,
+        #btnExportExcel,
+        .btn-action-edit,
+        .btn-action-delete,
+        .btn-action-invoice,
+        .table-action-edit,
+        .table-action-delete,
+        [data-permission-allow="proyek:create"],
+        [data-permission-allow="proyek:update"],
+        [data-permission-allow="proyek:delete"],
+        [data-permission-allow="proyek:import"],
+        [data-permission-allow="proyek:export"],
+        [data-permission-allow="invoice:create"]
+      `);
+      elementsToHide.forEach(el => {
+        el.classList.add("hidden");
+        el.style.display = "none";
+      });
+    }
+
+    // Generic button permission tag handling
     const permButtons = document.querySelectorAll("[data-permission-allow]");
     permButtons.forEach(btn => {
-      if (btn.closest("#navMenu") || btn.closest("#profileDropdown") || btn.id === "btnBulkDelete" || btn.id === "btnBulkDeleteKeuangan" || btn.classList.contains("btn-bulk-action")) return; // Skip menu & bulk action items
+      if (btn.closest("#navMenu") || btn.closest("#profileDropdown") || btn.id === "btnBulkDelete" || btn.id === "btnBulkDeleteKeuangan" || btn.classList.contains("btn-bulk-action")) return;
       const permNeeded = btn.getAttribute("data-permission-allow");
       const isAllowed = isSuperAdmin || Auth.hasPermission(permNeeded);
       if (isAllowed) {
@@ -921,7 +860,6 @@ window.addEventListener("resize", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Check for Access Denied notification
   const deniedMsg = sessionStorage.getItem("toast_denied");
   if (deniedMsg) {
     sessionStorage.removeItem("toast_denied");

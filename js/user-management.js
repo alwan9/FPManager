@@ -12,10 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const nameInput = document.getElementById("nameInput");
   const emailInput = document.getElementById("emailInput");
   const phoneInput = document.getElementById("phoneInput");
-  const avatarInput = document.getElementById("avatarInput");
   const passwordInput = document.getElementById("passwordInput");
   const roleSelect = document.getElementById("roleSelect");
-  const permCrudCheckboxes = document.querySelectorAll(".perm-crud-cb");
 
   const statTotalUsers = document.getElementById("statTotalUsers");
   const statSuperAdmin = document.getElementById("statSuperAdmin");
@@ -24,68 +22,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let usersData = [];
 
-  const defaultRolePerms = {
-    service: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
-      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
-      "history_invoice:read", "history_invoice:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
-      "laporan:read", "laporan:export", "laporan:print",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"
-    ],
-    desainer: [
-      "proyek:read",
-      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"
-    ],
-    super_admin: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
-      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
-      "history_invoice:read", "history_invoice:delete",
-      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
-      "laporan:read", "laporan:export", "laporan:print",
-      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings",
-      "users:read", "users:create", "users:update", "users:delete", "users:manage_role"
-    ]
+  const escapeHtml = (str) => {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   };
 
-  const getUserEffectivePerms = (user) => {
-    if (!user) return [];
-    if (user.role === 'super_admin' || user.username === 'wansmin') {
-      return [...defaultRolePerms.super_admin];
-    }
-    const role = (user.role || 'service').toLowerCase().trim();
-    const basePerms = (role !== 'custom' && defaultRolePerms[role]) ? defaultRolePerms[role] : [];
-    
-    let directPerms = [];
-    if (Array.isArray(user.permissions)) {
-      directPerms = user.permissions.map(p => String(p).toLowerCase().trim().replace(/^projek:/i, "proyek:"));
-    } else if (user.permissions && typeof user.permissions === 'object') {
-      for (const [k, v] of Object.entries(user.permissions)) {
-        if (v === true) directPerms.push(k.toLowerCase().trim().replace(/^projek:/i, "proyek:"));
-      }
-    }
-    return Array.from(new Set([...basePerms, ...directPerms]));
+  const normalizeRole = (role) => {
+    if (!role) return "service";
+    const r = String(role).toLowerCase().trim();
+    if (r === "super_admin" || r === "super admin" || r === "superadmin" || r.includes("admin") || r === "wansmin") return "super_admin";
+    if (r === "desainer" || r === "designer") return "designer";
+    return "service";
   };
 
   const loadUsers = async () => {
-    if (typeof Auth !== 'undefined' && !Auth.hasPermission('users:read')) {
+    if (typeof Auth !== 'undefined' && !Auth.isSuperAdmin()) {
       const mainArea = document.querySelector('main section') || document.querySelector('main');
       if (mainArea) {
         mainArea.innerHTML = `
           <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
             <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
             <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (users:read) untuk melihat manajemen user.</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Halaman Manajemen User hanya dapat diakses oleh Super Admin.</p>
           </div>
         `;
       }
       return;
     }
+
     try {
       userTableBody.innerHTML = `
         <tr>
-          <td colspan="5" class="text-center py-8 text-zinc-400">
+          <td colspan="6" class="text-center py-8 text-zinc-400">
             <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2"></i>
             <p>Memuat data user...</p>
           </td>
@@ -101,30 +68,14 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   window.loadUsers = loadUsers;
 
-  const userHasPerm = (user, permKey) => {
-    if (!user) return false;
-    if (user.role === 'super_admin' || user.username === 'wansmin') return true;
-    const normKey = String(permKey).toLowerCase().trim().replace(/^projek:/i, "proyek:");
-
-    // Handle Object format
-    if (user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)) {
-      if (user.permissions[normKey] !== undefined) return user.permissions[normKey] === true;
-      if (user.permissions[permKey] !== undefined) return user.permissions[permKey] === true;
-    }
-
-    const effectivePerms = getUserEffectivePerms(user);
-    return effectivePerms.includes(normKey) || effectivePerms.includes(permKey);
-  };
-
   const renderUsers = (users) => {
     if (!users || users.length === 0) {
       userTableBody.innerHTML = `
         <tr>
-          <td colspan="5" class="text-center py-8 text-zinc-400">
+          <td colspan="6" class="text-center py-8 text-zinc-400">
             <i class="fa-solid fa-user-slash text-2xl mb-2 text-zinc-300 block"></i>
-            <p class="font-semibold text-zinc-600 dark:text-zinc-300">Belum ada data user yang dimuat dari Spreadsheet.</p>
-            <p class="text-xs text-zinc-400 mt-1 mb-3">Pastikan Apps Script telah di-deploy ulang ke versi terbaru (New Version).</p>
-            <button onclick="loadUsers()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow transition-all">
+            <p class="font-semibold text-zinc-600 dark:text-zinc-300">Belum ada data user yang dimuat.</p>
+            <button onclick="loadUsers()" class="mt-3 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow transition-all">
               <i class="fa-solid fa-rotate mr-1"></i> Muat Ulang Data
             </button>
           </td>
@@ -136,34 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateStats(users);
 
-    const modules = [
-      { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export"] },
-      { key: "invoice", label: "Invoice", actions: ["invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print"] },
-      { key: "history_invoice", label: "Histori", actions: ["history_invoice:read", "history_invoice:delete"] },
-      { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export"] },
-      { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export", "laporan:print"] },
-      { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"] },
-      { key: "admin_tasks", label: "Aktivitas", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"] },
-      { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete", "users:manage_role"] }
-    ];
-
     userTableBody.innerHTML = users.map((u, idx) => {
       const isMainAdmin = (u.username === 'wansmin');
-
-      const moduleCheckboxesHtml = modules.map(m => {
-        const isAllChecked = m.actions.every(permKey => userHasPerm(u, permKey));
-        const isPartial = !isAllChecked && m.actions.some(permKey => userHasPerm(u, permKey));
-
-        return `
-          <label class="inline-flex items-center space-x-1.5 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-1 rounded-lg text-[11px] cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors select-none ${isPartial ? 'border border-amber-400/60 dark:border-amber-600/60' : ''}" 
-            title="${m.label}: ${isAllChecked ? 'Akses Penuh' : isPartial ? 'Akses Sebagian (Klik Edit untuk detail)' : 'Tidak Ada Akses'}">
-            <input type="checkbox" onchange="toggleUserModuleDirectly('${u.id}', '${m.key}', this.checked)"
-              class="form-checkbox h-3.5 w-3.5 text-indigo-600 rounded transition cursor-pointer" ${isAllChecked ? 'checked' : ''} ${isMainAdmin ? 'disabled' : ''}>
-            <span class="font-semibold ${isAllChecked ? 'text-indigo-600 dark:text-indigo-400' : isPartial ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-zinc-600 dark:text-zinc-400'}">${m.label}</span>
-            ${isPartial ? '<span class="text-[10px] text-amber-500 font-mono" title="Akses Sebagian">*</span>' : ''}
-          </label>
-        `;
-      }).join("");
+      const role = normalizeRole(u.role);
 
       const rawAvatar = u.avatar || u.url_profile || u.urlprofile || u.foto || u.photo || u.avatar_url || u.avatarUrl || u.urlProfile || u.Url_profile || '';
       const formattedAvatar = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(rawAvatar) : (rawAvatar || '');
@@ -174,13 +100,41 @@ document.addEventListener("DOMContentLoaded", () => {
            ${initial}
          </div>`;
 
+      let roleBadge = '';
+      if (isMainAdmin) {
+        roleBadge = `
+          <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800 inline-flex items-center gap-1">
+            <i class="fa-solid fa-user-shield text-[10px]"></i> Super Admin
+          </span>
+        `;
+      } else {
+        roleBadge = `
+          <select onchange="updateUserRoleDirectly('${u.id}', this.value)"
+            class="px-2.5 py-1 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium cursor-pointer">
+            <option value="service" ${role === 'service' ? 'selected' : ''}>Service</option>
+            <option value="designer" ${role === 'designer' ? 'selected' : ''}>Designer</option>
+            <option value="super_admin" ${role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
+          </select>
+        `;
+      }
+
+      const phoneDisplay = u.phone ? `
+        <a href="https://wa.me/${u.phone.replace(/[^0-9]/g, '').replace(/^0/, '62')}" target="_blank" rel="noopener noreferrer" class="hover:underline text-green-600 dark:text-green-400 font-medium inline-flex items-center gap-1">
+          <i class="fa-brands fa-whatsapp text-xs"></i> ${escapeHtml(u.phone)}
+        </a>` : '<span class="text-zinc-400">-</span>';
+
+      const emailDisplay = u.email ? `
+        <a href="mailto:${escapeHtml(u.email)}" class="hover:underline text-zinc-600 dark:text-zinc-400">
+          ${escapeHtml(u.email)}
+        </a>` : '<span class="text-zinc-400">-</span>';
+
       return `
         <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-          <td class="px-3 py-3 text-center text-xs font-semibold text-zinc-400 font-mono">${idx + 1}</td>
-          <td class="px-4 py-3">
+          <td class="px-4 py-3.5 text-center text-xs font-semibold text-zinc-400 font-mono">${idx + 1}</td>
+          <td class="px-4 py-3.5">
             <div onclick="openUserDetailModal('${u.id}')" 
-              class="flex items-center space-x-3 cursor-pointer group p-1.5 -m-1.5 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-all"
-              title="Klik untuk melihat detail pengguna">
+              class="flex items-center space-x-3 cursor-pointer group p-1 -m-1 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-all"
+              title="Klik untuk detail user">
               ${avatarHtml}
               <div>
                 <div class="font-bold text-zinc-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center space-x-1.5">
@@ -191,30 +145,25 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
           </td>
-          <td class="px-4 py-3">
-            ${isMainAdmin ? `
-              <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                <i class="fa-solid fa-user-shield mr-1"></i> Super Admin
-              </span>
-            ` : `
-              <select onchange="updateUserRoleDirectly('${u.id}', this.value)"
-                class="px-2.5 py-1 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
-                <option value="service" ${u.role === 'service' ? 'selected' : ''}>Service</option>
-                <option value="desainer" ${u.role === 'desainer' ? 'selected' : ''}>Desainer</option>
-                <option value="super_admin" ${u.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
-                <option value="custom" ${u.role === 'custom' ? 'selected' : ''}>Custom</option>
-              </select>
-            `}
+          <td class="px-4 py-3.5">
+            ${roleBadge}
           </td>
-          <td class="px-4 py-3">
-            <div class="flex flex-wrap items-center gap-1.5 max-w-2xl">
-              ${moduleCheckboxesHtml}
-            </div>
+          <td class="px-4 py-3.5 text-xs space-y-0.5">
+            <div>${emailDisplay}</div>
+            <div>${phoneDisplay}</div>
           </td>
-          <td class="px-4 py-3 text-center">
-            ${isMainAdmin ? '<span class="text-zinc-400 text-xs font-mono">-</span>' : `
-              <button onclick="deleteUser('${u.id}', '${escapeHtml(u.username)}')" data-permission-allow="users:delete"
-                class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors"
+          <td class="px-4 py-3.5 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+            ${u.createdAt || "-"}
+          </td>
+          <td class="px-4 py-3.5 text-center space-x-1.5 whitespace-nowrap">
+            <button onclick="openEditUserModal('${u.id}')"
+              class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-semibold transition-colors"
+              title="Edit User">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            ${isMainAdmin ? '' : `
+              <button onclick="deleteUser('${u.id}', '${escapeHtml(u.username)}')"
+                class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-lg text-xs font-semibold transition-colors"
                 title="Hapus User">
                 <i class="fa-solid fa-trash"></i>
               </button>
@@ -227,34 +176,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const updateStats = (users) => {
     statTotalUsers.innerText = users.length;
-    statSuperAdmin.innerText = users.filter(u => u.role === 'super_admin').length;
-    statService.innerText = users.filter(u => u.role === 'service').length;
-    statDesainer.innerText = users.filter(u => u.role === 'desainer').length;
+    statSuperAdmin.innerText = users.filter(u => normalizeRole(u.role) === 'super_admin').length;
+    statService.innerText = users.filter(u => normalizeRole(u.role) === 'service').length;
+    statDesainer.innerText = users.filter(u => normalizeRole(u.role) === 'designer').length;
   };
 
-  const escapeHtml = (str) => {
-    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  };
+  // Direct Inline Role Update
+  window.updateUserRoleDirectly = async (id, newRole) => {
+    const user = usersData.find(u => u.id === id);
+    if (!user) return;
 
-  const syncSessionUserIfMatch = (updatedUser) => {
-    if (typeof APICache !== 'undefined' && APICache.clear) {
-      APICache.clear();
-    }
-    if (typeof Auth !== 'undefined') {
-      if (typeof Auth.syncUserSession === 'function') {
-        Auth.syncUserSession(updatedUser);
-      } else if (typeof Auth.getUser === 'function') {
-        const currentUser = Auth.getUser();
-        if (currentUser && (currentUser.id === updatedUser.id || currentUser.username === updatedUser.username)) {
-          const newSessionUser = { ...currentUser, ...updatedUser };
-          sessionStorage.setItem("user", JSON.stringify(newSessionUser));
-          if (localStorage.getItem("user")) {
-            localStorage.setItem("user", JSON.stringify(newSessionUser));
-          }
-          if (Auth.applyMenuPermissions) Auth.applyMenuPermissions();
-          if (Auth.applyButtonPermissions) Auth.applyButtonPermissions();
-        }
+    const role = normalizeRole(newRole);
+    user.role = role;
+
+    const res = await API.updateUser(id, { role: role });
+    if (res.success) {
+      if (typeof Auth !== 'undefined' && typeof Auth.syncUserSession === 'function') {
+        Auth.syncUserSession(user);
       }
+      if (typeof Toast !== 'undefined') Toast.success("Role Diperbarui", `Role ${user.username} diubah ke ${role.toUpperCase()}.`);
+      loadUsers();
+    } else {
+      if (typeof Toast !== 'undefined') Toast.error("Gagal", res.message);
+      loadUsers();
     }
   };
 
@@ -270,7 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailEmail = document.getElementById("detailEmail");
   const detailPhone = document.getElementById("detailPhone");
   const detailCreatedAt = document.getElementById("detailCreatedAt");
-  const detailPermissions = document.getElementById("detailPermissions");
   const detailEditBtn = document.getElementById("detailEditBtn");
 
   const closeUserDetailModal = () => {
@@ -282,13 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeUserDetailModalBtn2) closeUserDetailModalBtn2.addEventListener("click", closeUserDetailModal);
   if (userDetailModal) {
     userDetailModal.addEventListener("click", (e) => {
-      if (e.target === userDetailModal && !isModalInputFilled(userDetailModal)) closeUserDetailModal();
+      if (e.target === userDetailModal) closeUserDetailModal();
     });
   }
 
   window.openUserDetailModal = (id) => {
     const user = usersData.find(u => u.id === id);
     if (!user) return;
+
+    const role = normalizeRole(user.role);
 
     if (detailAvatarContainer) {
       const rawAvatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
@@ -306,20 +251,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (detailId) detailId.innerText = user.id || "-";
 
     if (detailRole) {
-      let roleLabel = user.role || 'service';
-      let badgeClass = "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700";
-      if (user.role === 'super_admin' || user.username === 'wansmin') {
+      let roleLabel = "Service";
+      let badgeClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800";
+      if (role === 'super_admin' || user.username === 'wansmin') {
         roleLabel = "Super Admin";
         badgeClass = "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border-purple-200 dark:border-purple-800";
-      } else if (user.role === 'service') {
-        roleLabel = "Service";
-        badgeClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800";
-      } else if (user.role === 'desainer') {
-        roleLabel = "Desainer";
+      } else if (role === 'designer') {
+        roleLabel = "Designer";
         badgeClass = "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800";
-      } else if (user.role === 'custom') {
-        roleLabel = "Custom";
-        badgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 border-amber-200 dark:border-amber-800";
       }
       detailRole.className = `px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeClass}`;
       detailRole.innerText = roleLabel;
@@ -335,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (user.phone) {
         const cleanPhone = user.phone.replace(/[^0-9]/g, '');
         const waLink = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
-        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="FPManager_WhatsAppTab" rel="noopener noreferrer" class="hover:underline text-green-600 dark:text-green-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
+        detailPhone.innerHTML = `<a href="https://wa.me/${waLink}" target="_blank" rel="noopener noreferrer" class="hover:underline text-green-600 dark:text-green-400 font-semibold flex items-center inline-flex gap-1"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(user.phone)}</a>`;
       } else {
         detailPhone.innerHTML = `<span class="text-zinc-400">-</span>`;
       }
@@ -343,240 +282,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (detailCreatedAt) detailCreatedAt.innerText = user.createdAt || "-";
 
-    if (detailPermissions) {
-      const modules = [
-        { key: "proyek", label: "Projek", actions: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export"] },
-        { key: "invoice", label: "Invoice", actions: ["invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print"] },
-        { key: "history_invoice", label: "Histori", actions: ["history_invoice:read", "history_invoice:delete"] },
-        { key: "keuangan", label: "Keuangan", actions: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export"] },
-        { key: "laporan", label: "Laporan", actions: ["laporan:read", "laporan:export", "laporan:print"] },
-        { key: "tools", label: "Tools", actions: ["tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"] },
-        { key: "admin_tasks", label: "Aktivitas", actions: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"] },
-        { key: "users", label: "User Mgr", actions: ["users:read", "users:create", "users:update", "users:delete", "users:manage_role"] }
-      ];
-
-      detailPermissions.innerHTML = modules.map(m => {
-        const isAllChecked = m.actions.every(permKey => userHasPerm(user, permKey));
-        const isPartial = !isAllChecked && m.actions.some(permKey => userHasPerm(user, permKey));
-
-        let badgeStyle = "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400";
-        let statusText = "Tidak ada akses";
-        if (isAllChecked) {
-          badgeStyle = "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 font-bold";
-          statusText = "Akses Penuh";
-        } else if (isPartial) {
-          badgeStyle = "bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 font-semibold";
-          statusText = "Sebagian";
-        }
-
-        return `<span class="px-2.5 py-1 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 ${badgeStyle}" title="${m.label}: ${statusText}">
-          ${m.label}: ${statusText}
-        </span>`;
-      }).join("");
-    }
-
     if (detailEditBtn) {
-      if (typeof Auth !== 'undefined' && !Auth.hasPermission('users:update') && !Auth.hasPermission('users:manage_role')) {
-        detailEditBtn.classList.add('hidden');
-      } else {
-        detailEditBtn.classList.remove('hidden');
-        detailEditBtn.onclick = () => {
-          closeUserDetailModal();
-          openEditUserModal(user.id);
-        };
-      }
+      detailEditBtn.onclick = () => {
+        closeUserDetailModal();
+        openEditUserModal(user.id);
+      };
     }
 
     if (userDetailModal) userDetailModal.classList.remove("hidden");
   };
 
-  const contactFieldsContainer = document.getElementById("contactFieldsContainer");
-  const avatarFieldContainer = document.getElementById("avatarFieldContainer");
-  const passwordFieldContainer = document.getElementById("passwordFieldContainer");
-  const nameFieldContainer = document.getElementById("nameFieldContainer");
-  const permissionsTableContainer = document.getElementById("permissionsTableContainer");
-
-  const configureModalMode = (isEdit) => {
-    if (contactFieldsContainer) contactFieldsContainer.classList.add("hidden");
-    if (avatarFieldContainer) avatarFieldContainer.classList.add("hidden");
-    if (passwordFieldContainer) passwordFieldContainer.classList.remove("hidden");
-
-    if (isEdit) {
-      if (nameFieldContainer) nameFieldContainer.classList.remove("hidden");
-      if (avatarFieldContainer) avatarFieldContainer.classList.remove("hidden");
-      if (permissionsTableContainer) permissionsTableContainer.classList.remove("hidden");
-    } else {
-      if (nameFieldContainer) nameFieldContainer.classList.add("hidden");
-      if (avatarFieldContainer) avatarFieldContainer.classList.add("hidden");
-      if (permissionsTableContainer) permissionsTableContainer.classList.add("hidden");
-    }
-  };
-
-  // Helper Check All / Uncheck All Perms in Modal
-  window.checkAllUserPerms = (isChecked) => {
-    const checkboxes = document.querySelectorAll(".perm-crud-cb");
-    checkboxes.forEach(cb => {
-      cb.checked = isChecked;
-    });
-    if (roleSelect) roleSelect.value = "custom";
-  };
-
-  // Helper Toggle Module Specific Perms in Modal
-  window.toggleModulePermsInModal = (moduleKey) => {
-    const checkboxes = document.querySelectorAll(`.perm-crud-cb[data-module="${moduleKey}"]`);
-    if (!checkboxes || checkboxes.length === 0) return;
-    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-    checkboxes.forEach(cb => {
-      cb.checked = !allChecked;
-    });
-    if (roleSelect) roleSelect.value = "custom";
-  };
-
-  // Open Edit User Modal with Prefilled Role & Modular Permissions
+  // Open Edit User Modal
   window.openEditUserModal = (id) => {
     const user = usersData.find(u => u.id === id);
     if (!user) return;
 
-    const isSuperAdmin = (user.role === 'super_admin' || user.username === 'wansmin');
-
-    modalTitle.innerText = `Edit User & Hak Akses (${user.username})`;
-    const modalSubtitle = document.getElementById("modalSubtitle");
-    if (modalSubtitle) modalSubtitle.innerText = `Kustomisasi peran dan hak akses individual untuk @${user.username}`;
+    modalTitle.innerText = `Edit User (${user.username})`;
     userIdInput.value = user.id;
     usernameInput.value = user.username;
     usernameInput.setAttribute("readonly", "readonly");
-    if (nameInput) {
-      nameInput.value = user.name || user.username;
-    }
+    if (nameInput) nameInput.value = user.name || user.username;
     if (emailInput) emailInput.value = user.email || "";
     if (phoneInput) phoneInput.value = user.phone || "";
-    if (avatarInput) avatarInput.value = user.avatar || "";
     passwordInput.value = "";
     passwordInput.removeAttribute("required");
-    passwordInput.setAttribute("placeholder", isSuperAdmin ? "Super Admin: Ubah password di Profil Saya" : "Biarkan kosong jika password tidak diubah");
-    roleSelect.value = user.role || "service";
-
-    configureModalMode(true);
-
-    const checkboxes = document.querySelectorAll(".perm-crud-cb");
-    checkboxes.forEach(cb => {
-      const permKey = cb.getAttribute("data-perm");
-      cb.checked = userHasPerm(user, permKey);
-    });
+    passwordInput.setAttribute("placeholder", "Biarkan kosong jika password tidak diubah");
+    roleSelect.value = normalizeRole(user.role);
 
     userModal.classList.remove("hidden");
   };
 
-  // Direct Inline Module Master Checkbox Toggle Handler
-  window.toggleUserModuleDirectly = async (id, moduleKey, isChecked) => {
-    const user = usersData.find(u => u.id === id);
-    if (!user) return;
-
-    const moduleActionsMap = {
-      proyek: ["proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export"],
-      invoice: ["invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print"],
-      history_invoice: ["history_invoice:read", "history_invoice:delete"],
-      keuangan: ["keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export"],
-      laporan: ["laporan:read", "laporan:export", "laporan:print"],
-      tools: ["tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"],
-      admin_tasks: ["admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"],
-      users: ["users:read", "users:create", "users:update", "users:delete", "users:manage_role"]
-    };
-
-    const targetActions = moduleActionsMap[moduleKey] || [];
-    let currentPerms = getUserEffectivePerms(user);
-
-    if (isChecked) {
-      targetActions.forEach(act => {
-        if (!currentPerms.includes(act)) currentPerms.push(act);
-      });
-    } else {
-      currentPerms = currentPerms.filter(act => !targetActions.includes(act));
-    }
-
-    user.permissions = currentPerms;
-    user.role = "custom";
-
-    const res = await API.updateUser(id, { permissions: currentPerms, role: user.role });
-    if (res.success) {
-      syncSessionUserIfMatch(user);
-      if (typeof Toast !== 'undefined') Toast.success("Hak Akses Diperbarui", `Akses modul ${moduleKey.toUpperCase()} untuk ${user.username} diubah.`);
-      loadUsers();
-    } else {
-      if (typeof Toast !== 'undefined') Toast.error("Gagal", res.message);
-      loadUsers();
-    }
-  };
-
-  // Direct Inline Role Preset Change Handler
-  window.updateUserRoleDirectly = async (id, newRole) => {
-    const user = usersData.find(u => u.id === id);
-    if (!user) return;
-
-    let perms = defaultRolePerms[newRole] || (newRole === 'custom' ? getUserEffectivePerms(user) : defaultRolePerms.service);
-
-    user.role = newRole;
-    user.permissions = perms;
-
-    const res = await API.updateUser(id, { role: newRole, permissions: perms });
-    if (res.success) {
-      syncSessionUserIfMatch(user);
-      if (typeof Toast !== 'undefined') Toast.success("Role Diperbarui", `Role ${user.username} diubah ke ${newRole.toUpperCase()}.`);
-      loadUsers();
-    } else {
-      if (typeof Toast !== 'undefined') Toast.error("Gagal", res.message);
-    }
-  };
-
-  // Role select in modal change listener
-  roleSelect.addEventListener("change", (e) => {
-    const selectedRole = e.target.value;
-    if (defaultRolePerms[selectedRole]) {
-      const allowed = defaultRolePerms[selectedRole];
-      const checkboxes = document.querySelectorAll(".perm-crud-cb");
-      checkboxes.forEach(cb => {
-        const permKey = cb.getAttribute("data-perm");
-        cb.checked = allowed.includes(permKey);
-      });
-    }
-  });
-
-  // Checkbox change listener inside modal to switch preset role to custom
-  const attachCheckboxListeners = () => {
-    const checkboxes = document.querySelectorAll(".perm-crud-cb");
-    checkboxes.forEach(cb => {
-      cb.addEventListener("change", () => {
-        roleSelect.value = "custom";
-      });
-    });
-  };
-  attachCheckboxListeners();
-
-  // Modal Handlers (Tambah User Baru)
+  // Modal Handlers (Add User)
   openAddUserModalBtn.addEventListener("click", () => {
     modalTitle.innerText = "Tambah User Baru";
-    const modalSubtitle = document.getElementById("modalSubtitle");
-    if (modalSubtitle) modalSubtitle.innerText = "Kelola akun dan kustomisasi izin hak akses sistem.";
     userIdInput.value = "";
     usernameInput.value = "";
     usernameInput.removeAttribute("readonly");
     if (nameInput) nameInput.value = "";
     if (emailInput) emailInput.value = "";
     if (phoneInput) phoneInput.value = "";
-    if (avatarInput) avatarInput.value = "";
     passwordInput.value = "";
     passwordInput.setAttribute("required", "required");
     passwordInput.setAttribute("placeholder", "Masukkan password user (misal: 123456)");
     roleSelect.value = "service";
-    
-    configureModalMode(false); // Mode Tambah: Hanya Username, Password, Role
-
-    const servicePerms = defaultRolePerms.service;
-    const checkboxes = document.querySelectorAll(".perm-crud-cb");
-    checkboxes.forEach(cb => {
-      const permKey = cb.getAttribute("data-perm");
-      cb.checked = servicePerms.includes(permKey);
-    });
 
     userModal.classList.remove("hidden");
   });
@@ -589,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
   closeUserModalBtn.addEventListener("click", closeModal);
   cancelUserModalBtn.addEventListener("click", closeModal);
   userModal.addEventListener("click", (e) => {
-    if (e.target === userModal && !isModalInputFilled(userModal)) closeModal();
+    if (e.target === userModal) closeModal();
   });
 
   window.deleteUser = async (id, username) => {
@@ -618,6 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const editId = userIdInput.value;
     const existingUser = editId ? usersData.find(u => u.id === editId) : null;
     const uname = usernameInput.value.trim();
+    const selectedRole = normalizeRole(roleSelect.value);
 
     if (!editId && !passwordInput.value.trim()) {
       if (typeof Toast !== 'undefined') Toast.error("Peringatan", "Password wajib diisi saat menambah user baru.");
@@ -632,27 +381,12 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
     }
 
-    let selectedPerms = [];
-    if (editId && roleSelect.value === "custom") {
-      const checkboxes = document.querySelectorAll(".perm-crud-cb");
-      checkboxes.forEach(cb => {
-        if (cb.checked) {
-          const permKey = cb.getAttribute("data-perm");
-          if (permKey) selectedPerms.push(permKey);
-        }
-      });
-    } else {
-      selectedPerms = defaultRolePerms[roleSelect.value] || defaultRolePerms.service;
-    }
-
     const userData = {
       username: uname,
-      name: editId ? (nameInput ? nameInput.value.trim() : uname) : (uname.charAt(0).toUpperCase() + uname.slice(1)),
-      email: existingUser ? (existingUser.email || `${uname}@fpmanager.com`) : `${uname}@fpmanager.com`,
-      phone: existingUser ? (existingUser.phone || "") : "",
-      avatar: (avatarInput && avatarInput.value.trim()) ? avatarInput.value.trim() : (existingUser ? (existingUser.avatar || "") : ""),
-      role: roleSelect.value,
-      permissions: selectedPerms
+      name: nameInput ? nameInput.value.trim() : uname,
+      email: emailInput ? emailInput.value.trim() : (existingUser ? existingUser.email : `${uname}@fpmanager.com`),
+      phone: phoneInput ? phoneInput.value.trim() : (existingUser ? existingUser.phone : ""),
+      role: selectedRole
     };
 
     if (passwordInput && passwordInput.value.trim()) {
@@ -662,13 +396,11 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       let res;
       if (editId) {
-        // Mode Edit User
         res = await API.updateUser(editId, userData);
-        if (res.success) {
-          syncSessionUserIfMatch({ id: editId, ...userData });
+        if (res.success && typeof Auth !== 'undefined') {
+          Auth.syncUserSession({ id: editId, ...userData });
         }
       } else {
-        // Mode Tambah User Baru
         res = await API.addUser(userData);
       }
 
