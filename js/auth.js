@@ -263,14 +263,16 @@ const Auth = {
 
   ROLE_DEFAULTS: {
     service: [
-      "proyek:read",
-      "tools:read"
+      "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
+      "invoice:read", "invoice:create", "invoice:update", "invoice:download", "invoice:print",
+      "history_invoice:read", "history_invoice:delete",
+      "keuangan:read", "keuangan:create", "keuangan:update", "keuangan:delete", "keuangan:export",
+      "laporan:read", "laporan:export", "laporan:print",
+      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update", "admin_tasks:delete", "admin_tasks:settings"
     ],
     desainer: [
-      "proyek:read", "proyek:create", "proyek:update", "proyek:export",
-      "invoice:read", "invoice:download", "invoice:print",
-      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate",
-      "admin_tasks:read", "admin_tasks:create", "admin_tasks:update"
+      "proyek:read",
+      "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate"
     ],
     super_admin: [
       "proyek:read", "proyek:create", "proyek:update", "proyek:delete", "proyek:import", "proyek:export",
@@ -507,15 +509,8 @@ const Auth = {
     const activeClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-indigo-400 font-bold";
     const inactiveClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium";
 
-    const canCreate = isSuperAdmin || Auth.hasPermission("proyek:create");
-    const canTools = isSuperAdmin || Auth.hasPermission("tools:read");
-    const canKeuangan = isSuperAdmin || Auth.hasPermission("keuangan:read");
-    const canHistory = isSuperAdmin || Auth.hasPermission("history_invoice:read") || Auth.hasPermission("proyek:read");
-    const canLaporan = isSuperAdmin || Auth.hasPermission("laporan:read");
-    const hasAnyKeuangan = canKeuangan || canHistory || canLaporan;
-
-    if (!canCreate && !hasAnyKeuangan) {
-      // Role Default / Desainer: Clean 4 Menus [ Home ] — [ Project ] — [ Tools ] — [ Profile ]
+    if (isDesainer) {
+      // Role Desainer: EXACTLY 4 Menus [ Home ] — [ Project ] — [ Tools ] — [ Profile ]
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
@@ -530,11 +525,10 @@ const Auth = {
         </a>
 
         <!-- 3. Tools -->
-        ${canTools ? `
         <a href="tools.html" data-permission-allow="tools:read" class="${isTools ? activeClass : inactiveClass}">
           <i class="fa-solid fa-toolbox text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-tools">Tools</span>
-        </a>` : ''}
+        </a>
 
         <!-- 4. Profile -->
         <a href="profil.html" class="${isProfil ? activeClass : inactiveClass}">
@@ -543,7 +537,12 @@ const Auth = {
         </a>
       `;
     } else {
-      // Dynamic Nav with Tambah / Keuangan
+      // Role Service / Super Admin / Default: 5 Menus [ Home | Project | + Tambah Project | Keuangan Group | Profile ]
+      const canKeuangan = isSuperAdmin || Auth.hasPermission("keuangan:read");
+      const canHistory = isSuperAdmin || Auth.hasPermission("history_invoice:read") || Auth.hasPermission("proyek:read");
+      const canLaporan = isSuperAdmin || Auth.hasPermission("laporan:read");
+      const hasAnyKeuangan = canKeuangan || canHistory || canLaporan;
+
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
@@ -558,7 +557,6 @@ const Auth = {
         </a>
 
         <!-- 3. Tambah (Center Prominent Action) -->
-        ${canCreate ? `
         <a href="tambah-proyek.html" data-permission-allow="proyek:create"
           class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none" title="Tambah Projek">
           <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 ${isTambah ? 'ring-2 ring-indigo-400' : ''} group-hover:scale-105 active:scale-95 transition-all">
@@ -566,11 +564,6 @@ const Auth = {
           </div>
           <span class="text-[10px] font-bold ${isTambah ? 'text-indigo-400' : 'text-zinc-200'} mt-0.5" data-i18n="nav-tambah">Tambah</span>
         </a>
-        ` : (canTools ? `
-        <a href="tools.html" data-permission-allow="tools:read" class="${isTools ? activeClass : inactiveClass}">
-          <i class="fa-solid fa-toolbox text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-tools">Tools</span>
-        </a>` : '')}
 
         <!-- 4. Keuangan Group (Collapsible / Action Menu) -->
         ${hasAnyKeuangan ? `
@@ -581,11 +574,7 @@ const Auth = {
             Keuangan <i class="fa-solid fa-chevron-up text-[8px] opacity-70"></i>
           </span>
         </button>
-        ` : (canTools && canCreate ? `
-        <a href="tools.html" data-permission-allow="tools:read" class="${isTools ? activeClass : inactiveClass}">
-          <i class="fa-solid fa-toolbox text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-tools">Tools</span>
-        </a>` : '')}
+        ` : ''}
 
         <!-- 5. Profile -->
         <a href="profil.html" class="${isProfil ? activeClass : inactiveClass}">

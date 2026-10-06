@@ -79,8 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function applyDashboardRoleCustomizations() {
   const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
   const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-  const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
+  const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || (role.includes("admin") && !role.includes("admin_task")));
   const isDesainer = role.includes("desainer") || role.includes("designer");
+  const isService = role.includes("service");
   const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
@@ -93,6 +94,8 @@ function applyDashboardRoleCustomizations() {
       welcomeTitle.textContent = isEn ? "Welcome Super Admin! 👋" : "Selamat Datang Super Admin! 👋";
     } else if (isDesainer) {
       welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Designer'}! 🎨` : `Selamat Datang ${user?.name || 'Desainer'}! 🎨`;
+    } else if (isService) {
+      welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Service Staff'}! 💼` : `Selamat Datang ${user?.name || 'Staff Service'}! 💼`;
     } else {
       welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Staff'}! 👋` : `Selamat Datang ${user?.name || 'Staff'}! 👋`;
     }

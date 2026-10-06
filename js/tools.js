@@ -147,6 +147,45 @@ function showToolsSkeletons() {
   }
 }
 
+// Helper: Filter data tools agar sesuai ID User yang Login + Super Admin
+function getAccessibleTools(items) {
+  if (!items || !Array.isArray(items)) return [];
+  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : null;
+  if (!user) return items;
+
+  const role = (user.role || "").toLowerCase().trim();
+  const isSuperAdmin = (
+    user.username === "wansmin" ||
+    role === "super_admin" ||
+    role === "super admin" ||
+    role === "superadmin" ||
+    role.includes("super_admin") ||
+    role.includes("superadmin") ||
+    role.includes("admin")
+  );
+  if (isSuperAdmin) return items;
+
+  const currentUserId = String(user.id || "").trim();
+  const currentUsername = String(user.username || "").toLowerCase().trim();
+
+  return items.filter(item => {
+    const itemUserId = String(item.userId || item.Id_user || item.id_user || item.user_id || "").trim();
+    const itemUsername = String(item.username || item.author || "").toLowerCase().trim();
+
+    // 1. Dibuat oleh user yang sedang login
+    if (itemUserId && currentUserId && itemUserId === currentUserId) return true;
+    if (itemUsername && currentUsername && itemUsername === currentUsername) return true;
+
+    // 2. Dibuat oleh Super Admin (USR-001 / wansmin / admin) atau template bawaan
+    if (itemUserId === "USR-001" || itemUserId === "1" || itemUsername === "wansmin" || itemUsername === "admin") return true;
+
+    // 3. Jika tidak memiliki ID pemilik khusus (publik)
+    if (!itemUserId && !itemUsername) return true;
+
+    return false;
+  });
+}
+
 // =====================================
 // CRUD PROMPTS (TOOLS)
 // =====================================
@@ -155,11 +194,12 @@ function renderTools(query = '') {
   const container = document.getElementById('toolsContainer');
   container.innerHTML = '';
 
-  let filteredTools = toolsData;
+  const baseTools = getAccessibleTools(toolsData);
+  let filteredTools = baseTools;
   if (query) {
-    filteredTools = toolsData.filter(t =>
-      t.title.toLowerCase().includes(query) ||
-      t.prompt.toLowerCase().includes(query)
+    filteredTools = baseTools.filter(t =>
+      (t.title || '').toLowerCase().includes(query) ||
+      (t.prompt || '').toLowerCase().includes(query)
     );
   }
 
@@ -411,11 +451,12 @@ function renderShortcuts(query = '') {
   const container = document.getElementById('shortcutsContainer');
   container.innerHTML = '';
 
-  let filteredShortcuts = [...shortcutsData];
+  const baseShortcuts = getAccessibleTools(shortcutsData);
+  let filteredShortcuts = [...baseShortcuts];
   if (query) {
-    filteredShortcuts = shortcutsData.filter(s =>
-      s.title.toLowerCase().includes(query) ||
-      s.url.toLowerCase().includes(query)
+    filteredShortcuts = baseShortcuts.filter(s =>
+      (s.title || '').toLowerCase().includes(query) ||
+      (s.url || '').toLowerCase().includes(query)
     );
   } else {
     try {
@@ -2182,9 +2223,10 @@ function renderReferences(query = '') {
   if (!tableBody) return;
   tableBody.innerHTML = '';
 
-  let filtered = referencesData || [];
+  const baseRefs = getAccessibleTools(referencesData);
+  let filtered = baseRefs || [];
   if (query) {
-    filtered = filtered.filter(r => 
+    filtered = baseRefs.filter(r => 
       (r.title || '').toLowerCase().includes(query) || 
       (r.source || '').toLowerCase().includes(query)
     );
