@@ -114,54 +114,63 @@ function isSuperAdminRole(role) {
 }
 
 function doGet(e) {
-  const action = e.parameter.action;
-  const key = e.parameter.apiKey;
-  const token = e.parameter.token || "";
-  const role = normalizeRole(e.parameter.role);
-
-  if (key !== getApiKey() || !token) {
-    return createJsonResponse({ success: false, message: "Error: Unauthorized" });
-  }
-
-  // Role Access Validation on GET
-  if (role === "designer") {
-    // Designer can only access Proyek (view), Tools, Shortcuts, References, Dashboard
-    const forbiddenForDesigner = ["getKeuangan", "getInvoices", "getAdminTasks", "getAdminTaskSettings", "getUsers"];
-    if (forbiddenForDesigner.indexOf(action) !== -1) {
-      return createJsonResponse({ success: false, message: "Akses Ditolak: Role Designer tidak memiliki akses ke fitur ini" });
+  try {
+    if (!e || !e.parameter) {
+      return createJsonResponse({ success: false, message: "Parameter request tidak ditemukan" });
     }
-  } else if (role === "service") {
-    // Service can access Proyek, Keuangan, Invoices, AdminTasks, Dashboard. Cannot access User Management or Tools
-    if (action === "getUsers") {
-      return createJsonResponse({ success: false, message: "Akses Ditolak: Hanya Super Admin yang dapat mengakses Manajemen User" });
+
+    const action = e.parameter.action;
+    const key = e.parameter.apiKey;
+    const token = e.parameter.token || "";
+    const role = normalizeRole(e.parameter.role);
+
+    if (key !== getApiKey() || !token) {
+      return createJsonResponse({ success: false, message: "Error: Unauthorized" });
     }
-  }
 
-  if (action === "getProyek") {
-    return handleGetProyek(e);
-  } else if (action === "getKeuangan") {
-    return handleGetKeuangan(e);
-  } else if (action === "getInvoices") {
-    return handleGetInvoices(e);
-  } else if (action === "getUsers") {
-    return handleGetUsers(e);
-  } else if (action === "getTools") {
-    return handleGetTools(e);
-  } else if (action === "getAdminTasks") {
-    return handleGetAdminTasks(e);
-  } else if (action === "getAdminTaskSettings") {
-    return handleGetAdminTaskSettings(e);
-  } else if (action === "getShortcuts") {
-    return handleGetShortcuts(e);
-  } else if (action === "getReferences") {
-    return handleGetReferences(e);
-  } else if (action === "getDashboardStats" || action === "getDashboard") {
-    return handleGetDashboardStats(e);
-  } else if (action === "setupERDDatabase" || action === "syncDatabaseHeaders") {
-    return setupERDDatabase();
-  }
+    // Role Access Validation on GET
+    if (role === "designer") {
+      // Designer can only access Proyek (view), Tools, Shortcuts, References, Dashboard
+      const forbiddenForDesigner = ["getKeuangan", "getInvoices", "getAdminTasks", "getAdminTaskSettings", "getUsers"];
+      if (forbiddenForDesigner.indexOf(action) !== -1) {
+        return createJsonResponse({ success: false, message: "Akses Ditolak: Role Designer tidak memiliki akses ke fitur ini" });
+      }
+    } else if (role === "service") {
+      // Service can access Proyek, Keuangan, Invoices, AdminTasks, Dashboard. Cannot access User Management or Tools
+      if (action === "getUsers") {
+        return createJsonResponse({ success: false, message: "Akses Ditolak: Hanya Super Admin yang dapat mengakses Manajemen User" });
+      }
+    }
 
-  return createJsonResponse({ success: false, message: "Action tidak dikenal" });
+    if (action === "getProyek") {
+      return handleGetProyek(e);
+    } else if (action === "getKeuangan") {
+      return handleGetKeuangan(e);
+    } else if (action === "getInvoices") {
+      return handleGetInvoices(e);
+    } else if (action === "getUsers") {
+      return handleGetUsers(e);
+    } else if (action === "getTools") {
+      return handleGetTools(e);
+    } else if (action === "getAdminTasks") {
+      return handleGetAdminTasks(e);
+    } else if (action === "getAdminTaskSettings") {
+      return handleGetAdminTaskSettings(e);
+    } else if (action === "getShortcuts") {
+      return handleGetShortcuts(e);
+    } else if (action === "getReferences") {
+      return handleGetReferences(e);
+    } else if (action === "getDashboardStats" || action === "getDashboard") {
+      return handleGetDashboardStats(e);
+    } else if (action === "setupERDDatabase" || action === "syncDatabaseHeaders") {
+      return setupERDDatabase();
+    }
+
+    return createJsonResponse({ success: false, message: "Action tidak dikenal" });
+  } catch (err) {
+    Logger.log("Error di doGet: " + err.message + "\n" + err.stack);
+    return createJsonResponse({ success: false, message: "Server Error: " + err.message });
+  }
 }
 
 function generateUniqueNextId(sheet, prefix, colIndex) {
@@ -305,6 +314,9 @@ function doPost(e) {
     }
 
     return createJsonResponse({ success: false, message: "Action tidak dikenal" });
+  } catch (err) {
+    Logger.log("Error di doPost: " + err.message + "\n" + err.stack);
+    return createJsonResponse({ success: false, message: "Server Error: " + err.message });
   } finally {
     lock.releaseLock();
   }
@@ -314,6 +326,10 @@ function doPost(e) {
 // ------------------- USER MANAGEMENT HANDLERS (3 ROLES ONLY) -------------------
 
 function handleLogin(username, password) {
+  if (!username || !password) {
+    return createJsonResponse({ success: false, message: "Username dan Password wajib diisi" });
+  }
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName("Users");
   
