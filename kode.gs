@@ -1564,10 +1564,19 @@ function handleGetTools(e) {
     });
   }
 
-  const role = (e && e.parameter && e.parameter.role) ? e.parameter.role : "";
-  const filterUserId = (e && e.parameter && e.parameter.filterUserId) ? e.parameter.filterUserId : "";
-  if (filterUserId) {
-    return createJsonResponse({ success: true, data: data.filter(t => (t.userId || "USR-001") === filterUserId) });
+  const role = (e && e.parameter && e.parameter.role) ? normalizeRole(e.parameter.role) : "";
+  const reqUserId = (e && e.parameter && (e.parameter.userId || e.parameter.filterUserId)) ? String(e.parameter.userId || e.parameter.filterUserId).trim() : "";
+
+  if (role === "designer" && reqUserId) {
+    const filtered = data.filter(function(t) {
+      const uId = String(t.userId || "").trim();
+      return uId === reqUserId || uId === "USR-001" || uId === "1" || uId === "";
+    });
+    return createJsonResponse({ success: true, data: filtered });
+  }
+
+  if (reqUserId && !isSuperAdminRole(role)) {
+    return createJsonResponse({ success: true, data: data.filter(function(t) { return (t.userId || "USR-001") === reqUserId; }) });
   }
 
   return createJsonResponse({ success: true, data: data });
@@ -1691,10 +1700,19 @@ function handleGetShortcuts(e) {
     });
   }
 
-  const role = (e && e.parameter && e.parameter.role) ? e.parameter.role : "";
-  const filterUserId = (e && e.parameter && e.parameter.filterUserId) ? e.parameter.filterUserId : "";
-  if (filterUserId) {
-    return createJsonResponse({ success: true, data: data.filter(s => (s.userId || "USR-001") === filterUserId) });
+  const role = (e && e.parameter && e.parameter.role) ? normalizeRole(e.parameter.role) : "";
+  const reqUserId = (e && e.parameter && (e.parameter.userId || e.parameter.filterUserId)) ? String(e.parameter.userId || e.parameter.filterUserId).trim() : "";
+
+  if (role === "designer" && reqUserId) {
+    const filtered = data.filter(function(s) {
+      const uId = String(s.userId || "").trim();
+      return uId === reqUserId || uId === "USR-001" || uId === "1" || uId === "";
+    });
+    return createJsonResponse({ success: true, data: filtered });
+  }
+
+  if (reqUserId && !isSuperAdminRole(role)) {
+    return createJsonResponse({ success: true, data: data.filter(function(s) { return (s.userId || "USR-001") === reqUserId; }) });
   }
 
   return createJsonResponse({ success: true, data: data });
@@ -1821,10 +1839,19 @@ function handleGetReferences(e) {
     });
   }
 
-  const role = (e && e.parameter && e.parameter.role) ? e.parameter.role : "";
-  const filterUserId = (e && e.parameter && e.parameter.filterUserId) ? e.parameter.filterUserId : "";
-  if (filterUserId) {
-    return createJsonResponse({ success: true, data: data.filter(r => (r.userId || "USR-001") === filterUserId) });
+  const role = (e && e.parameter && e.parameter.role) ? normalizeRole(e.parameter.role) : "";
+  const reqUserId = (e && e.parameter && (e.parameter.userId || e.parameter.filterUserId)) ? String(e.parameter.userId || e.parameter.filterUserId).trim() : "";
+
+  if (role === "designer" && reqUserId) {
+    const filtered = data.filter(function(r) {
+      const uId = String(r.userId || "").trim();
+      return uId === reqUserId || uId === "USR-001" || uId === "1" || uId === "";
+    });
+    return createJsonResponse({ success: true, data: filtered });
+  }
+
+  if (reqUserId && !isSuperAdminRole(role)) {
+    return createJsonResponse({ success: true, data: data.filter(function(r) { return (r.userId || "USR-001") === reqUserId; }) });
   }
 
   return createJsonResponse({ success: true, data: data });
