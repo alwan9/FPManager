@@ -427,8 +427,9 @@
   </div>
 
   <!-- Modal User Form (Add / Edit) -->
+  <!-- Modal User Form (Add / Edit) -->
   <div id="userModal" onclick="if(event.target === this && !isModalInputFilled(this)) closeUserModal()" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 backdrop-blur-sm overflow-hidden">
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-4xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transform transition-all max-h-[92vh] flex flex-col">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-5xl xl:max-w-6xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transform transition-all max-h-[92vh] flex flex-col">
       <!-- Modal Header -->
       <div class="px-4 sm:px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center flex-shrink-0 bg-zinc-50/70 dark:bg-zinc-900/70">
         <div class="flex items-center space-x-3">
@@ -448,331 +449,339 @@
       <!-- Modal Form Container -->
       <form id="userForm" class="flex flex-col flex-1 overflow-hidden min-h-0">
         <!-- Scrollable Body Content -->
-        <div class="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1">
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1">
           <input type="hidden" id="userIdInput">
 
-          <!-- User Profile & Role Info Box -->
-          <div class="space-y-3.5 bg-zinc-50/70 dark:bg-zinc-900/50 p-3.5 sm:p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80">
-            <div class="flex items-center gap-2 pb-2 border-b border-zinc-200/60 dark:border-zinc-800 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-              <i class="fa-solid fa-id-card text-indigo-500"></i> Informasi Akun & Role
-            </div>
+          <!-- 2 Columns Container: Left = Info Pengguna, Right = Hak Akses -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            
+            <!-- KOLOM KIRI: Informasi Pengguna & Role -->
+            <div class="lg:col-span-4 xl:col-span-4 space-y-4">
+              <div class="space-y-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800">
+                <div class="flex items-center gap-2 pb-2 border-b border-zinc-200/60 dark:border-zinc-800 text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                  <i class="fa-solid fa-id-card text-indigo-500"></i> Informasi Akun & Role
+                </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              <div id="usernameFieldContainer">
-                <label for="usernameInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Username</label>
-                <input type="text" id="usernameInput" required
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none read-only:bg-zinc-100 dark:read-only:bg-zinc-800/60 read-only:text-zinc-500 dark:read-only:text-zinc-400 read-only:cursor-not-allowed"
-                  placeholder="misal: staff_service1">
-              </div>
+                <div class="space-y-3">
+                  <div id="usernameFieldContainer">
+                    <label for="usernameInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Username</label>
+                    <input type="text" id="usernameInput" required
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none read-only:bg-zinc-100 dark:read-only:bg-zinc-800/60 read-only:text-zinc-500 dark:read-only:text-zinc-400 read-only:cursor-not-allowed"
+                      placeholder="misal: staff_service1">
+                  </div>
 
-              <div id="passwordFieldContainer">
-                <label for="passwordInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Password</label>
-                <input type="password" id="passwordInput"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  placeholder="Masukkan password user">
-              </div>
+                  <div id="passwordFieldContainer">
+                    <label for="passwordInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Password</label>
+                    <input type="password" id="passwordInput"
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      placeholder="Masukkan password user">
+                  </div>
 
-              <div id="roleFieldContainer">
-                <label for="roleSelect" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Role / Peran</label>
-                <select id="roleSelect" required
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                  <option value="service">Service (CRUD Projek: Lihat, Tambah, Edit, Hapus Projek)</option>
-                  <option value="desainer">Desainer (Projek, Tools, Aktivitas Admin)</option>
-                  <option value="super_admin">Super Admin (Akses Penuh Seluruh Modul)</option>
-                  <option value="custom">Custom (Pilih Hak Akses Manual)</option>
-                </select>
-              </div>
+                  <div id="roleFieldContainer">
+                    <label for="roleSelect" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Role / Peran</label>
+                    <select id="roleSelect" required
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                      <option value="service">Service (CRUD Projek: Lihat, Tambah, Edit, Hapus Projek)</option>
+                      <option value="desainer">Desainer (Projek, Tools, Aktivitas Admin)</option>
+                      <option value="super_admin">Super Admin (Akses Penuh Seluruh Modul)</option>
+                      <option value="custom">Custom (Pilih Hak Akses Manual)</option>
+                    </select>
+                  </div>
 
-              <div id="nameFieldContainer" class="sm:col-span-2 lg:col-span-3">
-                <label for="nameInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Nama Lengkap</label>
-                <input type="text" id="nameInput"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none read-only:bg-zinc-100 dark:read-only:bg-zinc-800/60 read-only:text-zinc-500 dark:read-only:text-zinc-400 read-only:cursor-not-allowed"
-                  placeholder="misal: Budi Santoso">
-              </div>
-            </div>
+                  <div id="nameFieldContainer">
+                    <label for="nameInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Nama Lengkap</label>
+                    <input type="text" id="nameInput"
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none read-only:bg-zinc-100 dark:read-only:bg-zinc-800/60 read-only:text-zinc-500 dark:read-only:text-zinc-400 read-only:cursor-not-allowed"
+                      placeholder="misal: Budi Santoso">
+                  </div>
 
-            <div id="contactFieldsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 hidden">
-              <div>
-                <label for="emailInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Email</label>
-                <input type="email" id="emailInput"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  placeholder="user@email.com">
-              </div>
+                  <div id="contactFieldsContainer" class="space-y-3 hidden">
+                    <div>
+                      <label for="emailInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Email</label>
+                      <input type="email" id="emailInput"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        placeholder="user@email.com">
+                    </div>
 
-              <div>
-                <label for="phoneInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">No. Telepon / WA</label>
-                <input type="text" id="phoneInput"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  placeholder="08123456789">
-              </div>
-            </div>
+                    <div>
+                      <label for="phoneInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">No. Telepon / WA</label>
+                      <input type="text" id="phoneInput"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        placeholder="08123456789">
+                    </div>
+                  </div>
 
-            <div id="avatarFieldContainer" class="hidden">
-              <label for="avatarInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Foto Profil / Avatar URL</label>
-              <input type="text" id="avatarInput"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                placeholder="URL Gambar atau Data URL">
-            </div>
-          </div>
-
-          <!-- Permissions Section -->
-          <div id="permissionsTableContainer" class="space-y-3.5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2.5 border-b border-zinc-200 dark:border-zinc-800">
-              <div>
-                <label class="block text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
-                  <i class="fa-solid fa-shield-halved text-indigo-500 mr-1"></i> Kustomisasi Hak Akses Pengguna
-                </label>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Atur hak akses secara individual. Perubahan hanya berlaku untuk user ini.</p>
-              </div>
-              <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
-                <button type="button" onclick="window.checkAllUserPerms(true)" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition flex items-center gap-1.5 border border-indigo-200/50 dark:border-indigo-800/50">
-                  <i class="fa-solid fa-check-double text-[10px]"></i> Centang Semua
-                </button>
-                <button type="button" onclick="window.checkAllUserPerms(false)" class="px-2.5 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900 transition flex items-center gap-1.5 border border-rose-200/50 dark:border-rose-800/50">
-                  <i class="fa-solid fa-xmark text-[10px]"></i> Kosongkan
-                </button>
+                  <div id="avatarFieldContainer" class="hidden">
+                    <label for="avatarInput" class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase mb-1">Foto Profil / Avatar URL</label>
+                    <input type="text" id="avatarInput"
+                      class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                      placeholder="URL Gambar atau Data URL">
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Permission Modules Grid (8 Modules) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <!-- 1. Modul Projek -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-folder-open text-indigo-500"></i> Modul Projek
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('proyek')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+            <!-- KOLOM KANAN: Kustomisasi Hak Akses Modul -->
+            <div class="lg:col-span-8 xl:col-span-8 space-y-3.5">
+              <div id="permissionsTableContainer" class="space-y-3.5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2.5 border-b border-zinc-200 dark:border-zinc-800">
+                  <div>
+                    <label class="block text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
+                      <i class="fa-solid fa-shield-halved text-indigo-500 mr-1"></i> Kustomisasi Hak Akses Pengguna
+                    </label>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Atur hak akses secara individual. Perubahan hanya berlaku untuk user ini.</p>
+                  </div>
+                  <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                    <button type="button" onclick="window.checkAllUserPerms(true)" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition flex items-center gap-1.5 border border-indigo-200/50 dark:border-indigo-800/50">
+                      <i class="fa-solid fa-check-double text-[10px]"></i> Centang Semua
+                    </button>
+                    <button type="button" onclick="window.checkAllUserPerms(false)" class="px-2.5 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900 transition flex items-center gap-1.5 border border-rose-200/50 dark:border-rose-800/50">
+                      <i class="fa-solid fa-xmark text-[10px]"></i> Kosongkan
+                    </button>
+                  </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:read" data-module="proyek">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Projek</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:create" data-module="proyek">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Projek</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:update" data-module="proyek">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Projek</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="proyek:delete" data-module="proyek">
-                    <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Projek</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:import" data-module="proyek">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Impor Excel</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:export" data-module="proyek">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Ekspor Excel</span>
-                  </label>
-                </div>
-              </div>
 
-              <!-- 2. Modul Invoice -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-invoice text-indigo-500"></i> Modul Invoice
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('invoice')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:read" data-module="invoice">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Invoice</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:create" data-module="invoice">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Buat Invoice</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:update" data-module="invoice">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Invoice</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:download" data-module="invoice">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Unduh PDF/PNG</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:print" data-module="invoice">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Cetak Invoice</span>
-                  </label>
-                </div>
-              </div>
+                <!-- Permission Modules Grid (8 Modules) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <!-- 1. Modul Projek -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-folder-open text-indigo-500"></i> Modul Projek
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('proyek')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:read" data-module="proyek">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Projek</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:create" data-module="proyek">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Projek</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:update" data-module="proyek">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Projek</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="proyek:delete" data-module="proyek">
+                        <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Projek</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:import" data-module="proyek">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Impor Excel</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="proyek:export" data-module="proyek">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Ekspor Excel</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- 3. Modul Histori Invoice -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-receipt text-indigo-500"></i> Histori Invoice
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('history_invoice')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="history_invoice:read" data-module="history_invoice">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Histori</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="history_invoice:delete" data-module="history_invoice">
-                    <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Arsip</span>
-                  </label>
-                </div>
-              </div>
+                  <!-- 2. Modul Invoice -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-invoice text-indigo-500"></i> Modul Invoice
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('invoice')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:read" data-module="invoice">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Invoice</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:create" data-module="invoice">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Buat Invoice</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:update" data-module="invoice">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Invoice</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:download" data-module="invoice">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Unduh PDF/PNG</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="invoice:print" data-module="invoice">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Cetak Invoice</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- 4. Modul Keuangan -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-wallet text-indigo-500"></i> Modul Keuangan
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('keuangan')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:read" data-module="keuangan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Keuangan</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:create" data-module="keuangan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Transaksi</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:update" data-module="keuangan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Transaksi</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="keuangan:delete" data-module="keuangan">
-                    <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Transaksi</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:export" data-module="keuangan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Ekspor Keuangan</span>
-                  </label>
-                </div>
-              </div>
+                  <!-- 3. Modul Histori Invoice -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-receipt text-indigo-500"></i> Histori Invoice
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('history_invoice')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="history_invoice:read" data-module="history_invoice">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Histori</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="history_invoice:delete" data-module="history_invoice">
+                        <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Arsip</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- 5. Modul Laporan -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-chart-pie text-indigo-500"></i> Modul Laporan
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('laporan')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="laporan:read" data-module="laporan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Laporan</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="laporan:export" data-module="laporan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Ekspor Excel</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="laporan:print" data-module="laporan">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Cetak Laporan</span>
-                  </label>
-                </div>
-              </div>
+                  <!-- 4. Modul Keuangan -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wallet text-indigo-500"></i> Modul Keuangan
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('keuangan')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:read" data-module="keuangan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Keuangan</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:create" data-module="keuangan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Transaksi</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:update" data-module="keuangan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Transaksi</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="keuangan:delete" data-module="keuangan">
+                        <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Transaksi</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="keuangan:export" data-module="keuangan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Ekspor Keuangan</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- 6. Modul Tools AI & Aset -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-toolbox text-indigo-500"></i> Tools AI & Aset
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('tools')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:read" data-module="tools">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Tools</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:create" data-module="tools">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Tool</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:update" data-module="tools">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Tool</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="tools:delete" data-module="tools">
-                    <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Tool</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:generate" data-module="tools">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Eksekusi AI</span>
-                  </label>
-                </div>
-              </div>
+                  <!-- 5. Modul Laporan -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-pie text-indigo-500"></i> Modul Laporan
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('laporan')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="laporan:read" data-module="laporan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Laporan</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="laporan:export" data-module="laporan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Ekspor Excel</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="laporan:print" data-module="laporan">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Cetak Laporan</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- 7. Modul Aktivitas Admin -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-check text-indigo-500"></i> Aktivitas Admin
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('admin_tasks')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:read" data-module="admin_tasks">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Tugas</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:create" data-module="admin_tasks">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Tugas</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:update" data-module="admin_tasks">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit / Selesai</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="admin_tasks:delete" data-module="admin_tasks">
-                    <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Tugas</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:settings" data-module="admin_tasks">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Pengaturan</span>
-                  </label>
-                </div>
-              </div>
+                  <!-- 6. Modul Tools AI & Aset -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-toolbox text-indigo-500"></i> Tools AI & Aset
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('tools')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:read" data-module="tools">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Tools</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:create" data-module="tools">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Tool</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:update" data-module="tools">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Tool</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="tools:delete" data-module="tools">
+                        <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Tool</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="tools:generate" data-module="tools">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Eksekusi AI</span>
+                      </label>
+                    </div>
+                  </div>
 
-              <!-- 8. Modul User Management -->
-              <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
-                  <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-users-gear text-indigo-500"></i> User Management
-                  </span>
-                  <button type="button" onclick="window.toggleModulePermsInModal('users')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:read" data-module="users">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat User</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:create" data-module="users">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah User</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:update" data-module="users">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Profil</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="users:delete" data-module="users">
-                    <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus User</span>
-                  </label>
-                  <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
-                    <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:manage_role" data-module="users">
-                    <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Kelola Role</span>
-                  </label>
+                  <!-- 7. Modul Aktivitas Admin -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-check text-indigo-500"></i> Aktivitas Admin
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('admin_tasks')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:read" data-module="admin_tasks">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat Tugas</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:create" data-module="admin_tasks">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah Tugas</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:update" data-module="admin_tasks">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit / Selesai</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="admin_tasks:delete" data-module="admin_tasks">
+                        <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus Tugas</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="admin_tasks:settings" data-module="admin_tasks">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Pengaturan</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 8. Modul User Management -->
+                  <div class="p-3.5 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-zinc-200/60 dark:border-zinc-800">
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                        <i class="fa-solid fa-users-gear text-indigo-500"></i> User Management
+                      </span>
+                      <button type="button" onclick="window.toggleModulePermsInModal('users')" class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">Pilih Modul</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:read" data-module="users">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Lihat User</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:create" data-module="users">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Tambah User</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:update" data-module="users">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Edit Profil</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-rose-200/60 dark:border-rose-900/50 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-rose-600 rounded focus:ring-rose-500 shrink-0" data-perm="users:delete" data-module="users">
+                        <span class="font-medium text-rose-600 dark:text-rose-400 truncate">Hapus User</span>
+                      </label>
+                      <label class="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800/80 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-zinc-200/60 dark:border-zinc-700/60 cursor-pointer transition select-none">
+                        <input type="checkbox" class="perm-crud-cb form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500 shrink-0" data-perm="users:manage_role" data-module="users">
+                        <span class="font-medium text-zinc-700 dark:text-zinc-200 truncate">Kelola Role</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
