@@ -757,28 +757,36 @@ const Auth = {
       const displayName = user.name || user.username || "User";
       const displayRole = isSuperAdmin ? "Super Admin" : (isDesigner ? "Designer" : "Service");
 
-      const userAvatarText = profileBtn.querySelector("#userAvatarText") || document.getElementById("userAvatarText");
-      const userNameText = profileBtn.querySelector("#userNameText") || document.getElementById("userNameText");
+      // Check if already rendered to prevent redundant image requests causing 429
+      const currentAvatarKey = profileBtn.getAttribute("data-rendered-avatar") || "";
+      const targetAvatarKey = `${user.id || user.username}_${avatarUrl}`;
 
-      if (userAvatarText) {
-        userAvatarText.classList.add("overflow-hidden");
-        if (avatarUrl) {
-          userAvatarText.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-xl" onerror="this.outerHTML='${initial}'">`;
-        } else {
-          userAvatarText.textContent = initial;
+      if (currentAvatarKey !== targetAvatarKey) {
+        profileBtn.setAttribute("data-rendered-avatar", targetAvatarKey);
+
+        const userAvatarText = profileBtn.querySelector("#userAvatarText") || document.getElementById("userAvatarText");
+        const userNameText = profileBtn.querySelector("#userNameText") || document.getElementById("userNameText");
+
+        if (userAvatarText) {
+          userAvatarText.classList.add("overflow-hidden");
+          if (avatarUrl) {
+            userAvatarText.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-xl" onerror="this.onerror=null; this.outerHTML='${initial}'">`;
+          } else {
+            userAvatarText.textContent = initial;
+          }
         }
-      }
 
-      if (userNameText) {
-        userNameText.textContent = displayName;
-      }
+        if (userNameText) {
+          userNameText.textContent = displayName;
+        }
 
-      if (!userAvatarText) {
-        profileBtn.classList.add("overflow-hidden", "flex", "items-center", "justify-center", "p-0");
-        if (avatarUrl) {
-          profileBtn.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-full block" onerror="this.outerHTML='<span class=\\'font-bold text-sm text-zinc-600 dark:text-zinc-200\\'>${initial}</span>'">`;
-        } else {
-          profileBtn.innerHTML = `<span class="font-bold text-sm text-zinc-600 dark:text-zinc-200">${initial}</span>`;
+        if (!userAvatarText) {
+          profileBtn.classList.add("overflow-hidden", "flex", "items-center", "justify-center", "p-0");
+          if (avatarUrl) {
+            profileBtn.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-full block" onerror="this.onerror=null; this.outerHTML='<span class=\\'font-bold text-sm text-zinc-600 dark:text-zinc-200\\'>${initial}</span>'">`;
+          } else {
+            profileBtn.innerHTML = `<span class="font-bold text-sm text-zinc-600 dark:text-zinc-200">${initial}</span>`;
+          }
         }
       }
 
