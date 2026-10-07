@@ -18,7 +18,7 @@ graph TD
 
 *   **Frontend**: HTML5, Vanilla JavaScript, CSS3 (Tailwind CSS v2 Terlokalisasi), IndexedDB (Penyimpanan Offline), & Service Worker (PWA Offline).
 *   **Backend**: Google Apps Script (Web App Endpoint) dengan proteksi persaingan data (*concurrency locking*).
-*   **Database**: Google Sheets (Tabel: `Users`, `Proyek`, `Keuangan`, `UserPermissions`).
+*   **Database**: Google Sheets (Tabel: `Users`, `Proyek`, `Keuangan`, `Tasks`, `Tools`, `Shortcuts`, `References`).
 *   **Penyimpanan Gambar**: Google Drive (Folder ID: `1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE`).
 
 ---
@@ -54,34 +54,38 @@ FPManager/
 │   ├── darkmode.css        # Variabel warna & tema gelap
 │   └── tailwind.min.css    # Pustaka framework Tailwind CSS v2 (Terlokalisasi Offline)
 ├── js/
+│   ├── admin-tasks.js      # Controller manajemen tugas dan delegasi aktivitas staf/admin
 │   ├── api.js              # Controller komunikasi data Sheets API & Mesin Offline Queue
-│   ├── auth.js             # Validasi hak akses role-based & kontrol menu dinamis
+│   ├── auth.js             # Validasi hak akses 3-Role (super_admin, designer, service)
 │   ├── calendar.js         # Eksportir berkas iCal (.ics) & template Google Calendar
-│   ├── config.js           # Getters/Setters konfigurasi aplikasi di LocalStorage
+│   ├── config.js           # Getters/Setters konfigurasi aplikasi & modal konfirmasi custom
 │   ├── dashboard.js        # Logic perhitungan dasbor, grafik Chart.js, & pengingat
 │   ├── excel.js            # Modul ekspor tabel proyek ke format spreadsheet Excel (.xlsx)
+│   ├── history-invoice.js  # Controller riwayat pencatatan dan invoice
 │   ├── i18n.js             # Manajemen pelokalan bahasa (ID / EN)
 │   ├── invoice.js          # Generator template nota pembayaran & ekspor PDF
 │   ├── keuangan.js         # Handler formulir & mutasi kas masuk/keluar keuangan
 │   ├── laporan.js          # Logic pemrosesan analitik laba rugi & omzet bulanan
-│   ├── pengaturan.js       # Kontrol ekspor-impor database lokal cadangan
+│   ├── pengaturan.js       # Kontrol ekspor-impor database lokal cadangan & konfigurasi API
 │   ├── profil.js           # Pengolah data pengguna & interseptor upload foto profil GDrive
 │   ├── proyek.js           # Logic pencarian, pagination, filter, & integrasi WhatsApp
 │   ├── pwa.js              # PWA install banner prompt & liveness detector
 │   ├── tambah.js           # Validasi formulir pendaftaran proyek baru
 │   ├── theme.js            # Switcher tema gelap/terang
-│   └── toast.js            # Sistem notifikasi pop-up cantik yang dinamis
+│   ├── toast.js            # Sistem notifikasi pop-up cantik yang dinamis
+│   ├── tools.js            # AI Assistant Gemini, Prompt Generator, & Shortcut tools
+│   └── user-management.js  # Modul Manajemen User 3 Role (Super Admin Only)
 ├── index.html              # Halaman Dashboard Utama
 ├── proyek.html             # Daftar Manajemen Proyek (DataTables)
 ├── tambah-proyek.html      # Formulir Input & Edit Proyek
 ├── keuangan.html           # Pencatatan Buku Kas & Mutasi Keuangan
+├── history-invoice.html    # Riwayat Invoice
 ├── laporan.html            # Laporan Keuangan Tahunan & Grafik
-├── layanan.html            # Modul Daftar Harga & Jenis Layanan
 ├── tools.html              # Pusat Prompt AI, Pintasan, & Referensi Desain
 ├── profil.html             # Halaman Pengaturan Akun & Unggah Foto
 ├── invoice.html            # Pratinjau & Cetak Nota Pembayaran
 ├── login.html              # Halaman Masuk Akun Pengguna
-├── user-management.html    # Modul Manajemen User & Hak Akses Modular (Super Admin Only)
+├── user-management.html    # Modul Manajemen User & Role (Super Admin Only)
 ├── manifest.json           # PWA Manifest metadata
 ├── sw.js                   # Service Worker untuk Caching Berkas Luring
 └── kode.gs                 # Backend Google Apps Script (Keamanan, Upload Drive, & DB Sheets)
@@ -95,7 +99,7 @@ Aplikasi secara otomatis membuat sheet dan kolom berikut pada inisialisasi perta
 
 ### 1. Sheet `Users`
 Menampung data login administrator dan staf.
-*   **Kolom**: `ID` | `Username` | `Password` (Ter-hash SHA-256) | `Role` | `Name` | `Permissions` | `CreatedAt` | `Email` | `Phone` | `Avatar` (Link URL Drive)
+*   **Kolom**: `ID` | `Username` | `Password` (Ter-hash SHA-256) | `Role` (`super_admin` / `designer` / `service`) | `Name` | `CreatedAt` | `Email` | `Phone` | `Avatar` (Link URL Drive)
 
 ### 2. Sheet `Proyek`
 Menampung data transaksi proyek pesanan pelanggan.
@@ -105,9 +109,10 @@ Menampung data transaksi proyek pesanan pelanggan.
 Menampung data pencatatan buku kas masuk/keluar.
 *   **Kolom**: `ID` | `Tanggal` | `Jenis` | `Keterangan` | `Nominal`
 
-### 4. Sheet `UserPermissions`
-Menampung detail hak akses modular (*granular permissions*) per pengguna.
-*   **Kolom**: `UserID` | `Username` | `proyek_read` | `proyek_create` | `proyek_update` | `proyek_delete` | `keuangan_read` | ... (dan seterusnya untuk seluruh action permissions).
+### 4. Sistem 3-Role (Role-Based Access Control)
+1. **Super Admin**: Akses penuh ke seluruh fitur dan pengaturan, termasuk Manajemen User, Keuangan, Proyek, Tools, dan Invoice.
+2. **Designer**: Berfokus pada pengerjaan kreatif (melihat daftar proyek, akses penuh menu Tools / Prompt AI / Shortcut / Generator, Profil & Pengaturan).
+3. **Service**: Berfokus pada operasional dan administrasi transaksi (CRUD penuh Proyek, Tambah Proyek, Keuangan, History Invoice, Laporan, Aktivitas Admin, Profil & Pengaturan).
 
 ---
 

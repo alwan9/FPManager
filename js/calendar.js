@@ -20,16 +20,22 @@ const CalendarSync = {
 
   getGoogleCalendarUrl(proyek) {
     if (!proyek) return '#';
+    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
     const title = encodeURIComponent(`Deadline Proyek: ${proyek.namaProyek || 'Proyek'} (${proyek.namaPelanggan || 'Klien'})`);
-    const details = encodeURIComponent(
-      `Projek: ${proyek.namaProyek}\n` +
+    
+    let text = `Projek: ${proyek.namaProyek || '-'}\n` +
       `Klien: ${proyek.namaPelanggan || '-'} (+${proyek.nomorWA || '-'})\n` +
-      `Produk: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n` +
-      `Nominal: Rp ${Number(proyek.nominalProyek || 0).toLocaleString('id-ID')}\n` +
-      `Sisa Tagihan: Rp ${Number(proyek.sisaPembayaran || 0).toLocaleString('id-ID')}\n` +
-      `Status: ${proyek.status || '-'}\n` +
-      `Catatan: ${proyek.catatan || '-'}`
-    );
+      `Produk: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n`;
+    
+    if (!isDes) {
+      text += `Nominal: Rp ${Number(proyek.nominalProyek || 0).toLocaleString('id-ID')}\n` +
+        `Sisa Tagihan: Rp ${Number(proyek.sisaPembayaran || 0).toLocaleString('id-ID')}\n`;
+    }
+
+    text += `Status: ${proyek.status || '-'}\n` +
+      `Catatan: ${proyek.catatan || '-'}`;
+
+    const details = encodeURIComponent(text);
     const startDay = this.formatDateForICal(proyek.deadline);
     const endDay = this.getNextDayForICal(proyek.deadline);
     
@@ -38,18 +44,24 @@ const CalendarSync = {
 
   downloadICal(proyek) {
     if (!proyek) return;
+    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
     const startDay = this.formatDateForICal(proyek.deadline);
     const endDay = this.getNextDayForICal(proyek.deadline);
     const title = `Deadline Proyek: ${proyek.namaProyek || 'Proyek'} (${proyek.namaPelanggan || 'Klien'})`;
-    const details = (
-      `Projek: ${proyek.namaProyek}\n` +
+    
+    let text = `Projek: ${proyek.namaProyek || '-'}\n` +
       `Klien: ${proyek.namaPelanggan || '-'} (+${proyek.nomorWA || '-'})\n` +
-      `Produk: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n` +
-      `Nominal: Rp ${Number(proyek.nominalProyek || 0).toLocaleString('id-ID')}\n` +
-      `Sisa Tagihan: Rp ${Number(proyek.sisaPembayaran || 0).toLocaleString('id-ID')}\n` +
-      `Status: ${proyek.status || '-'}\n` +
-      `Catatan: ${proyek.catatan || '-'}`
-    ).replace(/\n/g, '\\n');
+      `Produk: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n`;
+    
+    if (!isDes) {
+      text += `Nominal: Rp ${Number(proyek.nominalProyek || 0).toLocaleString('id-ID')}\n` +
+        `Sisa Tagihan: Rp ${Number(proyek.sisaPembayaran || 0).toLocaleString('id-ID')}\n`;
+    }
+
+    text += `Status: ${proyek.status || '-'}\n` +
+      `Catatan: ${proyek.catatan || '-'}`;
+
+    const details = text.replace(/\n/g, '\\n');
 
     const icsContent = [
       'BEGIN:VCALENDAR',

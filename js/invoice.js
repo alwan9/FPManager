@@ -25,9 +25,10 @@ const Invoice = {
         const invoiceId = urlParams.get("invoiceId");
         const fromSelection = urlParams.get("fromSelection");
         const id = urlParams.get("id");
+        const isBlank = urlParams.get("blank") === 'true' || urlParams.get("blank") === '1' || urlParams.get("mode") === 'blank';
 
         try {
-            this.proyek = await API.getProyek();
+            this.proyek = (await API.getProyek()) || [];
 
             if (invoiceId) {
                 // Skenario 1: Membuka dari History Invoice
@@ -38,6 +39,9 @@ const Invoice = {
             } else if (id) {
                 // Skenario 3: Membuka dari 1 Proyek Existing (backward compatible)
                 this.loadInvoice(id);
+            } else if (isBlank || (!invoiceId && !fromSelection && !id)) {
+                // Skenario 4: Membuka Blank Invoice (Invoice Kosong Manual)
+                this.loadBlankInvoice();
             } else {
                 Toast.warning(
                     isEn ? "Invoice Not Found" : "Invoice Tidak Ditemukan",
@@ -398,6 +402,110 @@ const Invoice = {
     },
 
     // ==========================================
+    // SKENARIO 4: LOAD BLANK INVOICE (INVOICE KOSONG MANUAL)
+    // ==========================================
+    loadBlankInvoice() {
+        const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+        const autoInvNo = this.generateInvoiceNumber();
+        this.currentInvoiceId = autoInvNo;
+        this.currentProjectIds = [];
+        this.currentCustomerName = '';
+
+        const dateLocale = isEn ? "en-US" : "id-ID";
+        const dateRaw = new Date();
+        const formatter = new Intl.DateTimeFormat(dateLocale, {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            timeZone: "Asia/Jakarta"
+        });
+
+        // 1. Header
+        const invNoEl = document.getElementById("previewInvoiceNo");
+        if (invNoEl) invNoEl.innerText = autoInvNo;
+        const tglEl = document.getElementById("previewTanggal");
+        if (tglEl) tglEl.innerText = formatter.format(dateRaw);
+
+        // 2. Customer Placeholder (Editable)
+        const plgEl = document.getElementById("previewPelanggan");
+        if (plgEl) plgEl.innerText = isEn ? "[Client Name]" : "[Nama Pelanggan]";
+        const waEl = document.getElementById("previewWA");
+        if (waEl) waEl.innerText = isEn ? "[Phone / WhatsApp]" : "[Nomor WA / Telp]";
+
+        // 3. Tabel Invoice: 10 baris editable kosong
+        const tableBody = document.getElementById("invoiceTableBody");
+        if (tableBody) {
+            let html = '';
+            for (let i = 0; i < 10; i++) {
+                const rowNo = i + 1;
+                if (rowNo === 1) {
+                    html += `
+                        <tr class="invoice-row" draggable="true" data-sort-order="${rowNo}">
+                            <td class="border p-1 md:p-3 text-center">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                                    <span class="row-num">${rowNo}</span>
+                                </div>
+                            </td>
+                            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true" id="previewProduk">${isEn ? 'Service / Product Name' : 'Nama Produk / Jasa'}</td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true" id="previewJumlah">1 pcs</td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true" id="previewHarga">Rp. 0</td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true" id="previewNominal">Rp. 0</td>
+                        </tr>
+                    `;
+                } else {
+                    html += `
+                        <tr class="invoice-row" draggable="true" data-sort-order="${rowNo}">
+                            <td class="border p-1 md:p-3 text-center">
+                                <div class="flex items-center justify-center gap-1">
+                                    <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                                    <span class="row-num">${rowNo}</span>
+                                </div>
+                            </td>
+                            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                        </tr>
+                    `;
+                }
+            }
+            tableBody.innerHTML = html;
+        }
+
+        // 4. Totals
+        const totalEl = document.getElementById("previewTotal");
+        if (totalEl) totalEl.innerText = "Rp. 0";
+        const dpEl = document.getElementById("previewDP");
+        if (dpEl) dpEl.innerText = "Rp. 0";
+        const pelunasanEl = document.getElementById("previewPelunasan");
+        if (pelunasanEl) pelunasanEl.innerText = "Rp. 0";
+        const sisaEl = document.getElementById("previewSisa");
+        if (sisaEl) sisaEl.innerText = "Rp. 0";
+
+        // 5. Catatan & Signature
+        const catEl = document.getElementById("previewCatatan");
+        if (catEl) catEl.innerText = isEn ? "Thank you for your business." : "Terima kasih atas kerja samanya.";
+
+        this.setDocumentType("invoice");
+        this.toggleSignature(true);
+        this.setupDragAndDrop();
+
+        // Update URL query param secara bersih tanpa reload
+        try {
+            const newUrl = `${window.location.pathname}?blank=true`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+        } catch (e) {}
+
+        if (typeof Toast !== 'undefined') {
+            Toast.info(
+                isEn ? "Blank Invoice Ready" : "Blank Invoice Siap",
+                isEn ? "You can directly click and type to edit all details." : "Format invoice kosong siap digunakan. Klik langsung pada teks untuk mengedit."
+            );
+        }
+    },
+
+    // ==========================================
     // DRAG AND DROP ITEM SORTING IMPLEMENTATION
     // ==========================================
     setupDragAndDrop() {
@@ -740,12 +848,6 @@ const Invoice = {
         };
 
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-        if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:create') && !Auth.hasPermission('invoice:update')) {
-            if (!isSilent && typeof Toast !== 'undefined') {
-                Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to save invoices.' : 'Anda tidak memiliki hak akses untuk menyimpan invoice.');
-            }
-            return;
-        }
 
         const btnSave = document.getElementById('btnSaveInvoice');
         const origHtml = btnSave ? btnSave.innerHTML : '';
@@ -788,10 +890,6 @@ const Invoice = {
     // ==========================================
     exportPDF() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-        if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:download')) {
-            if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to download PDF.' : 'Anda tidak memiliki hak akses untuk mengunduh PDF.');
-            return;
-        }
         const btnPDF = document.getElementById("btnPDF");
         if (btnPDF && btnPDF.disabled) return;
 
@@ -874,10 +972,6 @@ const Invoice = {
 
     exportPNG() {
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-        if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:download')) {
-            if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to download PNG.' : 'Anda tidak memiliki hak akses untuk mengunduh PNG.');
-            return;
-        }
         const btnPNG = document.getElementById("btnPNG");
         if (btnPNG && btnPNG.disabled) return;
 

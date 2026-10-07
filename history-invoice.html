@@ -81,12 +81,12 @@
           <i class="fa-solid fa-chart-line text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-home">Home</span>
         </a>
-        <a href="proyek.html" data-permission-allow="proyek:read"
+        <a href="proyek.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-list-check text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-proyek">Projek</span>
         </a>
-        <a href="tambah-proyek.html" data-permission-allow="proyek:create"
+        <a href="tambah-proyek.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-circle-plus text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
@@ -107,36 +107,36 @@
           <div id="submenuKeuangan"
             class="sidebar-submenu flex flex-col space-y-1 pl-4 pr-1 py-1 mt-1 border-l-2 border-indigo-500/60 ml-5">
             <!-- 1. Keuangan -->
-            <a href="keuangan.html" data-permission-allow="keuangan:read"
+            <a href="keuangan.html"
               class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
               <i class="fa-solid fa-coins text-xs w-4"></i>
               <span data-i18n="nav-keuangan">Keuangan</span>
             </a>
             <!-- 2. History Invoice (Active) -->
-            <a href="history-invoice.html" data-permission-allow="history_invoice:read"
+            <a href="history-invoice.html"
               class="sidebar-link sidebar-sublink active flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-indigo-400 bg-zinc-800 transition-colors">
               <i class="fa-solid fa-receipt text-xs w-4"></i>
               <span data-i18n="nav-history-invoice">History Invoice</span>
             </a>
             <!-- 3. Laporan -->
-            <a href="laporan.html" data-permission-allow="laporan:read"
+            <a href="laporan.html"
               class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
               <i class="fa-solid fa-file-invoice-dollar text-xs w-4"></i>
               <span data-i18n="nav-laporan">Laporan</span>
             </a>
           </div>
         </div>
-        <a href="admin-tasks.html" data-permission-allow="admin_tasks:read"
+        <a href="admin-tasks.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-clipboard-check text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-admin-tasks">Aktivitas Admin</span>
         </a>
-        <a href="tools.html" data-permission-allow="tools:read"
+        <a href="tools.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-toolbox text-base w-5"></i>
           <span class="text-sm font-medium">Tools</span>
         </a>
-        <a href="user-management.html" data-permission-allow="users:read"
+        <a href="user-management.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-users-gear text-base w-5"></i>
           <span class="text-sm font-medium">Manajemen User</span>
@@ -195,11 +195,10 @@
 
         <div class="flex items-center gap-2 sm:gap-3">
           <!-- Dark Mode Toggle -->
-          <button id="darkModeToggle"
-            class="p-2 sm:px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition-all"
-            title="Ganti Mode Gelap / Terang">
-            <i id="darkModeIcon" class="fa-solid fa-moon"></i>
-            <span class="hidden sm:inline" id="darkModeText">Mode Gelap</span>
+          <button id="darkModeToggle" type="button"
+            class="p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer"
+            title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
+            <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
           </button>
 
           <span id="apiStatusBadge" class="inline-flex items-center justify-center p-1.5" title="Live Google Sheets Connected">
@@ -255,9 +254,14 @@
           </div>
 
           <div class="relative z-10 flex flex-wrap gap-2.5">
-
+            <a href="invoice.html?blank=true"
+              class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2"
+              title="Buat Blank Invoice Baru">
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <span>+ Blank Invoice</span>
+            </a>
             <button onclick="HistoryInvoice.loadData(true)"
-              class="px-4 py-2.5 bg-indigo-700/60 hover:bg-indigo-700 text-white border border-indigo-500/50 text-xs font-semibold rounded-xl transition-all flex items-center gap-2"
+              class="px-4 py-2.5 bg-indigo-700/60 hover:bg-indigo-700 text-white border border-indigo-500/50 text-xs font-semibold rounded-xl transition-all flex items-center gap-2 cursor-pointer"
               title="Refresh Data">
               <i class="fa-solid fa-rotate mr-1" id="refreshIcon"></i>
               <span>Refresh</span>

@@ -7,20 +7,6 @@
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Check permission to view page
-  if (typeof Auth !== "undefined" && !Auth.hasPermission("admin_tasks:read")) {
-    const mainSection = document.querySelector("main section");
-    if (mainSection) {
-      mainSection.innerHTML = `
-        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
-          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
-          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (admin_tasks:read) untuk melihat aktivitas admin.</p>
-        </div>
-      `;
-    }
-    return;
-  }
 
   // DOM Elements
   const taskTableBody = document.getElementById("taskTableBody");
@@ -99,13 +85,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     lastResetDate: getTodayDateString()
   };
 
-  const currentUser = (typeof Auth !== "undefined" && Auth.getUser) ? Auth.getUser() : { username: "wansmin", role: "super_admin" };
-  const userRole = (currentUser.role || "").toLowerCase().trim();
-  const isSuperAdmin = (currentUser.username === "wansmin" || userRole === "super_admin" || userRole === "superadmin" || userRole.includes("admin"));
-  const canDeleteTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:delete"));
-  const canCreateTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:create"));
-  const canUpdateTask = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:update"));
-  const canManageSettings = isSuperAdmin || (typeof Auth !== "undefined" && Auth.hasPermission("admin_tasks:settings"));
+  const canDeleteTask = true;
+  const canCreateTask = true;
+  const canUpdateTask = true;
+  const canManageSettings = true;
 
   // ==========================================
   // DECOUPLED SYNC STATUS MANAGER

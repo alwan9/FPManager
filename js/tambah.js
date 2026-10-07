@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof Auth !== 'undefined' && typeof Auth.canAddProject === 'function' && !Auth.canAddProject()) {
+    const mainArea = document.querySelector('main section') || document.querySelector('main');
+    if (mainArea) {
+      mainArea.innerHTML = `
+        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
+          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
+          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Halaman Tambah Projek hanya dapat diakses oleh Super Admin dan Service.</p>
+        </div>
+      `;
+    }
+    return;
+  }
+
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
@@ -251,12 +265,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    if (!proyekId && typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:create')) {
-      sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk menambah proyek.");
-      window.location.href = "proyek.html";
-      return;
-    }
-
     const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : { id: 'USR-001' };
     const displayUserIdEl = document.getElementById('displayUserId');
     if (displayUserIdEl) {
@@ -264,11 +272,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (proyekId) {
-      if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:update')) {
-        sessionStorage.setItem("toast_denied", "Akses Ditolak: Anda tidak memiliki izin untuk mengedit proyek.");
-        window.location.href = "proyek.html";
-        return;
-      }
       isEditMode = true;
       const pageTitleEl = document.getElementById('pageTitle') || document.getElementById('pageTitleHeader');
       if (pageTitleEl) {
@@ -825,7 +828,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           result = await API.updateProyek(proyekId, payload);
 
           // Auto-sync ke Mutasi Keuangan saat Update / Edit Projek
-          if (result.success && (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update') || Auth.hasPermission('keuangan:create'))) {
+          if (result.success) {
             try {
               const keuanganList = await API.getKeuangan();
               const rawTargetId = String(proyekId || '').trim();

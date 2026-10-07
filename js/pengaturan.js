@@ -26,17 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnReqNotif = document.getElementById('btnReqNotif');
   const btnTestToast = document.getElementById('btnTestToast');
 
-  // Role-based visibility for WhatsApp Template Card (Super Admin & Service Only)
   const waTemplateCard = document.getElementById('waTemplateCard');
-  if (waTemplateCard && typeof Auth !== 'undefined') {
-    const user = Auth.getUser();
-    const role = (user && user.role) ? user.role.toLowerCase().trim() : '';
-    const isSuperAdmin = (user && (user.username === 'wansmin' || role === 'super_admin' || role === 'superadmin' || role.includes('super')));
-    const isService = (role === 'service');
-
-    if (!isSuperAdmin && !isService) {
-      waTemplateCard.classList.add('hidden');
-    }
+  if (waTemplateCard) {
+    waTemplateCard.classList.remove('hidden');
   }
 
   // Load saved configurations to inputs

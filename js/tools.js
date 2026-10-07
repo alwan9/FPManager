@@ -67,19 +67,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadData() {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:read')) {
+  if (typeof Auth !== 'undefined' && typeof Auth.canAccessTools === 'function' && !Auth.canAccessTools()) {
     const mainArea = document.querySelector('main section') || document.querySelector('main');
     if (mainArea) {
       mainArea.innerHTML = `
         <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
           <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
           <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (tools:read) untuk melihat modul tools.</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Halaman Tools & Prompts hanya dapat diakses oleh Super Admin dan Designer.</p>
         </div>
       `;
     }
     return;
   }
+
   showToolsSkeletons();
   try {
     const [tools, shortcuts, references] = await Promise.all([
@@ -234,16 +235,12 @@ function renderTools(query = '') {
           <i class="fa-regular fa-copy"></i>
           <span>EN</span>
         </button>
-        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
         <button onclick="editTool('${tool.id}')" class="px-2.5 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors flex items-center justify-center space-x-1" title="Edit Prompt">
           <i class="fa-solid fa-pen"></i>
         </button>
-        ` : ''}
-        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
         <button onclick="deleteTool('${tool.id}')" class="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors flex items-center justify-center space-x-1" title="Hapus Prompt">
           <i class="fa-solid fa-trash"></i>
         </button>
-        ` : ''}
       </div>
     `;
     container.appendChild(el);
@@ -252,11 +249,6 @@ function renderTools(query = '') {
 
 async function saveTool() {
   const idInput = document.getElementById('toolId').value;
-  const requiredPerm = idInput ? 'tools:update' : 'tools:create';
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola Prompt.');
-    return;
-  }
 
   const btnSubmit = document.querySelector('#toolForm button[type="submit"]');
   if (btnSubmit) {
@@ -318,10 +310,6 @@ function editTool(id) {
 }
 
 async function deleteTool(id) {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:delete')) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Prompt.');
-    return;
-  }
   const confirmFn = typeof showConfirmModal === 'function' 
     ? showConfirmModal 
     : (typeof window !== 'undefined' && window.showConfirmModal ? window.showConfirmModal : (async (opts) => confirm(typeof opts === 'string' ? opts : (opts.message || 'Apakah Anda yakin?'))));
@@ -503,16 +491,12 @@ function renderShortcuts(query = '') {
         <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1">${escapeHtml(shortcut.userId || 'USR-001')}</span>
       </a>
       <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
-        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
         <button onclick="editShortcut('${shortcut.id}')" class="px-2 py-1 pointer-events-auto bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold flex items-center justify-center shadow-sm hover:scale-110 transition-all" title="Edit Shortcut">
           <i class="fa-solid fa-pen"></i>
         </button>
-        ` : ''}
-        ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
         <button onclick="deleteShortcut('${shortcut.id}')" class="px-2 py-1 pointer-events-auto bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/80 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold flex items-center justify-center shadow-sm hover:scale-110 transition-all" title="Hapus Shortcut">
           <i class="fa-solid fa-trash"></i>
         </button>
-        ` : ''}
       </div>
     `;
     container.appendChild(el);
@@ -689,11 +673,6 @@ function initToolBannerSlider() {
 
 async function saveShortcut() {
   const idInput = document.getElementById('shortcutId').value;
-  const requiredPerm = idInput ? 'tools:update' : 'tools:create';
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola Web Shortcut.');
-    return;
-  }
 
   const btnSubmit = document.querySelector('#shortcutForm button[type="submit"]');
   if (btnSubmit) {
@@ -752,10 +731,6 @@ function editShortcut(id) {
 }
 
 async function deleteShortcut(id) {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:delete')) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Web Shortcut.');
-    return;
-  }
   const confirmFn = typeof showConfirmModal === 'function' 
     ? showConfirmModal 
     : (typeof window !== 'undefined' && window.showConfirmModal ? window.showConfirmModal : (async (opts) => confirm(typeof opts === 'string' ? opts : (opts.message || 'Apakah Anda yakin?'))));
@@ -800,7 +775,7 @@ function closeShortcutModal() {
 }
 
 // =====================================
-// PANDUAN & KONVERSI UKURAN (NO PERMISSION)
+// PANDUAN & KONVERSI UKURAN
 // =====================================
 
 const SIZE_CATEGORIES = [
@@ -2271,16 +2246,12 @@ function renderReferences(query = '') {
       </td>
       <td class="px-4 py-3 text-right">
         <div class="flex items-center justify-end space-x-1.5">
-          ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:update')) ? `
           <button onclick="editReference('${ref.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit">
             <i class="fa-solid fa-pen"></i>
           </button>
-          ` : ''}
-          ${(typeof Auth === 'undefined' || Auth.hasPermission('tools:delete')) ? `
           <button onclick="deleteReference('${ref.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus">
             <i class="fa-solid fa-trash"></i>
           </button>
-          ` : ''}
         </div>
       </td>
     `;
@@ -2319,11 +2290,6 @@ function resetRefForm() {
 
 async function saveReference() {
   const idInput = document.getElementById('refFormId').value;
-  const requiredPerm = idInput ? 'tools:update' : 'tools:create';
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk mengelola Referensi.');
-    return;
-  }
 
   const btnSubmit = document.querySelector('#refSubmitForm button[type="submit"]');
   if (btnSubmit) {
@@ -2394,10 +2360,6 @@ function editReference(id) {
 }
 
 async function deleteReference(id) {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:delete')) {
-    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Anda tidak memiliki izin untuk menghapus Referensi.');
-    return;
-  }
 
   const confirmFn = typeof showConfirmModal === 'function' 
     ? showConfirmModal 

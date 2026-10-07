@@ -57,19 +57,6 @@ function updatePrintDate() {
 
 // Load all project and financial data and compile reports
 async function loadLaporanData() {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('laporan:read')) {
-    const mainArea = document.querySelector('main section') || document.querySelector('main');
-    if (mainArea) {
-      mainArea.innerHTML = `
-        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
-          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
-          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (laporan:read) untuk melihat laporan bisnis & keuangan.</p>
-        </div>
-      `;
-    }
-    return;
-  }
 
   showLaporanSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -895,10 +882,6 @@ function renderPieChart(accountsMap) {
  */
 async function exportToExcel() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('laporan:export')) {
-    if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to export reports.' : 'Anda tidak memiliki hak akses (laporan:export) untuk mengekspor laporan.');
-    return;
-  }
   try {
     if (typeof Toast !== 'undefined') {
       Toast.info(isEn ? 'Exporting' : 'Mengekspor', isEn ? 'Generating Excel report...' : 'Menyiapkan file Excel laporan...');
@@ -1033,10 +1016,6 @@ window.exportToExcel = exportToExcel;
 // Export PDF Trigger (Print Optimized)
 function exportToPdf() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('laporan:print') && !Auth.hasPermission('laporan:export')) {
-    if (typeof Toast !== 'undefined') Toast.error(isEn ? 'Access Denied' : 'Akses Ditolak', isEn ? 'You do not have permission to print/export PDF.' : 'Anda tidak memiliki izin (laporan:print) untuk mencetak laporan.');
-    return;
-  }
   updatePrintDate();
   window.print();
 }

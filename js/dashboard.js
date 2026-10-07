@@ -2,6 +2,10 @@
 let isFinancialsHidden = localStorage.getItem('dashboard_hide_financials') !== 'false'; // Default: true (Hidden)
 
 function formatFinancialDisplay(number) {
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  if (isDesainer) {
+    return '-';
+  }
   if (isFinancialsHidden) {
     return 'Rp ••••••••';
   }
@@ -10,10 +14,19 @@ function formatFinancialDisplay(number) {
 
 function updatePrivacyUI() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
   const btn = document.getElementById('toggleHideNominalBtn');
   const icon = document.getElementById('toggleHideNominalIcon');
   const text = document.getElementById('toggleHideNominalText');
   const cardEye = document.getElementById('cardPrivacyEyeIcon');
+  const cardEyeBtn = document.getElementById('cardPrivacyEyeBtn');
+
+  if (isDesainer) {
+    if (btn) btn.classList.add('hidden');
+    if (cardEye) cardEye.classList.add('hidden');
+    if (cardEyeBtn) cardEyeBtn.classList.add('hidden');
+    return;
+  }
 
   if (isFinancialsHidden) {
     if (icon) icon.className = 'fa-solid fa-eye-slash mr-1.5 text-indigo-200';
@@ -35,6 +48,9 @@ function updatePrivacyUI() {
 }
 
 function toggleDashboardNominalPrivacy() {
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  if (isDesainer) return;
+
   isFinancialsHidden = !isFinancialsHidden;
   localStorage.setItem('dashboard_hide_financials', isFinancialsHidden ? 'true' : 'false');
   updatePrivacyUI();
@@ -69,95 +85,132 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update Privacy UI State
   updatePrivacyUI();
 
-  // Apply role & permission customizations to dashboard UI
+  // Apply role customizations to dashboard UI
   applyDashboardRoleCustomizations();
 
   // Load Dashboard Data
   loadDashboardData();
 });
 
-// Customize Dashboard UI elements according to logged-in User Role and Permissions
+// Customize Dashboard UI
 function applyDashboardRoleCustomizations() {
-  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-  const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-  const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || (role.includes("admin") && !role.includes("admin_task")));
-  const isDesainer = role.includes("desainer") || role.includes("designer");
-  const isService = role.includes("service");
-  const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
 
-  // 1. Customize Welcome Banner Title & Description
-  const welcomeTitle = document.querySelector('[data-i18n="dash-welcome"]');
-  const welcomeDesc = document.querySelector('[data-i18n="dash-desc"]');
-
-  if (welcomeTitle) {
-    if (isSuperAdmin) {
-      welcomeTitle.textContent = isEn ? "Welcome Super Admin! 👋" : "Selamat Datang Super Admin! 👋";
-    } else if (isDesainer) {
-      welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Designer'}! 🎨` : `Selamat Datang ${user?.name || 'Desainer'}! 🎨`;
-    } else if (isService) {
-      welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Service Staff'}! 💼` : `Selamat Datang ${user?.name || 'Staff Service'}! 💼`;
-    } else {
-      welcomeTitle.textContent = isEn ? `Welcome ${user?.name || 'Staff'}! 👋` : `Selamat Datang ${user?.name || 'Staff'}! 👋`;
-    }
-  }
-
-  if (welcomeDesc) {
-    if (isDesainer) {
-      welcomeDesc.textContent = isEn ? "Here is the summary of your design projects and upcoming revision deadlines." : "Berikut adalah ringkasan projek desain dan kalender revisi hari ini.";
-    } else if (!canReadFinancials) {
-      welcomeDesc.textContent = isEn ? "Here is the summary of your active projects and task deadlines." : "Berikut adalah ringkasan projek dan deadline tugas hari ini.";
-    }
-  }
-
-  // 2. Hide/Show Financial Chart & Adjust Layout for Non-Financial Roles
   const chartCard = document.getElementById('chartCard');
   const recentProjectsCard = document.getElementById('recentProjectsCard');
   const incomeDetailBadge = document.getElementById('incomeDetailBadge');
   const statCardPendapatan = document.getElementById('statCardPendapatan');
   const statCardPengeluaran = document.getElementById('statCardPengeluaran');
+  const statCardKeuntungan = document.getElementById('statCardKeuntungan');
   const toggleHideNominalBtn = document.getElementById('toggleHideNominalBtn');
   const cardPrivacyEyeIcon = document.getElementById('cardPrivacyEyeIcon');
+  const cardPrivacyEyeBtn = document.getElementById('cardPrivacyEyeBtn');
+  const bannerAddProjectBtn = document.getElementById('bannerAddProjectBtn');
+  const dashWelcomeTitle = document.getElementById('dashWelcomeTitle');
+  const dashWelcomeDesc = document.getElementById('dashWelcomeDesc');
+  const chartHeaderIcon = document.getElementById('chartHeaderIcon');
+  const chartHeaderTitle = document.getElementById('chartHeaderTitle');
+  const chartHeaderLink = document.getElementById('chartHeaderLink');
+  const chartHeaderLinkText = document.getElementById('chartHeaderLinkText');
 
-  if (!canReadFinancials) {
-    if (chartCard) chartCard.classList.add('hidden');
+  if (isDesainer) {
+    // 1. Hide Nominal Privacy Toggle and Add Project Button
     if (toggleHideNominalBtn) toggleHideNominalBtn.classList.add('hidden');
+    if (bannerAddProjectBtn) bannerAddProjectBtn.classList.add('hidden');
     if (cardPrivacyEyeIcon) cardPrivacyEyeIcon.classList.add('hidden');
+    if (cardPrivacyEyeBtn) cardPrivacyEyeBtn.classList.add('hidden');
     if (incomeDetailBadge) {
       incomeDetailBadge.classList.add('hidden');
       incomeDetailBadge.classList.remove('inline-flex');
     }
+
+    // 2. Personalize Welcome Banner for Designer
+    const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : 'Designer';
+    if (dashWelcomeTitle) {
+      dashWelcomeTitle.innerHTML = `${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}! 🎨`;
+    }
+    if (dashWelcomeDesc) {
+      dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
+    }
+
+    // 3. Card 2: Link to In Progress Projects
     if (statCardPendapatan) {
-      statCardPendapatan.classList.remove('cursor-pointer');
-      statCardPendapatan.removeAttribute('title');
+      statCardPendapatan.classList.add('cursor-pointer');
+      statCardPendapatan.setAttribute('onclick', "window.location.href='proyek.html?status=Sedang%20Dikerjakan'");
+      statCardPendapatan.setAttribute('title', isEn ? 'Click to view In Progress projects' : 'Klik untuk melihat projek yang sedang dikerjakan');
     }
+
+    // 4. Card 3: Link to Revision Projects
     if (statCardPengeluaran) {
-      statCardPengeluaran.removeAttribute('href');
-      statCardPengeluaran.classList.remove('cursor-pointer');
-      statCardPengeluaran.removeAttribute('title');
+      statCardPengeluaran.setAttribute('href', 'proyek.html?status=Revisi');
+      statCardPengeluaran.setAttribute('title', isEn ? 'Click to view projects In Revision' : 'Klik untuk melihat projek dalam status revisi');
     }
-    if (recentProjectsCard) {
-      recentProjectsCard.className = 'lg:col-span-12 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
+
+    // 5. Card 4: Link to Completed Projects
+    if (statCardKeuntungan) {
+      statCardKeuntungan.classList.add('cursor-pointer', 'hover:border-emerald-300', 'dark:hover:border-emerald-700', 'hover:shadow-md');
+      statCardKeuntungan.setAttribute('onclick', "window.location.href='proyek.html?status=Selesai'");
+      statCardKeuntungan.setAttribute('title', isEn ? 'Click to view Completed projects' : 'Klik untuk melihat projek selesai');
+    }
+
+    // 6. Chart Card Header for Designer (Workload / Status Distribution)
+    if (chartHeaderIcon) {
+      chartHeaderIcon.className = 'fa-solid fa-chart-pie text-indigo-600 dark:text-indigo-400 mr-2';
+    }
+    if (chartHeaderTitle) {
+      chartHeaderTitle.innerHTML = `<span class="hidden md:inline">${isEn ? 'Project Status Distribution' : 'Distribusi Status Projek'}</span><span class="inline md:hidden">${isEn ? 'Status Distribution' : 'Status Projek'}</span>`;
+    }
+    if (chartHeaderLink) {
+      chartHeaderLink.setAttribute('href', 'proyek.html');
+      chartHeaderLink.setAttribute('title', isEn ? 'View all projects' : 'Lihat semua projek');
+    }
+    if (chartHeaderLinkText) {
+      chartHeaderLinkText.textContent = isEn ? 'View All Projects' : 'Lihat Projek';
     }
   } else {
+    // Super Admin & Service Roles (Allow Financial View)
     if (chartCard) chartCard.classList.remove('hidden');
     if (toggleHideNominalBtn) toggleHideNominalBtn.classList.remove('hidden');
+    if (bannerAddProjectBtn) bannerAddProjectBtn.classList.remove('hidden');
     if (cardPrivacyEyeIcon) cardPrivacyEyeIcon.classList.remove('hidden');
+    if (cardPrivacyEyeBtn) cardPrivacyEyeBtn.classList.remove('hidden');
     if (incomeDetailBadge) {
       incomeDetailBadge.classList.remove('hidden');
       incomeDetailBadge.classList.add('inline-flex');
     }
     if (statCardPendapatan) {
       statCardPendapatan.classList.add('cursor-pointer');
+      statCardPendapatan.setAttribute('onclick', "showIncomeBreakdownModal()");
       statCardPendapatan.setAttribute('title', 'Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran');
     }
     if (statCardPengeluaran) {
       statCardPengeluaran.setAttribute('href', 'keuangan.html');
       statCardPengeluaran.setAttribute('title', 'Buka modul Keuangan untuk melihat detail Pengeluaran');
     }
-    if (recentProjectsCard) {
-      recentProjectsCard.className = 'lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
+    if (statCardKeuntungan) {
+      statCardKeuntungan.removeAttribute('onclick');
+      statCardKeuntungan.removeAttribute('title');
+      statCardKeuntungan.classList.remove('cursor-pointer');
     }
+    if (chartHeaderIcon) {
+      chartHeaderIcon.className = 'fa-solid fa-chart-simple text-indigo-600 dark:text-indigo-400 mr-2';
+    }
+    if (chartHeaderTitle) {
+      chartHeaderTitle.innerHTML = `<span class="hidden md:inline">${isEn ? 'Monthly Cashflow Chart' : 'Grafik Arus Keuangan Bulanan'}</span><span class="inline md:hidden">${isEn ? 'Financial Chart' : 'Grafik Keuangan'}</span>`;
+    }
+    if (chartHeaderLink) {
+      chartHeaderLink.setAttribute('href', 'laporan.html');
+      chartHeaderLink.setAttribute('title', isEn ? 'View financial report' : 'Buka modul laporan');
+    }
+    if (chartHeaderLinkText) {
+      chartHeaderLinkText.textContent = isEn ? 'Financial Report' : 'Detail Laporan';
+    }
+  }
+
+  if (recentProjectsCard) {
+    recentProjectsCard.className = 'lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
   }
 }
 
@@ -172,10 +225,8 @@ async function loadDashboardData() {
     // Apply dashboard role customizations
     applyDashboardRoleCustomizations();
 
-    const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-    const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-    const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
-    const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+    const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+    const canReadFinancials = !isDesainer;
 
     // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth)
     if (canReadFinancials) {
@@ -203,9 +254,13 @@ async function loadDashboardData() {
     renderDeadlineAlerts(dashboardData.deadlineAlerts);
     // 3. Tampilkan Proyek Terbaru (Top 5)
     renderRecentProjects(dashboardData.recentProjects);
-    // 4. Render Grafik Keuangan Bulanan (jika diizinkan)
-    if (canReadFinancials && dashboardData.chartData) {
-      renderDashboardChart(dashboardData.chartData);
+    // 4. Render Grafik (Keuangan untuk Admin/Service, Status Distribusi untuk Designer)
+    if (canReadFinancials) {
+      if (dashboardData.chartData) {
+        renderDashboardChart(dashboardData.chartData);
+      }
+    } else {
+      renderDesignerProjectChart(dashboardData.stats, dashboardData.recentProjects);
     }
     // 5. Inisialisasi Kalender Deadline
     initDeadlineCalendar(dashboardData.revisiProjects || []);
@@ -219,13 +274,11 @@ async function loadDashboardData() {
   }
 }
 
-// Render statistic card counters dynamically according to role & permissions
+// Render statistic card counters dynamically according to role
 function renderSummaryStats(stats) {
   window.lastDashboardStats = stats;
-  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-  const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-  const isSuperAdmin = (user && (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin")));
-  const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  const canReadFinancials = !isDesainer;
 
   const totalProyek = stats.totalProyek || 0;
   const totalPemasukan = stats.totalPemasukan || 0;
@@ -294,22 +347,23 @@ function renderSummaryStats(stats) {
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
       val3.textContent = `${inRevision} ${projSuffix}`;
-      val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-red-600 mt-1 block truncate';
+      val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
     }
     const icon3 = document.getElementById('statCard3Icon');
-    if (icon3) icon3.className = 'bg-red-50 text-red-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
 
     const title4 = document.getElementById('statCard4Title');
     if (title4) title4.textContent = isEn ? 'Completed' : 'Selesai';
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
       val4.textContent = `${completed} ${projSuffix}`;
-      val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-green-600 mt-1 block truncate';
+      val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
     }
     const icon4 = document.getElementById('statCard4Icon');
-    if (icon4) icon4.className = 'bg-green-50 text-green-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon4) icon4.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
   }
 }
+
 // Identify and render alerts for projects with deadline <= 3 days
 function renderDeadlineAlerts(deadlineAlerts) {
   const container = document.getElementById('deadlineAlertContainer');
@@ -331,8 +385,8 @@ function renderDeadlineAlerts(deadlineAlerts) {
     alertCard.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
         <span class="font-bold text-xs text-red-600 block tracking-wider uppercase mb-0.5">${dayText}</span>
-        <span class="font-semibold text-sm text-zinc-900 block truncate">${alert.namaProyek}</span>
-        <span class="text-xs text-zinc-500 truncate block">${isEn ? 'Customer' : 'Pelanggan'}: ${alert.namaPelanggan}</span>
+        <span class="font-semibold text-sm text-zinc-900 block truncate">${escapeHtml(alert.namaProyek)}</span>
+        <span class="text-xs text-zinc-500 truncate block">${isEn ? 'Customer' : 'Pelanggan'}: ${escapeHtml(alert.namaPelanggan)}</span>
       </div>
       <div class="flex items-center space-x-1.5 flex-shrink-0">
         <button onclick="syncCalendarPromptByProyekId('${alert.iDProyek}')" class="px-2.5 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded-lg text-xs font-bold transition-colors" title="Tambah ke Kalender">
@@ -351,12 +405,15 @@ function renderDeadlineAlerts(deadlineAlerts) {
     headerTitle.innerHTML = `<i class="fa-solid fa-bell text-rose-500 mr-1.5 animate-bounce"></i> ${isEn ? 'Upcoming Deadlines' : 'Pengingat Deadline Mendatang'} (${isEn ? '≤ 3 Days' : '≤ 3 Hari'})`;
   }
 }
-// Render the 5 most recent projects in lists
+
+// Render the 5 most recent projects in lists (Hide financial nominal for Designer)
 function renderRecentProjects(recent) {
   window.lastRecentProjects = recent;
   const container = document.getElementById('recentProyekList');
   container.innerHTML = '';
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+
   if (!recent || recent.length === 0) {
     container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">${isEn ? 'No projects registered yet.' : 'Belum ada projek terdaftar.'}</div>`;
     return;
@@ -394,24 +451,146 @@ function renderRecentProjects(recent) {
         <span>Drive</span>
       </a>
     ` : '';
+
+    // Right Column: Show deadline/created date for Designer, Nominal for Admin/Service
+    const rightColHtml = isDesainer ? `
+      <div class="text-right flex-shrink-0">
+        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block flex items-center justify-end gap-1">
+          <i class="fa-regular fa-clock text-[10px] text-indigo-500"></i>
+          <span>${escapeHtml(p.deadline || p.tanggal || '-')}</span>
+        </span>
+        <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${p.deadline ? (isEn ? 'Deadline' : 'Deadline') : (isEn ? 'Created' : 'Tgl Dibuat')}</span>
+      </div>
+    ` : `
+      <div class="text-right flex-shrink-0">
+        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block">${formatFinancialDisplay(p.nominalProyek)}</span>
+        <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${escapeHtml(p.tanggal || '')}</span>
+      </div>
+    `;
+
     const item = document.createElement('div');
     item.className = 'flex items-center justify-between p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors duration-150';
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
-        <span class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 block truncate">${p.namaProyek}</span>
-        <span class="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">${isEn ? 'Client' : 'Klien'}: ${p.namaPelanggan}</span>
+        <span class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 block truncate">${escapeHtml(p.namaProyek)}</span>
+        <span class="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
         <div class="flex items-center mt-1 flex-wrap gap-1">
           <span class="inline-block px-1 py-0.5 text-[7px] leading-tight font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
           ${sourceBadge}
           ${gdriveBtn}
         </div>
       </div>
-      <div class="text-right flex-shrink-0">
-        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block">${formatFinancialDisplay(p.nominalProyek)}</span>
-        <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${p.tanggal}</span>
-      </div>
+      ${rightColHtml}
     `;
     container.appendChild(item);
+  });
+}
+
+// Render Designer Status Distribution Chart (No financial data)
+function renderDesignerProjectChart(stats, recentProjects) {
+  const canvas = document.getElementById('dashboardChart');
+  if (!canvas) return;
+
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js belum siap, mencoba memuat ulang dalam 300ms...');
+    setTimeout(() => renderDesignerProjectChart(stats, recentProjects), 300);
+    return;
+  }
+
+  if (window.dashboardChartInstance) {
+    try {
+      window.dashboardChartInstance.destroy();
+    } catch (e) {
+      console.warn('Could not destroy previous chart instance:', e);
+    }
+  }
+
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const isDark = document.documentElement.classList.contains('dark');
+  Chart.defaults.color = isDark ? '#d4d4d8' : '#52525b';
+  Chart.defaults.borderColor = isDark ? '#27272a' : '#f4f4f5';
+
+  const inProgress = (stats && stats.dikerjakanCount !== undefined) ? stats.dikerjakanCount : 0;
+  const inRevision = (stats && stats.revisiCount !== undefined) ? stats.revisiCount : 0;
+  const waiting = (stats && stats.menungguCount !== undefined) ? stats.menungguCount : 0;
+  const completed = (stats && stats.selesaiCount !== undefined) ? stats.selesaiCount : 0;
+
+  const labels = isEn 
+    ? ['In Progress', 'In Revision', 'Waiting', 'Completed'] 
+    : ['Sedang Dikerjakan', 'Dalam Revisi', 'Menunggu', 'Selesai'];
+
+  const dataValues = [inProgress, inRevision, waiting, completed];
+  const bgColors = [
+    'rgba(245, 158, 11, 0.85)',  // Amber
+    'rgba(239, 68, 68, 0.85)',   // Rose
+    'rgba(139, 92, 246, 0.85)',  // Purple
+    'rgba(16, 185, 129, 0.85)'   // Emerald
+  ];
+  const borderColors = [
+    'rgb(245, 158, 11)',
+    'rgb(239, 68, 68)',
+    'rgb(139, 92, 246)',
+    'rgb(16, 185, 129)'
+  ];
+
+  const ctx = canvas.getContext('2d');
+  window.dashboardChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: isEn ? 'Number of Projects' : 'Jumlah Projek',
+          data: dataValues,
+          backgroundColor: bgColors,
+          borderColor: borderColors,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          barPercentage: 0.55,
+          categoryPercentage: 0.8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const val = context.raw || 0;
+              return `${context.dataset.label}: ${val} ${isEn ? 'Projects' : 'Projek'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            precision: 0,
+            font: { family: 'Inter' },
+            color: isDark ? '#a1a1aa' : '#71717a'
+          },
+          grid: {
+            color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: { family: 'Inter', weight: '600' },
+            color: isDark ? '#a1a1aa' : '#71717a'
+          }
+        }
+      }
+    }
   });
 }
 // Compile monthly finance data and render double-bar Chart
@@ -742,17 +921,24 @@ function syncCalendarPromptByProyekId(id) {
   }
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+window.escapeHtml = escapeHtml;
+
 /**
  * Display Modal: Rincian Pendapatan Berdasarkan Metode Pembayaran (QRIS, Shopee, BSI, dll)
  * Mirroring Keuangan system as the sole Source of Truth.
  */
 function showIncomeBreakdownModal() {
-  const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-  const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-  const isSuperAdmin = !user || (user.username === "wansmin" || role.includes("super_admin") || role.includes("superadmin") || role.includes("admin") || role.includes("service"));
-  const canReadFinancials = isSuperAdmin || (typeof Auth !== 'undefined' && Auth.hasPermission("keuangan:read"));
-
-  if (!canReadFinancials) {
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  if (isDesainer) {
     window.location.href = 'proyek.html?status=Sedang%20Dikerjakan';
     return;
   }

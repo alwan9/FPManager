@@ -89,19 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load and calculate finance summaries
 async function loadKeuanganData() {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:read')) {
-    const mainArea = document.querySelector('main section') || document.querySelector('main');
-    if (mainArea) {
-      mainArea.innerHTML = `
-        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
-          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
-          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (keuangan:read) untuk melihat modul keuangan.</p>
-        </div>
-      `;
-    }
-    return;
-  }
   showKeuanganSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
@@ -487,8 +474,10 @@ function initTable(data) {
         orderable: false,
         className: 'text-center',
         width: '40px',
-        render: function (data) {
-          return `<input type="checkbox" value="${data.id}" class="keuangan-checkbox rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">`;
+        render: function (data, type, row) {
+          const rowData = row || data || {};
+          const id = rowData.id || rowData.idTransaksi || '';
+          return `<input type="checkbox" value="${escapeHtml(id)}" class="keuangan-checkbox rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">`;
         }
       },
       {
@@ -626,29 +615,18 @@ function initTable(data) {
         data: null,
         orderable: false,
         className: 'text-center',
-        render: function (data) {
-          const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-          const isSuperAdmin = currUser && (
-            currUser.username === 'wansmin' ||
-            (currUser.role || '').toLowerCase().includes('super_admin') ||
-            (currUser.role || '').toLowerCase().includes('superadmin') ||
-            (currUser.role || '').toLowerCase().includes('admin')
-          );
-          const canUpdate = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update'));
-          const canDelete = isSuperAdmin || (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:delete'));
-
+        render: function (data, type, row) {
+          const rowData = row || data || {};
+          const id = rowData.id || rowData.idTransaksi || '';
+          const escapedId = escapeHtml(id);
           return `
             <div class="flex space-x-1.5 justify-center">
-              ${canUpdate ? `
-              <button onclick="editTransaksi('${data.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Transaksi">
+              <button onclick="editTransaksi('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Transaksi">
                 <i class="fa-solid fa-pen"></i>
               </button>
-              ` : ''}
-              ${canDelete ? `
-              <button onclick="deleteTransaksi('${data.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Transaksi">
+              <button onclick="deleteTransaksi('${escapedId}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Transaksi">
                 <i class="fa-solid fa-trash"></i>
               </button>
-              ` : ''}
             </div>
           `;
         }
@@ -853,21 +831,6 @@ let isKeuanganSubmitting = false;
 async function handleAddTransaksi(e) {
   e.preventDefault();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-  const isSuperAdmin = currUser && (
-    currUser.username === 'wansmin' ||
-    (currUser.role || '').toLowerCase().includes('super_admin') ||
-    (currUser.role || '').toLowerCase().includes('superadmin') ||
-    (currUser.role || '').toLowerCase().includes('admin')
-  );
-
-  const requiredPerm = editModeId ? 'keuangan:update' : 'keuangan:create';
-  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission(requiredPerm)) {
-    if (typeof Toast !== 'undefined') {
-      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? `You do not have permission (${requiredPerm}) to save transaction.` : `Anda tidak memiliki izin (${requiredPerm}) untuk menyimpan transaksi.`);
-    }
-    return;
-  }
   const submitBtn = document.getElementById('submitBtn');
   if (isKeuanganSubmitting || (submitBtn && submitBtn.disabled)) return;
   isKeuanganSubmitting = true;
@@ -1077,20 +1040,6 @@ function formatRupiah(number) {
 
 function editTransaksi(id) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-  const isSuperAdmin = currUser && (
-    currUser.username === 'wansmin' ||
-    (currUser.role || '').toLowerCase().includes('super_admin') ||
-    (currUser.role || '').toLowerCase().includes('superadmin') ||
-    (currUser.role || '').toLowerCase().includes('admin')
-  );
-
-  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:update')) {
-    if (typeof Toast !== 'undefined') {
-      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to edit financial records." : "Anda tidak memiliki izin untuk mengedit data Keuangan.");
-    }
-    return;
-  }
 
   const tx = currentKeuanganList.find(k => String(k.id) === String(id));
   if (!tx) return;
@@ -1149,20 +1098,6 @@ function editTransaksi(id) {
 
 async function deleteTransaksi(id) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-  const isSuperAdmin = currUser && (
-    currUser.username === 'wansmin' ||
-    (currUser.role || '').toLowerCase().includes('super_admin') ||
-    (currUser.role || '').toLowerCase().includes('superadmin') ||
-    (currUser.role || '').toLowerCase().includes('admin')
-  );
-
-  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
-    if (typeof Toast !== 'undefined') {
-      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to delete financial records." : "Anda tidak memiliki izin untuk menghapus data Keuangan.");
-    }
-    return;
-  }
 
   const tx = currentKeuanganList.find(k => String(k.id) === String(id));
   const desc = tx ? tx.keterangan : id;
@@ -1246,20 +1181,6 @@ function updateBulkDeleteKeuanganButton() {
 
 async function bulkDeleteKeuangan() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : null;
-  const isSuperAdmin = currUser && (
-    currUser.username === 'wansmin' ||
-    (currUser.role || '').toLowerCase().includes('super_admin') ||
-    (currUser.role || '').toLowerCase().includes('superadmin') ||
-    (currUser.role || '').toLowerCase().includes('admin')
-  );
-
-  if (!isSuperAdmin && typeof Auth !== 'undefined' && !Auth.hasPermission('keuangan:delete')) {
-    if (typeof Toast !== 'undefined') {
-      Toast.error(isEn ? "Access Denied" : "Akses Ditolak", isEn ? "You do not have permission to delete financial records." : "Anda tidak memiliki izin untuk menghapus data Keuangan.");
-    }
-    return;
-  }
 
   const checkedBoxes = $('.keuangan-checkbox:checked');
   const ids = [];

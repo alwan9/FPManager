@@ -1,5 +1,6 @@
 # 1. Kecualikan semua file Google Apps Script (.gs)
 *.gs
+kode.gs
 
 # 2. Kecualikan folder konfigurasi IDE / Editor
 .vscode/

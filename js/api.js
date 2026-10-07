@@ -329,6 +329,20 @@ const API = {
       if (Array.isArray(result.data)) {
         result.data.forEach(p => {
           if (p) {
+            p.iDProyek = p.iDProyek || p.idProjek || p.id || '';
+            p.namaProyek = p.namaProyek || p.nama_projek || p.nama_proyek || p.proyek || p.nama || p.iDProyek;
+            p.namaPelanggan = p.namaPelanggan || p.pelanggan || p.klien || p.customer || '';
+            p.pelanggan = p.pelanggan || p.namaPelanggan || '';
+            p.nomorWA = p.nomorWA || p.noWa || p.wa || p.telepon || '';
+            p.noWa = p.noWa || p.nomorWA || '';
+            p.dP = p.dP !== undefined ? p.dP : (p.totalDp !== undefined ? p.totalDp : (p.dp !== undefined ? p.dp : 0));
+            p.totalDp = p.totalDp !== undefined ? p.totalDp : p.dP;
+            p.pelunasan = p.pelunasan !== undefined ? p.pelunasan : (p.totalPelunasan !== undefined ? p.totalPelunasan : 0);
+            p.totalPelunasan = p.totalPelunasan !== undefined ? p.totalPelunasan : p.pelunasan;
+            p.nominalProyek = p.nominalProyek !== undefined ? p.nominalProyek : (p.totalPembayaran !== undefined ? p.totalPembayaran : (p.nominal !== undefined ? p.nominal : 0));
+            p.totalPembayaran = p.totalPembayaran !== undefined ? p.totalPembayaran : p.nominalProyek;
+            p.sisaPembayaran = p.sisaPembayaran !== undefined ? p.sisaPembayaran : (p.sisa !== undefined ? p.sisa : Math.max(0, p.nominalProyek - p.dP - p.pelunasan));
+            p.status = p.status || 'Menunggu';
             if (p.deadline) p.deadline = window.parseSafeDateString(p.deadline);
             if (p.tanggal) p.tanggal = window.parseSafeDateString(p.tanggal);
           }
@@ -676,7 +690,22 @@ const API = {
         console.error("API ERROR :", result.message);
         return [];
       }
-      
+
+      if (Array.isArray(result.data)) {
+        result.data.forEach(k => {
+          if (k) {
+            k.id = k.id || k.idTransaksi || k.id_transaksi || '';
+            k.idTransaksi = k.idTransaksi || k.id || '';
+            k.jenis = k.jenis || k.tipe || 'Pemasukan';
+            k.keterangan = k.keterangan || k.deskripsi || '';
+            k.nominal = Number(k.nominal !== undefined ? k.nominal : (k.totalPembayaran !== undefined ? k.totalPembayaran : 0));
+            k.statusPembayaran = k.statusPembayaran || (k.nominal > 0 ? 'Lunas' : 'Belum');
+            k.metodePembayaran = k.metodePembayaran || k.metodeBayarDp || k.metodeBayarPelunasan || 'QRIS';
+            if (k.tanggal) k.tanggal = window.parseSafeDateString(k.tanggal);
+          }
+        });
+      }
+
       APICache.keuangan = result.data;
       APICache.keuanganTime = Date.now();
       if (Array.isArray(result.data)) {
@@ -824,10 +853,7 @@ const API = {
     // Fallback & Enrichment: Build complete Dashboard data client-side from Proyek & Keuangan APIs
     try {
       const projects = (await API.getProyek()) || [];
-      const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
-      const role = (user && user.role) ? user.role.toLowerCase().trim() : 'service';
-      const canKeuangan = !user || user.username === "wansmin" || role.includes("admin") || role.includes("service") || Auth.hasPermission("keuangan:read");
-      const keuanganList = canKeuangan ? ((await API.getKeuangan()) || []) : [];
+      const keuanganList = (await API.getKeuangan()) || [];
 
       const dashboardData = API.buildDashboardData(projects, keuanganList);
       if (backendStats && dashboardData.stats) {
@@ -1562,7 +1588,6 @@ const API = {
     const currUser = API.getCurrentUser();
     const role = currUser.role || "super_admin";
     const userId = currUser.id || "USR-001";
-    const permissions = JSON.stringify(currUser.permissions || []);
 
     const getLocalInvoices = () => {
       try {
@@ -1578,7 +1603,7 @@ const API = {
     };
 
     try {
-      const url = `${CONFIG.API_URL}?action=getInvoices&apiKey=${CONFIG.API_KEY}&token=${API.getToken()}&role=${encodeURIComponent(role)}&userId=${encodeURIComponent(userId)}&permissions=${encodeURIComponent(permissions)}`;
+      const url = `${CONFIG.API_URL}?action=getInvoices&apiKey=${CONFIG.API_KEY}&token=${API.getToken()}&role=${encodeURIComponent(role)}&userId=${encodeURIComponent(userId)}`;
       const res = await fetch(url);
       const json = await res.json();
 
@@ -1628,7 +1653,6 @@ const API = {
     const currUser = API.getCurrentUser();
     const role = currUser.role || "super_admin";
     const userId = currUser.id || "USR-001";
-    const permissions = JSON.stringify(currUser.permissions || []);
 
     const nowIso = new Date().toISOString();
     const invoiceId = invoiceData.invoice_id || invoiceData.iDInvoice || invoiceData.id || `INV-${Date.now()}`;
@@ -1712,7 +1736,6 @@ const API = {
       body.append("apiKey", CONFIG.API_KEY);
       body.append("role", role);
       body.append("userId", userId);
-      body.append("permissions", permissions);
       body.append("data", JSON.stringify(prepared));
 
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });

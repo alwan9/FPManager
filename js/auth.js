@@ -231,57 +231,82 @@ const Auth = {
 
   getRole: () => {
     const u = Auth.getUser();
-    if (!u) return "service";
-    const r = String(u.role || "").toLowerCase().trim();
-    if (r === "super_admin" || r === "super admin" || r === "superadmin" || r.includes("admin") || u.username === "wansmin") return "super_admin";
-    if (r === "desainer" || r === "designer") return "designer";
-    return "service";
+    return (u && u.role) ? String(u.role).toLowerCase().trim() : "service";
   },
 
   isSuperAdmin: () => {
-    return Auth.getRole() === "super_admin";
+    const r = Auth.getRole();
+    const u = Auth.getUser();
+    return r === "super_admin" || r === "superadmin" || r.includes("admin") || (u && u.username === "wansmin");
   },
 
   isDesigner: () => {
-    return Auth.getRole() === "designer";
+    if (Auth.isSuperAdmin()) return false;
+    const r = Auth.getRole();
+    return r === "designer" || r === "desainer";
   },
 
   isService: () => {
-    return Auth.getRole() === "service";
+    if (Auth.isSuperAdmin() || Auth.isDesigner()) return false;
+    return true;
   },
 
-  hasPermission: (action) => {
-    if (!action) return true;
-    const role = Auth.getRole();
+  // Akses Halaman Sesuai Role
+  canAccessPage: (pageName) => {
+    const path = String(pageName || window.location.pathname || "").toLowerCase();
+    const file = path.split("/").pop() || "index.html";
 
-    // 1. Super Admin: full unrestricted access
-    if (role === "super_admin") return true;
+    if (Auth.isSuperAdmin()) return true;
 
-    const normAction = String(action).toLowerCase().trim().replace(/^projek:/i, "proyek:");
-
-    // 2. Designer: View project + CRUD own & super admin tools + Settings + Profile
-    if (role === "designer") {
-      const allowedActions = [
-        "home", "proyek:read", "proyek", "projek",
-        "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate", "tools",
-        "settings", "pengaturan", "profile", "profil"
+    if (Auth.isDesigner()) {
+      const forbiddenForDesigner = [
+        "tambah-proyek.html", "tambah-proyek",
+        "keuangan.html", "keuangan",
+        "history-invoice.html", "history-invoice",
+        "laporan.html", "laporan",
+        "admin-tasks.html", "admin-tasks",
+        "user-management.html", "user-management"
       ];
-      return allowedActions.includes(normAction) || normAction.startsWith("tools:");
+      return !forbiddenForDesigner.some(f => file === f || file.startsWith(f));
     }
 
-    // 3. Service: Full CRUD Project + Import/Export + Financials + Admin Tasks + Settings + Profile
-    if (role === "service") {
+    if (Auth.isService()) {
       const forbiddenForService = [
-        "tools:read", "tools:create", "tools:update", "tools:delete", "tools:generate", "tools",
-        "users:read", "users:create", "users:update", "users:delete", "users:manage_role", "users", "user_management"
+        "tools.html", "tools",
+        "user-management.html", "user-management"
       ];
-      if (forbiddenForService.includes(normAction) || normAction.startsWith("tools:") || normAction.startsWith("users:")) {
-        return false;
-      }
-      return true;
+      return !forbiddenForService.some(f => file === f || file.startsWith(f));
     }
 
-    return false;
+    return true;
+  },
+
+  canAddProject: () => {
+    return Auth.isSuperAdmin() || Auth.isService();
+  },
+
+  canModifyProject: () => {
+    return true;
+  },
+
+  canAccessKeuangan: () => {
+    return Auth.isSuperAdmin() || Auth.isService();
+  },
+
+  canAccessTools: () => {
+    return Auth.isSuperAdmin() || Auth.isDesigner();
+  },
+
+  canManageUsers: () => {
+    return Auth.isSuperAdmin();
+  },
+
+  hasPermission: (perm) => {
+    if (Auth.isSuperAdmin()) return true;
+    if (perm === 'manage_users' || perm === 'settings') return false;
+    if (Auth.isDesigner() && (perm === 'tambah' || perm === 'tambah_proyek' || perm === 'add_project' || perm === 'keuangan' || perm === 'admin_tasks' || perm === 'laporan')) return false;
+    if (Auth.isService() && (perm === 'tools' || perm === 'crud_tools')) return false;
+    return true;
   },
 
   formatAvatarUrl: (url) => {
@@ -327,21 +352,19 @@ const Auth = {
       if (!path.includes('profil.html')) return;
 
       if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
-        if (Auth.isSuperAdmin()) {
-          const users = await API.getUsers();
-          if (Array.isArray(users) && users.length > 0) {
-            const freshUser = users.find(u => 
-              (currentUser.id && String(u.id) === String(currentUser.id)) || 
-              (currentUser.username && String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase())
-            );
-            if (freshUser) {
-              if (!freshUser.avatar) {
-                freshUser.avatar = freshUser.url_profile || freshUser.urlprofile || freshUser.foto || freshUser.photo || freshUser.Url_profile || "";
-              }
-              Auth.syncUserSession(freshUser);
-              if (typeof loadProfileData === 'function') {
-                loadProfileData();
-              }
+        const users = await API.getUsers();
+        if (Array.isArray(users) && users.length > 0) {
+          const freshUser = users.find(u => 
+            (currentUser.id && String(u.id) === String(currentUser.id)) || 
+            (currentUser.username && String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase())
+          );
+          if (freshUser) {
+            if (!freshUser.avatar) {
+              freshUser.avatar = freshUser.url_profile || freshUser.urlprofile || freshUser.foto || freshUser.photo || freshUser.Url_profile || "";
+            }
+            Auth.syncUserSession(freshUser);
+            if (typeof loadProfileData === 'function') {
+              loadProfileData();
             }
           }
         }
@@ -371,50 +394,28 @@ const Auth = {
       Auth.guardCurrentPage();
       Auth.applyMenuPermissions();
       Auth.applyButtonPermissions();
-
       Auth.refreshCurrentUserProfile();
     }
   },
 
   guardCurrentPage: () => {
-    const user = Auth.getUser();
-    if (!user) return;
+    const token = Auth.getToken();
+    if (!token) return;
 
-    if (Auth.isSuperAdmin()) return;
+    const path = (window.location.pathname || "").toLowerCase();
+    const file = path.split("/").pop() || "index.html";
+    if (file === "login.html" || file === "login") return;
 
-    const path = window.location.pathname.toLowerCase();
-    const role = Auth.getRole();
-
-    let isDenied = false;
-
-    if (role === "designer") {
-      // Designer can ONLY access: index.html, proyek.html, tools.html, pengaturan.html, profil.html
-      const forbiddenForDesigner = [
-        "tambah-proyek.html", "keuangan.html", "history-invoice.html", "laporan.html",
-        "admin-tasks.html", "user-management.html"
-      ];
-      isDenied = forbiddenForDesigner.some(p => path.includes(p));
-    } else if (role === "service") {
-      // Service can access: index.html, proyek.html, tambah-proyek.html, keuangan.html, history-invoice.html, laporan.html, admin-tasks.html, pengaturan.html, profil.html
-      // Service CANNOT access: tools.html, user-management.html
-      const forbiddenForService = ["tools.html", "user-management.html"];
-      isDenied = forbiddenForService.some(p => path.includes(p));
-    }
-
-    if (isDenied) {
-      sessionStorage.setItem("toast_denied", "Akses Ditolak: Role " + (role === "designer" ? "Designer" : "Service") + " tidak memiliki izin untuk halaman ini.");
-      window.location.href = role === "designer" ? "proyek.html" : "index.html";
+    if (!Auth.canAccessPage(file)) {
+      console.warn(`[Auth Guard] Akses ke ${file} ditolak untuk role: ${Auth.getRole()}`);
+      sessionStorage.setItem("toast_denied", "Anda tidak memiliki izin untuk mengakses halaman tersebut.");
+      window.location.href = "index.html";
     }
   },
 
   renderMobileBottomNav: () => {
     const bottomNav = document.getElementById("mobileBottomNav");
     if (!bottomNav) return;
-
-    const user = Auth.getUser();
-    if (!user) return;
-
-    const isDesigner = Auth.isDesigner();
 
     // Determine current active page
     const currentPath = (window.location.pathname || "").toLowerCase();
@@ -433,25 +434,25 @@ const Auth = {
     const activeClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-indigo-400 font-bold";
     const inactiveClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium";
 
-    if (isDesigner) {
-      // Role Designer: EXACTLY 4 Menus [ Home ] — [ Project ] — [ Tools ] — [ Profile ]
+    if (Auth.isDesigner()) {
+      // Designer: Home, Projek, Tools, Profil
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
-          <i class="fa-solid fa-house text-base"></i>
+          <i class="fa-solid fa-chart-line text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
         </a>
 
         <!-- 2. Project -->
         <a href="proyek.html" class="${isProyek ? activeClass : inactiveClass}">
-          <i class="fa-solid fa-folder-open text-base"></i>
+          <i class="fa-solid fa-list-check text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tools -->
         <a href="tools.html" class="${isTools ? activeClass : inactiveClass}">
           <i class="fa-solid fa-toolbox text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-tools">Tools</span>
+          <span class="text-[10px] mt-0.5">Tools</span>
         </a>
 
         <!-- 4. Profile -->
@@ -461,7 +462,7 @@ const Auth = {
         </a>
       `;
     } else {
-      // Role Service / Super Admin: 5 Menus [ Home | Project | + Tambah | Keuangan Group | Profile ]
+      // Super Admin & Service: Home, Projek, Tambah, Keuangan, Profil
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
@@ -499,55 +500,55 @@ const Auth = {
           <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
         </a>
       `;
+    }
 
-      let backdrop = document.getElementById("mobileKeuanganBackdrop");
-      if (!backdrop) {
-        backdrop = document.createElement("div");
-        backdrop.id = "mobileKeuanganBackdrop";
-        backdrop.className = "md:hidden fixed inset-0";
-        backdrop.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          Auth.toggleMobileKeuanganMenu(false);
-        };
-        document.body.appendChild(backdrop);
-      }
+    let backdrop = document.getElementById("mobileKeuanganBackdrop");
+    if (!backdrop) {
+      backdrop = document.createElement("div");
+      backdrop.id = "mobileKeuanganBackdrop";
+      backdrop.className = "md:hidden fixed inset-0";
+      backdrop.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        Auth.toggleMobileKeuanganMenu(false);
+      };
+      document.body.appendChild(backdrop);
+    }
 
-      let popover = document.getElementById("mobileKeuanganPopover");
-      if (!popover) {
-        popover = document.createElement("div");
-        popover.id = "mobileKeuanganPopover";
-        popover.className = "md:hidden fixed";
-        document.body.appendChild(popover);
-      }
+    let popover = document.getElementById("mobileKeuanganPopover");
+    if (!popover) {
+      popover = document.createElement("div");
+      popover.id = "mobileKeuanganPopover";
+      popover.className = "md:hidden fixed";
+      document.body.appendChild(popover);
+    }
 
-      if (popover) {
-        popover.innerHTML = `
-          <div class="popover-header">
-            <span class="text-xs font-bold popover-title flex items-center gap-2">
-              <i class="fa-solid fa-wallet text-indigo-500"></i>
-              <span data-i18n="nav-keuangan-group">Keuangan</span>
-            </span>
-            <button type="button" onclick="Auth.toggleMobileKeuanganMenu(false)" class="text-zinc-400 hover:text-white p-1 focus:outline-none" title="Tutup">
-              <i class="fa-solid fa-xmark text-xs"></i>
-            </button>
-          </div>
-          <div class="flex flex-col space-y-1">
-            <a href="keuangan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
-              <i class="fa-solid fa-coins text-sm text-indigo-400 w-5"></i>
-              <span data-i18n="nav-keuangan">Keuangan</span>
-            </a>
-            <a href="history-invoice.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
-              <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
-              <span data-i18n="nav-history-invoice">History Invoice</span>
-            </a>
-            <a href="laporan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isLaporan ? 'active-sub' : ''}">
-              <i class="fa-solid fa-file-invoice-dollar text-sm text-indigo-400 w-5"></i>
-              <span data-i18n="nav-laporan">Laporan</span>
-            </a>
-          </div>
-        `;
-      }
+    if (popover) {
+      popover.innerHTML = `
+        <div class="popover-header">
+          <span class="text-xs font-bold popover-title flex items-center gap-2">
+            <i class="fa-solid fa-wallet text-indigo-500"></i>
+            <span data-i18n="nav-keuangan-group">Keuangan</span>
+          </span>
+          <button type="button" onclick="Auth.toggleMobileKeuanganMenu(false)" class="text-zinc-400 hover:text-white p-1 focus:outline-none" title="Tutup">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+        <div class="flex flex-col space-y-1">
+          <a href="keuangan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
+            <i class="fa-solid fa-coins text-sm text-indigo-400 w-5"></i>
+            <span data-i18n="nav-keuangan">Keuangan</span>
+          </a>
+          <a href="history-invoice.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
+            <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
+            <span data-i18n="nav-history-invoice">History Invoice</span>
+          </a>
+          <a href="laporan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isLaporan ? 'active-sub' : ''}">
+            <i class="fa-solid fa-file-invoice-dollar text-sm text-indigo-400 w-5"></i>
+            <span data-i18n="nav-laporan">Laporan</span>
+          </a>
+        </div>
+      `;
     }
 
     if (typeof i18n !== 'undefined' && i18n.translatePage) {
@@ -647,97 +648,103 @@ const Auth = {
     const user = Auth.getUser();
     if (!user) return;
 
-    const isSuperAdmin = Auth.isSuperAdmin();
-    const isDesigner = Auth.isDesigner();
-    const isService = Auth.isService();
-
     // 1. Render Mobile Bottom Navigation
     Auth.renderMobileBottomNav();
 
     // 2. Initialize desktop sidebar group
     Auth.initSidebarNavGroup();
 
-    // 3. Filter sidebar navigation links inside navMenu
-    const navLinks = document.querySelectorAll("#navMenu .sidebar-link");
+    // 3. Filter desktop sidebar navigation based on role
+    const isSuper = Auth.isSuperAdmin();
+    const isDes = Auth.isDesigner();
+    const isServ = Auth.isService();
+
+    const navLinks = document.querySelectorAll("#navMenu .sidebar-link, #navMenu a");
     navLinks.forEach(el => {
-      if (el.id === "pwaInstallBtn" || el.id === "btnNavKeuanganToggle") return;
-
       const href = (el.getAttribute("href") || "").toLowerCase();
-
-      let isAllowed = true;
-      if (isSuperAdmin) {
-        isAllowed = true;
-      } else if (isDesigner) {
-        // Designer only has: Home, Project (view), Tools, Settings, Profile
-        if (href.includes("tambah-proyek.html") ||
-            href.includes("keuangan.html") ||
-            href.includes("history-invoice.html") ||
-            href.includes("laporan.html") ||
-            href.includes("admin-tasks.html") ||
-            href.includes("user-management.html")) {
-          isAllowed = false;
-        }
-      } else if (isService) {
-        // Service has: Home, Project, Tambah, Keuangan, History Invoice, Laporan, Admin Tasks, Settings, Profile
-        // Service CANNOT access: Tools, User Management
-        if (href.includes("tools.html") || href.includes("user-management.html")) {
-          isAllowed = false;
+      
+      // Keuangan Group
+      if (el.closest("#navKeuanganGroup")) {
+        if (isDes) {
+          el.closest("#navKeuanganGroup").classList.add("hidden");
+        } else {
+          el.closest("#navKeuanganGroup").classList.remove("hidden");
         }
       }
 
-      if (isAllowed) {
+      // Tambah Projek
+      if (href.includes("tambah-proyek.html")) {
+        if (!Auth.canAddProject()) {
+          el.classList.add("hidden");
+        } else {
+          el.classList.remove("hidden");
+        }
+      }
+
+      // Admin Tasks
+      if (href.includes("admin-tasks.html")) {
+        if (isDes) {
+          el.classList.add("hidden");
+        } else {
+          el.classList.remove("hidden");
+        }
+      }
+
+      // Tools
+      if (href.includes("tools.html")) {
+        if (!Auth.canAccessTools()) {
+          el.classList.add("hidden");
+        } else {
+          el.classList.remove("hidden");
+        }
+      }
+
+      // User Management
+      if (href.includes("user-management.html")) {
+        if (!isSuper) {
+          el.classList.add("hidden");
+        } else {
+          el.classList.remove("hidden");
+        }
+      }
+
+      // Pengaturan (Tersedia untuk semua role)
+      if (href.includes("pengaturan.html")) {
         el.classList.remove("hidden");
-        el.style.display = "";
-      } else {
-        el.classList.add("hidden");
-        el.style.display = "none";
       }
     });
 
-    // 4. Handle Keuangan Group in Sidebar (Hidden for Designer, Shown for Service & Super Admin)
-    const groupEl = document.getElementById("navKeuanganGroup");
-    if (groupEl) {
-      if (isDesigner) {
-        groupEl.classList.add("hidden");
-        groupEl.style.display = "none";
+    const groupKeuangan = document.getElementById("navKeuanganGroup");
+    if (groupKeuangan) {
+      if (isDes) {
+        groupKeuangan.classList.add("hidden");
       } else {
-        groupEl.classList.remove("hidden");
-        groupEl.style.display = "";
+        groupKeuangan.classList.remove("hidden");
       }
     }
 
-    // 5. Filter profile dropdown links
+    // 4. Filter profile dropdown links
     const dropdownLinks = document.querySelectorAll("#profileDropdown a");
     dropdownLinks.forEach(el => {
       const href = (el.getAttribute("href") || "").toLowerCase();
-      let isAllowed = true;
-      if (isSuperAdmin) {
-        isAllowed = true;
-      } else if (isDesigner) {
-        if (href.includes("tambah-proyek.html") ||
-            href.includes("keuangan.html") ||
-            href.includes("history-invoice.html") ||
-            href.includes("laporan.html") ||
-            href.includes("admin-tasks.html") ||
-            href.includes("user-management.html")) {
-          isAllowed = false;
-        }
-      } else if (isService) {
-        if (href.includes("tools.html") || href.includes("user-management.html")) {
-          isAllowed = false;
-        }
+      if (href.includes("keuangan.html") || href.includes("laporan.html") || href.includes("admin-tasks.html")) {
+        if (isDes) el.classList.add("hidden");
+        else el.classList.remove("hidden");
       }
-
-      if (isAllowed) {
+      if (href.includes("tools.html")) {
+        if (!Auth.canAccessTools()) el.classList.add("hidden");
+        else el.classList.remove("hidden");
+      }
+      if (href.includes("user-management.html")) {
+        if (!isSuper) el.classList.add("hidden");
+        else el.classList.remove("hidden");
+      }
+      if (href.includes("pengaturan.html")) {
         el.classList.remove("hidden");
-        el.style.display = "";
-      } else {
-        el.classList.add("hidden");
-        el.style.display = "none";
       }
     });
 
-    // Close mobile Keuangan popover when clicking anywhere outside
+    // Close mobile Keuangan popover when clicking outside
     document.addEventListener("click", (e) => {
       const popover = document.getElementById("mobileKeuanganPopover");
       const btn = document.getElementById("btnMobileKeuanganNav");
@@ -748,16 +755,14 @@ const Auth = {
       }
     });
 
-    // Update Profile Name / Badge / Avatar in Top Navbar
+    // 5. Update Profile Avatar & Username
     const profileBtn = document.getElementById("profileDropdownBtn");
     if (profileBtn) {
       const rawAvatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
       const avatarUrl = Auth.formatAvatarUrl(rawAvatar);
       const initial = (user.name || user.username || "A").charAt(0).toUpperCase();
       const displayName = user.name || user.username || "User";
-      const displayRole = isSuperAdmin ? "Super Admin" : (isDesigner ? "Designer" : "Service");
 
-      // Check if already rendered to prevent redundant image requests causing 429
       const currentAvatarKey = profileBtn.getAttribute("data-rendered-avatar") || "";
       const targetAvatarKey = `${user.id || user.username}_${avatarUrl}`;
 
@@ -790,67 +795,47 @@ const Auth = {
         }
       }
 
-      profileBtn.title = `${displayName} (${displayRole})`;
+      profileBtn.title = displayName;
     }
 
+    // 6. Update Top Header Role Badge
     const userRoleBadge = document.getElementById("headerUserRoleBadge");
     if (userRoleBadge) {
-      const displayRole = isSuperAdmin ? "SUPER ADMIN" : (isDesigner ? "DESIGNER" : "SERVICE");
-      userRoleBadge.innerText = displayRole;
-      userRoleBadge.classList.remove("hidden");
+      if (isSuper) {
+        userRoleBadge.innerText = "SUPER ADMIN";
+        userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800";
+      } else if (isDes) {
+        userRoleBadge.innerText = "DESIGNER";
+        userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+      } else {
+        userRoleBadge.innerText = "SERVICE";
+        userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
+      }
     }
   },
 
   applyButtonPermissions: () => {
-    const user = Auth.getUser();
-    if (!user) return;
+    // Tombol-tombol khusus yang hanya boleh untuk Super Admin atau Service
+    if (Auth.isDesigner()) {
+      const bulkDeleteBtn = document.getElementById("btnBulkDelete");
+      if (bulkDeleteBtn) bulkDeleteBtn.style.display = "none";
 
-    const isSuperAdmin = Auth.isSuperAdmin();
-    const isDesigner = Auth.isDesigner();
-    const isService = Auth.isService();
+      const bulkInvoiceBtn = document.getElementById("btnBulkCreateInvoice");
+      if (bulkInvoiceBtn) bulkInvoiceBtn.style.display = "none";
 
-    // If Designer on Proyek page, hide CUD buttons, bulk actions, import/export
-    if (isDesigner) {
-      const elementsToHide = document.querySelectorAll(`
-        #btnTambahProyek,
-        #btnTambahProyekMobile,
-        #btnBulkDelete,
-        #btnBulkCreateInvoice,
-        #excelDropdownGroup,
-        #btnImportExcel,
-        #btnExportExcel,
-        .btn-action-edit,
-        .btn-action-delete,
-        .btn-action-invoice,
-        .table-action-edit,
-        .table-action-delete,
-        [data-permission-allow="proyek:create"],
-        [data-permission-allow="proyek:update"],
-        [data-permission-allow="proyek:delete"],
-        [data-permission-allow="proyek:import"],
-        [data-permission-allow="proyek:export"],
-        [data-permission-allow="invoice:create"]
-      `);
-      elementsToHide.forEach(el => {
-        el.classList.add("hidden");
-        el.style.display = "none";
-      });
-    }
-
-    // Generic button permission tag handling
-    const permButtons = document.querySelectorAll("[data-permission-allow]");
-    permButtons.forEach(btn => {
-      if (btn.closest("#navMenu") || btn.closest("#profileDropdown") || btn.id === "btnBulkDelete" || btn.id === "btnBulkDeleteKeuangan" || btn.classList.contains("btn-bulk-action")) return;
-      const permNeeded = btn.getAttribute("data-permission-allow");
-      const isAllowed = isSuperAdmin || Auth.hasPermission(permNeeded);
-      if (isAllowed) {
-        btn.classList.remove("hidden");
-        btn.style.display = "";
-      } else {
-        btn.classList.add("hidden");
+      const addProjectButtons = document.querySelectorAll('a[href*="tambah-proyek.html"], button[onclick*="tambah-proyek"]');
+      addProjectButtons.forEach(btn => {
         btn.style.display = "none";
-      }
-    });
+      });
+
+      const excelGroup = document.getElementById("excelDropdownGroup");
+      if (excelGroup) excelGroup.style.display = "none";
+    }
+  },
+
+  applyRoleAccess: () => {
+    Auth.applyMenuPermissions();
+    Auth.applyButtonPermissions();
   },
 
   logout: async () => {

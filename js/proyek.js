@@ -8,24 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
     apiStatusBadge.className = 'inline-flex items-center justify-center p-1.5';
     apiStatusBadge.title = 'Live Google Sheets Connected';
   }
+
+  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const btnBlankInvoice = document.getElementById('btnBlankInvoice');
+  if (btnBlankInvoice) {
+    if (isDes) {
+      btnBlankInvoice.classList.add('hidden');
+    } else {
+      btnBlankInvoice.classList.remove('hidden');
+    }
+  }
+
   // Load Data
   loadProyekData();
 });
 // Load proyek data and initialize DataTables
 async function loadProyekData() {
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:read')) {
-    const mainArea = document.querySelector('main section') || document.querySelector('main');
-    if (mainArea) {
-      mainArea.innerHTML = `
-        <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-center my-8 shadow-sm">
-          <i class="fa-solid fa-lock text-4xl text-rose-500 mb-3"></i>
-          <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Akses Ditolak</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda tidak memiliki izin (proyek:read) untuk melihat data projek.</p>
-        </div>
-      `;
-    }
-    return;
-  }
   showProyekSkeletons();
   try {
     let listProyek = await API.getProyek();
@@ -127,70 +125,95 @@ function initTable(data) {
   $('#proyekTable tbody').empty();
   table = $('#proyekTable').DataTable({
     autoWidth: false,
-    data: data,
+    data: Array.isArray(data) ? data : [],
+    columnDefs: [
+      { defaultContent: '', targets: '_all' }
+    ],
     columns: [
       {
         data: null,
         orderable: false,
         className: 'text-center w-10',
-        render: function (data) {
-          return `<input type="checkbox" value="${data.iDProyek}" class="proyek-checkbox rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle">`;
+        render: function (data, type, row) {
+          const rowData = row || data || {};
+          const id = rowData.iDProyek || rowData.idProjek || rowData.id || '';
+          return `<input type="checkbox" value="${escapeHtml(id)}" class="proyek-checkbox rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle">`;
         }
       },
       {
         data: 'iDProyek',
         className: 'hidden md:table-cell',
         render: function (data, type, row) {
-          const uid = (row && row.userId) || 'USR-001';
+          const rowData = row || {};
+          const id = data || rowData.iDProyek || rowData.idProjek || rowData.id || '';
+          const uid = rowData.userId || 'USR-001';
           return `
             <div>
-              <div><span onclick="copyTextToClipboard('${escapeHtml(data)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(data)}</span></div>
+              <div><span onclick="copyTextToClipboard('${escapeHtml(id)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(id)}</span></div>
               <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>
             </div>
           `;
         }
       },
-      { data: 'tanggal', visible: false },
+      {
+        data: 'tanggal',
+        visible: false,
+        render: function (data, type, row) {
+          return (row && (row.tanggal || row.createdAt)) || data || '';
+        }
+      },
       {
         data: 'namaProyek',
         render: function (data, type, row) {
-          const sumber = (row && row.sumber) ? row.sumber : 'WhatsApp';
+          const rowData = row || {};
+          const name = data || rowData.namaProyek || rowData.nama_projek || rowData.proyek || '';
+          const sumber = (rowData && rowData.sumber) ? rowData.sumber : 'WhatsApp';
           let sourceBadge = '';
           if (sumber.toLowerCase() === 'shopee') {
             sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800 ml-1.5 align-middle" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[9px] text-orange-500"></i> Shopee</span>`;
           } else if (sumber.toLowerCase() === 'fiverr') {
             sourceBadge = `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 ml-1.5 align-middle" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[9px] text-emerald-500"></i> Fiverr</span>`;
           }
-          return `<div><span class="font-medium text-zinc-900 dark:text-zinc-100">${escapeHtml(data || '')}</span> ${sourceBadge}</div>`;
+          return `<div><span class="font-medium text-zinc-900 dark:text-zinc-100">${escapeHtml(name)}</span> ${sourceBadge}</div>`;
         }
       },
       {
         data: 'namaPelanggan',
         className: 'hidden md:table-cell',
-        render: function (data) {
-          return escapeHtml(data || '');
+        render: function (data, type, row) {
+          const rowData = row || {};
+          return escapeHtml(data || rowData.namaPelanggan || rowData.pelanggan || '');
         }
       },
       {
         data: 'nomorWA',
-        render: function (data) {
-          return `<span onclick="copyTextToClipboard('${escapeHtml(data)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold" title="Klik untuk salin Nomor WA">+${escapeHtml(data)}</span>`;
+        render: function (data, type, row) {
+          const rowData = row || {};
+          const wa = data || rowData.nomorWA || rowData.noWa || '';
+          if (!wa) return '<span class="text-zinc-400 text-xs italic">-</span>';
+          return `<span onclick="copyTextToClipboard('${escapeHtml(wa)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold" title="Klik untuk salin Nomor WA">+${escapeHtml(wa)}</span>`;
         }
       },
       {
         data: 'dP',
+        visible: !(typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()),
         render: function (data, type, row) {
-          const dpVal = Number(data !== undefined ? data : (row.totalDp !== undefined ? row.totalDp : (row.dp !== undefined ? row.dp : 0))) || 0;
+          if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) return '-';
+          const rowData = row || {};
+          const dpVal = Number(data !== undefined ? data : (rowData.totalDp !== undefined ? rowData.totalDp : (rowData.dp !== undefined ? rowData.dp : 0))) || 0;
           return `<span class="font-semibold text-zinc-900 dark:text-zinc-100">${formatRupiah(dpVal)}</span>`;
         }
       },
       {
         data: 'pelunasan',
         className: 'hidden md:table-cell',
+        visible: !(typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()),
         render: function (data, type, row) {
-          const totalNom = Number(row.nominalProyek || row.totalPembayaran || row.nominal || 0);
-          const dpVal = Number(row.dP !== undefined ? row.dP : (row.totalDp !== undefined ? row.totalDp : (row.dp !== undefined ? row.dp : 0))) || 0;
-          let pelunasanVal = Number(data !== undefined ? data : (row.totalPelunasan !== undefined ? row.totalPelunasan : (row.pelunasan !== undefined ? row.pelunasan : 0))) || 0;
+          if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) return '-';
+          const rowData = row || {};
+          const totalNom = Number(rowData.nominalProyek || rowData.totalPembayaran || rowData.nominal || 0);
+          const dpVal = Number(rowData.dP !== undefined ? rowData.dP : (rowData.totalDp !== undefined ? rowData.totalDp : (rowData.dp !== undefined ? rowData.dp : 0))) || 0;
+          let pelunasanVal = Number(data !== undefined ? data : (rowData.totalPelunasan !== undefined ? rowData.totalPelunasan : (rowData.pelunasan !== undefined ? rowData.pelunasan : 0))) || 0;
           if (pelunasanVal <= 0 && totalNom > dpVal) {
             pelunasanVal = Math.max(0, totalNom - dpVal);
           }
@@ -232,7 +255,7 @@ function initTable(data) {
               diffDays = Math.round((dlDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
             }
 
-            const st = String(row.status || '').toLowerCase().trim();
+            const st = String((row && row.status) || '').toLowerCase().trim();
             const isFinished = st.includes('selesai') || st.includes('batal') || st.includes('dibatalkan');
 
             const isWaitingOrProgress = st.includes('menunggu') || st.includes('dikerjakan');
@@ -300,6 +323,8 @@ function initTable(data) {
         render: function (data, type, row) {
           if (type === 'display') {
             const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+            const rowData = row || {};
+            const prjId = rowData.iDProyek || rowData.idProjek || rowData.id || '';
             const statusOptions = ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
             const statusLabels = isEn ? {
               'Menunggu': 'Waiting',
@@ -316,16 +341,12 @@ function initTable(data) {
               'Belum Pembayaran': 'Belum Pembayaran',
               'Dibatalkan': 'Dibatalkan'
             };
-            const statusStr = String(data || '').trim();
+            const statusStr = String(data || rowData.status || '').trim();
             let badgeKey = statusStr.toLowerCase().replace(/\s+/g, '');
             if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
             const badgeClass = 'badge-' + badgeKey;
-            const canUpdateStatus = (typeof Auth === 'undefined' || Auth.hasPermission('proyek:update'));
-            if (!canUpdateStatus) {
-              return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${badgeClass}">${statusLabels[statusStr] || statusStr}</span>`;
-            }
 
-            let selectHtml = `<select onchange="const k=this.value.toLowerCase().replace(/\\s+/g,''); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k==='dikerjakan'?'sedangdikerjakan':k); updateProyekStatus('${row.iDProyek}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
+            let selectHtml = `<select onchange="const k=this.value.toLowerCase().replace(/\\s+/g,''); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k==='dikerjakan'?'sedangdikerjakan':k); updateProyekStatus('${escapeHtml(prjId)}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
 
             statusOptions.forEach(opt => {
               const selected = (opt.toLowerCase() === statusStr.toLowerCase()) ? 'selected' : '';
@@ -356,28 +377,39 @@ function initTable(data) {
       {
         data: null,
         orderable: false,
-        render: function (data) {
-          const canUpdate = (typeof Auth === 'undefined' || Auth.hasPermission('proyek:update'));
-          const canDelete = (typeof Auth === 'undefined' || Auth.hasPermission('proyek:delete'));
+        render: function (data, type, row) {
+          const rowData = row || data || {};
+          const id = rowData.iDProyek || rowData.idProjek || rowData.id || '';
+          const escapedId = escapeHtml(id);
+          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+
+          if (isDes) {
+            return `
+              <div class="flex space-x-1.5">
+                <button onclick="viewDetail('${escapedId}')" class="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-md text-xs font-semibold" title="Detail Proyek (Read Only)">
+                  <i class="fa-solid fa-eye mr-1"></i> Detail
+                </button>
+                <button onclick="syncCalendarPromptByProyekId('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
+                  <i class="fa-solid fa-calendar-plus"></i>
+                </button>
+              </div>
+            `;
+          }
 
           return `
             <div class="flex space-x-1.5">
-              <button onclick="viewDetail('${data.iDProyek}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
+              <button onclick="viewDetail('${escapedId}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button onclick="syncCalendarPromptByProyekId('${data.iDProyek}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
+              <button onclick="syncCalendarPromptByProyekId('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
                 <i class="fa-solid fa-calendar-plus"></i>
               </button>
-              ${canUpdate ? `
-              <a href="tambah-proyek.html?id=${encodeURIComponent(data.iDProyek)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => p.iDProyek === '${data.iDProyek}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Proyek">
+              <a href="tambah-proyek.html?id=${encodeURIComponent(id)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => (p.iDProyek || p.idProjek || p.id) === '${escapedId}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Proyek">
                 <i class="fa-solid fa-pen"></i>
               </a>
-              ` : ''}
-              ${canDelete ? `
-              <button onclick="hapusProyek('${data.iDProyek}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Proyek">
+              <button onclick="hapusProyek('${escapedId}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Proyek">
                 <i class="fa-solid fa-trash"></i>
               </button>
-              ` : ''}
             </div>
           `;
         }
@@ -385,7 +417,8 @@ function initTable(data) {
       {
         data: 'statusOrder',
         visible: false,
-        searchable: false
+        searchable: false,
+        defaultContent: 99
       }
     ],
     orderFixed: {
@@ -808,6 +841,35 @@ function populateDetailModal(proyek) {
     if (gdriveLinkInput) gdriveLinkInput.value = '';
   }
 
+  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+
+  const detailFinancialCard = document.getElementById('detailFinancialCard');
+  if (detailFinancialCard) {
+    if (isDesigner) {
+      detailFinancialCard.classList.add('hidden');
+    } else {
+      detailFinancialCard.classList.remove('hidden');
+    }
+  }
+
+  const modalHargaSatuanContainer = document.getElementById('modalHargaSatuanContainer');
+  if (modalHargaSatuanContainer) {
+    if (isDesigner) {
+      modalHargaSatuanContainer.classList.add('hidden');
+    } else {
+      modalHargaSatuanContainer.classList.remove('hidden');
+    }
+  }
+
+  const modalMetodeContainer = document.getElementById('modalMetodeContainer');
+  if (modalMetodeContainer) {
+    if (isDesigner) {
+      modalMetodeContainer.classList.add('hidden');
+    } else {
+      modalMetodeContainer.classList.remove('hidden');
+    }
+  }
+
   // 12. Action Buttons in Footer
   const modalCalendarBtn = document.getElementById('modalCalendarBtn');
   if (modalCalendarBtn) {
@@ -821,7 +883,7 @@ function populateDetailModal(proyek) {
 
   const modalEditBtn = document.getElementById('modalEditBtn');
   if (modalEditBtn) {
-    if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:update')) {
+    if (isDesigner) {
       modalEditBtn.classList.add('hidden');
     } else {
       modalEditBtn.classList.remove('hidden');
@@ -834,7 +896,7 @@ function populateDetailModal(proyek) {
 
   const modalInvoiceBtn = document.getElementById('modalInvoiceBtn');
   if (modalInvoiceBtn) {
-    if (typeof Auth !== 'undefined' && !Auth.hasPermission('invoice:read') && !Auth.hasPermission('invoice:create')) {
+    if (isDesigner) {
       modalInvoiceBtn.classList.add('hidden');
     } else {
       modalInvoiceBtn.classList.remove('hidden');
@@ -846,7 +908,7 @@ function populateDetailModal(proyek) {
 
   const modalHapusBtn = document.getElementById('modalHapusBtn');
   if (modalHapusBtn) {
-    if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:delete')) {
+    if (isDesigner) {
       modalHapusBtn.classList.add('hidden');
     } else {
       modalHapusBtn.classList.remove('hidden');
@@ -875,7 +937,7 @@ function populateDetailModal(proyek) {
   const hasilAIEl = document.getElementById('hasilAI');
   if (hasilAIEl) hasilAIEl.value = '';
 
-  // Enforce DOM Permissions
+  // Enforce DOM Role Visibility
   if (typeof Auth !== 'undefined') {
     if (typeof Auth.applyButtonPermissions === 'function') {
       Auth.applyButtonPermissions();
@@ -1082,14 +1144,6 @@ async function lunasiProyek() {
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('proyek:delete')) {
-    showToast({
-      title: isEn ? "Access Denied" : "Akses Ditolak",
-      message: isEn ? "You do not have permission to delete projects." : "Anda tidak memiliki izin untuk menghapus projek.",
-      type: "error"
-    });
-    return;
-  }
 
   let prjName = name || '';
   if (!prjName && window.allProyekList) {
@@ -1288,14 +1342,6 @@ function generateSmartLocalMessage(jenis, customPrompt, proyek, gdriveLink) {
 let isAIGenerating = false;
 async function generateAI(jenis) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (typeof Auth !== 'undefined' && !Auth.hasPermission('tools:generate') && !Auth.hasPermission('proyek:update') && !Auth.hasPermission('proyek:read')) {
-    showToast({
-      title: isEn ? "Access Denied" : "Akses Ditolak",
-      message: isEn ? "You do not have permission (tools:generate) to use the AI generator." : "Anda tidak memiliki izin (tools:generate) untuk membuat pesan otomatis dengan AI.",
-      type: "error"
-    });
-    return;
-  }
   if (isAIGenerating) return;
   if (!currentProyek) {
     showToast({
@@ -1563,7 +1609,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     const res = await API.updateProyek(id, payload);
     if (res.success) {
       // Sync Keuangan if status is Selesai
-      if (newStatus.toLowerCase() === 'selesai' && (typeof Auth === 'undefined' || Auth.hasPermission('keuangan:update') || Auth.hasPermission('keuangan:create'))) {
+      if (newStatus.toLowerCase() === 'selesai') {
         try {
           const keuanganList = await API.getKeuangan();
           const prjId = proyek.iDProyek;
@@ -1894,6 +1940,7 @@ function showProyekSkeletons() {
         <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>
         <td class="p-4"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="flex gap-2"><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div><div class="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded"></div></div></td>
+        <td class="p-4 hidden"><div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
       </tr>
     `).join('');
   }
@@ -2014,6 +2061,198 @@ document.addEventListener('click', (e) => {
 
 window.toggleExcelDropdown = toggleExcelDropdown;
 window.closeExcelDropdown = closeExcelDropdown;
+
+// ================= KALENDER DEADLINE PROJEK =================
+let calendarViewYear = new Date().getFullYear();
+let calendarViewMonth = new Date().getMonth(); // 0-11
+let calendarSelectedDateStr = '';
+
+function openProjectCalendarModal() {
+  const modal = document.getElementById('projectCalendarModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  renderProjectCalendar();
+}
+window.openProjectCalendarModal = openProjectCalendarModal;
+
+function closeProjectCalendarModal() {
+  const modal = document.getElementById('projectCalendarModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+window.closeProjectCalendarModal = closeProjectCalendarModal;
+
+function changeCalendarMonth(delta) {
+  calendarViewMonth += delta;
+  if (calendarViewMonth < 0) {
+    calendarViewMonth = 11;
+    calendarViewYear--;
+  } else if (calendarViewMonth > 11) {
+    calendarViewMonth = 0;
+    calendarViewYear++;
+  }
+  renderProjectCalendar();
+}
+window.changeCalendarMonth = changeCalendarMonth;
+
+function renderProjectCalendar() {
+  const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+  const monthYearLabel = document.getElementById('calendarMonthYearText');
+  if (monthYearLabel) {
+    monthYearLabel.textContent = `${monthNames[calendarViewMonth]} ${calendarViewYear}`;
+  }
+
+  const gridContainer = document.getElementById('calendarGridContainer');
+  if (!gridContainer) return;
+
+  const firstDay = new Date(calendarViewYear, calendarViewMonth, 1).getDay();
+  const totalDays = new Date(calendarViewYear, calendarViewMonth + 1, 0).getDate();
+
+  // Group active projects by deadline date string YYYY-MM-DD
+  const projectsByDate = {};
+  const allProjects = Array.isArray(window.allProyekList) ? window.allProyekList : [];
+  allProjects.forEach(p => {
+    if (!p.deadline) return;
+    const dl = (typeof window.parseSafeDateString === 'function')
+      ? window.parseSafeDateString(p.deadline)
+      : String(p.deadline).replace(/^'+/, '').split('T')[0];
+    if (dl) {
+      if (!projectsByDate[dl]) projectsByDate[dl] = [];
+      projectsByDate[dl].push(p);
+    }
+  });
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  let html = '';
+  // Day header row
+  dayNames.forEach(d => {
+    html += `<div class="font-bold text-zinc-400 dark:text-zinc-500 py-1.5 uppercase text-[11px]">${d}</div>`;
+  });
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="p-2 rounded-xl bg-zinc-50/50 dark:bg-zinc-900/30 opacity-30"></div>`;
+  }
+
+  // Days of month
+  for (let day = 1; day <= totalDays; day++) {
+    const dStr = `${calendarViewYear}-${String(calendarViewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dayProjects = projectsByDate[dStr] || [];
+    const isToday = (dStr === todayStr);
+    const isSelected = (dStr === calendarSelectedDateStr);
+
+    let dotsHtml = '';
+    if (dayProjects.length > 0) {
+      dotsHtml = `<div class="flex items-center justify-center gap-1 mt-1 flex-wrap">`;
+      dayProjects.slice(0, 3).forEach(p => {
+        const st = String(p.status || '').toLowerCase();
+        let dotColor = 'bg-blue-500';
+        if (st.includes('dikerjakan')) dotColor = 'bg-amber-500';
+        else if (st.includes('revisi')) dotColor = 'bg-rose-500';
+        else if (st.includes('selesai')) dotColor = 'bg-emerald-500';
+        dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>`;
+      });
+      if (dayProjects.length > 3) {
+        dotsHtml += `<span class="text-[9px] font-bold text-zinc-400">+${dayProjects.length - 3}</span>`;
+      }
+      dotsHtml += `</div>`;
+    }
+
+    const cellClass = isSelected
+      ? 'border-2 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 shadow-sm'
+      : (isToday
+          ? 'border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-zinc-800'
+          : (dayProjects.length > 0 ? 'bg-white dark:bg-zinc-800 hover:border-indigo-400 dark:hover:border-indigo-600 border border-zinc-200 dark:border-zinc-700/80 cursor-pointer' : 'bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 text-zinc-400 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800/80'));
+
+    html += `
+      <div onclick="selectCalendarDate('${dStr}')" class="p-2 sm:p-2.5 rounded-xl flex flex-col justify-between min-h-[58px] transition-all cursor-pointer ${cellClass}">
+        <span class="font-bold text-xs ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-800 dark:text-zinc-200'}">${day}</span>
+        ${dotsHtml}
+      </div>
+    `;
+  }
+
+  gridContainer.innerHTML = html;
+
+  if (!calendarSelectedDateStr) {
+    calendarSelectedDateStr = todayStr;
+  }
+  selectCalendarDate(calendarSelectedDateStr, false);
+}
+window.renderProjectCalendar = renderProjectCalendar;
+
+function selectCalendarDate(dateStr, reRender = true) {
+  calendarSelectedDateStr = dateStr;
+  const label = document.getElementById('calendarSelectedDateLabel');
+  const list = document.getElementById('calendarProjectList');
+  if (!list) return;
+
+  if (label) {
+    label.textContent = `Projek Deadline: ${dateStr}`;
+  }
+
+  const allProjects = Array.isArray(window.allProyekList) ? window.allProyekList : [];
+  const dayProjects = allProjects.filter(p => {
+    if (!p.deadline) return false;
+    const dl = (typeof window.parseSafeDateString === 'function')
+      ? window.parseSafeDateString(p.deadline)
+      : String(p.deadline).replace(/^'+/, '').split('T')[0];
+    return dl === dateStr;
+  });
+
+  if (dayProjects.length === 0) {
+    list.innerHTML = `
+      <div class="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-dashed border-zinc-200 dark:border-zinc-800 text-center text-xs text-zinc-400">
+        <i class="fa-solid fa-calendar-check text-lg mb-1 text-zinc-300 dark:text-zinc-600 block"></i>
+        Tidak ada deadline projek pada tanggal ini.
+      </div>
+    `;
+  } else {
+    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    list.innerHTML = dayProjects.map(p => {
+      const id = p.iDProyek || p.idProjek || p.id || '';
+      const st = String(p.status || 'Menunggu');
+      let badgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200';
+      if (st.toLowerCase().includes('dikerjakan')) badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 border-amber-200';
+      else if (st.toLowerCase().includes('revisi')) badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300 border-rose-200';
+      else if (st.toLowerCase().includes('selesai')) badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border-emerald-200';
+
+      const nomDisplay = isDes ? '' : `<span class="text-zinc-700 dark:text-zinc-300 font-bold">${formatRupiah(p.nominalProyek || p.nominal || 0)}</span>`;
+
+      return `
+        <div class="p-3 bg-white dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-3 text-xs shadow-2xs hover:border-indigo-400 transition-all">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-zinc-900 dark:text-white truncate">${escapeHtml(p.namaProyek || '-')}</span>
+              <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full border ${badgeClass}">${escapeHtml(st)}</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+              <span>${escapeHtml(p.namaPelanggan || '-')}</span>
+              ${p.produk ? ` &bull; <span>${escapeHtml(p.produk)}</span>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${nomDisplay}
+            <button onclick="closeProjectCalendarModal(); viewDetail('${escapeHtml(id)}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1">
+              <i class="fa-solid fa-eye text-[11px]"></i> Detail
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (reRender) {
+    renderProjectCalendar();
+  }
+}
+window.selectCalendarDate = selectCalendarDate;
 
 
 
