@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       hasReset = true;
       if (typeof Toast !== "undefined") {
-        Toast.info("✨ Hari Baru Dimulai!", "Seluruh checklist tugas harian admin telah di-reset otomatis ke 'Belum Selesai'.");
+        Toast.info("Hari Baru Dimulai!", "Seluruh checklist tugas harian admin telah di-reset otomatis ke 'Belum Selesai'.");
       }
     } else {
       localStorage.setItem("fpmanager_admin_tasks_last_reset", today);
@@ -414,7 +414,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       serviceUsersList.forEach(u => {
         if (u.username) {
-          filterOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">👤 ${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)})</option>`;
+          filterOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)})</option>`;
         }
       });
       filterAdminSelect.innerHTML = filterOptionsHtml;
@@ -422,11 +422,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (taskAdminSelect) {
       let modalAdminOptionsHtml = `
-        <option value="service">👥 Semua Tim Admin Service</option>
+        <option value="service">Semua Tim Admin Service</option>
       `;
       serviceUsersList.forEach(u => {
         if (u.username) {
-          modalAdminOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">👤 ${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)})</option>`;
+          modalAdminOptionsHtml += `<option value="${escapeHtmlSafe(u.username)}">${escapeHtmlSafe(u.name || u.username)} (@${escapeHtmlSafe(u.username)})</option>`;
         }
       });
       taskAdminSelect.innerHTML = modalAdminOptionsHtml;
@@ -1000,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (typeof Toast !== "undefined") {
       if (newStatus === "Selesai") {
-        Toast.success("Selesai! 🎉", `Tugas "${task.taskName}" ditandai selesai.`);
+        Toast.success("Selesai!", `Tugas "${task.taskName}" ditandai selesai.`);
       } else {
         Toast.info("Status Diperbarui", `Tugas "${task.taskName}" kembali ke 'Belum Selesai'.`);
       }

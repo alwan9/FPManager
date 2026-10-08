@@ -129,7 +129,7 @@ function applyDashboardRoleCustomizations() {
     // 2. Personalize Welcome Banner for Designer
     const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : 'Designer';
     if (dashWelcomeTitle) {
-      dashWelcomeTitle.innerHTML = `${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}! 🎨`;
+      dashWelcomeTitle.innerHTML = `${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}! <iconify-icon icon="fluent-emoji-flat:artist-palette" class="inline-block align-middle ml-1"></iconify-icon>`;
     }
     if (dashWelcomeDesc) {
       dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
@@ -441,13 +441,13 @@ function renderRecentProjects(recent) {
     const sumber = p.sumber || 'WhatsApp';
     let sourceBadge = '';
     if (sumber.toLowerCase() === 'shopee') {
-      sourceBadge = `<span class="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] leading-tight font-semibold bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 border border-orange-200 dark:border-orange-800" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-[7px] text-orange-500"></i> Shopee</span>`;
+      sourceBadge = `<span class="dash-micro-badge bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300 border border-orange-200/80 dark:border-orange-800/80" title="Sumber: Shopee"><i class="fa-solid fa-bag-shopping text-orange-500"></i> Shopee</span>`;
     } else if (sumber.toLowerCase() === 'fiverr') {
-      sourceBadge = `<span class="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] leading-tight font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-[7px] text-emerald-500"></i> Fiverr</span>`;
+      sourceBadge = `<span class="dash-micro-badge bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80" title="Sumber: Fiverr"><i class="fa-solid fa-bolt text-emerald-500"></i> Fiverr</span>`;
     }
     const gdriveBtn = p.gdriveLink ? `
-      <a href="${p.gdriveLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-0.5 px-1 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/60 rounded text-[7px] leading-tight font-semibold border border-indigo-200/70 dark:border-indigo-800 transition" title="Buka Google Drive">
-        <i class="fa-solid fa-folder-open text-indigo-600 dark:text-indigo-400 text-[7px]"></i>
+      <a href="${escapeHtml(p.gdriveLink)}" target="_blank" rel="noopener noreferrer" class="dash-micro-badge bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800/80 transition" title="Buka Google Drive">
+        <i class="fa-solid fa-folder-open text-indigo-600 dark:text-indigo-400"></i>
         <span>Drive</span>
       </a>
     ` : '';
@@ -475,7 +475,7 @@ function renderRecentProjects(recent) {
         <span class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 block truncate">${escapeHtml(p.namaProyek)}</span>
         <span class="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
         <div class="flex items-center mt-1 flex-wrap gap-1">
-          <span class="inline-block px-1 py-0.5 text-[7px] leading-tight font-semibold rounded-full ${badgeClass}">${displayStatus}</span>
+          <span class="dash-micro-badge ${badgeClass}">${displayStatus}</span>
           ${sourceBadge}
           ${gdriveBtn}
         </div>
