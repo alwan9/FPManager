@@ -612,6 +612,43 @@
                   <span>Info Rekening & E-Wallet</span>
                 </button>
 
+                <!-- Excel Actions Dropdown Group (Keuangan) -->
+                <div class="relative inline-block text-left" id="keuanganExcelDropdownGroup">
+                  <button id="keuanganExcelDropdownBtn" type="button" onclick="toggleKeuanganExcelDropdown(event)"
+                    class="inline-flex items-center px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm text-xs transition-all focus:outline-none"
+                    title="Menu Kelola File Excel Keuangan">
+                    <i class="fa-solid fa-file-excel mr-1.5 text-xs"></i>
+                    <span>Menu Excel</span>
+                    <i class="fa-solid fa-chevron-down ml-1 text-[10px] opacity-80"></i>
+                  </button>
+
+                  <div id="keuanganExcelDropdownMenu"
+                    class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1.5 z-40">
+                    <button type="button" onclick="downloadKeuanganTemplateExcel(); closeKeuanganExcelDropdown();"
+                      class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                      title="Unduh Template Format Resmi Excel Keuangan">
+                      <i class="fa-solid fa-file-arrow-down w-5 text-indigo-500 mr-2 text-center"></i>
+                      <span>Template Keuangan</span>
+                    </button>
+
+                    <button type="button" onclick="triggerKeuanganImport(); closeKeuanganExcelDropdown();"
+                      class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                      title="Upload File Excel untuk Menambah Transaksi">
+                      <i class="fa-solid fa-file-arrow-up w-5 text-emerald-500 mr-2 text-center"></i>
+                      <span>Import Excel Keuangan</span>
+                    </button>
+
+                    <button type="button" onclick="exportKeuanganToExcel(); closeKeuanganExcelDropdown();"
+                      class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                      title="Ekspor Data Transaksi ke Excel">
+                      <i class="fa-solid fa-file-excel w-5 text-emerald-600 mr-2 text-center"></i>
+                      <span>Export Excel Keuangan</span>
+                    </button>
+                  </div>
+                </div>
+
+                <input type="file" id="keuanganExcelFileInput" accept=".xlsx, .xls, .csv" class="hidden">
+
                 <!-- Bulk Delete Button (Hidden by default, shown when items checked) -->
                 <button id="btnBulkDeleteKeuangan" onclick="bulkDeleteKeuangan()" disabled
                   class="hidden inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
@@ -665,6 +702,9 @@
   <script src="js/keuangan.js"></script>
 
 
+  <!-- SheetJS & Excel Handlers -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="js/excel.js"></script>
   <script src="js/pwa.js"></script>
   <script src="js/theme.js"></script>
 

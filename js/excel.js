@@ -38,7 +38,13 @@ const VALID_SOURCES = [
   "Lainnya"
 ];
 
-// Global state untuk import preview
+const VALID_KEUANGAN_TYPES = [
+  "Pemasukan",
+  "Pengeluaran",
+  "Mutasi"
+];
+
+// Global state untuk import preview Proyek
 let importState = {
   file: null,
   fileName: "",
@@ -50,8 +56,20 @@ let importState = {
   activeFilter: 'all' // 'all', 'valid', 'invalid', 'duplicate'
 };
 
+// Global state untuk import preview Keuangan
+let importKeuanganState = {
+  file: null,
+  fileName: "",
+  parsedData: [],
+  validRows: [],
+  invalidRows: [],
+  duplicateRows: [],
+  isImporting: false,
+  activeFilter: 'all'
+};
+
 // ==========================================
-// 2. MODAL EXPORT & LOGIC EXPORT EXCEL
+// 2. MODAL EXPORT & LOGIC EXPORT EXCEL PROYEK
 // ==========================================
 function openExportModal() {
   const modal = document.getElementById("exportModal");
@@ -103,7 +121,6 @@ async function exportExcel() {
     const tahun = tahunEl ? parseInt(tahunEl.value) : new Date().getFullYear();
 
     if (periode === "current") {
-      // Ambil data yang sedang terfilter di DataTables jika tersedia
       if (typeof table !== 'undefined' && table && typeof table.rows === 'function') {
         const tableData = table.rows({ filter: 'applied' }).data().toArray();
         if (Array.isArray(tableData) && tableData.length > 0) {
@@ -135,7 +152,7 @@ async function exportExcel() {
       return;
     }
 
-    // 3. Mapping data ke kolom resmi sesuai database (20 kolom terstruktur)
+    // 3. Mapping data ke kolom resmi sesuai format database (tanpa Created_at & Update_at jika diinginkan / atau sertakan saat export)
     const rows = data.map(item => {
       const nom = Number(item.nominalProyek !== undefined ? item.nominalProyek : (item.nominal || item.totalPembayaran || 0));
       const dp = Number(item.dP !== undefined ? item.dP : (item.dp || item.totalDp || 0));
@@ -145,26 +162,24 @@ async function exportExcel() {
         : Math.max(0, nom - dp - pel);
 
       return {
-        "ID Proyek": item.iDProyek || item.idProjek || "",
-        "Tanggal": item.tanggal || (item.createdAt ? String(item.createdAt).split('T')[0] : ""),
-        "Nama Proyek*": item.namaProyek || "",
-        "Client / Pelanggan*": item.namaPelanggan || item.pelanggan || "",
-        "Nomor WhatsApp": item.nomorWA || item.noWa || item.wa || "",
-        "Produk / Layanan": item.produk || "",
+        "Id_projek": item.iDProyek || item.idProjek || "",
+        "Id_user": item.userId || "USR-001",
+        "Id_transaksi": item.idTransaksi || "",
+        "Nama_projek": item.namaProyek || "",
+        "No_wa": item.nomorWA || item.noWa || item.wa || "",
+        "Deatline": item.deadline || "",
+        "Status": item.status || "Menunggu",
+        "Link_Drive": item.gdriveLink || "",
+        "Pelanggan": item.namaPelanggan || item.pelanggan || "",
+        "Produk": item.produk || "",
         "Jumlah": item.jumlah !== undefined ? Number(item.jumlah) : 1,
         "Satuan": item.satuan || "pcs",
-        "Harga Satuan": item.hargaSatuan !== undefined ? Number(item.hargaSatuan) : (nom / (Number(item.jumlah) || 1)),
-        "Total Proyek / Nominal*": nom,
-        "DP": dp,
-        "Metode DP": item.metodePembayaran || item.metodeBayarDp || (dp > 0 ? "QRIS" : ""),
-        "Pelunasan": pel,
-        "Metode Pelunasan": item.metodeBayarPelunasan || "",
-        "Sisa Tagihan": sisa,
-        "Deadline": item.deadline || "",
-        "Status": item.status || "Menunggu",
+        "Harga_satuan": item.hargaSatuan !== undefined ? Number(item.hargaSatuan) : (nom / (Number(item.jumlah) || 1)),
+        "Total_pembayaran": nom,
+        "Sisa_pembayaran": sisa,
         "Sumber": item.sumber || "WhatsApp",
-        "Link Google Drive": item.gdriveLink || "",
-        "Catatan": item.catatan || ""
+        "Catatan": item.catatan || "",
+        "Id_designer": item.designerId || item.assignDesigner || ""
       };
     });
 
@@ -175,31 +190,28 @@ async function exportExcel() {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(rows);
 
-    // Styling lebar kolom
     ws['!cols'] = [
-      { wch: 16 }, // ID Proyek
-      { wch: 14 }, // Tanggal
-      { wch: 30 }, // Nama Proyek*
-      { wch: 24 }, // Client / Pelanggan*
-      { wch: 18 }, // Nomor WhatsApp
-      { wch: 22 }, // Produk / Layanan
+      { wch: 18 }, // Id_projek
+      { wch: 12 }, // Id_user
+      { wch: 14 }, // Id_transaksi
+      { wch: 30 }, // Nama_projek
+      { wch: 16 }, // No_wa
+      { wch: 14 }, // Deatline
+      { wch: 18 }, // Status
+      { wch: 36 }, // Link_Drive
+      { wch: 22 }, // Pelanggan
+      { wch: 20 }, // Produk
       { wch: 8 },  // Jumlah
       { wch: 10 }, // Satuan
-      { wch: 16 }, // Harga Satuan
-      { wch: 24 }, // Total Proyek / Nominal*
-      { wch: 16 }, // DP
-      { wch: 16 }, // Metode DP
-      { wch: 16 }, // Pelunasan
-      { wch: 18 }, // Metode Pelunasan
-      { wch: 16 }, // Sisa Tagihan
-      { wch: 14 }, // Deadline
-      { wch: 20 }, // Status
+      { wch: 14 }, // Harga_satuan
+      { wch: 16 }, // Total_pembayaran
+      { wch: 16 }, // Sisa_pembayaran
       { wch: 14 }, // Sumber
-      { wch: 36 }, // Link Google Drive
-      { wch: 36 }  // Catatan
+      { wch: 30 }, // Catatan
+      { wch: 14 }  // Id_designer
     ];
 
-    XLSX.utils.book_append_sheet(wb, ws, "Data Projek");
+    XLSX.utils.book_append_sheet(wb, ws, "Proyek");
 
     let namaFile = `Data-Projek-${new Date().toISOString().split('T')[0]}.xlsx`;
     if (periode === "month") {
@@ -233,7 +245,8 @@ async function exportExcel() {
 }
 
 // ==========================================
-// 3. FITUR DOWNLOAD TEMPLATE EXCEL RESMI
+// 3. FITUR DOWNLOAD TEMPLATE EXCEL RESMI (PROYEK)
+// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak masuk template)
 // ==========================================
 function downloadProjectTemplateExcel() {
   try {
@@ -243,177 +256,289 @@ function downloadProjectTemplateExcel() {
 
     const wb = XLSX.utils.book_new();
 
-    // 1. Data Sheet Template + Contoh Pengisian Realistis
+    // 1. Data Sheet Template Proyek (Tanpa Created_at dan Update_at)
     const templateRows = [
       {
-        "Nama Proyek*": "Website Company Profile PT Maju Bersama",
-        "Client / Pelanggan*": "PT Maju Bersama",
-        "Nomor WhatsApp": "081234567890",
-        "Produk / Layanan": "Web Development",
-        "Jumlah": 1,
-        "Satuan": "paket",
-        "Harga Satuan": 2500000,
-        "Total Proyek / Nominal*": 2500000,
-        "DP": 500000,
-        "Metode DP": "QRIS",
-        "Pelunasan": 0,
-        "Metode Pelunasan": "",
-        "Deadline": "2026-10-25",
+        "Nama_projek": "Website Company Profile PT Maju",
+        "Pelanggan": "PT Maju Bersama",
+        "No_wa": "6281234567890",
+        "Deatline": "2026-10-25",
         "Status": "Sedang Dikerjakan",
-        "Sumber": "WhatsApp",
-        "Link Google Drive": "https://drive.google.com/drive/folders/contoh-folder-1",
-        "Catatan": "DP 500rb masuk via QRIS, sisa dibayar setelah preview website disetujui"
-      },
-      {
-        "Nama Proyek*": "Desain Logo & Brand Guidelines",
-        "Client / Pelanggan*": "CV Berkah Mandiri",
-        "Nomor WhatsApp": "085678901234",
-        "Produk / Layanan": "Graphic Design",
+        "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-1",
+        "Produk": "Web Development",
         "Jumlah": 1,
         "Satuan": "paket",
-        "Harga Satuan": 1200000,
-        "Total Proyek / Nominal*": 1200000,
-        "DP": 600000,
-        "Metode DP": "BSI",
-        "Pelunasan": 600000,
-        "Metode Pelunasan": "BSI",
-        "Deadline": "2026-10-15",
+        "Harga_satuan": 2500000,
+        "Total_pembayaran": 2500000,
+        "Sisa_pembayaran": 2000000,
+        "Sumber": "WhatsApp",
+        "Catatan": "DP 500rb via QRIS",
+        "Id_designer": "USR-001"
+      },
+      {
+        "Nama_projek": "Desain Logo & Branding",
+        "Pelanggan": "CV Berkah",
+        "No_wa": "6285678901234",
+        "Deatline": "2026-10-15",
         "Status": "Selesai",
-        "Sumber": "WhatsApp",
-        "Link Google Drive": "https://drive.google.com/drive/folders/contoh-folder-2",
-        "Catatan": "Sudah lunas penuh melalui transfer BSI"
-      },
-      {
-        "Nama Proyek*": "10 Konten Feed Instagram",
-        "Client / Pelanggan*": "Studio Cantik",
-        "Nomor WhatsApp": "087811223344",
-        "Produk / Layanan": "Social Media Design",
-        "Jumlah": 10,
-        "Satuan": "post",
-        "Harga Satuan": 100000,
-        "Total Proyek / Nominal*": 1000000,
-        "DP": 0,
-        "Metode DP": "",
-        "Pelunasan": 0,
-        "Metode Pelunasan": "",
-        "Deadline": "2026-10-30",
-        "Status": "Menunggu",
-        "Sumber": "WhatsApp",
-        "Link Google Drive": "",
-        "Catatan": "Projek baru konfirmasi, menunggu materi dari klien"
-      },
-      {
-        "Nama Proyek*": "Order Banner Promo Shopee",
-        "Client / Pelanggan*": "Toko Fashion Trendy",
-        "Nomor WhatsApp": "089912345678",
-        "Produk / Layanan": "Banner Design",
+        "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-2",
+        "Produk": "Desain Logo",
         "Jumlah": 1,
         "Satuan": "pcs",
-        "Harga Satuan": 350000,
-        "Total Proyek / Nominal*": 350000,
-        "DP": 350000,
-        "Metode DP": "Shopee",
-        "Pelunasan": 0,
-        "Metode Pelunasan": "",
-        "Deadline": "2026-10-20",
-        "Status": "Sedang Dikerjakan",
+        "Harga_satuan": 45000,
+        "Total_pembayaran": 45000,
+        "Sisa_pembayaran": 0,
         "Sumber": "Shopee",
-        "Link Google Drive": "",
-        "Catatan": "Pembayaran penuh langsung dari marketplace Shopee"
+        "Catatan": "Pembayaran lunas via Shopee",
+        "Id_designer": "USR-001"
+      },
+      {
+        "Nama_projek": "Box Martabak",
+        "Pelanggan": "Martabak Enak",
+        "No_wa": "6282190816661",
+        "Deatline": "2026-10-20",
+        "Status": "Sedang Dikerjakan",
+        "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-3",
+        "Produk": "Desain Box",
+        "Jumlah": 1,
+        "Satuan": "pcs",
+        "Harga_satuan": 69000,
+        "Total_pembayaran": 69000,
+        "Sisa_pembayaran": 30000,
+        "Sumber": "Shopee",
+        "Catatan": "DP 39rb via Shopee, pelunasan 30rb via QRIS",
+        "Id_designer": "USR-001"
       }
     ];
 
     const wsTemplate = XLSX.utils.json_to_sheet(templateRows);
 
-    // Set kolom lebar agar mudah dibaca pengguna
     wsTemplate['!cols'] = [
-      { wch: 36 }, // Nama Proyek*
-      { wch: 26 }, // Client / Pelanggan*
-      { wch: 18 }, // Nomor WhatsApp
-      { wch: 24 }, // Produk / Layanan
+      { wch: 32 }, // Nama_projek
+      { wch: 22 }, // Pelanggan
+      { wch: 18 }, // No_wa
+      { wch: 14 }, // Deatline
+      { wch: 18 }, // Status
+      { wch: 36 }, // Link_Drive
+      { wch: 22 }, // Produk
       { wch: 8 },  // Jumlah
       { wch: 10 }, // Satuan
-      { wch: 16 }, // Harga Satuan
-      { wch: 26 }, // Total Proyek / Nominal*
-      { wch: 16 }, // DP
-      { wch: 16 }, // Metode DP
-      { wch: 16 }, // Pelunasan
-      { wch: 18 }, // Metode Pelunasan
-      { wch: 14 }, // Deadline
-      { wch: 20 }, // Status
+      { wch: 16 }, // Harga_satuan
+      { wch: 18 }, // Total_pembayaran
+      { wch: 18 }, // Sisa_pembayaran
       { wch: 14 }, // Sumber
-      { wch: 38 }, // Link Google Drive
-      { wch: 42 }  // Catatan
+      { wch: 36 }, // Catatan
+      { wch: 14 }  // Id_designer
     ];
 
-    XLSX.utils.book_append_sheet(wb, wsTemplate, "Template Import Projek");
+    XLSX.utils.book_append_sheet(wb, wsTemplate, "Template Proyek");
 
-    // 2. Sheet Petunjuk & Pilihan Valid
+    // 2. Sheet Petunjuk
     const guideRows = [
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "Silakan ikuti instruksi berikut agar data projek berhasil diimport ke sistem." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "1. KOLOM WAJIB & ATURAN PENGISIAN:" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Nama Proyek* : Wajib diisi (Teks nama atau judul projek)." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Client / Pelanggan* : Wajib diisi (Nama klien/perusahaan)." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Total Proyek / Nominal* : Wajib diisi (Angka murni tanpa Rp atau pemisah ribuan, contoh: 1500000)." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - DP : Opsional (Angka murni, contoh: 500000). Jika diisi > 0, WAJIB memilih Metode DP yang valid." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Metode DP : Wajib jika DP > 0. Dana DP akan otomatis dicatat ke sistem Keuangan pada metode ini." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Pelunasan : Opsional (Angka murni). Jika diisi, nominal pelunasan tetap tercatat sebagai pelunasan." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Deadline : Format tanggal YYYY-MM-DD (contoh: 2026-10-25)." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Catatan : Opsional (Keterangan tambahan untuk projek)." },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "2. PILIHAN STATUS YANG TERSEDIA DI SISTEM:" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Menunggu (Default jika dikosongkan)" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Sedang Dikerjakan" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Revisi" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Selesai" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Belum Pembayaran" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Dibatalkan" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "3. PILIHAN METODE PEMBAYARAN YANG TERSEDIA DI SISTEM:" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - QRIS" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Shopee" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - BSI" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Transfer Bank" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - ShopeePay" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Saldo Shopee" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Fiverr" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - PayPal" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Payoneer" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Cash / Tunai" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "4. PILIHAN SUMBER PROJEK YANG TERSEDIA:" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - WhatsApp (Default)" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Shopee" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Fiverr" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Website" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Instagram" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Lainnya" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "5. INTEGRASI KEUANGAN OTOMATIS:" },
-      { "PANDUAN & PETUNJUK IMPORT EXCEL FPManager": "   - Setiap projek dengan DP dan Metode Pembayaran akan otomatis tercatat ke transaksi Keuangan tanpa perlu input ulang manual." }
+      { "PANDUAN IMPORT PROJEK FPManager": "Silakan ikuti petunjuk pengisian file Excel ini:" },
+      { "PANDUAN IMPORT PROJEK FPManager": "" },
+      { "PANDUAN IMPORT PROJEK FPManager": "1. Kolom Wajib Diisi: Nama_projek, Pelanggan, Total_pembayaran." },
+      { "PANDUAN IMPORT PROJEK FPManager": "2. Id_projek & Id_transaksi: Otomatis digenerate sistem jika dikosongkan." },
+      { "PANDUAN IMPORT PROJEK FPManager": "3. Created_at & Update_at: Otomatis diisi waktu sekarang saat proses import (tidak perlu diisi di Excel)." },
+      { "PANDUAN IMPORT PROJEK FPManager": "4. Deatline: Format YYYY-MM-DD (contoh: 2026-10-25)." },
+      { "PANDUAN IMPORT PROJEK FPManager": "5. Status: Menunggu, Sedang Dikerjakan, Revisi, Selesai, Belum Pembayaran, Dibatalkan." },
+      { "PANDUAN IMPORT PROJEK FPManager": "6. Sumber: WhatsApp, Shopee, Fiverr, Website, Instagram, Lainnya." },
+      { "PANDUAN IMPORT PROJEK FPManager": "7. Sisa_pembayaran: Jika kosong, otomatis dihitung: Total_pembayaran - DP." }
     ];
 
     const wsGuide = XLSX.utils.json_to_sheet(guideRows);
     wsGuide['!cols'] = [{ wch: 100 }];
-
     XLSX.utils.book_append_sheet(wb, wsGuide, "Petunjuk Pengisian");
 
-    XLSX.writeFile(wb, "Template-Import-Projek-FPManager.xlsx");
+    XLSX.writeFile(wb, "Template-Import-Proyek-FPManager.xlsx");
 
     if (typeof Toast !== 'undefined') {
-      Toast.success('Template Diunduh', 'Template Excel resmi berhasil diunduh. Silakan isi dan upload kembali.');
+      Toast.success('Template Diunduh', 'Template Excel Proyek resmi berhasil diunduh.');
     }
   } catch (err) {
-    console.error('Download template error:', err);
+    console.error('Download template proyek error:', err);
     if (typeof Toast !== 'undefined') {
-      Toast.error('Gagal Download Template', 'Terjadi kesalahan saat membuat template Excel: ' + (err.message || err));
+      Toast.error('Gagal Download Template', 'Terjadi kesalahan saat membuat template: ' + (err.message || err));
     }
   }
 }
 
 // ==========================================
-// 4. MODAL IMPORT EXCEL & STATE MANAGEMENT
+// 4. FITUR DOWNLOAD TEMPLATE EXCEL RESMI (KEUANGAN)
+// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak masuk template)
+// ==========================================
+function downloadKeuanganTemplateExcel() {
+  try {
+    if (typeof XLSX === 'undefined') {
+      throw new Error("Pustaka SheetJS (XLSX) belum dimuat.");
+    }
+
+    const wb = XLSX.utils.book_new();
+
+    // 1. Data Sheet Template Keuangan (Tanpa Created_at dan Update_at)
+    const templateRows = [
+      {
+        "Id_projek": "PRJ-002-editvideofutiya",
+        "Jenis": "Pemasukan",
+        "Keterangan": "Pembayaran DP - Futiya (PRJ-002-editvideofutiya)",
+        "Metode_bayar_dp": "QRIS",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 10000,
+        "Total_pelunasan": 15000,
+        "Total_pembayaran": 25000
+      },
+      {
+        "Id_projek": "PRJ-004-desainboxmartabak",
+        "Jenis": "Pemasukan",
+        "Keterangan": "Pembayaran DP - Martabak (PRJ-004-desainboxmartabak)",
+        "Metode_bayar_dp": "Shopee",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 39000,
+        "Total_pelunasan": 30000,
+        "Total_pembayaran": 69000
+      },
+      {
+        "Id_projek": "",
+        "Jenis": "Pengeluaran",
+        "Keterangan": "Beli langganan tools desain",
+        "Metode_bayar_dp": "QRIS",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 50000,
+        "Total_pelunasan": 0,
+        "Total_pembayaran": 50000
+      },
+      {
+        "Id_projek": "",
+        "Jenis": "Mutasi",
+        "Keterangan": "Mutasi Pengeluaran QRIS ke BSI",
+        "Metode_bayar_dp": "QRIS",
+        "Metode_bayar_pelunasan": "BSI",
+        "Total_dp": 0,
+        "Total_pelunasan": 0,
+        "Total_pembayaran": 450000
+      }
+    ];
+
+    const wsTemplate = XLSX.utils.json_to_sheet(templateRows);
+
+    wsTemplate['!cols'] = [
+      { wch: 26 }, // Id_projek
+      { wch: 16 }, // Jenis
+      { wch: 45 }, // Keterangan
+      { wch: 18 }, // Metode_bayar_dp
+      { wch: 22 }, // Metode_bayar_pelunasan
+      { wch: 16 }, // Total_dp
+      { wch: 18 }, // Total_pelunasan
+      { wch: 18 }  // Total_pembayaran
+    ];
+
+    XLSX.utils.book_append_sheet(wb, wsTemplate, "Template Keuangan");
+
+    // 2. Sheet Petunjuk
+    const guideRows = [
+      { "PANDUAN IMPORT KEUANGAN FPManager": "Silakan ikuti petunjuk pengisian file Excel Keuangan ini:" },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "" },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "1. Kolom Wajib Diisi: Jenis (Pemasukan / Pengeluaran / Mutasi), Keterangan, Total_pembayaran." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "2. Id_transaksi: Otomatis digenerate sistem jika dikosongkan (contoh: TRX-031)." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "3. Id_projek: Opsional. Jika diisi dengan ID Projek yang valid, transaksi akan otomatis terhubung ke projek tersebut." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "4. Created_at & Update_at: Otomatis diisi waktu sekarang oleh sistem (tidak perlu diisi di Excel)." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "5. Metode Pembayaran: QRIS, Shopee, BSI, Transfer Bank, ShopeePay, Saldo Shopee, Fiverr, PayPal, Payoneer, Cash/Tunai." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "6. Untuk Mutasi Saldo: Metode_bayar_dp = Rekening Asal, Metode_bayar_pelunasan = Rekening Tujuan." }
+    ];
+
+    const wsGuide = XLSX.utils.json_to_sheet(guideRows);
+    wsGuide['!cols'] = [{ wch: 100 }];
+    XLSX.utils.book_append_sheet(wb, wsGuide, "Petunjuk Pengisian");
+
+    XLSX.writeFile(wb, "Template-Import-Keuangan-FPManager.xlsx");
+
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Template Diunduh', 'Template Excel Keuangan resmi berhasil diunduh.');
+    }
+  } catch (err) {
+    console.error('Download template keuangan error:', err);
+    if (typeof Toast !== 'undefined') {
+      Toast.error('Gagal Download Template', 'Terjadi kesalahan saat membuat template Keuangan: ' + (err.message || err));
+    }
+  }
+}
+
+// ==========================================
+// 5. EXPORT KEUANGAN KE EXCEL
+// ==========================================
+async function exportKeuanganToExcel(periode = "all", bulan, tahun) {
+  try {
+    let data = [];
+    if (typeof API !== 'undefined' && typeof API.getKeuangan === 'function') {
+      data = await API.getKeuangan();
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      if (typeof Toast !== 'undefined') {
+        Toast.warning('Data Kosong', 'Tidak ada data keuangan yang dapat diekspor.');
+      } else {
+        alert('Tidak ada data keuangan yang dapat diekspor.');
+      }
+      return;
+    }
+
+    const rows = data.map(k => {
+      const dp = Number(k.dp !== undefined ? k.dp : (k.totalDp || 0));
+      const pel = Number(k.pelunasan !== undefined ? k.pelunasan : (k.totalPelunasan || 0));
+      const tot = Number(k.nominal !== undefined ? k.nominal : (k.totalPembayaran || (dp + pel)));
+
+      return {
+        "Id_transaksi": k.idTransaksi || k.id || "",
+        "Id_user": k.userId || "USR-001",
+        "Id_projek": k.idProjek || k.idProyek || "",
+        "Jenis": k.jenis || "Pemasukan",
+        "Keterangan": k.keterangan || "",
+        "Metode_bayar_dp": k.metodeBayarDp || k.metodePembayaran || "QRIS",
+        "Metode_bayar_pelunasan": k.metodeBayarPelunasan || k.metodeBayarDp || "QRIS",
+        "Total_dp": dp,
+        "Total_pelunasan": pel,
+        "Total_pembayaran": tot
+      };
+    });
+
+    if (typeof XLSX === 'undefined') {
+      throw new Error("Pustaka SheetJS (XLSX) belum dimuat.");
+    }
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    ws['!cols'] = [
+      { wch: 16 }, // Id_transaksi
+      { wch: 12 }, // Id_user
+      { wch: 26 }, // Id_projek
+      { wch: 16 }, // Jenis
+      { wch: 45 }, // Keterangan
+      { wch: 18 }, // Metode_bayar_dp
+      { wch: 22 }, // Metode_bayar_pelunasan
+      { wch: 16 }, // Total_dp
+      { wch: 18 }, // Total_pelunasan
+      { wch: 18 }  // Total_pembayaran
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, "Keuangan");
+
+    const namaFile = `Data-Keuangan-${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, namaFile);
+
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Export Berhasil', `File ${namaFile} berhasil diunduh (${rows.length} transaksi).`);
+    }
+  } catch (err) {
+    console.error('Export Keuangan error:', err);
+    if (typeof Toast !== 'undefined') {
+      Toast.error('Gagal Ekspor', 'Terjadi kesalahan saat mengekspor data: ' + (err.message || err));
+    }
+  }
+}
+
+// ==========================================
+// 6. MODAL IMPORT EXCEL & STATE MANAGEMENT (PROYEK)
 // ==========================================
 function openImportModal() {
   resetImportState();
@@ -479,10 +604,9 @@ function showImportStep(step) {
 }
 
 // ==========================================
-// 5. PARSING & VALIDASI FILE EXCEL
+// 7. PARSING & VALIDASI FILE EXCEL PROYEK
 // ==========================================
 
-// Helper: Parsing angka fleksibel
 function parseCleanNumber(val) {
   if (val === undefined || val === null || val === "") return 0;
   if (typeof val === "number") return isNaN(val) ? 0 : val;
@@ -506,7 +630,6 @@ function parseCleanNumber(val) {
   return isNaN(parsed) ? 0 : parsed;
 }
 
-// Helper: Parsing Tanggal dari Excel (Serial / String)
 function parseExcelDate(rawDate) {
   if (!rawDate) return "";
   if (rawDate instanceof Date && !isNaN(rawDate)) {
@@ -527,7 +650,6 @@ function parseExcelDate(rawDate) {
   const str = String(rawDate).trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
 
-  // DD/MM/YYYY or DD-MM-YYYY
   const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if (dmyMatch) {
     const day = String(dmyMatch[1]).padStart(2, '0');
@@ -546,19 +668,24 @@ function parseExcelDate(rawDate) {
   return str;
 }
 
-// Normalisasi Nama Header Kolom
 function normalizeHeaderKey(key) {
   return String(key || "")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
 }
 
-// Match Kolom Excel ke Kolom Sistem
+// Match Kolom Excel ke Kolom Sistem Proyek
 function mapRowFields(rawRow) {
   const mapped = {};
   for (const [k, v] of Object.entries(rawRow)) {
     const norm = normalizeHeaderKey(k);
-    if (norm.includes("namaproyek") || norm === "proyek" || norm === "nama" || norm === "project" || norm === "namaprojek") {
+    if (norm === "idprojek" || norm === "idproyek" || norm === "id") {
+      mapped.idProyek = v;
+    } else if (norm === "iduser" || norm === "userid") {
+      mapped.userId = v;
+    } else if (norm === "idtransaksi" || norm === "idkas") {
+      mapped.idTransaksi = v;
+    } else if (norm.includes("namaproyek") || norm === "proyek" || norm === "nama" || norm === "project" || norm === "namaprojek") {
       mapped.namaProyek = v;
     } else if (norm.includes("pelanggan") || norm.includes("client") || norm.includes("klien") || norm === "customer") {
       mapped.pelanggan = v;
@@ -572,8 +699,10 @@ function mapRowFields(rawRow) {
       mapped.satuan = v;
     } else if (norm.includes("hargasatuan") || norm === "harga" || norm === "price") {
       mapped.hargaSatuan = v;
-    } else if (norm.includes("totalproyek") || norm.includes("nominal") || norm === "total" || norm === "biaya" || norm.includes("totalpembayaran")) {
+    } else if (norm.includes("totalpembayaran") || norm.includes("totalproyek") || norm.includes("nominal") || norm === "total" || norm === "biaya") {
       mapped.nominal = v;
+    } else if (norm.includes("sisapembayaran") || norm === "sisa" || norm.includes("sisatagihan")) {
+      mapped.sisa = v;
     } else if (norm === "dp" || norm.includes("uangmuka") || norm.includes("downpayment") || norm === "totaldp") {
       mapped.dp = v;
     } else if (norm.includes("metodedp") || norm.includes("metodebayardp") || norm.includes("metodepembayaran") || norm === "metode") {
@@ -582,7 +711,7 @@ function mapRowFields(rawRow) {
       mapped.pelunasan = v;
     } else if (norm.includes("metodepelunasan") || norm.includes("metodebayarpelunasan")) {
       mapped.metodeBayarPelunasan = v;
-    } else if (norm.includes("deadline") || norm.includes("tenggat") || norm === "duedate" || norm === "deatline") {
+    } else if (norm.includes("deadline") || norm.includes("tenggat") || norm === "duedate" || norm.includes("deatline")) {
       mapped.deadline = v;
     } else if (norm === "status" || norm.includes("statusproyek") || norm.includes("statusprojek")) {
       mapped.status = v;
@@ -590,6 +719,8 @@ function mapRowFields(rawRow) {
       mapped.sumber = v;
     } else if (norm.includes("drive") || norm.includes("gdrive") || norm.includes("link") || norm.includes("linkdrive")) {
       mapped.gdriveLink = v;
+    } else if (norm.includes("designer") || norm.includes("desainer") || norm === "assign") {
+      mapped.designerId = v;
     } else if (norm === "catatan" || norm === "keterangan" || norm === "notes" || norm === "note") {
       mapped.catatan = v;
     }
@@ -604,72 +735,65 @@ function validateProjectRow(rawItem, rowIndex, existingProjects = [], inMemoryMa
   const warnings = [];
   let isDuplicate = false;
 
-  // 1. Validasi Nama Proyek (Wajib)
   const namaProyek = String(row.namaProyek || "").trim();
   if (!namaProyek) {
     errors.push("Nama Proyek* wajib diisi.");
   }
 
-  // 2. Validasi Client / Pelanggan (Wajib)
   const pelanggan = String(row.pelanggan || "").trim();
   if (!pelanggan) {
     errors.push("Client / Pelanggan* wajib diisi.");
   }
 
-  // 3. Validasi Nominal / Total Proyek (Wajib)
-  const rawNominal = row.nominal;
-  const nominal = parseCleanNumber(rawNominal);
-  if (rawNominal === undefined || rawNominal === null || String(rawNominal).trim() === "") {
-    errors.push("Total Proyek / Nominal* wajib diisi.");
-  } else if (nominal <= 0) {
-    errors.push("Nominal Proyek harus berupa angka lebih besar dari 0.");
+  const qty = row.jumlah !== undefined && row.jumlah !== null && String(row.jumlah).trim() !== "" ? parseCleanNumber(row.jumlah) : 1;
+  const hargaSatuan = parseCleanNumber(row.hargaSatuan);
+  let rawNominal = row.nominal;
+  let nominal = parseCleanNumber(rawNominal);
+
+  if (nominal <= 0 && qty > 0 && hargaSatuan > 0) {
+    nominal = Math.round(qty * hargaSatuan);
   }
 
-  // 4. Validasi DP & Metode DP
+  if (nominal <= 0) {
+    errors.push("Total Pembayaran / Nominal Proyek harus berupa angka lebih besar dari 0.");
+  }
+
   const rawDp = row.dp;
   const dp = parseCleanNumber(rawDp);
   if (dp < 0) {
     errors.push("DP tidak boleh bernilai negatif.");
   }
   if (dp > nominal && nominal > 0) {
-    errors.push(`Nominal DP (Rp ${dp.toLocaleString('id-ID')}) melebihi Total Proyek (Rp ${nominal.toLocaleString('id-ID')}).`);
+    errors.push(`Nominal DP (Rp ${dp.toLocaleString('id-ID')}) melebihi Total Pembayaran (Rp ${nominal.toLocaleString('id-ID')}).`);
   }
 
   let metodeDP = String(row.metodePembayaran || "").trim();
   if (dp > 0) {
     if (!metodeDP) {
-      errors.push("Metode DP wajib dipilih jika terdapat nominal DP.");
+      metodeDP = "QRIS";
     } else {
       const matchedMethod = VALID_PAYMENT_METHODS.find(m => m.toLowerCase() === metodeDP.toLowerCase());
       if (matchedMethod) {
         metodeDP = matchedMethod;
-      } else {
-        errors.push(`Metode DP "${metodeDP}" tidak tersedia di sistem. Pilihan: ${VALID_PAYMENT_METHODS.slice(0, 5).join(', ')}, dll.`);
       }
     }
   } else if (!metodeDP) {
     metodeDP = "QRIS";
   }
 
-  // 5. Validasi Pelunasan
-  const rawPelunasan = row.pelunasan;
-  const pelunasan = parseCleanNumber(rawPelunasan);
-  if (pelunasan < 0) {
-    errors.push("Pelunasan tidak boleh bernilai negatif.");
-  }
-  if (dp + pelunasan > nominal && nominal > 0) {
-    warnings.push(`Jumlah DP + Pelunasan (Rp ${(dp + pelunasan).toLocaleString('id-ID')}) melebihi total nominal.`);
-  }
-
+  const pelunasan = parseCleanNumber(row.pelunasan);
   let metodePelunasan = String(row.metodeBayarPelunasan || "").trim();
-  if (pelunasan > 0 && metodePelunasan) {
-    const matchedPel = VALID_PAYMENT_METHODS.find(m => m.toLowerCase() === metodePelunasan.toLowerCase());
-    if (matchedPel) {
-      metodePelunasan = matchedPel;
+  if (pelunasan > 0) {
+    if (!metodePelunasan) {
+      metodePelunasan = metodeDP || "QRIS";
     }
   }
 
-  // 6. Validasi Status
+  let sisa = (row.sisa !== undefined && row.sisa !== null && String(row.sisa).trim() !== "")
+    ? parseCleanNumber(row.sisa)
+    : Math.max(0, nominal - dp - pelunasan);
+
+  let deadline = parseExcelDate(row.deadline);
   let status = String(row.status || "").trim();
   if (!status) {
     status = "Menunggu";
@@ -677,85 +801,80 @@ function validateProjectRow(rawItem, rowIndex, existingProjects = [], inMemoryMa
     const matchedStatus = VALID_PROJECT_STATUSES.find(s => s.toLowerCase() === status.toLowerCase());
     if (matchedStatus) {
       status = matchedStatus;
-    } else {
-      errors.push(`Status "${status}" tidak valid. Pilihan: ${VALID_PROJECT_STATUSES.join(', ')}.`);
     }
   }
 
-  // 7. Validasi Sumber
   let sumber = String(row.sumber || "").trim();
   if (!sumber) {
     sumber = "WhatsApp";
   } else {
-    const matchedSumber = VALID_SOURCES.find(s => s.toLowerCase() === sumber.toLowerCase());
-    if (matchedSumber) {
-      sumber = matchedSumber;
+    const matchedSource = VALID_SOURCES.find(s => s.toLowerCase() === sumber.toLowerCase());
+    if (matchedSource) {
+      sumber = matchedSource;
     }
   }
 
-  // 8. Validasi Deadline
-  let deadline = parseExcelDate(row.deadline);
-  if (row.deadline && !deadline) {
-    warnings.push("Format deadline tidak standar, pastikan format YYYY-MM-DD.");
-  }
-
-  // Format nomor WA jika ada
-  let wa = String(row.wa || "").trim().replace(/\D/g, '');
-  if (wa.startsWith('0')) {
-    wa = '62' + wa.substring(1);
-  }
-
-  // Hitung Sisa Tagihan
-  const sisa = Math.max(0, nominal - dp - pelunasan);
-
-  // 9. Cek Duplikasi (Di Dalam File & Terhadap Database Existing)
-  if (namaProyek && pelanggan) {
-    const dupKey = (namaProyek + "___" + pelanggan).toLowerCase();
-
-    // Cek duplikasi di dalam file yang sedang diupload
-    if (inMemoryMap.has(dupKey)) {
-      const prevRow = inMemoryMap.get(dupKey);
-      warnings.push(`[Duplikat di File] Data serupa dengan baris ${prevRow} (Nama: "${namaProyek}", Klien: "${pelanggan}").`);
-      isDuplicate = true;
-    } else {
-      inMemoryMap.set(dupKey, rowIndex);
-    }
-
-    // Cek duplikasi dengan data yang sudah ada di database
-    if (Array.isArray(existingProjects) && existingProjects.length > 0) {
-      const existingMatch = existingProjects.find(p => {
-        if (!p) return false;
-        const pNama = String(p.namaProyek || "").toLowerCase().trim();
-        const pClient = String(p.namaPelanggan || p.pelanggan || "").toLowerCase().trim();
-        return pNama === namaProyek.toLowerCase() && pClient === pelanggan.toLowerCase();
-      });
-
-      if (existingMatch) {
-        warnings.push(`[Sudah Ada di Database] Projek serupa ditemukan (${existingMatch.iDProyek || existingMatch.idProjek || 'DB'}).`);
-        isDuplicate = true;
+  let cleanWA = String(row.wa || "").trim();
+  if (cleanWA) {
+    const digitsOnly = cleanWA.replace(/\D/g, "");
+    if (digitsOnly.length > 0) {
+      if (digitsOnly.startsWith("0")) {
+        cleanWA = "62" + digitsOnly.slice(1);
+      } else if (!digitsOnly.startsWith("62")) {
+        cleanWA = "62" + digitsOnly;
+      } else {
+        cleanWA = digitsOnly;
       }
     }
   }
 
+  // Cek duplikasi
+  const duplicateKey = `${namaProyek.toLowerCase()}_${pelanggan.toLowerCase()}`;
+  if (inMemoryMap.has(duplicateKey)) {
+    isDuplicate = true;
+    warnings.push(`Duplikat di dalam file Excel (sama dengan baris ke-${inMemoryMap.get(duplicateKey)}).`);
+  } else {
+    inMemoryMap.set(duplicateKey, rowIndex);
+  }
+
+  if (Array.isArray(existingProjects) && existingProjects.length > 0) {
+    const existsInDb = existingProjects.some(p => {
+      const pName = String(p.namaProyek || "").toLowerCase().trim();
+      const pClient = String(p.namaPelanggan || p.pelanggan || "").toLowerCase().trim();
+      return pName === namaProyek.toLowerCase() && pClient === pelanggan.toLowerCase();
+    });
+    if (existsInDb) {
+      isDuplicate = true;
+      warnings.push("Data dengan Nama Projek & Pelanggan ini sudah ada di database.");
+    }
+  }
+
   const payload = {
+    idProyek: String(row.idProyek || "").trim(),
+    userId: String(row.userId || "USR-001").trim(),
+    idTransaksi: String(row.idTransaksi || "").trim(),
     namaProyek,
     pelanggan,
-    wa,
+    wa: cleanWA,
     produk: String(row.produk || "").trim(),
-    jumlah: parseCleanNumber(row.jumlah) || 1,
-    satuan: String(row.satuan || "pcs").trim() || "pcs",
-    hargaSatuan: parseCleanNumber(row.hargaSatuan) || (nominal / (parseCleanNumber(row.jumlah) || 1)),
+    jumlah: qty,
+    satuan: String(row.satuan || "pcs").trim(),
+    hargaSatuan: hargaSatuan > 0 ? hargaSatuan : (nominal / qty),
     nominal,
+    totalPembayaran: nominal,
     dp,
     metodePembayaran: metodeDP,
+    metodeBayarDp: metodeDP,
     pelunasan,
     metodeBayarPelunasan: metodePelunasan,
     sisa,
+    sisaPembayaran: sisa,
     deadline,
     status,
     sumber,
     gdriveLink: String(row.gdriveLink || "").trim(),
-    catatan: String(row.catatan || "").trim()
+    catatan: String(row.catatan || "").trim(),
+    designerId: String(row.designerId || "").trim()
   };
 
   const isValid = errors.length === 0;
@@ -771,7 +890,7 @@ function validateProjectRow(rawItem, rowIndex, existingProjects = [], inMemoryMa
   };
 }
 
-// Handler saat file dipilih/di-drop
+// Handler saat file Excel Proyek dipilih
 async function handleProjectExcelFile(file) {
   if (!file) return;
 
@@ -789,7 +908,6 @@ async function handleProjectExcelFile(file) {
   importState.file = file;
   importState.fileName = file.name;
 
-  // Update UI File Info
   const fileInfo = document.getElementById("importFileInfo");
   const fileNameEl = document.getElementById("importFileName");
   const fileSizeEl = document.getElementById("importFileSize");
@@ -799,7 +917,6 @@ async function handleProjectExcelFile(file) {
     fileInfo.classList.remove("hidden");
   }
 
-  // Ambil data projek existing untuk pengecekan duplikat
   let existingProjects = [];
   try {
     if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
@@ -808,7 +925,7 @@ async function handleProjectExcelFile(file) {
       existingProjects = window.allProyekList;
     }
   } catch (e) {
-    console.warn("Peringatan membaca existing project untuk validasi duplikat:", e);
+    console.warn("Peringatan membaca existing project:", e);
   }
 
   const reader = new FileReader();
@@ -820,10 +937,8 @@ async function handleProjectExcelFile(file) {
 
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
-
       const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
       if (!rawRows || rawRows.length === 0) {
@@ -835,7 +950,6 @@ async function handleProjectExcelFile(file) {
         return;
       }
 
-      // Filter baris kosong sepenuhnya
       const filteredRows = rawRows.filter(r => {
         return Object.values(r).some(val => String(val).trim() !== "");
       });
@@ -849,7 +963,6 @@ async function handleProjectExcelFile(file) {
         return;
       }
 
-      // Validasi baris per baris
       const validatedList = [];
       const validRows = [];
       const invalidRows = [];
@@ -877,7 +990,6 @@ async function handleProjectExcelFile(file) {
       importState.invalidRows = invalidRows;
       importState.duplicateRows = duplicateRows;
 
-      // Render Preview Step 2
       renderImportPreview();
       showImportStep(2);
 
@@ -894,22 +1006,12 @@ async function handleProjectExcelFile(file) {
     }
   };
 
-  reader.onerror = function () {
-    if (typeof Toast !== 'undefined') {
-      Toast.error('Gagal Membaca File', 'Terjadi kesalahan saat membaca file.');
-    }
-  };
-
   reader.readAsArrayBuffer(file);
 }
 
-// ==========================================
-// 6. RENDER PREVIEW & STATS IMPORT
-// ==========================================
 function filterImportPreview(filterType) {
   importState.activeFilter = filterType;
 
-  // Update tabs active styling
   const tabAll = document.getElementById("tabPreviewAll");
   const tabValid = document.getElementById("tabPreviewValid");
   const tabInvalid = document.getElementById("tabPreviewInvalid");
@@ -945,7 +1047,6 @@ function renderImportPreview() {
   const invalidCount = importState.invalidRows.length;
   const duplicateCount = importState.duplicateRows.length;
 
-  // Update Summary Badges
   const countTotalEl = document.getElementById("importCountTotal");
   const countValidEl = document.getElementById("importCountValid");
   const countInvalidEl = document.getElementById("importCountInvalid");
@@ -962,7 +1063,6 @@ function renderImportPreview() {
   if (badgeInvalidTab) badgeInvalidTab.textContent = invalidCount;
   if (badgeDuplicateTab) badgeDuplicateTab.textContent = duplicateCount;
 
-  // Warning Banner jika ada error
   const warningBanner = document.getElementById("importWarningBanner");
   const warningText = document.getElementById("importWarningText");
   if (warningBanner && warningText) {
@@ -977,7 +1077,6 @@ function renderImportPreview() {
     }
   }
 
-  // Tombol Import Execution
   const btnExecute = document.getElementById("btnExecuteImport");
   if (btnExecute) {
     if (validCount > 0) {
@@ -1087,9 +1186,7 @@ function renderImportTable() {
   tableBody.innerHTML = html;
 }
 
-// ==========================================
-// 7. EKSEKUSI BATCH IMPORT PROJEK
-// ==========================================
+// Eksekusi Batch Import Proyek
 async function executeBatchImport() {
   if (importState.isImporting) return;
   const validItems = importState.validRows;
@@ -1130,7 +1227,6 @@ async function executeBatchImport() {
           console.warn(`Gagal import baris ${item.rowIndex}:`, res);
         }
       } else {
-        // Fallback simulate save
         successCount++;
       }
     } catch (err) {
@@ -1141,7 +1237,6 @@ async function executeBatchImport() {
 
   importState.isImporting = false;
 
-  // Selesai import
   if (progressBar) progressBar.style.width = "100%";
   if (progressText) progressText.textContent = `100% Selesai`;
   if (progressDetail) {
@@ -1153,12 +1248,10 @@ async function executeBatchImport() {
     `;
   }
 
-  // Refresh Table Data Proyek di halaman
   if (typeof loadProyekData === 'function') {
     loadProyekData();
   }
 
-  // Tampilkan Notifikasi Hasil
   if (typeof Toast !== 'undefined') {
     if (failedCount === 0) {
       Toast.success('Import Berhasil', `Berhasil menambahkan ${successCount} projek baru ke database.`);
@@ -1167,7 +1260,323 @@ async function executeBatchImport() {
     }
   }
 
-  // Tampilkan tombol selesai
   const btnFinish = document.getElementById("btnFinishImport");
   if (btnFinish) btnFinish.classList.remove("hidden");
 }
+
+// ==========================================
+// 8. PARSING & VALIDASI FILE EXCEL KEUANGAN
+// ==========================================
+
+function mapKeuanganRowFields(rawRow) {
+  const mapped = {};
+  for (const [k, v] of Object.entries(rawRow)) {
+    const norm = normalizeHeaderKey(k);
+    if (norm === "idtransaksi" || norm === "idkas" || norm === "id") {
+      mapped.idTransaksi = v;
+    } else if (norm === "iduser" || norm === "userid") {
+      mapped.userId = v;
+    } else if (norm === "idprojek" || norm === "idproyek") {
+      mapped.idProyek = v;
+    } else if (norm === "jenis" || norm === "tipe") {
+      mapped.jenis = v;
+    } else if (norm.includes("keterangan") || norm.includes("deskripsi") || norm === "catatan") {
+      mapped.keterangan = v;
+    } else if (norm.includes("metodebayardp") || norm.includes("metodedp") || norm.includes("metodeasal")) {
+      mapped.metodeBayarDp = v;
+    } else if (norm.includes("metodebayarpelunasan") || norm.includes("metodepelunasan") || norm.includes("metodetujuan")) {
+      mapped.metodeBayarPelunasan = v;
+    } else if (norm.includes("metodepembayaran") || norm.includes("metodebayar") || norm === "metode") {
+      mapped.metodePembayaran = v;
+    } else if (norm === "totaldp" || norm === "dp" || norm.includes("uangmuka")) {
+      mapped.dp = v;
+    } else if (norm === "totalpelunasan" || norm === "pelunasan") {
+      mapped.pelunasan = v;
+    } else if (norm.includes("totalpembayaran") || norm.includes("nominal") || norm === "total") {
+      mapped.nominal = v;
+    }
+  }
+  return mapped;
+}
+
+function validateKeuanganRow(rawItem, rowIndex) {
+  const row = mapKeuanganRowFields(rawItem);
+  const errors = [];
+  const warnings = [];
+
+  let jenis = String(row.jenis || "Pemasukan").trim();
+  const matchedJenis = VALID_KEUANGAN_TYPES.find(j => j.toLowerCase() === jenis.toLowerCase());
+  if (matchedJenis) {
+    jenis = matchedJenis;
+  } else {
+    jenis = "Pemasukan";
+  }
+
+  const keterangan = String(row.keterangan || "").trim();
+  if (!keterangan) {
+    errors.push("Keterangan transaksi wajib diisi.");
+  }
+
+  const dp = parseCleanNumber(row.dp);
+  const pelunasan = parseCleanNumber(row.pelunasan);
+  let nominal = parseCleanNumber(row.nominal);
+
+  if (nominal <= 0 && (dp + pelunasan) > 0) {
+    nominal = dp + pelunasan;
+  }
+
+  if (nominal <= 0) {
+    errors.push("Total Pembayaran / Nominal transaksi harus lebih besar dari 0.");
+  }
+
+  let metodeDp = String(row.metodeBayarDp || row.metodePembayaran || "QRIS").trim();
+  let metodePel = String(row.metodeBayarPelunasan || row.metodeBayarDp || "QRIS").trim();
+
+  const payload = {
+    idTransaksi: String(row.idTransaksi || "").trim(),
+    userId: String(row.userId || "USR-001").trim(),
+    idProyek: String(row.idProyek || "").trim(),
+    jenis,
+    keterangan,
+    metodeBayarDp: metodeDp,
+    metodeBayarPelunasan: metodePel,
+    metodePembayaran: metodeDp,
+    dp,
+    pelunasan,
+    nominal,
+    totalPembayaran: nominal
+  };
+
+  const isValid = errors.length === 0;
+
+  return {
+    rowIndex,
+    original: rawItem,
+    payload,
+    isValid,
+    isDuplicate: false,
+    errors,
+    warnings
+  };
+}
+
+// Handler saat file Excel Keuangan dipilih
+async function handleKeuanganExcelFile(file) {
+  if (!file) return;
+
+  const validExts = ['.xlsx', '.xls', '.csv'];
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+  if (!validExts.includes(ext)) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error('Format Tidak Didukung', 'Harap upload file berformat Excel (.xlsx, .xls) atau .csv');
+    } else {
+      alert('Format file tidak didukung. Gunakan .xlsx atau .xls');
+    }
+    return;
+  }
+
+  importKeuanganState.file = file;
+  importKeuanganState.fileName = file.name;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      if (typeof XLSX === 'undefined') {
+        throw new Error("Pustaka SheetJS (XLSX) tidak tersedia.");
+      }
+
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+      if (!rawRows || rawRows.length === 0) {
+        if (typeof Toast !== 'undefined') {
+          Toast.warning('File Kosong', 'Tidak ada baris data pada file Excel.');
+        }
+        return;
+      }
+
+      const filteredRows = rawRows.filter(r => {
+        return Object.values(r).some(val => String(val).trim() !== "");
+      });
+
+      const validatedList = [];
+      const validRows = [];
+      const invalidRows = [];
+
+      filteredRows.forEach((r, idx) => {
+        const excelRowNumber = idx + 2;
+        const res = validateKeuanganRow(r, excelRowNumber);
+        validatedList.push(res);
+        if (res.isValid) {
+          validRows.push(res);
+        } else {
+          invalidRows.push(res);
+        }
+      });
+
+      importKeuanganState.parsedData = validatedList;
+      importKeuanganState.validRows = validRows;
+      importKeuanganState.invalidRows = invalidRows;
+
+      if (validRows.length > 0) {
+        if (confirm(`Ditemukan ${validRows.length} transaksi valid dari ${validatedList.length} baris. Lanjutkan import sekarang?`)) {
+          executeBatchImportKeuangan();
+        }
+      } else {
+        if (typeof Toast !== 'undefined') {
+          Toast.error('Data Tidak Valid', 'Tidak ada baris data keuangan yang valid untuk diimport.');
+        }
+      }
+    } catch (err) {
+      console.error('Gagal membaca file Excel Keuangan:', err);
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Gagal Membaca File', 'File Excel rusak atau tidak sesuai format: ' + (err.message || err));
+      }
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+// Eksekusi Batch Import Keuangan
+async function executeBatchImportKeuangan() {
+  if (importKeuanganState.isImporting) return;
+  const validItems = importKeuanganState.validRows;
+  if (!validItems || validItems.length === 0) return;
+
+  importKeuanganState.isImporting = true;
+  let successCount = 0;
+  let failedCount = 0;
+
+  if (typeof Toast !== 'undefined') {
+    Toast.info('Mengimpor Transaksi...', `Sedang memproses ${validItems.length} data transaksi ke database...`);
+  }
+
+  for (let i = 0; i < validItems.length; i++) {
+    const item = validItems[i];
+    const k = item.payload;
+
+    try {
+      if (typeof API !== 'undefined' && typeof API.addKeuangan === 'function') {
+        const res = await API.addKeuangan(k);
+        if (res && res.success !== false) {
+          successCount++;
+        } else {
+          failedCount++;
+        }
+      } else {
+        successCount++;
+      }
+    } catch (err) {
+      failedCount++;
+      console.error(`Error import keuangan baris ${item.rowIndex}:`, err);
+    }
+  }
+
+  importKeuanganState.isImporting = false;
+
+  if (typeof loadKeuanganData === 'function') {
+    loadKeuanganData();
+  }
+
+  if (typeof Toast !== 'undefined') {
+    if (failedCount === 0) {
+      Toast.success('Import Berhasil', `Berhasil menambahkan ${successCount} data transaksi ke Keuangan.`);
+    } else {
+      Toast.warning('Import Selesai', `${successCount} transaksi berhasil ditambahkan, ${failedCount} gagal.`);
+    }
+  }
+}
+
+// ==========================================
+// 9. EVENT LISTENERS & DROPDOWN CONTROLS
+// ==========================================
+function toggleExcelDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById("excelDropdownMenu");
+  if (menu) menu.classList.toggle("hidden");
+}
+
+function closeExcelDropdown() {
+  const menu = document.getElementById("excelDropdownMenu");
+  if (menu) menu.classList.add("hidden");
+}
+
+function toggleKeuanganExcelDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById("keuanganExcelDropdownMenu");
+  if (menu) menu.classList.toggle("hidden");
+}
+
+function closeKeuanganExcelDropdown() {
+  const menu = document.getElementById("keuanganExcelDropdownMenu");
+  if (menu) menu.classList.add("hidden");
+}
+
+function triggerKeuanganImport() {
+  const fileInput = document.getElementById("keuanganExcelFileInput");
+  if (fileInput) {
+    fileInput.value = "";
+    fileInput.click();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Global click outside to close dropdowns
+  document.addEventListener("click", (e) => {
+    const pBtn = document.getElementById("excelDropdownBtn") || document.getElementById("btnExcelDropdown");
+    const pMenu = document.getElementById("excelDropdownMenu");
+    if (pMenu && pBtn && !pBtn.contains(e.target) && !pMenu.contains(e.target)) {
+      pMenu.classList.add("hidden");
+    }
+
+    const kBtn = document.getElementById("keuanganExcelDropdownBtn");
+    const kMenu = document.getElementById("keuanganExcelDropdownMenu");
+    if (kMenu && kBtn && !kBtn.contains(e.target) && !kMenu.contains(e.target)) {
+      kMenu.classList.add("hidden");
+    }
+  });
+
+  // Drag & Drop Area Setup (Proyek)
+  const dropzone = document.getElementById("importDropzone");
+  const fileInput = document.getElementById("excelFileInput");
+
+  if (dropzone && fileInput) {
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("border-indigo-500", "bg-indigo-50", "dark:bg-indigo-950/20");
+    });
+
+    dropzone.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("border-indigo-500", "bg-indigo-50", "dark:bg-indigo-950/20");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("border-indigo-500", "bg-indigo-50", "dark:bg-indigo-950/20");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleProjectExcelFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleProjectExcelFile(e.target.files[0]);
+      }
+    });
+  }
+
+  // File Input Setup (Keuangan)
+  const kFileInput = document.getElementById("keuanganExcelFileInput");
+  if (kFileInput) {
+    kFileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleKeuanganExcelFile(e.target.files[0]);
+      }
+    });
+  }
+});
