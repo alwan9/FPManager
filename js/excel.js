@@ -245,9 +245,10 @@ async function exportExcel() {
 }
 
 // ==========================================
-// 3. FITUR DOWNLOAD TEMPLATE EXCEL RESMI (PROYEK)
-// Kolom Lengkap: Id_projek, Id_user, Id_transaksi, Nama_projek, No_wa, Deatline, Status, Link_Drive, Pelanggan, Produk, Jumlah, Satuan, Harga_satuan, Total_pembayaran, Sisa_pembayaran, Sumber, Catatan, Id_designer
-// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak perlu masuk template)
+// 3. FITUR DOWNLOAD TEMPLATE EXCEL RESMI (PROJEK & KEUANGAN)
+// Header 21 Kolom Lengkap untuk 2 Tabel (Proyek & Keuangan):
+// Id_projek, Id_user, Id_transaksi, Nama_projek, No_wa, Deatline, Status, Link_Drive, Pelanggan, Produk, Jumlah, Satuan, Harga_satuan, Metode_bayar_dp, Metode_bayar_pelunasan, Total_dp, Total_pelunasan, Total_pembayaran, Sumber, Catatan, Id_designer
+// Catatan: Created_at & Update_at dibuat otomatis oleh sistem untuk kedua tabel
 // ==========================================
 function downloadProjectTemplateExcel() {
   try {
@@ -257,7 +258,7 @@ function downloadProjectTemplateExcel() {
 
     const wb = XLSX.utils.book_new();
 
-    // 1. Data Sheet Template Proyek (Lengkap 18 Kolom Sesuai Database)
+    // 1. Data Sheet Template (Lengkap 21 Kolom untuk mengisi Tabel Proyek & Keuangan)
     const templateRows = [
       {
         "Id_projek": "PRJ-002-editvideofutiya",
@@ -273,8 +274,11 @@ function downloadProjectTemplateExcel() {
         "Jumlah": 1,
         "Satuan": "1",
         "Harga_satuan": 25000,
+        "Metode_bayar_dp": "QRIS",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 10000,
+        "Total_pelunasan": 15000,
         "Total_pembayaran": 25000,
-        "Sisa_pembayaran": 0,
         "Sumber": "WhatsApp",
         "Catatan": "Pembayaran lunas",
         "Id_designer": ""
@@ -288,13 +292,16 @@ function downloadProjectTemplateExcel() {
         "Deatline": "2026-09-21",
         "Status": "Selesai",
         "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-2",
-        "Pelanggan": "Rendang Kenta",
+        "Pelanggan": "Rendang Kentang",
         "Produk": "Desain Logo",
         "Jumlah": 1,
         "Satuan": "1",
         "Harga_satuan": 45000,
+        "Metode_bayar_dp": "QRIS",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 45000,
+        "Total_pelunasan": 0,
         "Total_pembayaran": 45000,
-        "Sisa_pembayaran": 0,
         "Sumber": "WhatsApp",
         "Catatan": "",
         "Id_designer": "USR-001"
@@ -313,8 +320,11 @@ function downloadProjectTemplateExcel() {
         "Jumlah": 1,
         "Satuan": "1",
         "Harga_satuan": 69000,
+        "Metode_bayar_dp": "Shopee",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 39000,
+        "Total_pelunasan": 30000,
         "Total_pembayaran": 69000,
-        "Sisa_pembayaran": 0,
         "Sumber": "Shopee",
         "Catatan": "",
         "Id_designer": "USR-001"
@@ -337,37 +347,39 @@ function downloadProjectTemplateExcel() {
       { wch: 8 },  // Jumlah
       { wch: 10 }, // Satuan
       { wch: 16 }, // Harga_satuan
+      { wch: 18 }, // Metode_bayar_dp
+      { wch: 22 }, // Metode_bayar_pelunasan
+      { wch: 16 }, // Total_dp
+      { wch: 18 }, // Total_pelunasan
       { wch: 18 }, // Total_pembayaran
-      { wch: 18 }, // Sisa_pembayaran
       { wch: 14 }, // Sumber
       { wch: 30 }, // Catatan
       { wch: 14 }  // Id_designer
     ];
 
-    XLSX.utils.book_append_sheet(wb, wsTemplate, "Template Proyek");
+    XLSX.utils.book_append_sheet(wb, wsTemplate, "Template Proyek & Keuangan");
 
     // 2. Sheet Petunjuk
     const guideRows = [
-      { "PANDUAN IMPORT PROJEK FPManager": "Silakan ikuti petunjuk pengisian file Excel ini:" },
-      { "PANDUAN IMPORT PROJEK FPManager": "" },
-      { "PANDUAN IMPORT PROJEK FPManager": "1. Kolom Wajib: Nama_projek, Pelanggan, Total_pembayaran." },
-      { "PANDUAN IMPORT PROJEK FPManager": "2. Id_projek & Id_transaksi: Opsional. Jika kosong, otomatis digenerate sistem (contoh: PRJ-013-..., TRX-031)." },
-      { "PANDUAN IMPORT PROJEK FPManager": "3. Id_user: Default 'USR-001' jika dikosongkan." },
-      { "PANDUAN IMPORT PROJEK FPManager": "4. Created_at & Update_at: Otomatis diisi waktu sekarang saat proses import (tidak perlu dimasukkan ke Excel)." },
-      { "PANDUAN IMPORT PROJEK FPManager": "5. Deatline: Format YYYY-MM-DD (contoh: 2026-10-25)." },
-      { "PANDUAN IMPORT PROJEK FPManager": "6. Status: Menunggu, Sedang Dikerjakan, Revisi, Selesai, Belum Pembayaran, Dibatalkan." },
-      { "PANDUAN IMPORT PROJEK FPManager": "7. Sumber: WhatsApp, Shopee, Fiverr, Website, Instagram, Lainnya." },
-      { "PANDUAN IMPORT PROJEK FPManager": "8. Sisa_pembayaran: Jika kosong, otomatis dihitung: Total_pembayaran - DP." }
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "Silakan ikuti petunjuk pengisian file Excel ini:" },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "" },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "1. Kolom Wajib: Nama_projek, Pelanggan, Total_pembayaran." },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "2. Id_projek & Id_transaksi: Opsional. Jika kosong, otomatis digenerate sistem (contoh: PRJ-013-..., TRX-031)." },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "3. Id_user: Default 'USR-001' jika dikosongkan." },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "4. Otomatisasi 2 Tabel: 1 file ini langsung mengisi tabel 'projek' dan tabel 'keuangan' secara otomatis." },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "5. Created_at & Update_at: Otomatis diisi waktu sekarang oleh sistem (tidak perlu diisi di Excel)." },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "6. Deatline: Format YYYY-MM-DD (contoh: 2026-10-25)." },
+      { "PANDUAN IMPORT PROJEK & KEUANGAN FPManager": "7. Metode Pembayaran: QRIS, Shopee, BSI, Transfer Bank, ShopeePay, Saldo Shopee, Fiverr, PayPal, Payoneer, Cash/Tunai." }
     ];
 
     const wsGuide = XLSX.utils.json_to_sheet(guideRows);
     wsGuide['!cols'] = [{ wch: 100 }];
     XLSX.utils.book_append_sheet(wb, wsGuide, "Petunjuk Pengisian");
 
-    XLSX.writeFile(wb, "Template-Import-Proyek-FPManager.xlsx");
+    XLSX.writeFile(wb, "Template-Import-Proyek-Keuangan-FPManager.xlsx");
 
     if (typeof Toast !== 'undefined') {
-      Toast.success('Template Diunduh', 'Template Excel Proyek resmi berhasil diunduh.');
+      Toast.success('Template Diunduh', 'Template Excel Proyek & Keuangan resmi berhasil diunduh.');
     }
   } catch (err) {
     console.error('Download template proyek error:', err);
