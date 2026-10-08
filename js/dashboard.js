@@ -129,7 +129,7 @@ function applyDashboardRoleCustomizations() {
     // 2. Personalize Welcome Banner for Designer
     const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : 'Designer';
     if (dashWelcomeTitle) {
-      dashWelcomeTitle.innerHTML = `${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}! <iconify-icon icon="fluent-emoji-flat:artist-palette" class="inline-block align-middle ml-1"></iconify-icon>`;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <iconify-icon icon="fluent-emoji-flat:artist-palette" class="inline-block align-middle ml-1 text-2xl"></iconify-icon>`;
     }
     if (dashWelcomeDesc) {
       dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
@@ -171,6 +171,10 @@ function applyDashboardRoleCustomizations() {
     }
   } else {
     // Super Admin & Service Roles (Allow Financial View)
+    if (user && (user.nama || user.username) && dashWelcomeTitle) {
+      const displayName = user.nama || user.username;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <iconify-icon icon="fluent-emoji-flat:waving-hand" class="inline-block align-middle text-2xl"></iconify-icon>`;
+    }
     if (chartCard) chartCard.classList.remove('hidden');
     if (toggleHideNominalBtn) toggleHideNominalBtn.classList.remove('hidden');
     if (bannerAddProjectBtn) bannerAddProjectBtn.classList.remove('hidden');
@@ -472,9 +476,9 @@ function renderRecentProjects(recent) {
     item.className = 'flex items-center justify-between p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors duration-150';
     item.innerHTML = `
       <div class="min-w-0 flex-1 pr-2">
-        <span class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 block truncate">${escapeHtml(p.namaProyek)}</span>
-        <span class="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
-        <div class="flex items-center mt-1 flex-wrap gap-1">
+        <span class="font-bold text-sm text-zinc-900 dark:text-zinc-100 block truncate leading-snug">${escapeHtml(p.namaProyek)}</span>
+        <span class="text-xs text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
+        <div class="flex items-center mt-1.5 flex-wrap gap-1">
           <span class="dash-micro-badge ${badgeClass}">${displayStatus}</span>
           ${sourceBadge}
           ${gdriveBtn}

@@ -611,21 +611,29 @@ function compileMonthlyData(keuanganList) {
       const st = String(k.statusPembayaran || '').toLowerCase();
       const isLunas = st.includes('lunas');
       const isUnpaid = st === 'belum';
-      const total = Number(k.totalProyek) || Number(k.nominal) || 0;
-      const dpVal = Number(k.dp !== undefined ? k.dp : (isUnpaid ? 0 : k.nominal)) || 0;
-      const pelunasanVal = Number(k.pelunasan) || 0;
-      const nominal = Number(k.nominal) || 0;
+      const total = (typeof parseCleanNumber === 'function') ? parseCleanNumber(k.totalProyek, parseCleanNumber(k.nominal, 0)) : (Number(k.totalProyek) || Number(k.nominal) || 0);
+      const dpVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(k.dp !== undefined ? k.dp : (isUnpaid ? 0 : k.nominal), 0) : (Number(k.dp !== undefined ? k.dp : (isUnpaid ? 0 : k.nominal)) || 0);
+      const pelunasanVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(k.pelunasan, 0) : (Number(k.pelunasan) || 0);
+      const nominal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(k.nominal, 0) : (Number(k.nominal) || 0);
 
       let realIn = 0;
       if (isLunas) {
-        realIn = (pelunasanVal > 0 && dpVal < total ? (dpVal + pelunasanVal) : (total > 0 ? total : nominal));
+        if (dpVal > 0 && pelunasanVal > 0) {
+          realIn = dpVal + pelunasanVal;
+        } else if (dpVal > 0 && pelunasanVal === 0) {
+          realIn = Math.max(total, dpVal);
+        } else if (dpVal === 0 && pelunasanVal > 0) {
+          realIn = pelunasanVal;
+        } else {
+          realIn = total > 0 ? total : nominal;
+        }
       } else if (!isUnpaid) {
         realIn = (dpVal > 0 ? dpVal : nominal);
       }
       monthlyData[key].pemasukan += realIn;
 
     } else if (k.jenis === 'Pengeluaran') {
-      monthlyData[key].pengeluaran += (Number(k.nominal) || 0);
+      monthlyData[key].pengeluaran += ((typeof parseCleanNumber === 'function') ? parseCleanNumber(k.nominal, 0) : (Number(k.nominal) || 0));
     }
   });
 

@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusInput = document.getElementById('status');
   const sumberInput = document.getElementById('sumber');
   const metodePembayaranInput = document.getElementById('metodePembayaran');
+  const assignDesignerSelect = document.getElementById('assignDesigner');
   const catatanInput = document.getElementById('catatan');
   const gdriveLinkInput = document.getElementById('gdriveLink');
   const createDriveFolderCheckbox = document.getElementById('createDriveFolder');
@@ -89,7 +90,48 @@ document.addEventListener('DOMContentLoaded', async () => {
   const deadlineWarning = document.getElementById('deadlineWarning');
   const submitBtn = document.getElementById('submitBtn');
   let currentPelunasan = 0;
+  let cachedSelectedDesignerId = "";
 
+  // Helper: Memuat daftar Designer secara dinamis dari database pengguna
+  async function loadDesignersDropdown(selectedId = "") {
+    if (!assignDesignerSelect) return;
+    if (selectedId) cachedSelectedDesignerId = selectedId;
+    try {
+      let users = [];
+      if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
+        users = await API.getUsers();
+      }
+      const designers = (Array.isArray(users) ? users : []).filter(u => {
+        const r = String(u.role || '').toLowerCase().trim();
+        const uname = String(u.username || '').toLowerCase().trim();
+        const uid = String(u.id || u.userId || '').toUpperCase().trim();
+        return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+      });
+
+      const currentVal = cachedSelectedDesignerId || assignDesignerSelect.value;
+      assignDesignerSelect.innerHTML = '<option value="">-- Belum di-assign --</option>';
+
+      designers.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        const dName = d.name || d.nama || d.username || d.id;
+        opt.textContent = dName;
+        if (String(d.id) === String(currentVal) || String(d.username || '').toLowerCase() === String(currentVal).toLowerCase()) {
+          opt.selected = true;
+        }
+        assignDesignerSelect.appendChild(opt);
+      });
+
+      if (currentVal) {
+        assignDesignerSelect.value = currentVal;
+      }
+    } catch (err) {
+      console.warn("Gagal memuat daftar Designer:", err);
+    }
+  }
+
+  // Panggil pemuatan awal data Designer
+  loadDesignersDropdown();
 
   // Toggle visibilitas input link manual berdasarkan status checkbox
   if (createDriveFolderCheckbox && manualGDriveContainer) {
@@ -344,6 +386,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (sumberInput) {
           sumberInput.value = proyek.sumber || 'WhatsApp';
         }
+        const assignedDesId = proyek.designerId || proyek.assignDesigner || proyek.idDesigner || proyek.assign || "";
+        cachedSelectedDesignerId = assignedDesId;
+        if (assignDesignerSelect) {
+          assignDesignerSelect.value = assignedDesId;
+        }
+        loadDesignersDropdown(assignedDesId);
         const initialMetode = proyek.metodePembayaran || proyek.metode || '';
         syncSumberUI(proyek.sumber || 'WhatsApp', initialMetode);
         if (metodePembayaranInput && initialMetode) {
@@ -820,6 +868,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         catatan: catatanInput.value,
         createDriveFolder: createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false,
         gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink,
+        designerId: assignDesignerSelect ? assignDesignerSelect.value : "",
+        assignDesigner: assignDesignerSelect ? assignDesignerSelect.value : "",
         userId: displayUserIdEl ? displayUserIdEl.textContent : (currUser ? currUser.id : 'USR-001')
       };
       try {

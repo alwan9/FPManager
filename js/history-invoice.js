@@ -64,7 +64,7 @@ const HistoryInvoice = {
 
   formatRupiah(val) {
     if (val === null || val === undefined || val === '') return 'Rp. 0';
-    const num = Number(val) || 0;
+    const num = (typeof parseCleanNumber === 'function') ? parseCleanNumber(val, 0) : (Number(val) || 0);
     return 'Rp. ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   },
 
@@ -93,8 +93,10 @@ const HistoryInvoice = {
     let paidCount = 0;
 
     items.forEach(inv => {
-      const tot = Number(inv.total || 0);
-      const sisa = Number(inv.sisa !== undefined ? inv.sisa : (tot - (Number(inv.dp || 0) + Number(inv.pelunasan || 0))));
+      const tot = (typeof parseCleanNumber === 'function') ? parseCleanNumber(inv.total, 0) : (Number(inv.total) || 0);
+      const dpVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(inv.dp, 0) : (Number(inv.dp) || 0);
+      const pelunasanVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(inv.pelunasan, 0) : (Number(inv.pelunasan) || 0);
+      const sisa = (typeof parseCleanNumber === 'function') ? (inv.sisa !== undefined ? parseCleanNumber(inv.sisa, 0) : Math.max(0, tot - (dpVal + pelunasanVal))) : (Number(inv.sisa !== undefined ? inv.sisa : (tot - (dpVal + pelunasanVal))));
       totalNominal += tot;
       totalSisa += sisa;
 

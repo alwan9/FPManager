@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark' || !theme) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>System Maintenance - FPManager</title>
+
+  <!-- Meta Informasi -->
+  <meta name="title" content="System Maintenance - FPManager">
+  <meta name="description"
+    content="Layanan FPManager sedang dalam pemeliharaan berkala untuk meningkatkan performa dan stabilitas sistem.">
+  <meta name="author" content="FPManager">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#2563EB">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+
+  <!-- Tailwind CSS, Font Awesome, Darkmode CSS -->
+  <link href="css/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/darkmode.css">
+
+  <style>
+    /* Prevent any scroll on all devices */
+    html,
+    body {
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      touch-action: none;
+      transition: background-color 0.3s ease;
+    }
+
+    video {
+      background-color: transparent !important;
+      outline: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+  </style>
+</head>
+
+<body id="pageBody"
+  class="bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 h-screen h-[100dvh] w-screen overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 transition-colors duration-300 relative select-none">
+
+  <!-- Floating Dark Mode Toggle (Pojok Kanan Atas) -->
+  <div class="absolute top-4 right-4 sm:top-6 sm:right-6 z-50">
+    <button id="darkModeToggle" type="button"
+      class="p-2 sm:p-2.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm hover:shadow transition-all focus:outline-none cursor-pointer flex items-center justify-center"
+      title="Ubah Mode Gelap/Terang" aria-label="Toggle Dark Mode">
+      <i id="darkModeIcon" class="fa-solid fa-moon text-base sm:text-lg"></i>
+    </button>
+  </div>
+
+  <!-- Hidden Sampling Canvas to Auto-Match Video Background Color -->
+  <canvas id="bgSampleCanvas" class="hidden" width="10" height="10"></canvas>
+
+  <!-- Center Simple Maintenance Box -->
+  <div id="mainContentBox" class="w-full max-w-lg mx-auto flex flex-col items-center text-center my-auto">
+
+    <!-- Video Illustration (40% Width, Seamless, No Frame, No Border, Auto-Looping) -->
+    <div class="w-[80%] sm:w-[50%] md:w-[40%] max-w-[660px] flex items-center justify-center mb-3 sm:mb-4">
+      <video id="maintenanceVideo" class="w-full h-auto aspect-video object-contain block" autoplay loop muted
+        playsinline preload="auto">
+        <source src="assets/maintenance-assets/0_Website_Maintenance_1280x720.mp4" type="video/mp4">
+        <source src="assets/maintenance-assets/0_Website_Maintenance_1280x720_2.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Title & Description (30% Proportion, Clean & Direct) -->
+    <div class="w-[85%] sm:w-[70%] max-w-sm flex flex-col items-center">
+      <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 leading-snug">
+        Sistem Sedang Dalam Pemeliharaan
+      </h1>
+
+      <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+        Pembaruan server dan optimasi performa sedang berlangsung. Kami akan segera kembali online.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="mt-4 flex flex-row items-center gap-2.5 w-full justify-center max-w-[260px]">
+        <!-- Cek Ulang Status -->
+        <button id="refreshBtn" onclick="refreshCheck()" type="button"
+          class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+          <i id="refreshIcon" class="fa-solid fa-arrows-rotate text-[11px]"></i>
+          <span>Cek Status</span>
+        </button>
+
+        <!-- Hubungi Admin WhatsApp -->
+        <a href="https://wa.me/?text=Halo%20Admin%20FPManager,%20saya%20ingin%20menanyakan%20status%20pemeliharaan%20sistem."
+          target="_blank" rel="noopener noreferrer"
+          class="flex-1 py-2 px-3 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+          <i class="fa-brands fa-whatsapp text-emerald-500 text-xs"></i>
+          <span>Bantuan</span>
+        </a>
+      </div>
+
+      <!-- Micro Toast / Info Text -->
+      <div id="statusToast"
+        class="mt-2.5 text-[10px] text-zinc-400 dark:text-zinc-500 transition-opacity duration-300 opacity-0">
+        <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Sedang memeriksa status...
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Copyright Note -->
+  <div class="absolute bottom-3 text-center text-[10px] text-zinc-400 dark:text-zinc-600">
+    FPManager &copy; 2026
+  </div>
+
+  <!-- Theme Script (FPManager Standard) -->
+  <script src="js/theme.js"></script>
+
+  <script>
+    // 1. Force Smooth Continuous Video Loop
+    const vid = document.getElementById('maintenanceVideo');
+    if (vid) {
+      vid.addEventListener('ended', () => {
+        vid.currentTime = 0;
+        vid.play().catch(() => { });
+      });
+      // Ensure autoplay even after page visibility changes
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && vid.paused) {
+          vid.play().catch(() => { });
+        }
+      });
+      vid.play().catch(() => { });
+    }
+
+    // 2. Automatic Video Background Color Matcher
+    function sampleAndMatchVideoBg() {
+      if (!vid || vid.readyState < 2) return;
+      try {
+        const canvas = document.getElementById('bgSampleCanvas') || document.createElement('canvas');
+        canvas.width = 10;
+        canvas.height = 10;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return;
+
+        ctx.drawImage(vid, 0, 0, 10, 10);
+        // Sample corner pixel (2, 2)
+        const pixel = ctx.getImageData(2, 2, 1, 1).data;
+
+        // If valid non-transparent pixel sampled
+        if (pixel[3] > 0) {
+          const r = pixel[0];
+          const g = pixel[1];
+          const b = pixel[2];
+          const rgbColor = `rgb(${r}, ${g}, ${b})`;
+
+          document.body.style.backgroundColor = rgbColor;
+          document.documentElement.style.backgroundColor = rgbColor;
+
+          // Determine brightness to keep text contrast optimal
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+          const isLightBg = brightness > 140;
+
+          if (isLightBg) {
+            document.documentElement.classList.remove('dark');
+          } else {
+            document.documentElement.classList.add('dark');
+          }
+        }
+      } catch (e) {
+        // Fallback gracefully if canvas is blocked
+      }
+    }
+
+    if (vid) {
+      vid.addEventListener('loadeddata', sampleAndMatchVideoBg);
+      vid.addEventListener('playing', sampleAndMatchVideoBg);
+      vid.addEventListener('timeupdate', () => {
+        if (!window._bgMatched) {
+          sampleAndMatchVideoBg();
+          window._bgMatched = true;
+        }
+      });
+    }
+
+    // 3. Simple Refresh Check Action
+    function refreshCheck() {
+      const icon = document.getElementById('refreshIcon');
+      const toast = document.getElementById('statusToast');
+      const btn = document.getElementById('refreshBtn');
+
+      if (icon) icon.classList.add('fa-spin');
+      if (btn) btn.disabled = true;
+      if (toast) {
+        toast.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Memeriksa status server...';
+        toast.classList.remove('opacity-0');
+      }
+
+      setTimeout(() => {
+        if (icon) icon.classList.remove('fa-spin');
+        if (btn) btn.disabled = false;
+        if (toast) {
+          toast.innerHTML = '<i class="fa-solid fa-clock text-amber-500 mr-1"></i> Pemeliharaan masih aktif. Silakan cek berkala.';
+          setTimeout(() => {
+            toast.classList.add('opacity-0');
+          }, 3500);
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+
+</html>

@@ -86,7 +86,7 @@ const TRANSLATIONS = {
     "dash-recent-act": "Aktivitas Projek Terbaru",
     "dash-deadline-title": "Kalender Deadline Revisi",
     "dash-quick-add": "Tambah Projek",
-    "dash-welcome": "Selamat Datang Admin! <iconify-icon icon=\"fluent-emoji-flat:waving-hand\" class=\"inline-block align-middle ml-1\"></iconify-icon>",
+    "dash-welcome": "Selamat Datang Admin!",
     "dash-total-projects": "Total Projek",
     "dash-expense": "Pengeluaran",
     "dash-profit": "Laba Bersih",
@@ -164,6 +164,7 @@ const TRANSLATIONS = {
     "tbl-th-name": "Nama Projek",
     "tbl-th-client": "Pelanggan",
     "tbl-th-wa": "WhatsApp",
+    "tbl-th-assign": "Assign",
     "tbl-th-total": "DP (Rp)",
     "tbl-th-dp": "DP (Rp)",
     "tbl-th-debt": "Pelunasan (Rp)",
@@ -175,6 +176,7 @@ const TRANSLATIONS = {
 
     // Project Detail Modal (detailModal)
     "dt-title": "Detail Projek",
+    "dt-assign": "Assign Designer",
     "dt-status": "Status Projek",
     "dt-source": "Sumber Projek",
     "dt-deadline": "Deadline Target",
@@ -237,6 +239,7 @@ const TRANSLATIONS = {
     "add-label-createdrive": "Buat Folder Google Drive Otomatis?",
     "add-desc-createdrive": "Sistem akan membuatkan folder baru di Google Drive untuk proyek ini.",
     "add-label-notes": "Catatan Tambahan / Spesifikasi (Opsional)",
+    "add-label-assign": "Assign Designer",
     "add-btn-cancel": "Batal",
     "add-btn-save": "Simpan Projek",
 
@@ -350,7 +353,7 @@ const TRANSLATIONS = {
     "dash-recent-act": "Recent Project Activity",
     "dash-deadline-title": "Revision Deadline Calendar",
     "dash-quick-add": "Add Project",
-    "dash-welcome": "Welcome Admin! <iconify-icon icon=\"fluent-emoji-flat:waving-hand\" class=\"inline-block align-middle ml-1\"></iconify-icon>",
+    "dash-welcome": "Welcome Admin!",
     "dash-total-projects": "Total Projects",
     "dash-expense": "Expenses",
     "dash-profit": "Net Profit",
@@ -427,6 +430,7 @@ const TRANSLATIONS = {
     "tbl-th-name": "Project Name",
     "tbl-th-client": "Customer",
     "tbl-th-wa": "WhatsApp",
+    "tbl-th-assign": "Assign",
     "tbl-th-total": "DP (Rp)",
     "tbl-th-dp": "DP (Rp)",
     "tbl-th-debt": "Settlement (Rp)",
@@ -438,6 +442,7 @@ const TRANSLATIONS = {
 
     // Project Detail Modal (detailModal)
     "dt-title": "Project Details",
+    "dt-assign": "Assign Designer",
     "dt-status": "Project Status",
     "dt-source": "Project Source",
     "dt-deadline": "Target Deadline",
@@ -500,6 +505,7 @@ const TRANSLATIONS = {
     "add-label-createdrive": "Create Google Drive Folder Automatically?",
     "add-desc-createdrive": "System will automatically create a new folder in Google Drive for this project.",
     "add-label-notes": "Additional Notes / Specifications (Optional)",
+    "add-label-assign": "Assign Designer",
     "add-btn-cancel": "Cancel",
     "add-btn-save": "Save Project",
 
@@ -548,23 +554,22 @@ const i18n = {
             el.value = dict[key];
           }
         } else {
-          // If it has children elements (like icons <i>), check if there is a span inside to translate
-          const span = el.querySelector('span');
-          if (span) {
+          const span = el.querySelector('span[data-i18n]') || el.querySelector('span');
+          if (span && span.getAttribute('data-i18n') === key) {
             span.textContent = dict[key];
+          } else if (span && el.getAttribute('data-i18n') === key) {
+            span.textContent = dict[key];
+          } else if (dict[key].includes('<')) {
+            el.innerHTML = dict[key];
+          } else if (el.children.length === 0) {
+            el.textContent = dict[key];
           } else {
-            // Check if there is text directly in the element (excluding child tags)
-            // Or just check if there is no html children:
-            if (el.children.length === 0) {
-              el.textContent = dict[key];
-            } else {
-              // Iterate child nodes and replace the text nodes
-              Array.from(el.childNodes).forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
-                  node.nodeValue = dict[key];
-                }
-              });
-            }
+            // Iterate child nodes and replace the text nodes
+            Array.from(el.childNodes).forEach(node => {
+              if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+                node.nodeValue = dict[key];
+              }
+            });
           }
         }
       }

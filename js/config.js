@@ -437,8 +437,39 @@ function showConfirmModal(options) {
     }
   });
 }
+function parseCleanNumber(val, fallback = 0) {
+  if (val === undefined || val === null || val === '') return fallback;
+  if (val instanceof Date) return fallback;
+  if (typeof val === 'number') return isNaN(val) ? fallback : val;
+  let str = String(val).trim();
+  if (!str) return fallback;
+  // If string resembles an ISO date, timestamp, or ID string, return fallback
+  if (str.match(/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/) || str.match(/T\d{2}:\d{2}/) || str.match(/^(PRJ|TRX|USR|INV)-/i)) {
+    return fallback;
+  }
+  str = str.replace(/^(Rp\.?|IDR)\s*/i, '').replace(/\s+/g, '');
+  if (str.includes('.') && str.includes(',')) {
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else if (str.includes('.')) {
+    const parts = str.split('.');
+    if (parts.length > 1 && parts[parts.length - 1].length === 3) {
+      str = str.replace(/\./g, '');
+    }
+  } else if (str.includes(',')) {
+    const parts = str.split(',');
+    if (parts.length > 1 && parts[parts.length - 1].length === 3) {
+      str = str.replace(/,/g, '');
+    } else {
+      str = str.replace(',', '.');
+    }
+  }
+  const parsed = parseFloat(str.replace(/[^0-9.-]+/g, ''));
+  return isNaN(parsed) ? fallback : parsed;
+}
+window.parseCleanNumber = parseCleanNumber;
+
 function formatRupiah(number) {
-  const num = parseFloat(number) || 0;
+  const num = parseCleanNumber(number, 0);
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -679,23 +710,27 @@ function consolidateKeuanganList(list) {
     if (prjId && item.jenis === 'Pemasukan') {
       if (projectMap.has(prjId)) {
         const existing = projectMap.get(prjId);
-        const exTotal = Number(existing.totalProyek) || Number(existing.nominal) || 0;
-        const curTotal = Number(item.totalProyek) || Number(item.nominal) || 0;
+        const exTotal = parseCleanNumber(existing.totalProyek, parseCleanNumber(existing.nominal, 0));
+        const curTotal = parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0));
         const finalTotal = Math.max(exTotal, curTotal);
 
-        const exDp = Number(existing.dp) || 0;
-        const curDp = Number(item.dp) || 0;
+        const exDp = parseCleanNumber(existing.dp, 0);
+        const curDp = parseCleanNumber(item.dp, 0);
         const finalDp = Math.max(exDp, curDp);
 
-        const exPelunasan = Number(existing.pelunasan) || 0;
-        const curPelunasan = Number(item.pelunasan) || 0;
+        const exPelunasan = parseCleanNumber(existing.pelunasan, 0);
+        const curPelunasan = parseCleanNumber(item.pelunasan, 0);
         const finalPelunasan = Math.max(exPelunasan, curPelunasan);
 
-        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp + finalPelunasan >= finalTotal && finalTotal > 0);
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || 
+                        String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || 
+                        (finalDp + finalPelunasan >= finalTotal && finalTotal > 0) ||
+                        (existing.sisa !== undefined && Number(existing.sisa) <= 0 && finalTotal > 0);
         const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp - finalPelunasan);
         const finalStatus = isLunas ? 'Lunas' : (finalDp > 0 ? 'DP' : 'Belum');
 
         existing.totalProyek = finalTotal;
+        existing.totalPembayaran = finalTotal;
         existing.dp = finalDp;
         existing.pelunasan = finalPelunasan;
         existing.sisa = finalSisa;
@@ -709,17 +744,20 @@ function consolidateKeuanganList(list) {
         if (item.tanggal) existing.tanggal = item.tanggal;
         if (item.createdAt) existing.createdAt = item.createdAt;
       } else {
-        const total = Number(item.totalProyek) || Number(item.nominal) || 0;
-        const dp = Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0;
-        const pelunasan = Number(item.pelunasan) || 0;
-        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || ((dp + pelunasan) >= total && total > 0);
-        const sisa = isLunas ? 0 : (item.sisa !== undefined ? Number(item.sisa) : Math.max(0, total - dp - pelunasan));
+        const total = parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0));
+        const dp = parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0);
+        const pelunasan = parseCleanNumber(item.pelunasan, 0);
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || 
+                        ((dp + pelunasan) >= total && total > 0) || 
+                        (item.sisa !== undefined && Number(item.sisa) <= 0 && total > 0);
+        const sisa = isLunas ? 0 : (item.sisa !== undefined ? parseCleanNumber(item.sisa, 0) : Math.max(0, total - dp - pelunasan));
         const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
 
         const consolidated = {
           ...item,
           idProyek: prjId,
           totalProyek: total,
+          totalPembayaran: total,
           dp: dp,
           pelunasan: pelunasan,
           sisa: sisa,
@@ -784,12 +822,13 @@ function calculateKeuanganSummary(mutasiList) {
 
     if (item.jenis === 'Pemasukan') {
       const st = String(item.statusPembayaran || '').toLowerCase();
-      const isLunas = st.includes('lunas');
-      const isUnpaid = st === 'belum';
-      const total = Number(item.totalProyek) || Number(item.nominal) || 0;
-      const dpVal = Number(item.dp !== undefined ? item.dp : (isUnpaid ? 0 : item.nominal)) || 0;
-      const pelunasanVal = Number(item.pelunasan) || 0;
-      const nominal = Number(item.nominal) || 0;
+      const total = parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0));
+      const dpVal = parseCleanNumber(item.dp !== undefined ? item.dp : (st === 'belum' ? 0 : item.nominal), 0);
+      const pelunasanVal = parseCleanNumber(item.pelunasan, 0);
+      const nominal = parseCleanNumber(item.nominal, 0);
+      const sisaVal = item.sisa !== undefined ? parseCleanNumber(item.sisa, 0) : Math.max(0, total - dpVal - pelunasanVal);
+      const isLunas = st.includes('lunas') || ((dpVal + pelunasanVal) >= total && total > 0) || (sisaVal <= 0 && total > 0);
+      const isUnpaid = st === 'belum' && dpVal === 0 && pelunasanVal === 0;
 
       let dpIn = 0;
       let pelunasanIn = 0;
@@ -801,6 +840,9 @@ function calculateKeuanganSummary(mutasiList) {
         } else if (dpVal > 0 && pelunasanVal === 0) {
           dpIn = dpVal;
           pelunasanIn = Math.max(0, total - dpVal);
+        } else if (dpVal === 0 && pelunasanVal > 0) {
+          dpIn = 0;
+          pelunasanIn = pelunasanVal;
         } else {
           dpIn = total > 0 ? total : nominal;
           pelunasanIn = 0;
@@ -829,7 +871,7 @@ function calculateKeuanganSummary(mutasiList) {
       }
 
     } else if (item.jenis === 'Pengeluaran') {
-      const outVal = Number(item.nominal) || 0;
+      const outVal = parseCleanNumber(item.nominal, 0);
       const outMethodKey = normalizePaymentMethod(item.metodePembayaran || item.metode, item.sumber);
       const acc = ensureAccountExists(outMethodKey);
       acc.totalOut += outVal;
@@ -840,7 +882,7 @@ function calculateKeuanganSummary(mutasiList) {
       // Pemindahan Saldo Antar Metode Pembayaran:
       // Saldo asal berkurang, saldo tujuan bertambah.
       // Tidak merubah total pemasukan maupun total pengeluaran global.
-      const mutasiVal = Number(item.nominal) || 0;
+      const mutasiVal = parseCleanNumber(item.nominal, 0);
       const asalMethodKey = normalizePaymentMethod(item.metodeBayarDp || item.metodeAsal || item.sumber, 'QRIS');
       const tujuanMethodKey = normalizePaymentMethod(item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan, 'BSI');
 

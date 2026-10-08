@@ -158,16 +158,16 @@ function consolidateKeuanganList(list) {
     if (prjId && item.jenis === 'Pemasukan') {
       if (projectMap.has(prjId)) {
         const existing = projectMap.get(prjId);
-        const exTotal = Number(existing.totalProyek) || Number(existing.nominal) || 0;
-        const curTotal = Number(item.totalProyek) || Number(item.nominal) || 0;
+        const exTotal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.totalProyek, parseCleanNumber(existing.nominal, 0)) : (Number(existing.totalProyek) || Number(existing.nominal) || 0);
+        const curTotal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0)) : (Number(item.totalProyek) || Number(item.nominal) || 0);
         const finalTotal = Math.max(exTotal, curTotal);
 
-        const exDp = Number(existing.dp) || 0;
-        const curDp = Number(item.dp) || 0;
+        const exDp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.dp, 0) : (Number(existing.dp) || 0);
+        const curDp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp, 0) : (Number(item.dp) || 0);
         const finalDp = Math.max(exDp, curDp);
 
-        const exPelunasan = Number(existing.pelunasan) || 0;
-        const curPelunasan = Number(item.pelunasan) || 0;
+        const exPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.pelunasan, 0) : (Number(existing.pelunasan) || 0);
+        const curPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan, 0) : (Number(item.pelunasan) || 0);
         const finalPelunasan = Math.max(exPelunasan, curPelunasan);
 
         const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp + finalPelunasan >= finalTotal && finalTotal > 0);
@@ -188,11 +188,11 @@ function consolidateKeuanganList(list) {
         if (item.tanggal) existing.tanggal = item.tanggal;
         if (item.createdAt) existing.createdAt = item.createdAt;
       } else {
-        const total = Number(item.totalProyek) || Number(item.nominal) || 0;
-        const dp = Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0;
-        const pelunasan = Number(item.pelunasan) || 0;
+        const total = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0)) : (Number(item.totalProyek) || Number(item.nominal) || 0);
+        const dp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0) : (Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0);
+        const pelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan, 0) : (Number(item.pelunasan) || 0);
         const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || ((dp + pelunasan) >= total && total > 0);
-        const sisa = isLunas ? 0 : (item.sisa !== undefined ? Number(item.sisa) : Math.max(0, total - dp - pelunasan));
+        const sisa = isLunas ? 0 : (item.sisa !== undefined ? ((typeof parseCleanNumber === 'function') ? parseCleanNumber(item.sisa, 0) : Number(item.sisa)) : Math.max(0, total - dp - pelunasan));
         const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
 
         const consolidated = {
@@ -529,14 +529,39 @@ function initTable(data) {
           const isExpense = row.jenis === 'Pengeluaran';
           
           let icon = '<i class="fa-solid fa-arrow-turn-down text-emerald-500 mr-1.5"></i>';
+          let extraBadges = '';
+
           if (isMutasi) {
             icon = '<i class="fa-solid fa-arrow-right-arrow-left text-purple-500 mr-1.5"></i>';
+            extraBadges = `<div class="mt-1"><span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">Pindah Saldo</span></div>`;
           } else if (isExpense) {
             icon = '<i class="fa-solid fa-arrow-turn-up text-rose-500 mr-1.5"></i>';
+            extraBadges = `<div class="mt-1"><span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800">Pengeluaran</span></div>`;
+          } else {
+            // Pemasukan
+            const st = String(row.statusPembayaran || '').toLowerCase();
+            const isLunas = st.includes('lunas');
+            const isUnpaid = st === 'belum';
+            const totalNom = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.totalProyek, parseCleanNumber(row.nominal, 0)) : (Number(row.totalProyek) || Number(row.nominal) || 0);
+            const dpVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.dp !== undefined ? row.dp : (isUnpaid ? 0 : row.nominal), 0) : (Number(row.dp) || 0);
+            const pelVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.pelunasan, 0) : (Number(row.pelunasan) || 0);
+            const sisaVal = isLunas ? 0 : ((typeof parseCleanNumber === 'function') ? parseCleanNumber(row.sisa, Math.max(0, totalNom - dpVal - pelVal)) : Math.max(0, totalNom - dpVal - pelVal));
+
+            let statusBadge = `<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">Lunas</span>`;
+            if (st === 'dp') {
+              statusBadge = `<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800">DP</span>`;
+            } else if (isUnpaid) {
+              statusBadge = `<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">Belum</span>`;
+            }
+
+            const totalInfo = totalNom > 0
+              ? `<div class="mt-1 flex items-center gap-1.5 flex-wrap text-[11px]">${statusBadge}<span class="font-mono text-zinc-600 dark:text-zinc-400">Total: <strong class="text-zinc-900 dark:text-zinc-100">${formatRupiah(totalNom)}</strong></span>${sisaVal > 0 ? `<span class="text-amber-600 dark:text-amber-400 font-bold font-mono">(Sisa: ${formatRupiah(sisaVal)})</span>` : ''}</div>`
+              : `<div class="mt-1">${statusBadge}</div>`;
+            extraBadges = totalInfo;
           }
 
           const noteHtml = row.catatanPelunasan ? `<div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1 font-medium"><i class="fa-solid fa-receipt text-[10px] text-indigo-500"></i><span>${escapeHtml(row.catatanPelunasan)}</span></div>` : '';
-          return `<div><div class="font-medium text-zinc-800 dark:text-zinc-200">${icon}${escapeHtml(data || '')}</div>${noteHtml}</div>`;
+          return `<div><div class="font-medium text-zinc-800 dark:text-zinc-200">${icon}${escapeHtml(data || '')}</div>${extraBadges}${noteHtml}</div>`;
         }
       },
       {
@@ -564,12 +589,13 @@ function initTable(data) {
             `;
           }
 
-          const dpVal = Number(row.dp !== undefined ? row.dp : (row.totalDp !== undefined ? row.totalDp : (String(row.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : row.nominal))) || 0;
+          const isUnpaid = String(row.statusPembayaran || '').toLowerCase() === 'belum';
+          const dpVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.dp !== undefined ? row.dp : (row.totalDp !== undefined ? row.totalDp : (isUnpaid ? 0 : row.nominal)), 0) : (Number(row.dp !== undefined ? row.dp : (row.totalDp !== undefined ? row.totalDp : (isUnpaid ? 0 : row.nominal))) || 0);
           const dpMethod = row.metodeBayarDp || row.metodePembayaran || row.sumber || 'QRIS';
 
           return `
             <div class="space-y-1">
-              <div class="font-bold text-xs ${dpVal > 0 ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400'}">${formatRupiah(dpVal)}</div>
+              <div class="font-bold text-xs ${dpVal > 0 ? 'text-zinc-900 dark:text-zinc-100 font-mono' : 'text-zinc-400 italic'}">${dpVal > 0 ? formatRupiah(dpVal) : 'Rp0'}</div>
               <div>${renderPaymentMethodBadge(dpMethod, row.sumber)}</div>
             </div>
           `;
@@ -594,21 +620,43 @@ function initTable(data) {
             return `<span class="text-zinc-400 text-xs italic">-</span>`;
           }
 
-          const totalNom = Number(row.totalProyek || row.totalPembayaran || row.nominal || 0);
-          const dpVal = Number(row.dp !== undefined ? row.dp : (row.totalDp !== undefined ? row.totalDp : (String(row.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : row.nominal))) || 0;
-          let pelunasanVal = Number(row.pelunasan !== undefined ? row.pelunasan : (row.totalPelunasan !== undefined ? row.totalPelunasan : 0)) || 0;
-          if (pelunasanVal <= 0 && totalNom > dpVal) {
-            pelunasanVal = Math.max(0, totalNom - dpVal);
-          }
-
+          const st = String(row.statusPembayaran || '').toLowerCase();
+          const isLunas = st.includes('lunas');
+          const totalNom = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.totalProyek, parseCleanNumber(row.nominal, 0)) : (Number(row.totalProyek || row.totalPembayaran || row.nominal || 0));
+          const dpVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.dp !== undefined ? row.dp : (st === 'belum' ? 0 : row.nominal), 0) : 0;
+          let pelunasanVal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(row.pelunasan !== undefined ? row.pelunasan : row.totalPelunasan, 0) : 0;
+          const dpMethod = row.metodeBayarDp || row.metodePembayaran || row.sumber || 'QRIS';
           const pelunasanMethod = row.metodeBayarPelunasan || row.metodePembayaran || row.metodeBayarDp || row.sumber || 'Shopee';
+          const sisaVal = isLunas ? 0 : ((typeof parseCleanNumber === 'function') ? parseCleanNumber(row.sisa, Math.max(0, totalNom - dpVal - pelunasanVal)) : Math.max(0, totalNom - dpVal - pelunasanVal));
 
-          return `
-            <div class="space-y-1">
-              <div class="font-bold text-xs ${pelunasanVal > 0 ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400'}">${formatRupiah(pelunasanVal)}</div>
-              <div>${renderPaymentMethodBadge(pelunasanMethod, row.sumber)}</div>
-            </div>
-          `;
+          if (isLunas) {
+            if (pelunasanVal <= 0 && totalNom > dpVal) {
+              pelunasanVal = Math.max(0, totalNom - dpVal);
+            }
+            if (dpVal >= totalNom && pelunasanVal === 0) {
+              return `
+                <div class="space-y-1">
+                  <div class="font-bold text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-circle-check text-[10px]"></i> Lunas (100% DP)</div>
+                  <div>${renderPaymentMethodBadge(dpMethod, row.sumber)}</div>
+                </div>
+              `;
+            }
+            return `
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-emerald-600 dark:text-emerald-400 font-mono">${formatRupiah(pelunasanVal > 0 ? pelunasanVal : totalNom)}</div>
+                <div>${renderPaymentMethodBadge(pelunasanMethod, row.sumber)}</div>
+              </div>
+            `;
+          } else if (st === 'dp') {
+            return `
+              <div class="space-y-0.5">
+                <div class="font-semibold text-xs text-amber-600 dark:text-amber-400">Belum Lunas</div>
+                <div class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">Sisa: ${formatRupiah(sisaVal)}</div>
+              </div>
+            `;
+          } else {
+            return `<span class="text-zinc-400 text-xs italic">Belum Ada</span>`;
+          }
         }
       },
       {
@@ -1031,11 +1079,12 @@ async function handleAddTransaksi(e) {
 
 // Format Rupiah Helper
 function formatRupiah(number) {
+  const num = (typeof parseCleanNumber === 'function') ? parseCleanNumber(number, 0) : (parseFloat(number) || 0);
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0
-  }).format(number);
+  }).format(num);
 }
 
 function editTransaksi(id) {

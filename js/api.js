@@ -327,22 +327,66 @@ const API = {
       }
 
       if (Array.isArray(result.data)) {
+        const kList = APICache.keuangan || [];
+        const kMapByTrx = {};
+        const kMapByPrj = {};
+        if (Array.isArray(kList)) {
+          kList.forEach(k => {
+            if (!k) return;
+            const tId = String(k.idTransaksi || k.id || '').trim();
+            const pId = String(k.idProjek || k.idProyek || '').trim();
+            if (tId) kMapByTrx[tId] = k;
+            if (pId && !kMapByPrj[pId]) kMapByPrj[pId] = k;
+          });
+        }
+
         result.data.forEach(p => {
           if (p) {
             p.iDProyek = p.iDProyek || p.idProjek || p.id || '';
+            p.idProjek = p.iDProyek;
+            p.idTransaksi = p.idTransaksi || p.id_transaksi || '';
+
+            // Relational match dengan data keuangan
+            let linkedK = null;
+            if (p.idTransaksi && kMapByTrx[p.idTransaksi]) {
+              linkedK = kMapByTrx[p.idTransaksi];
+            } else if (p.idProjek && kMapByPrj[p.idProjek]) {
+              linkedK = kMapByPrj[p.idProjek];
+            }
+
+            if (linkedK) {
+              if (!p.idTransaksi) p.idTransaksi = linkedK.idTransaksi || linkedK.id || '';
+              if (linkedK.dp !== undefined && (!p.dP || p.dP === 0)) {
+                p.dP = Number(linkedK.dp || linkedK.totalDp || 0);
+                p.totalDp = p.dP;
+              }
+              if (linkedK.pelunasan !== undefined && (!p.pelunasan || p.pelunasan === 0)) {
+                p.pelunasan = Number(linkedK.pelunasan || linkedK.totalPelunasan || 0);
+                p.totalPelunasan = p.pelunasan;
+              }
+              if (linkedK.metodeBayarDp && (!p.metodeBayarDp || p.metodeBayarDp === 'QRIS')) p.metodeBayarDp = linkedK.metodeBayarDp;
+              if (linkedK.metodeBayarPelunasan && (!p.metodeBayarPelunasan || p.metodeBayarPelunasan === 'QRIS')) p.metodeBayarPelunasan = linkedK.metodeBayarPelunasan;
+              if (linkedK.metodePembayaran) p.metodePembayaran = linkedK.metodePembayaran;
+            }
+
             p.namaProyek = p.namaProyek || p.nama_projek || p.nama_proyek || p.proyek || p.nama || p.iDProyek;
             p.namaPelanggan = p.namaPelanggan || p.pelanggan || p.klien || p.customer || '';
             p.pelanggan = p.pelanggan || p.namaPelanggan || '';
             p.nomorWA = p.nomorWA || p.noWa || p.wa || p.telepon || '';
             p.noWa = p.noWa || p.nomorWA || '';
-            p.dP = p.dP !== undefined ? p.dP : (p.totalDp !== undefined ? p.totalDp : (p.dp !== undefined ? p.dp : 0));
-            p.totalDp = p.totalDp !== undefined ? p.totalDp : p.dP;
-            p.pelunasan = p.pelunasan !== undefined ? p.pelunasan : (p.totalPelunasan !== undefined ? p.totalPelunasan : 0);
-            p.totalPelunasan = p.totalPelunasan !== undefined ? p.totalPelunasan : p.pelunasan;
-            p.nominalProyek = p.nominalProyek !== undefined ? p.nominalProyek : (p.totalPembayaran !== undefined ? p.totalPembayaran : (p.nominal !== undefined ? p.nominal : 0));
-            p.totalPembayaran = p.totalPembayaran !== undefined ? p.totalPembayaran : p.nominalProyek;
-            p.sisaPembayaran = p.sisaPembayaran !== undefined ? p.sisaPembayaran : (p.sisa !== undefined ? p.sisa : Math.max(0, p.nominalProyek - p.dP - p.pelunasan));
+            p.dP = p.dP !== undefined ? Number(p.dP) : (p.totalDp !== undefined ? Number(p.totalDp) : (p.dp !== undefined ? Number(p.dp) : 0));
+            p.totalDp = p.totalDp !== undefined ? Number(p.totalDp) : p.dP;
+            p.pelunasan = p.pelunasan !== undefined ? Number(p.pelunasan) : (p.totalPelunasan !== undefined ? Number(p.totalPelunasan) : 0);
+            p.totalPelunasan = p.totalPelunasan !== undefined ? Number(p.totalPelunasan) : p.pelunasan;
+            p.nominalProyek = p.nominalProyek !== undefined ? Number(p.nominalProyek) : (p.totalPembayaran !== undefined ? Number(p.totalPembayaran) : (p.nominal !== undefined ? Number(p.nominal) : 0));
+            p.totalPembayaran = p.totalPembayaran !== undefined ? Number(p.totalPembayaran) : p.nominalProyek;
+            p.sisaPembayaran = p.sisaPembayaran !== undefined ? Number(p.sisaPembayaran) : (p.sisa !== undefined ? Number(p.sisa) : Math.max(0, p.nominalProyek - p.dP - p.pelunasan));
+            p.metodeBayarDp = p.metodeBayarDp || p.metodePembayaran || 'QRIS';
+            p.metodeBayarPelunasan = p.metodeBayarPelunasan || p.metodeBayarDp || 'QRIS';
+            p.metodePembayaran = p.metodePembayaran || p.metodeBayarDp || 'QRIS';
             p.status = p.status || 'Menunggu';
+            p.designerId = p.designerId || p.assignDesigner || p.idDesigner || p.assign || '';
+            p.assignDesigner = p.designerId;
             if (p.deadline) p.deadline = window.parseSafeDateString(p.deadline);
             if (p.tanggal) p.tanggal = window.parseSafeDateString(p.tanggal);
           }
@@ -407,6 +451,8 @@ const API = {
         gdriveLink: proyekData.gdriveLink || "",
         sumber: proyekData.sumber || "WhatsApp",
         metodePembayaran: proyekData.metodePembayaran || "QRIS",
+        designerId: proyekData.designerId || proyekData.assignDesigner || "",
+        assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now(),
         isOfflineCreated: true
@@ -455,6 +501,8 @@ const API = {
           gdriveLink: result.gdriveLink || proyekData.gdriveLink,
           sumber: proyekData.sumber || "WhatsApp",
           metodePembayaran: proyekData.metodePembayaran || "QRIS",
+          designerId: proyekData.designerId || proyekData.assignDesigner || "",
+          assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
           userId: currUser ? currUser.id : "USR-001",
           lastUpdated: Date.now()
         };
@@ -484,6 +532,8 @@ const API = {
         gdriveLink: proyekData.gdriveLink,
         sumber: proyekData.sumber || "WhatsApp",
         metodePembayaran: proyekData.metodePembayaran || "QRIS",
+        designerId: proyekData.designerId || proyekData.assignDesigner || "",
+        assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now(),
         isOfflineCreated: true
@@ -530,6 +580,8 @@ const API = {
         gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
         sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
         metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
+        designerId: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
+        assignDesigner: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
         userId: currUser ? currUser.id : "USR-001",
         lastUpdated: Date.now()
       };
@@ -593,6 +645,8 @@ const API = {
           gdriveLink: proyekData.gdriveLink || (oldLocal ? oldLocal.gdriveLink : ""),
           sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
           metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
+          designerId: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
+          assignDesigner: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
           lastUpdated: Date.now()
         };
         await FPManagerDB.saveOne('proyek', localUpdated);
@@ -696,12 +750,46 @@ const API = {
           if (k) {
             k.id = k.id || k.idTransaksi || k.id_transaksi || '';
             k.idTransaksi = k.idTransaksi || k.id || '';
+            k.idProyek = k.idProyek || k.idProjek || k.id_projek || '';
+            k.idProjek = k.idProyek;
             k.jenis = k.jenis || k.tipe || 'Pemasukan';
             k.keterangan = k.keterangan || k.deskripsi || '';
-            k.nominal = Number(k.nominal !== undefined ? k.nominal : (k.totalPembayaran !== undefined ? k.totalPembayaran : 0));
-            k.statusPembayaran = k.statusPembayaran || (k.nominal > 0 ? 'Lunas' : 'Belum');
+            const cleanParser = (typeof window.parseCleanNumber === 'function') ? window.parseCleanNumber : (v, d = 0) => (Number(v) || d);
+            k.dp = cleanParser(k.dp !== undefined ? k.dp : k.totalDp, 0);
+            k.pelunasan = cleanParser(k.pelunasan !== undefined ? k.pelunasan : k.totalPelunasan, 0);
+            k.nominal = cleanParser(k.nominal !== undefined ? k.nominal : k.totalPembayaran, 0);
+            k.metodeBayarDp = k.metodeBayarDp || k.metode_bayar_dp || k.metodePembayaran || 'QRIS';
+            k.metodeBayarPelunasan = k.metodeBayarPelunasan || k.metode_bayar_pelunasan || k.metodeBayarDp || 'QRIS';
+            
+            let totPrj = cleanParser(k.totalProyek, (k.dp + k.pelunasan > 0 ? Math.max(k.dp + k.pelunasan, k.nominal) : k.nominal));
+            if (totPrj > 100000000000) {
+              totPrj = (k.dp + k.pelunasan > 0 ? Math.max(k.dp + k.pelunasan, k.nominal) : k.nominal);
+            }
+            k.totalProyek = totPrj;
+            k.totalPembayaran = totPrj;
+
+            // Bersihkan status dari timestamp jika ada
+            let st = String(k.statusPembayaran || '').trim();
+            if (!st || st.includes('T') || st.includes('Z') || st.match(/^\d{4}/)) {
+              if (k.jenis === 'Pengeluaran' || k.jenis === 'Mutasi') {
+                st = 'Lunas';
+              } else if (k.dp + k.pelunasan >= k.totalProyek && k.totalProyek > 0) {
+                st = 'Lunas';
+              } else if (k.dp > 0) {
+                st = 'DP';
+              } else {
+                st = 'Belum';
+              }
+            }
+            k.statusPembayaran = st;
+            k.sisa = st === 'Lunas' ? 0 : cleanParser(k.sisa, Math.max(0, k.totalProyek - k.dp - k.pelunasan));
             k.metodePembayaran = k.metodePembayaran || k.metodeBayarDp || k.metodeBayarPelunasan || 'QRIS';
-            if (k.tanggal) k.tanggal = window.parseSafeDateString(k.tanggal);
+
+            if (!k.tanggal && k.createdAt) {
+              k.tanggal = window.parseSafeDateString(k.createdAt);
+            } else if (k.tanggal) {
+              k.tanggal = window.parseSafeDateString(k.tanggal);
+            }
           }
         });
       }

@@ -22,13 +22,119 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load Data
   loadProyekData();
 });
+
+// Helper: Dynamic distinct color styling for each assigned user
+function getAssignColorStyles(dId) {
+  if (!dId) {
+    return {
+      bgClass: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
+      badgeClass: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700",
+      iconClass: "text-zinc-400",
+      arrowColor: "%2371717a"
+    };
+  }
+
+  const palettes = [
+    {
+      // 0. Purple / Violet (e.g. wansmin / USR-001)
+      bgClass: "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+      badgeClass: "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+      iconClass: "text-purple-500",
+      arrowColor: "%23a855f7"
+    },
+    {
+      // 1. Indigo / Blue
+      bgClass: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+      badgeClass: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+      iconClass: "text-indigo-500",
+      arrowColor: "%236366f1"
+    },
+    {
+      // 2. Emerald / Green
+      bgClass: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+      badgeClass: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+      iconClass: "text-emerald-500",
+      arrowColor: "%2310b981"
+    },
+    {
+      // 3. Amber / Orange
+      bgClass: "bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+      badgeClass: "bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+      iconClass: "text-amber-500",
+      arrowColor: "%23f59e0b"
+    },
+    {
+      // 4. Rose / Pink
+      bgClass: "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800",
+      badgeClass: "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800",
+      iconClass: "text-rose-500",
+      arrowColor: "%23f43f5e"
+    },
+    {
+      // 5. Sky / Blue
+      bgClass: "bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800",
+      badgeClass: "bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800",
+      iconClass: "text-sky-500",
+      arrowColor: "%230ea5e9"
+    },
+    {
+      // 6. Fuchsia / Magenta
+      bgClass: "bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950/60 dark:text-fuchsia-300 border-fuchsia-200 dark:border-fuchsia-800",
+      badgeClass: "bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950/60 dark:text-fuchsia-300 border-fuchsia-200 dark:border-fuchsia-800",
+      iconClass: "text-fuchsia-500",
+      arrowColor: "%23d946ef"
+    },
+    {
+      // 7. Teal
+      bgClass: "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+      badgeClass: "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+      iconClass: "text-teal-500",
+      arrowColor: "%2314b8a6"
+    }
+  ];
+
+  const cleanId = String(dId).toLowerCase().trim();
+  if (cleanId === "usr-001" || cleanId === "wansmin") return palettes[0];
+  if (cleanId === "usr-002") return palettes[1];
+  if (cleanId === "usr-003") return palettes[2];
+  if (cleanId === "usr-004") return palettes[3];
+  if (cleanId === "usr-005") return palettes[4];
+  if (cleanId === "usr-006") return palettes[5];
+  if (cleanId === "usr-007") return palettes[6];
+
+  // Deterministic Hash code for any dynamic designer ID
+  let hash = 0;
+  for (let i = 0; i < cleanId.length; i++) {
+    hash = (hash << 5) - hash + cleanId.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % palettes.length;
+  return palettes[index];
+}
+window.getAssignColorStyles = getAssignColorStyles;
+
 // Load proyek data and initialize DataTables
 async function loadProyekData() {
   showProyekSkeletons();
   try {
-    let listProyek = await API.getProyek();
+    let [listProyek, users] = await Promise.all([
+      API.getProyek().catch(e => { console.warn("Error fetching proyek:", e); return []; }),
+      API.getUsers().catch(e => { console.warn("Error fetching users:", e); return []; })
+    ]);
     if (!Array.isArray(listProyek)) {
       listProyek = [];
+    }
+    if (Array.isArray(users)) {
+      window.allUsersList = users;
+      window.allDesignersList = users.filter(u => {
+        const r = String(u.role || '').toLowerCase().trim();
+        const uname = String(u.username || '').toLowerCase().trim();
+        const uid = String(u.id || u.userId || '').toUpperCase().trim();
+        return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+      });
+    } else {
+      window.allUsersList = [];
+      window.allDesignersList = [];
     }
     window.allProyekList = listProyek; // Cache list globally for status updates
 
@@ -64,9 +170,9 @@ async function loadProyekData() {
         }
       });
 
-      // If filtering by 'Revisi', sort by deadline (column index 8) ascending (closest deadline first)
+      // If filtering by 'Revisi', sort by deadline (column index 9) ascending (closest deadline first)
       if (statusFilter.toLowerCase() === 'revisi') {
-        table.order([8, 'asc']).draw();
+        table.order([9, 'asc']).draw();
       }
     }
   } catch (error) {
@@ -192,6 +298,51 @@ function initTable(data) {
           const wa = data || rowData.nomorWA || rowData.noWa || '';
           if (!wa) return '<span class="text-zinc-400 text-xs italic">-</span>';
           return `<span onclick="copyTextToClipboard('${escapeHtml(wa)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold" title="Klik untuk salin Nomor WA">+${escapeHtml(wa)}</span>`;
+        }
+      },
+      {
+        data: 'designerId',
+        render: function (data, type, row) {
+          const rowData = row || {};
+          const prjId = rowData.iDProyek || rowData.idProjek || rowData.id || '';
+          const dId = String(data || rowData.designerId || rowData.assignDesigner || '').trim();
+          const users = window.allUsersList || [];
+          const designers = window.allDesignersList || users.filter(u => {
+            const r = String(u.role || '').toLowerCase().trim();
+            const uname = String(u.username || '').toLowerCase().trim();
+            const uid = String(u.id || u.userId || '').toUpperCase().trim();
+            return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+          });
+          
+          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const colorStyle = getAssignColorStyles(dId);
+
+          // If Designer role is viewing: show a read-only badge with the assigned designer name
+          if (isDes) {
+            if (!dId) {
+              return '<span class="text-zinc-400 text-xs italic">Belum di-assign</span>';
+            }
+            const currentDesigner = users.find(u => (u.id && u.id === dId) || (u.userId && u.userId === dId) || (u.username && u.username === dId));
+            const dName = currentDesigner ? (currentDesigner.name || currentDesigner.nama || currentDesigner.username) : dId;
+            return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${colorStyle.badgeClass}" title="Designer: ${escapeHtml(dName)}"><i class="fa-solid fa-user-pen text-[10px] ${colorStyle.iconClass}"></i> ${escapeHtml(dName)}</span>`;
+          }
+
+          // For Super Admin and Service: Render an interactive dropdown with dynamic user color
+          const selectBgSvg = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22${colorStyle.arrowColor}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')`;
+
+          let selectHtml = `<select onchange="const style=getAssignColorStyles(this.value); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ' + style.bgClass; updateProyekAssign('${escapeHtml(prjId)}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ${colorStyle.bgClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: ${selectBgSvg}; background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
+
+          selectHtml += `<option value="" class="bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">-- Belum di-assign --</option>`;
+
+          designers.forEach(d => {
+            const desId = d.id || d.userId || d.username;
+            const desName = d.name || d.nama || d.username || desId;
+            const isSelected = (String(desId) === dId || String(d.username || '').toLowerCase() === dId.toLowerCase()) ? 'selected' : '';
+            selectHtml += `<option value="${escapeHtml(desId)}" ${isSelected} class="bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">${escapeHtml(desName)}</option>`;
+          });
+
+          selectHtml += `</select>`;
+          return selectHtml;
         }
       },
       {
@@ -346,6 +497,18 @@ function initTable(data) {
             if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
             const badgeClass = 'badge-' + badgeKey;
 
+            // Security check: Designer can ONLY edit status if assigned to this project
+            const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+            const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+            const currentUserId = currentUser ? (currentUser.id || currentUser.userId || currentUser.username) : '';
+            const assignedDesignerId = rowData.designerId || rowData.assignDesigner || '';
+            const isAssignedToCurrent = isDes && assignedDesignerId && (assignedDesignerId === currentUserId || (currentUser && currentUser.username && assignedDesignerId === currentUser.username));
+            const canEditStatus = !isDes || isAssignedToCurrent;
+
+            if (!canEditStatus) {
+              return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${badgeClass}" title="Hanya Designer yang di-assign / Admin / Service yang dapat mengubah status">${statusLabels[statusStr] || statusStr}</span>`;
+            }
+
             let selectHtml = `<select onchange="const k=this.value.toLowerCase().replace(/\\s+/g,''); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k==='dikerjakan'?'sedangdikerjakan':k); updateProyekStatus('${escapeHtml(prjId)}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
 
             statusOptions.forEach(opt => {
@@ -422,7 +585,7 @@ function initTable(data) {
       }
     ],
     orderFixed: {
-      pre: [[12, 'asc']]
+      pre: [[13, 'asc']]
     },
     order: [[1, 'desc']], // Urutkan berdasarkan ID proyek terbaru (kolom ID sekarang di indeks 1)
     language: (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en') ? {
@@ -475,10 +638,10 @@ function filterStatus(status) {
     activeBtn.classList.add('ring-2', 'ring-indigo-500');
   }
   if (status === 'all') {
-    table.column(9).search('').draw();
+    table.column(10).search('').draw();
   } else {
     // Regex exact match agar status tidak saling menyaring
-    table.column(9).search('^' + status + '$', true, false).draw();
+    table.column(10).search('^' + status + '$', true, false).draw();
   }
 }
 
@@ -575,6 +738,26 @@ function populateDetailModal(proyek) {
   if (modalUserIdEl) {
     modalUserIdEl.textContent = userId;
     modalUserIdEl.classList.remove('hidden');
+  }
+
+  // 1b. Assign Designer Display
+  const modalAssignTextEl = document.getElementById('modalAssignText');
+  const modalAssignEl = document.getElementById('modalAssign');
+  const designerId = proyek.designerId || proyek.assignDesigner || '';
+  let designerDisplayName = isEn ? 'Unassigned' : 'Belum di-assign';
+  if (designerId) {
+    const users = window.allUsersList || [];
+    const designerObj = users.find(u => (u.id && u.id === designerId) || (u.userId && u.userId === designerId) || (u.username && u.username === designerId));
+    designerDisplayName = designerObj ? (designerObj.nama || designerObj.name || designerObj.username) : designerId;
+  }
+  if (modalAssignTextEl) {
+    modalAssignTextEl.textContent = designerDisplayName;
+  }
+  if (modalAssignEl) {
+    const colorStyle = getAssignColorStyles(designerId);
+    modalAssignEl.className = `inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border ${colorStyle.badgeClass}`;
+    modalAssignEl.innerHTML = `<i class="fa-solid fa-user-pen text-[10px] ${colorStyle.iconClass}"></i> <span id="modalAssignText">${escapeHtml(designerDisplayName)}</span>`;
+    modalAssignEl.classList.remove('hidden');
   }
 
   // 2. Status Badge
@@ -1532,6 +1715,27 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     }
 
     const oldStatus = proyek.status || 'Menunggu';
+
+    // Client-side role validation: Designer can only update status if assigned to this project
+    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+    const currentUserId = currentUser ? (currentUser.id || currentUser.userId || currentUser.username) : '';
+    const assignedDesignerId = proyek.designerId || proyek.assignDesigner || '';
+
+    if (isDes && (!assignedDesignerId || (assignedDesignerId !== currentUserId && assignedDesignerId !== currentUser?.username))) {
+      showToast({
+        title: "Akses Ditolak",
+        message: "Anda hanya dapat mengubah status projek yang di-assign kepada Anda.",
+        type: "error"
+      });
+      if (selectEl) {
+        selectEl.value = oldStatus;
+        const k = oldStatus.toLowerCase().replace(/\s+/g, '');
+        selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k === 'dikerjakan' ? 'sedangdikerjakan' : k);
+      }
+      return;
+    }
+
     let chosenMetode = proyek.metodePembayaran || proyek.metode || 'Shopee';
     let addedCatatan = '';
     const nominalVal = Number(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0));
@@ -1599,6 +1803,8 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       sisa: newSisa,
       deadline: proyek.deadline,
       status: newStatus,
+      designerId: assignedDesignerId,
+      assignDesigner: assignedDesignerId,
       metodePembayaran: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
       metodeBayarDp: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
       metodeBayarPelunasan: chosenMetode,
@@ -1682,6 +1888,90 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     loadProyekData();
   }
 }
+
+// Update assign designer of project inline from table select
+async function updateProyekAssign(id, newDesignerId, selectEl) {
+  try {
+    const list = window.allProyekList || [];
+    const proyek = list.find(p => (p.iDProyek || p.idProjek || p.id) === id);
+    if (!proyek) {
+      throw new Error("Projek tidak ditemukan di memori.");
+    }
+
+    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    if (isDes) {
+      showToast({
+        title: "Akses Ditolak",
+        message: "Hanya Super Admin dan Service yang dapat mengubah assignment Designer.",
+        type: "error"
+      });
+      loadProyekData();
+      return;
+    }
+
+    showToast({
+      title: "Memperbarui",
+      message: "Sedang memperbarui assign designer...",
+      type: "info"
+    });
+
+    const payload = {
+      namaProyek: proyek.namaProyek,
+      pelanggan: proyek.namaPelanggan || proyek.pelanggan || '',
+      wa: proyek.nomorWA || proyek.noWa || '',
+      produk: proyek.produk || proyek.jenisProduk || '',
+      jumlah: Number(proyek.jumlah) || 1,
+      satuan: proyek.satuan || 'Pcs',
+      hargaSatuan: Number(proyek.hargaSatuan) || 0,
+      nominal: Number(proyek.nominalProyek !== undefined ? proyek.nominalProyek : (proyek.nominal || 0)),
+      dp: Number(proyek.dP !== undefined ? proyek.dP : (proyek.dp || 0)),
+      pelunasan: Number(proyek.pelunasan || 0),
+      sisa: Number(proyek.sisaPembayaran !== undefined ? proyek.sisaPembayaran : (proyek.sisa || 0)),
+      deadline: proyek.deadline || '',
+      status: proyek.status || 'Menunggu',
+      designerId: newDesignerId || '',
+      assignDesigner: newDesignerId || '',
+      metodePembayaran: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
+      metodeBayarDp: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
+      metodeBayarPelunasan: proyek.metodeBayarPelunasan || proyek.metodePembayaran || 'Shopee',
+      sumber: proyek.sumber || 'WhatsApp',
+      catatan: proyek.catatan || ''
+    };
+
+    const res = await API.updateProyek(id, payload);
+    if (res && res.success) {
+      proyek.designerId = newDesignerId;
+      proyek.assignDesigner = newDesignerId;
+      
+      const users = window.allUsersList || [];
+      const designerObj = users.find(u => u.id === newDesignerId || u.userId === newDesignerId);
+      const dName = designerObj ? (designerObj.name || designerObj.nama || designerObj.username) : (newDesignerId || 'Belum di-assign');
+
+      showToast({
+        title: "Berhasil",
+        message: newDesignerId ? `Projek berhasil di-assign ke ${dName}.` : "Assignment projek berhasil direset.",
+        type: "success"
+      });
+      loadProyekData();
+    } else {
+      showToast({
+        title: "Gagal",
+        message: (res && res.message) || "Gagal memperbarui assign designer.",
+        type: "error"
+      });
+      loadProyekData();
+    }
+  } catch (error) {
+    console.error("Error updating assign:", error);
+    showToast({
+      title: "Error",
+      message: "Terjadi kesalahan saat memperbarui assignment.",
+      type: "error"
+    });
+    loadProyekData();
+  }
+}
+window.updateProyekAssign = updateProyekAssign;
 
 // ===================================
 // BATCH / BULK DELETE IMPLEMENTATION
