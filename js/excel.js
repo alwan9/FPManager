@@ -246,7 +246,8 @@ async function exportExcel() {
 
 // ==========================================
 // 3. FITUR DOWNLOAD TEMPLATE EXCEL RESMI (PROYEK)
-// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak masuk template)
+// Kolom Lengkap: Id_projek, Id_user, Id_transaksi, Nama_projek, No_wa, Deatline, Status, Link_Drive, Pelanggan, Produk, Jumlah, Satuan, Harga_satuan, Total_pembayaran, Sisa_pembayaran, Sumber, Catatan, Id_designer
+// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak perlu masuk template)
 // ==========================================
 function downloadProjectTemplateExcel() {
   try {
@@ -256,57 +257,66 @@ function downloadProjectTemplateExcel() {
 
     const wb = XLSX.utils.book_new();
 
-    // 1. Data Sheet Template Proyek (Tanpa Created_at dan Update_at)
+    // 1. Data Sheet Template Proyek (Lengkap 18 Kolom Sesuai Database)
     const templateRows = [
       {
-        "Nama_projek": "Website Company Profile PT Maju",
-        "Pelanggan": "PT Maju Bersama",
-        "No_wa": "6281234567890",
-        "Deatline": "2026-10-25",
-        "Status": "Sedang Dikerjakan",
+        "Id_projek": "PRJ-002-editvideofutiya",
+        "Id_user": "USR-001",
+        "Id_transaksi": "TRX-007",
+        "Nama_projek": "Video PKKMB",
+        "No_wa": "6285314665509",
+        "Deatline": "2026-09-20",
+        "Status": "Selesai",
         "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-1",
-        "Produk": "Web Development",
+        "Pelanggan": "Futiya",
+        "Produk": "Edit Video",
         "Jumlah": 1,
-        "Satuan": "paket",
-        "Harga_satuan": 2500000,
-        "Total_pembayaran": 2500000,
-        "Sisa_pembayaran": 2000000,
+        "Satuan": "1",
+        "Harga_satuan": 25000,
+        "Total_pembayaran": 25000,
+        "Sisa_pembayaran": 0,
         "Sumber": "WhatsApp",
-        "Catatan": "DP 500rb via QRIS",
-        "Id_designer": "USR-001"
+        "Catatan": "Pembayaran lunas",
+        "Id_designer": ""
       },
       {
-        "Nama_projek": "Desain Logo & Branding",
-        "Pelanggan": "CV Berkah",
-        "No_wa": "6285678901234",
-        "Deatline": "2026-10-15",
+        "Id_projek": "PRJ-003-desainlogorendang",
+        "Id_user": "USR-001",
+        "Id_transaksi": "TRX-008",
+        "Nama_projek": "Logo Rendang",
+        "No_wa": "6289531584989",
+        "Deatline": "2026-09-21",
         "Status": "Selesai",
         "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-2",
+        "Pelanggan": "Rendang Kenta",
         "Produk": "Desain Logo",
         "Jumlah": 1,
-        "Satuan": "pcs",
+        "Satuan": "1",
         "Harga_satuan": 45000,
         "Total_pembayaran": 45000,
         "Sisa_pembayaran": 0,
-        "Sumber": "Shopee",
-        "Catatan": "Pembayaran lunas via Shopee",
+        "Sumber": "WhatsApp",
+        "Catatan": "",
         "Id_designer": "USR-001"
       },
       {
+        "Id_projek": "PRJ-004-desainboxmartabak",
+        "Id_user": "USR-001",
+        "Id_transaksi": "TRX-009",
         "Nama_projek": "Box Martabak",
-        "Pelanggan": "Martabak Enak",
         "No_wa": "6282190816661",
-        "Deatline": "2026-10-20",
-        "Status": "Sedang Dikerjakan",
+        "Deatline": "2026-09-22",
+        "Status": "Selesai",
         "Link_Drive": "https://drive.google.com/drive/folders/contoh-folder-3",
+        "Pelanggan": "Martabak",
         "Produk": "Desain Box",
         "Jumlah": 1,
-        "Satuan": "pcs",
+        "Satuan": "1",
         "Harga_satuan": 69000,
         "Total_pembayaran": 69000,
-        "Sisa_pembayaran": 30000,
+        "Sisa_pembayaran": 0,
         "Sumber": "Shopee",
-        "Catatan": "DP 39rb via Shopee, pelunasan 30rb via QRIS",
+        "Catatan": "",
         "Id_designer": "USR-001"
       }
     ];
@@ -314,20 +324,23 @@ function downloadProjectTemplateExcel() {
     const wsTemplate = XLSX.utils.json_to_sheet(templateRows);
 
     wsTemplate['!cols'] = [
-      { wch: 32 }, // Nama_projek
-      { wch: 22 }, // Pelanggan
+      { wch: 26 }, // Id_projek
+      { wch: 12 }, // Id_user
+      { wch: 14 }, // Id_transaksi
+      { wch: 28 }, // Nama_projek
       { wch: 18 }, // No_wa
       { wch: 14 }, // Deatline
       { wch: 18 }, // Status
       { wch: 36 }, // Link_Drive
-      { wch: 22 }, // Produk
+      { wch: 22 }, // Pelanggan
+      { wch: 20 }, // Produk
       { wch: 8 },  // Jumlah
       { wch: 10 }, // Satuan
       { wch: 16 }, // Harga_satuan
       { wch: 18 }, // Total_pembayaran
       { wch: 18 }, // Sisa_pembayaran
       { wch: 14 }, // Sumber
-      { wch: 36 }, // Catatan
+      { wch: 30 }, // Catatan
       { wch: 14 }  // Id_designer
     ];
 
@@ -337,13 +350,14 @@ function downloadProjectTemplateExcel() {
     const guideRows = [
       { "PANDUAN IMPORT PROJEK FPManager": "Silakan ikuti petunjuk pengisian file Excel ini:" },
       { "PANDUAN IMPORT PROJEK FPManager": "" },
-      { "PANDUAN IMPORT PROJEK FPManager": "1. Kolom Wajib Diisi: Nama_projek, Pelanggan, Total_pembayaran." },
-      { "PANDUAN IMPORT PROJEK FPManager": "2. Id_projek & Id_transaksi: Otomatis digenerate sistem jika dikosongkan." },
-      { "PANDUAN IMPORT PROJEK FPManager": "3. Created_at & Update_at: Otomatis diisi waktu sekarang saat proses import (tidak perlu diisi di Excel)." },
-      { "PANDUAN IMPORT PROJEK FPManager": "4. Deatline: Format YYYY-MM-DD (contoh: 2026-10-25)." },
-      { "PANDUAN IMPORT PROJEK FPManager": "5. Status: Menunggu, Sedang Dikerjakan, Revisi, Selesai, Belum Pembayaran, Dibatalkan." },
-      { "PANDUAN IMPORT PROJEK FPManager": "6. Sumber: WhatsApp, Shopee, Fiverr, Website, Instagram, Lainnya." },
-      { "PANDUAN IMPORT PROJEK FPManager": "7. Sisa_pembayaran: Jika kosong, otomatis dihitung: Total_pembayaran - DP." }
+      { "PANDUAN IMPORT PROJEK FPManager": "1. Kolom Wajib: Nama_projek, Pelanggan, Total_pembayaran." },
+      { "PANDUAN IMPORT PROJEK FPManager": "2. Id_projek & Id_transaksi: Opsional. Jika kosong, otomatis digenerate sistem (contoh: PRJ-013-..., TRX-031)." },
+      { "PANDUAN IMPORT PROJEK FPManager": "3. Id_user: Default 'USR-001' jika dikosongkan." },
+      { "PANDUAN IMPORT PROJEK FPManager": "4. Created_at & Update_at: Otomatis diisi waktu sekarang saat proses import (tidak perlu dimasukkan ke Excel)." },
+      { "PANDUAN IMPORT PROJEK FPManager": "5. Deatline: Format YYYY-MM-DD (contoh: 2026-10-25)." },
+      { "PANDUAN IMPORT PROJEK FPManager": "6. Status: Menunggu, Sedang Dikerjakan, Revisi, Selesai, Belum Pembayaran, Dibatalkan." },
+      { "PANDUAN IMPORT PROJEK FPManager": "7. Sumber: WhatsApp, Shopee, Fiverr, Website, Instagram, Lainnya." },
+      { "PANDUAN IMPORT PROJEK FPManager": "8. Sisa_pembayaran: Jika kosong, otomatis dihitung: Total_pembayaran - DP." }
     ];
 
     const wsGuide = XLSX.utils.json_to_sheet(guideRows);
@@ -365,7 +379,8 @@ function downloadProjectTemplateExcel() {
 
 // ==========================================
 // 4. FITUR DOWNLOAD TEMPLATE EXCEL RESMI (KEUANGAN)
-// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak masuk template)
+// Kolom Lengkap: Id_transaksi, Id_user, Id_projek, Jenis, Keterangan, Metode_bayar_dp, Metode_bayar_pelunasan, Total_dp, Total_pelunasan, Total_pembayaran
+// Catatan: Created_at & Update_at dibuat otomatis oleh sistem (tidak perlu masuk template)
 // ==========================================
 function downloadKeuanganTemplateExcel() {
   try {
@@ -375,9 +390,11 @@ function downloadKeuanganTemplateExcel() {
 
     const wb = XLSX.utils.book_new();
 
-    // 1. Data Sheet Template Keuangan (Tanpa Created_at dan Update_at)
+    // 1. Data Sheet Template Keuangan (Lengkap 10 Kolom Sesuai Database)
     const templateRows = [
       {
+        "Id_transaksi": "TRX-007",
+        "Id_user": "USR-001",
         "Id_projek": "PRJ-002-editvideofutiya",
         "Jenis": "Pemasukan",
         "Keterangan": "Pembayaran DP - Futiya (PRJ-002-editvideofutiya)",
@@ -388,6 +405,20 @@ function downloadKeuanganTemplateExcel() {
         "Total_pembayaran": 25000
       },
       {
+        "Id_transaksi": "TRX-008",
+        "Id_user": "USR-001",
+        "Id_projek": "PRJ-003-desainlogorendang",
+        "Jenis": "Pemasukan",
+        "Keterangan": "Pembayaran Lunas - Rendang Kentang (PRJ-003-desainlogorendang)",
+        "Metode_bayar_dp": "QRIS",
+        "Metode_bayar_pelunasan": "QRIS",
+        "Total_dp": 45000,
+        "Total_pelunasan": 0,
+        "Total_pembayaran": 45000
+      },
+      {
+        "Id_transaksi": "TRX-009",
+        "Id_user": "USR-001",
         "Id_projek": "PRJ-004-desainboxmartabak",
         "Jenis": "Pemasukan",
         "Keterangan": "Pembayaran DP - Martabak (PRJ-004-desainboxmartabak)",
@@ -398,9 +429,11 @@ function downloadKeuanganTemplateExcel() {
         "Total_pembayaran": 69000
       },
       {
+        "Id_transaksi": "TRX-017",
+        "Id_user": "USR-001",
         "Id_projek": "",
         "Jenis": "Pengeluaran",
-        "Keterangan": "Beli langganan tools desain",
+        "Keterangan": "buat beli langganan groupy bulan oktober",
         "Metode_bayar_dp": "QRIS",
         "Metode_bayar_pelunasan": "QRIS",
         "Total_dp": 50000,
@@ -408,6 +441,8 @@ function downloadKeuanganTemplateExcel() {
         "Total_pembayaran": 50000
       },
       {
+        "Id_transaksi": "TRX-025",
+        "Id_user": "USR-001",
         "Id_projek": "",
         "Jenis": "Mutasi",
         "Keterangan": "Mutasi Pengeluaran QRIS ke BSI",
@@ -422,6 +457,8 @@ function downloadKeuanganTemplateExcel() {
     const wsTemplate = XLSX.utils.json_to_sheet(templateRows);
 
     wsTemplate['!cols'] = [
+      { wch: 14 }, // Id_transaksi
+      { wch: 12 }, // Id_user
       { wch: 26 }, // Id_projek
       { wch: 16 }, // Jenis
       { wch: 45 }, // Keterangan
@@ -438,12 +475,13 @@ function downloadKeuanganTemplateExcel() {
     const guideRows = [
       { "PANDUAN IMPORT KEUANGAN FPManager": "Silakan ikuti petunjuk pengisian file Excel Keuangan ini:" },
       { "PANDUAN IMPORT KEUANGAN FPManager": "" },
-      { "PANDUAN IMPORT KEUANGAN FPManager": "1. Kolom Wajib Diisi: Jenis (Pemasukan / Pengeluaran / Mutasi), Keterangan, Total_pembayaran." },
-      { "PANDUAN IMPORT KEUANGAN FPManager": "2. Id_transaksi: Otomatis digenerate sistem jika dikosongkan (contoh: TRX-031)." },
-      { "PANDUAN IMPORT KEUANGAN FPManager": "3. Id_projek: Opsional. Jika diisi dengan ID Projek yang valid, transaksi akan otomatis terhubung ke projek tersebut." },
-      { "PANDUAN IMPORT KEUANGAN FPManager": "4. Created_at & Update_at: Otomatis diisi waktu sekarang oleh sistem (tidak perlu diisi di Excel)." },
-      { "PANDUAN IMPORT KEUANGAN FPManager": "5. Metode Pembayaran: QRIS, Shopee, BSI, Transfer Bank, ShopeePay, Saldo Shopee, Fiverr, PayPal, Payoneer, Cash/Tunai." },
-      { "PANDUAN IMPORT KEUANGAN FPManager": "6. Untuk Mutasi Saldo: Metode_bayar_dp = Rekening Asal, Metode_bayar_pelunasan = Rekening Tujuan." }
+      { "PANDUAN IMPORT KEUANGAN FPManager": "1. Kolom Wajib: Jenis (Pemasukan / Pengeluaran / Mutasi), Keterangan, Total_pembayaran." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "2. Id_transaksi: Opsional. Jika kosong, otomatis digenerate sistem (contoh: TRX-031)." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "3. Id_user: Default 'USR-001' jika dikosongkan." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "4. Id_projek: Opsional. Jika diisi dengan ID Projek yang valid, transaksi akan otomatis terhubung ke projek tersebut." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "5. Created_at & Update_at: Otomatis diisi waktu sekarang oleh sistem (tidak perlu dimasukkan ke Excel)." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "6. Metode Pembayaran: QRIS, Shopee, BSI, Transfer Bank, ShopeePay, Saldo Shopee, Fiverr, PayPal, Payoneer, Cash/Tunai." },
+      { "PANDUAN IMPORT KEUANGAN FPManager": "7. Untuk Mutasi Saldo: Metode_bayar_dp = Rekening Asal, Metode_bayar_pelunasan = Rekening Tujuan." }
     ];
 
     const wsGuide = XLSX.utils.json_to_sheet(guideRows);
