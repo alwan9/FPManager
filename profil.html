@@ -276,12 +276,16 @@
         <!-- Hero Card (User Header Banner) -->
         <div
           class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-          <div class="relative group flex-shrink-0">
+          <div class="relative group flex-shrink-0 cursor-pointer"
+            onclick="document.getElementById('avatarFileInput').click()"
+            ondragover="event.preventDefault(); this.querySelector('#profileAvatarLarge').classList.add('ring-4', 'ring-indigo-400');"
+            ondragleave="this.querySelector('#profileAvatarLarge').classList.remove('ring-4', 'ring-indigo-400');"
+            ondrop="event.preventDefault(); this.querySelector('#profileAvatarLarge').classList.remove('ring-4', 'ring-indigo-400'); if(event.dataTransfer && event.dataTransfer.files.length) handleAvatarFileSelect({target: {files: event.dataTransfer.files}})">
             <div id="profileAvatarLarge"
-              class="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-4xl flex items-center justify-center shadow-2xl border-4 border-white/20 overflow-hidden">
+              class="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-4xl flex items-center justify-center shadow-2xl border-4 border-white/20 overflow-hidden transition-all">
               A
             </div>
-            <button type="button" onclick="document.getElementById('avatarFileInput').click()"
+            <button type="button" onclick="event.stopPropagation(); document.getElementById('avatarFileInput').click()"
               class="absolute bottom-0 right-0 p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-all hover:scale-110 border-2 border-white dark:border-zinc-800"
               title="Unggah Foto Profil">
               <i class="fa-solid fa-camera text-xs"></i>

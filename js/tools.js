@@ -343,6 +343,9 @@ function closeAllModals() {
   const m4 = document.getElementById('watermarkGeneratorModal');
   const m7 = document.getElementById('projectPreviewBlenderModal');
   const m8 = document.getElementById('referencesModal');
+  const m9 = document.getElementById('importShortcutModal');
+  const m10 = document.getElementById('importToolModal');
+  const m11 = document.getElementById('toolsExcelHubModal');
 
   if (m1) m1.classList.add('hidden');
   if (m2) m2.classList.add('hidden');
@@ -350,6 +353,9 @@ function closeAllModals() {
   if (m4) m4.classList.add('hidden');
   if (m7) m7.classList.add('hidden');
   if (m8) m8.classList.add('hidden');
+  if (m9) { m9.classList.add('hidden'); m9.classList.remove('flex'); }
+  if (m10) { m10.classList.add('hidden'); m10.classList.remove('flex'); }
+  if (m11) { m11.classList.add('hidden'); m11.classList.remove('flex'); }
 
   if (typeof handleWmPasteEvent === 'function') document.removeEventListener('paste', handleWmPasteEvent);
   if (typeof handlePbPasteEvent === 'function') document.removeEventListener('paste', handlePbPasteEvent);
@@ -1120,18 +1126,81 @@ function handleWmFileSelect(e) {
   }
 }
 
-function handleWmPasteEvent(e) {
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-  for (let item of items) {
-    if (item.type.indexOf('image') !== -1) {
-      const blob = item.getAsFile();
-      if (blob) {
-        loadWmImageFromFile(blob);
-        if (typeof Toast !== 'undefined') {
-          Toast.success('Berhasil Paste!', 'Gambar dari clipboard berhasil dimuat.');
-        }
-        break;
+function handleWmDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dz = document.getElementById('wmDropzone');
+  if (dz) {
+    dz.classList.add('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/30');
+  }
+}
+
+function handleWmDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dz = document.getElementById('wmDropzone');
+  if (dz) {
+    dz.classList.remove('border-indigo-500', 'bg-indigo-50/50', 'dark:bg-indigo-950/30');
+  }
+}
+
+function handleWmDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  handleWmDragLeave(e);
+  const files = e.dataTransfer ? e.dataTransfer.files : null;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file.type && file.type.startsWith('image/')) {
+      loadWmImageFromFile(file);
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Gambar Dimuat!', 'Gambar berhasil di-drop dan dimuat.');
       }
+    } else {
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Format Tidak Didukung', 'Harap masukkan file gambar valid (PNG, JPG, WEBP, dll).');
+      }
+    }
+  }
+}
+
+// Robust clipboard image extractor (supports screenshot buffers, copied files, and direct blobs)
+function extractImageFromClipboard(e) {
+  const cData = e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData) || window.clipboardData;
+  if (!cData) return null;
+
+  // 1. Direct File Objects from items
+  if (cData.items && cData.items.length > 0) {
+    for (let i = 0; i < cData.items.length; i++) {
+      const item = cData.items[i];
+      if (item && item.type && item.type.startsWith('image/')) {
+        const blob = item.getAsFile();
+        if (blob) return blob;
+      }
+    }
+  }
+
+  // 2. Direct Files array (from OS copy-paste)
+  if (cData.files && cData.files.length > 0) {
+    for (let i = 0; i < cData.files.length; i++) {
+      const file = cData.files[i];
+      if (file && (file.type ? file.type.startsWith('image/') : /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name || ''))) {
+        return file;
+      }
+    }
+  }
+
+  return null;
+}
+
+function handleWmPasteEvent(e) {
+  const imageBlob = extractImageFromClipboard(e);
+  if (imageBlob) {
+    e.preventDefault();
+    e.stopPropagation();
+    loadWmImageFromFile(imageBlob);
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Berhasil Paste!', 'Gambar dari clipboard berhasil dimuat.');
     }
   }
 }
@@ -1335,10 +1404,11 @@ function updateWmCanvas() {
   updateWmAutoUi();
 
   const position = document.getElementById('wmPosition')?.value || 'tile';
-  const opacity = (parseFloat(document.getElementById('wmOpacity')?.value) || 35) / 100;
-  const scalePercent = (parseInt(document.getElementById('wmSize')?.value) || 30) / 100;
-  const rotationDeg = parseInt(document.getElementById('wmRotate')?.value) || -30;
-  const spacing = parseInt(document.getElementById('wmSpacing')?.value) || 120;
+  const opacity = (parseFloat(document.getElementById('wmOpacity')?.value) || 11) / 100;
+  const scalePercent = (parseInt(document.getElementById('wmSize')?.value) || 15) / 100;
+  const rotateVal = document.getElementById('wmRotate')?.value;
+  const rotationDeg = (rotateVal !== undefined && !isNaN(rotateVal) && rotateVal !== '') ? parseInt(rotateVal) : -10;
+  const spacing = parseInt(document.getElementById('wmSpacing')?.value) || 170;
 
   // Compute proportional watermark size relative to image dimensions
   const baseDim = Math.min(imgW, imgH);
@@ -1566,18 +1636,79 @@ function handlePbFileSelect(e, target) {
   }
 }
 
-function handlePbPasteEvent(e) {
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-  for (let item of items) {
-    if (item.type.indexOf('image') !== -1) {
-      const blob = item.getAsFile();
-      if (blob) {
-        loadPbImageFromFile(blob, pbActiveSlot);
-        if (typeof Toast !== 'undefined') {
-          Toast.success('Berhasil Paste!', `Gambar dimuat ke slot ${pbActiveSlot === 'mockup' ? 'Mockup' : 'Desain Utama'}.`);
-        }
-        break;
+function handlePbSlotDragOver(e, slot) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.getElementById(slot === 'mockup' ? 'pbSlotMockup' : 'pbSlotDesign');
+  if (el) {
+    el.classList.add('border-indigo-500', 'bg-indigo-50/60', 'dark:bg-indigo-950/40');
+  }
+}
+
+function handlePbSlotDragLeave(e, slot) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.getElementById(slot === 'mockup' ? 'pbSlotMockup' : 'pbSlotDesign');
+  if (el) {
+    el.classList.remove('border-indigo-500', 'bg-indigo-50/60', 'dark:bg-indigo-950/40');
+  }
+}
+
+function handlePbSlotDrop(e, slot) {
+  e.preventDefault();
+  e.stopPropagation();
+  handlePbSlotDragLeave(e, slot);
+  const files = e.dataTransfer ? e.dataTransfer.files : null;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file.type && file.type.startsWith('image/')) {
+      selectPbSlot(slot);
+      loadPbImageFromFile(file, slot);
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Gambar Dimuat!', `Gambar ${slot === 'mockup' ? 'Mockup' : 'Desain Utama'} berhasil di-drop.`);
       }
+    } else {
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Format Tidak Didukung', 'Harap masukkan file gambar valid (PNG, JPG, WEBP, dll).');
+      }
+    }
+  }
+}
+
+function handlePbCanvasDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function handlePbCanvasDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function handlePbCanvasDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const files = e.dataTransfer ? e.dataTransfer.files : null;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file.type && file.type.startsWith('image/')) {
+      const targetSlot = pbActiveSlot || 'design';
+      loadPbImageFromFile(file, targetSlot);
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Gambar Diperbarui!', `Gambar ${targetSlot === 'mockup' ? 'Mockup' : 'Desain Utama'} berhasil diperbarui.`);
+      }
+    }
+  }
+}
+
+function handlePbPasteEvent(e) {
+  const imageBlob = extractImageFromClipboard(e);
+  if (imageBlob) {
+    e.preventDefault();
+    e.stopPropagation();
+    loadPbImageFromFile(imageBlob, pbActiveSlot);
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Berhasil Paste!', `Gambar dimuat ke slot ${pbActiveSlot === 'mockup' ? 'Mockup' : 'Desain Utama'}.`);
     }
   }
 }
@@ -2404,3 +2535,45 @@ function scrollToTop() {
     mainEl.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
+
+// Global paste listener for the Tools page - automatically routes pasted photos to active tool or Watermark Generator
+function handleGlobalToolsPaste(e) {
+  // If active element is a text input and no image is in clipboard, let text paste happen
+  const activeEl = document.activeElement;
+  const isTextInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  
+  const imageBlob = extractImageFromClipboard(e);
+  if (!imageBlob) return; // No image detected, standard behavior
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const pbModal = document.getElementById('projectPreviewBlenderModal');
+  const isPbOpen = pbModal && !pbModal.classList.contains('hidden');
+
+  const wmModal = document.getElementById('watermarkGeneratorModal');
+  const isWmOpen = wmModal && !wmModal.classList.contains('hidden');
+
+  if (isPbOpen) {
+    loadPbImageFromFile(imageBlob, pbActiveSlot);
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Berhasil Paste!', `Gambar dimuat ke slot ${pbActiveSlot === 'mockup' ? 'Mockup' : 'Desain Utama'}.`);
+    }
+  } else if (isWmOpen) {
+    loadWmImageFromFile(imageBlob);
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Berhasil Paste!', 'Gambar dari clipboard berhasil dimuat.');
+    }
+  } else {
+    // If no tool modal is currently open, automatically open Watermark Generator and populate image
+    openWatermarkModal();
+    loadWmImageFromFile(imageBlob);
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Gambar Dimuat!', 'Membuka Watermark Generator dengan gambar dari clipboard.');
+    }
+  }
+}
+
+// Initialize Global Paste on Tools page
+document.removeEventListener('paste', handleGlobalToolsPaste);
+document.addEventListener('paste', handleGlobalToolsPaste);
