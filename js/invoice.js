@@ -193,9 +193,9 @@ const Invoice = {
                 </div>
             </td>
             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">1 pcs</td>
-            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">Rp. 0</td>
-            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true">Rp. 0</td>
+            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
+            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
+            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
         `;
         tableBody.appendChild(tr);
 
@@ -873,29 +873,38 @@ const Invoice = {
         const previewTax = document.getElementById('previewTax');
 
         // Event listener blur untuk memformat angka dengan Rp. dan titik secara rapi
-        const bindBlurFormatter = (el) => {
+        const bindBlurFormatter = (el, isSummary = false) => {
             if (!el) return;
             el.onblur = () => {
-                const raw = this.getRawNumber(el.innerText);
-                el.innerText = this.format(raw);
+                const text = el.innerText.trim();
+                if (!isSummary && (!text || text === '-')) {
+                    el.innerText = '';
+                } else {
+                    const raw = this.getRawNumber(el.innerText);
+                    if (!isSummary && raw === 0) {
+                        el.innerText = '';
+                    } else {
+                        el.innerText = this.format(raw);
+                    }
+                }
                 this.recalculateAllTotals();
             };
         };
 
         // Pasang blur formatter pada total, DP, pelunasan, sisa, diskon, pajak
-        bindBlurFormatter(previewTotal);
-        bindBlurFormatter(previewDP);
-        bindBlurFormatter(previewPelunasan);
-        bindBlurFormatter(previewSisa);
-        bindBlurFormatter(previewDiscount);
-        bindBlurFormatter(previewTax);
+        bindBlurFormatter(previewTotal, true);
+        bindBlurFormatter(previewDP, true);
+        bindBlurFormatter(previewPelunasan, true);
+        bindBlurFormatter(previewSisa, true);
+        bindBlurFormatter(previewDiscount, true);
+        bindBlurFormatter(previewTax, true);
 
         // Pasang blur formatter pada sel harga & nominal di tabel
         if (tableBody) {
             const priceCells = tableBody.querySelectorAll('.price-cell');
             const nominalCells = tableBody.querySelectorAll('.nominal-cell');
-            priceCells.forEach(cell => bindBlurFormatter(cell));
-            nominalCells.forEach(cell => bindBlurFormatter(cell));
+            priceCells.forEach(cell => bindBlurFormatter(cell, false));
+            nominalCells.forEach(cell => bindBlurFormatter(cell, false));
 
             tableBody.oninput = () => {
                 this.recalculateAllTotals();
@@ -957,7 +966,7 @@ const Invoice = {
             };
         }
 
-        recalculateTable();
+        this.recalculateAllTotals();
     },
 
     async saveEditedInvoice(isSilent = false) {
