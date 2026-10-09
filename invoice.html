@@ -370,7 +370,9 @@
         }
 
         @media print {
-            html, body {
+
+            html,
+            body {
                 width: 210mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -378,22 +380,29 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+
             body:not(.print-dark-mode) {
                 background: #ffffff !important;
             }
+
             body.print-dark-mode {
                 background: #121215 !important;
             }
-            .no-print, .no-print *, .drag-handle {
+
+            .no-print,
+            .no-print *,
+            .drag-handle {
                 display: none !important;
                 visibility: hidden !important;
             }
+
             .max-w-5xl {
                 max-width: 210mm !important;
                 width: 210mm !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
+
             #invoiceArea {
                 border: none !important;
                 box-shadow: none !important;
@@ -410,6 +419,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+
             #invoiceArea.invoice-dark-mode {
                 background-color: #121215 !important;
                 color: #f4f4f5 !important;
@@ -436,12 +446,7 @@
                     <i class="fa-solid fa-receipt mr-2 text-indigo-500"></i>
                     <span>History Invoice</span>
                 </a>
-                <button type="button" onclick="Invoice.loadBlankInvoice()"
-                    class="no-print bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-semibold px-3.5 py-2.5 rounded-xl shadow-xs transition-all flex items-center text-xs sm:text-sm cursor-pointer"
-                    title="Buka Lembar Invoice Baru Kosong">
-                    <i class="fa-solid fa-file-circle-plus mr-1.5 text-emerald-600 dark:text-emerald-400"></i>
-                    <span>+ Blank Invoice</span>
-                </button>
+
             </div>
             <button id="darkModeToggle" type="button"
                 class="no-print p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
@@ -452,18 +457,18 @@
 
         <!-- Control Panel (Document Settings) -->
         <div
-            class="no-print bg-white dark:bg-zinc-800/90 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700/80 p-4 mb-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            class="no-print bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 p-4 mb-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between transition-colors">
             <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
                 <!-- Tipe Dokumen -->
                 <div class="flex items-center gap-2.5">
                     <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tipe Dokumen:</span>
-                    <div class="flex bg-zinc-100 dark:bg-zinc-700/60 p-1 rounded-xl">
-                        <button id="btnTypeInvoice"
+                    <div class="flex bg-zinc-100 dark:bg-zinc-800/90 p-1 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60">
+                        <button id="btnTypeInvoice" type="button"
                             class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm">
                             Invoice
                         </button>
-                        <button id="btnTypeNota"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white">
+                        <button id="btnTypeNota" type="button"
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
                             Nota
                         </button>
                     </div>
@@ -472,14 +477,14 @@
                 <!-- Tema Invoice -->
                 <div class="flex items-center gap-2.5">
                     <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tema Invoice:</span>
-                    <div class="flex bg-zinc-100 dark:bg-zinc-700/60 p-1 rounded-xl">
+                    <div class="flex bg-zinc-100 dark:bg-zinc-800/90 p-1 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60">
                         <button id="btnThemeLight" type="button"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-sun text-amber-500"></i>
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-sun text-amber-300"></i>
                             <span>Terang</span>
                         </button>
                         <button id="btnThemeDark" type="button"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm flex items-center gap-1.5">
+                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1.5">
                             <i class="fa-solid fa-moon text-indigo-400"></i>
                             <span>Gelap</span>
                         </button>
@@ -508,11 +513,16 @@
             <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-600 to-purple-600 z-20"></div>
 
             <!-- Watermark Background (HTML Image Grid for absolute compatibility and customizable spacing) -->
-            <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" id="watermarkGrid" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+            <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" id="watermarkGrid"
+                style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
 
             <!-- Background Decorative Ornaments (Slanted modern polygon blocks, no circles) -->
-            <div class="ornament-1 absolute top-0 right-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(40px); background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
-            <div class="ornament-2 absolute bottom-0 left-0 w-80 h-32 pointer-events-none z-0 overflow-hidden" style="transform: skewX(-30deg) translateX(-40px); background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)); -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+            <div class="ornament-1 absolute top-0 right-0 w-80 h-32 pointer-events-none z-0 overflow-hidden"
+                style="transform: skewX(-30deg) translateX(40px); background: linear-gradient(to left, rgba(79, 70, 229, 0.18), rgba(139, 92, 246, 0.06)); -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+            </div>
+            <div class="ornament-2 absolute bottom-0 left-0 w-80 h-32 pointer-events-none z-0 overflow-hidden"
+                style="transform: skewX(-30deg) translateX(-40px); background: linear-gradient(to right, rgba(79, 70, 229, 0.14), rgba(236, 72, 153, 0.04)); -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+            </div>
 
             <div class="relative z-10 space-y-6 md:space-y-8">
                 <div class="flex justify-between border-b pb-4 md:pb-6 invoice-header-border">
@@ -621,77 +631,105 @@
                     <tbody id="invoiceTableBody">
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">1</td>
-                            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true" id="previewProduk"></td>
+                            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"
+                                id="previewProduk"></td>
                             <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"
                                 id="previewJumlah"></td>
                             <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"
                                 id="previewHarga"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"
-                                id="previewNominal"></td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true" id="previewNominal"></td>
                         </tr>
                         <!-- Baris kosong tambahan (menjadi 10 baris total) -->
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">2</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">3</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">4</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">5</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">6</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">7</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">8</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">9</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
                         <tr class="invoice-row">
                             <td class="border p-1 md:p-3 text-center">10</td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true"></td>
-                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true"></td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">
+                            </td>
+                            <td class="border text-center font-bold nominal-cell editable-cell cursor-text"
+                                contenteditable="true"></td>
                         </tr>
 
                     </tbody>
@@ -703,23 +741,23 @@
                     <div id="previewTotalBox" class="w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-semibold" data-i18n="inv-total">Total</span>
-                            <span class="font-bold text-zinc-900 text-base outline-none cursor-text px-1 py-0.5" contenteditable="true"
-                                id="previewTotal"></span>
+                            <span class="font-bold text-zinc-900 text-base outline-none cursor-text px-1 py-0.5"
+                                contenteditable="true" id="previewTotal"></span>
                         </div>
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-semibold" data-i18n="inv-dp">DP</span>
-                            <span class="font-semibold text-zinc-800 outline-none cursor-text px-1 py-0.5" contenteditable="true"
-                                id="previewDP"></span>
+                            <span class="font-semibold text-zinc-800 outline-none cursor-text px-1 py-0.5"
+                                contenteditable="true" id="previewDP"></span>
                         </div>
                         <div id="previewPelunasanRow" class="flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-semibold" data-i18n="inv-settlement">Pelunasan</span>
-                            <span class="font-semibold text-emerald-600 outline-none cursor-text px-1 py-0.5" contenteditable="true"
-                                id="previewPelunasan"></span>
+                            <span class="font-semibold text-emerald-600 outline-none cursor-text px-1 py-0.5"
+                                contenteditable="true" id="previewPelunasan"></span>
                         </div>
                         <div class="border-t border-zinc-200 my-2 pt-2 flex justify-between items-center text-sm">
                             <span class="text-zinc-900 font-bold" data-i18n="inv-balance">Sisa Pembayaran</span>
-                            <span class="text-red-600 font-extrabold text-base outline-none cursor-text px-1 py-0.5" contenteditable="true"
-                                id="previewSisa"></span>
+                            <span class="text-red-600 font-extrabold text-base outline-none cursor-text px-1 py-0.5"
+                                contenteditable="true" id="previewSisa"></span>
                         </div>
                     </div>
 

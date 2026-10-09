@@ -1054,7 +1054,7 @@ const Invoice = {
             if (titleEl) titleEl.innerText = "NOTA";
             if (labelEl) labelEl.innerText = "No Nota :";
             if (btnInvoice) {
-                btnInvoice.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white";
+                btnInvoice.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100";
             }
             if (btnNota) {
                 btnNota.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm";
@@ -1066,7 +1066,7 @@ const Invoice = {
                 btnInvoice.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm";
             }
             if (btnNota) {
-                btnNota.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white";
+                btnNota.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100";
             }
         }
     },
@@ -1129,7 +1129,7 @@ const Invoice = {
                 btnDark.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5";
             }
             if (btnLight) {
-                btnLight.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1.5";
+                btnLight.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1.5";
             }
         } else {
             if (invoice) {
@@ -1140,7 +1140,7 @@ const Invoice = {
                 btnLight.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5";
             }
             if (btnDark) {
-                btnDark.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1.5";
+                btnDark.className = "px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1.5";
             }
         }
 

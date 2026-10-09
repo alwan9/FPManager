@@ -481,42 +481,7 @@
             </h3>
           </div>
           <div class="flex items-center space-x-2 shrink-0">
-            <!-- Secondary Excel Dropdown for Quick Access -->
-            <div class="relative inline-block text-left z-30" id="toolExcelDropdownWrapper2">
-              <button
-                onclick="toggleToolExcelDropdown2(event)"
-                id="btnToolExcelDropdown2" type="button"
-                class="inline-flex items-center space-x-1.5 px-3 py-2 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer">
-                <i class="fa-solid fa-file-excel text-emerald-600 dark:text-emerald-400"></i>
-                <span>Excel Prompt</span>
-                <i class="fa-solid fa-chevron-down text-[9px] ml-0.5 text-zinc-400"></i>
-              </button>
-              <div id="toolExcelDropdownMenu2"
-                class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 py-1.5 z-[70] text-xs text-zinc-700 dark:text-zinc-200 divide-y divide-zinc-100 dark:divide-zinc-800">
-                <div class="py-1">
-                  <button
-                    onclick="downloadToolsTemplateExcel(); closeToolExcelDropdown();"
-                    class="w-full flex items-center px-3.5 py-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                    <i class="fa-solid fa-file-arrow-down w-4 text-emerald-600 dark:text-emerald-400 mr-2.5"></i>
-                    <span>Unduh Template Excel</span>
-                  </button>
-                  <button
-                    onclick="exportToolsToExcel(); closeToolExcelDropdown();"
-                    class="w-full flex items-center px-3.5 py-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                    <i class="fa-solid fa-file-export w-4 text-indigo-600 dark:text-indigo-400 mr-2.5"></i>
-                    <span>Export ke Excel (.xlsx)</span>
-                  </button>
-                </div>
-                <div class="py-1">
-                  <button
-                    onclick="openImportToolModal(); closeToolExcelDropdown();"
-                    class="w-full flex items-center px-3.5 py-2 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <i class="fa-solid fa-file-import w-4 mr-2.5"></i>
-                    <span>Import dari Excel</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+
 
             <button onclick="openAddToolModal()"
               class="inline-flex items-center justify-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs shadow-xs transition-all">
