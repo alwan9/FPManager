@@ -6,7 +6,18 @@ const Invoice = {
     docType: 'invoice',
     showSignature: true,
     invoiceTheme: 'light',
+    hasDiscount: false,
+    hasTax: false,
     draggedRow: null,
+    bankPresets: {
+        'BCA': 'Pembayaran dapat ditransfer melalui:\nBank BCA: 1234567890\na/n Premium Designz',
+        'MANDIRI': 'Pembayaran dapat ditransfer melalui:\nBank Mandiri: 1234567890123\na/n Premium Designz',
+        'BRI': 'Pembayaran dapat ditransfer melalui:\nBank BRI: 123401000123501\na/n Premium Designz',
+        'BNI': 'Pembayaran dapat ditransfer melalui:\nBank BNI: 0123456789\na/n Premium Designz',
+        'DANA': 'Pembayaran dapat ditransfer melalui:\nDANA / E-Wallet: 081234567890\na/n Premium Designz',
+        'QRIS': 'Pembayaran dapat melalui Scan QRIS atau Transfer Bank.\nKonfirmasi bukti transfer ke WhatsApp kami.',
+        'ALL': 'Pilihan Rekening Pembayaran:\n- BCA: 1234567890 (a/n Premium Designz)\n- Mandiri: 1234567890123 (a/n Premium Designz)\n- DANA: 081234567890'
+    },
 
     async init() {
         // Inisialisasi tema invoice - default selalu putih (light)
@@ -49,6 +60,7 @@ const Invoice = {
                 );
             }
 
+            this.reindexRows();
             this.setupEditable();
             this.setupDragAndDrop();
 
@@ -88,6 +100,131 @@ const Invoice = {
         if (val === null || val === undefined || val === '') return 0;
         const digits = String(val).replace(/\D/g, '');
         return digits ? parseInt(digits, 10) : 0;
+    },
+
+    // Ambil nilai kuantitas/Qty murni (bisa desimal atau bilangan bulat)
+    getRawQty(val) {
+        if (val === null || val === undefined || val === '') return 0;
+        const str = String(val).trim().replace(',', '.');
+        const match = str.match(/[\d.]+/);
+        if (match) {
+            const num = parseFloat(match[0]);
+            return isNaN(num) ? 0 : num;
+        }
+        return 0;
+    },
+
+    // Terapkan Preset Rekening Bank ke Catatan Invoice
+    applyQuickBank(bankKey) {
+        const catEl = document.getElementById('previewCatatan');
+        if (!catEl) return;
+        if (bankKey === 'CLEAR') {
+            catEl.innerText = '-';
+            if (typeof Toast !== 'undefined') Toast.info('Rekening Dikosongkan', 'Catatan rekening pembayaran telah dikosongkan.');
+            return;
+        }
+        const preset = this.bankPresets[bankKey];
+        if (preset) {
+            catEl.innerText = preset;
+            if (typeof Toast !== 'undefined') {
+                Toast.success('Rekening Diterapkan', `Info transfer ${bankKey} otomatis dimasukkan ke catatan.`);
+            }
+        }
+    },
+
+    // Toggle Baris Diskon
+    toggleDiscountRow() {
+        this.hasDiscount = !this.hasDiscount;
+        const row = document.getElementById('previewDiscountRow');
+        const btn = document.getElementById('btnToggleDiscount');
+        if (row) row.classList.toggle('hidden', !this.hasDiscount);
+        if (btn) {
+            if (this.hasDiscount) {
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold border border-zinc-200/70 dark:border-zinc-700/60 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 cursor-pointer";
+            }
+        }
+        this.updateSubtotalVisibility();
+        this.recalculateAllTotals();
+    },
+
+    // Toggle Baris Pajak PPN (11%)
+    toggleTaxRow() {
+        this.hasTax = !this.hasTax;
+        const row = document.getElementById('previewTaxRow');
+        const btn = document.getElementById('btnToggleTax');
+        if (row) row.classList.toggle('hidden', !this.hasTax);
+        if (btn) {
+            if (this.hasTax) {
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold border border-zinc-200/70 dark:border-zinc-700/60 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 cursor-pointer";
+            }
+        }
+        this.updateSubtotalVisibility();
+        this.recalculateAllTotals();
+    },
+
+    updateSubtotalVisibility() {
+        const subtotalRow = document.getElementById('previewSubtotalRow');
+        if (subtotalRow) {
+            subtotalRow.classList.toggle('hidden', !(this.hasDiscount || this.hasTax));
+        }
+    },
+
+    // Tambah Baris Baru ke Tabel
+    addNewRow() {
+        const tableBody = document.getElementById('invoiceTableBody');
+        if (!tableBody) return;
+        const rows = tableBody.querySelectorAll('.invoice-row');
+        const nextNo = rows.length + 1;
+
+        const tr = document.createElement('tr');
+        tr.className = 'invoice-row group';
+        tr.setAttribute('draggable', 'true');
+        tr.setAttribute('data-sort-order', nextNo);
+        tr.innerHTML = `
+            <td class="border p-1 md:p-3 text-center">
+                <div class="flex items-center justify-center gap-1">
+                    <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print cursor-grab" title="Geser untuk mengubah urutan"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                    <span class="row-num">${nextNo}</span>
+                    <button type="button" onclick="Invoice.deleteRow(this)" class="btn-del-row text-zinc-400 hover:text-rose-500 transition-colors ml-0.5 no-print cursor-pointer" title="Hapus Baris"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                </div>
+            </td>
+            <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true"></td>
+            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true">1 pcs</td>
+            <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true">Rp. 0</td>
+            <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true">Rp. 0</td>
+        `;
+        tableBody.appendChild(tr);
+
+        this.reindexRows();
+        this.setupDragAndDrop();
+        this.setupEditable();
+        this.recalculateAllTotals();
+
+        if (typeof Toast !== 'undefined') {
+            Toast.success('Baris Ditambahkan', `Baris ke-${nextNo} berhasil ditambahkan.`);
+        }
+    },
+
+    // Hapus Baris dari Tabel
+    deleteRow(btn) {
+        const row = btn.closest('.invoice-row');
+        if (!row) return;
+        const tableBody = document.getElementById('invoiceTableBody');
+        const rows = tableBody ? tableBody.querySelectorAll('.invoice-row') : [];
+        if (rows.length <= 1) {
+            if (typeof Toast !== 'undefined') Toast.warning('Peringatan', 'Minimal harus ada 1 baris item.');
+            return;
+        }
+        row.remove();
+        this.reindexRows();
+        this.setupDragAndDrop();
+        this.setupEditable();
+        this.recalculateAllTotals();
+        this.saveEditedInvoice(true);
     },
 
     // Helper: Buat Nomor Invoice Unik
@@ -317,6 +454,25 @@ const Invoice = {
         if (record.invoice_theme || record.invoiceTheme) {
             this.setInvoiceTheme(record.invoice_theme || record.invoiceTheme, false);
         }
+        if (record.has_discount) {
+            this.hasDiscount = true;
+            const row = document.getElementById('previewDiscountRow');
+            const btn = document.getElementById('btnToggleDiscount');
+            if (row) row.classList.remove('hidden');
+            if (btn) btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer";
+            const previewDiscount = document.getElementById('previewDiscount');
+            if (previewDiscount && record.discount_value) previewDiscount.innerText = '- ' + this.format(record.discount_value);
+        }
+        if (record.has_tax) {
+            this.hasTax = true;
+            const row = document.getElementById('previewTaxRow');
+            const btn = document.getElementById('btnToggleTax');
+            if (row) row.classList.remove('hidden');
+            if (btn) btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-xs transition-all flex items-center gap-1.5 cursor-pointer";
+            const previewTax = document.getElementById('previewTax');
+            if (previewTax && record.tax_value) previewTax.innerText = this.format(record.tax_value);
+        }
+        this.updateSubtotalVisibility();
     },
 
     // ==========================================
@@ -602,15 +758,15 @@ const Invoice = {
         rows.forEach((row, idx) => {
             const rowNo = idx + 1;
             row.setAttribute('data-sort-order', rowNo);
+            row.classList.add('group');
 
-            const numSpan = row.querySelector('.row-num');
-            if (numSpan) {
-                numSpan.textContent = rowNo;
-            } else if (row.cells[0]) {
-                row.cells[0].innerHTML = `
+            const col1 = row.cells[0];
+            if (col1) {
+                col1.innerHTML = `
                     <div class="flex items-center justify-center gap-1">
-                        <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print" title="Geser untuk mengubah urutan baris"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
+                        <span class="drag-handle text-zinc-400 dark:text-zinc-500 mr-0.5 select-none no-print cursor-grab" title="Geser untuk mengubah urutan"><i class="fa-solid fa-grip-vertical text-[10px]"></i></span>
                         <span class="row-num">${rowNo}</span>
+                        <button type="button" onclick="Invoice.deleteRow(this)" class="btn-del-row text-zinc-400 hover:text-rose-500 transition-colors ml-0.5 no-print cursor-pointer" title="Hapus Baris"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                     </div>
                 `;
             }
@@ -635,93 +791,122 @@ const Invoice = {
         });
     },
 
+    // Hitung seluruh total, subtotal, diskon, pajak, dan sisa
+    recalculateAllTotals() {
+        const tableBody = document.getElementById('invoiceTableBody');
+        const previewSubtotal = document.getElementById('previewSubtotal');
+        const previewDiscount = document.getElementById('previewDiscount');
+        const previewTax = document.getElementById('previewTax');
+        const previewTotal = document.getElementById('previewTotal');
+        const previewDP = document.getElementById('previewDP');
+        const previewPelunasan = document.getElementById('previewPelunasan');
+        const previewSisa = document.getElementById('previewSisa');
+
+        let subtotal = 0;
+        if (tableBody) {
+            const rows = tableBody.querySelectorAll('.invoice-row');
+            rows.forEach(row => {
+                const qtyCell = row.querySelector('.qty-cell');
+                const priceCell = row.querySelector('.price-cell');
+                const nominalCell = row.querySelector('.nominal-cell');
+
+                if (qtyCell && priceCell && nominalCell) {
+                    const qty = this.getRawQty(qtyCell.innerText);
+                    const price = this.getRawNumber(priceCell.innerText);
+
+                    if (qty > 0 && price > 0) {
+                        const nominal = Math.round(qty * price);
+                        if (document.activeElement !== nominalCell) {
+                            nominalCell.innerText = this.format(nominal);
+                        }
+                        subtotal += nominal;
+                    } else {
+                        const directNominal = this.getRawNumber(nominalCell.innerText);
+                        if (directNominal > 0) {
+                            subtotal += directNominal;
+                        }
+                    }
+                }
+            });
+        }
+
+        if (previewSubtotal && document.activeElement !== previewSubtotal) {
+            previewSubtotal.innerText = this.format(subtotal);
+        }
+
+        let discountVal = 0;
+        if (this.hasDiscount && previewDiscount) {
+            discountVal = this.getRawNumber(previewDiscount.innerText);
+        }
+
+        const afterDiscount = Math.max(0, subtotal - discountVal);
+
+        let taxVal = 0;
+        if (this.hasTax && previewTax) {
+            taxVal = Math.round(afterDiscount * 0.11);
+            if (document.activeElement !== previewTax) {
+                previewTax.innerText = this.format(taxVal);
+            }
+        }
+
+        const total = (this.hasDiscount || this.hasTax) ? (afterDiscount + taxVal) : subtotal;
+        if (previewTotal && document.activeElement !== previewTotal) {
+            previewTotal.innerText = this.format(total);
+        }
+
+        const dp = this.getRawNumber(previewDP ? previewDP.innerText : 0);
+        const pelunasan = this.getRawNumber(previewPelunasan ? previewPelunasan.innerText : 0);
+        const sisa = total - dp - pelunasan;
+
+        if (previewSisa && document.activeElement !== previewSisa) {
+            previewSisa.innerText = this.format(sisa);
+        }
+    },
+
     setupEditable() {
         const tableBody = document.getElementById('invoiceTableBody');
         const previewTotal = document.getElementById('previewTotal');
         const previewDP = document.getElementById('previewDP');
         const previewPelunasan = document.getElementById('previewPelunasan');
         const previewSisa = document.getElementById('previewSisa');
-
-        const recalculateSisa = () => {
-            const total = this.getRawNumber(previewTotal ? previewTotal.innerText : 0);
-            const dp = this.getRawNumber(previewDP ? previewDP.innerText : 0);
-            const pelunasan = this.getRawNumber(previewPelunasan ? previewPelunasan.innerText : 0);
-            const sisa = total - dp - pelunasan;
-            if (previewSisa && document.activeElement !== previewSisa) {
-                previewSisa.innerText = this.format(sisa);
-            }
-        };
-
-        const recalculateTable = () => {
-            let total = 0;
-            let hasCalculatedItems = false;
-            if (tableBody) {
-                const rows = tableBody.querySelectorAll('.invoice-row');
-                rows.forEach(row => {
-                    const qtyCell = row.querySelector('.qty-cell');
-                    const priceCell = row.querySelector('.price-cell');
-                    const nominalCell = row.querySelector('.nominal-cell');
-
-                    if (qtyCell && priceCell && nominalCell) {
-                        const qty = this.getRawNumber(qtyCell.innerText);
-                        const price = this.getRawNumber(priceCell.innerText);
-
-                        if (qty > 0 && price > 0) {
-                            const nominal = qty * price;
-                            if (document.activeElement !== nominalCell) {
-                                nominalCell.innerText = this.format(nominal);
-                            }
-                            total += nominal;
-                            hasCalculatedItems = true;
-                        } else {
-                            const directNominal = this.getRawNumber(nominalCell.innerText);
-                            if (directNominal > 0) {
-                                total += directNominal;
-                                hasCalculatedItems = true;
-                            }
-                        }
-                    }
-                });
-            }
-
-            if (hasCalculatedItems && previewTotal && document.activeElement !== previewTotal) {
-                previewTotal.innerText = this.format(total);
-            }
-            recalculateSisa();
-        };
+        const previewDiscount = document.getElementById('previewDiscount');
+        const previewTax = document.getElementById('previewTax');
 
         // Event listener blur untuk memformat angka dengan Rp. dan titik secara rapi
         const bindBlurFormatter = (el) => {
             if (!el) return;
-            el.addEventListener('blur', () => {
+            el.onblur = () => {
                 const raw = this.getRawNumber(el.innerText);
                 el.innerText = this.format(raw);
-                recalculateTable();
-            });
+                this.recalculateAllTotals();
+            };
         };
 
-        // Pasang blur formatter pada total, DP, pelunasan, sisa
+        // Pasang blur formatter pada total, DP, pelunasan, sisa, diskon, pajak
         bindBlurFormatter(previewTotal);
         bindBlurFormatter(previewDP);
         bindBlurFormatter(previewPelunasan);
         bindBlurFormatter(previewSisa);
+        bindBlurFormatter(previewDiscount);
+        bindBlurFormatter(previewTax);
 
         // Pasang blur formatter pada sel harga & nominal di tabel
         if (tableBody) {
-            const bindRowFormatters = () => {
-                const priceCells = tableBody.querySelectorAll('.price-cell');
-                const nominalCells = tableBody.querySelectorAll('.nominal-cell');
-                priceCells.forEach(cell => bindBlurFormatter(cell));
-                nominalCells.forEach(cell => bindBlurFormatter(cell));
-            };
-            bindRowFormatters();
+            const priceCells = tableBody.querySelectorAll('.price-cell');
+            const nominalCells = tableBody.querySelectorAll('.nominal-cell');
+            priceCells.forEach(cell => bindBlurFormatter(cell));
+            nominalCells.forEach(cell => bindBlurFormatter(cell));
 
-            tableBody.addEventListener('input', recalculateTable);
+            tableBody.oninput = () => {
+                this.recalculateAllTotals();
+            };
         }
 
-        if (previewTotal) previewTotal.addEventListener('input', recalculateSisa);
-        if (previewDP) previewDP.addEventListener('input', recalculateSisa);
-        if (previewPelunasan) previewPelunasan.addEventListener('input', recalculateSisa);
+        if (previewTotal) previewTotal.oninput = () => this.recalculateAllTotals();
+        if (previewDP) previewDP.oninput = () => this.recalculateAllTotals();
+        if (previewPelunasan) previewPelunasan.oninput = () => this.recalculateAllTotals();
+        if (previewDiscount) previewDiscount.oninput = () => this.recalculateAllTotals();
+        if (previewTax) previewTax.oninput = () => this.recalculateAllTotals();
 
         const btnSave = document.getElementById('btnSaveInvoice');
         if (btnSave) {
@@ -836,6 +1021,10 @@ const Invoice = {
             dp: dpVal,
             pelunasan: pelunasanVal,
             sisa: sisaVal,
+            has_discount: this.hasDiscount,
+            discount_value: this.hasDiscount ? this.getRawNumber(document.getElementById('previewDiscount') ? document.getElementById('previewDiscount').innerText : 0) : 0,
+            has_tax: this.hasTax,
+            tax_value: this.hasTax ? this.getRawNumber(document.getElementById('previewTax') ? document.getElementById('previewTax').innerText : 0) : 0,
             doc_type: this.docType || 'invoice',
             invoice_theme: this.invoiceTheme || 'light',
             show_signature: chkShowSignature ? chkShowSignature.checked : true,

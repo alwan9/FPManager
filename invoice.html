@@ -364,6 +364,19 @@
             box-shadow: inset 0 -3px 0 0 #4f46e5 !important;
         }
 
+        .btn-del-row {
+            opacity: 0;
+            transition: opacity 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+
+        .invoice-row:hover .btn-del-row {
+            opacity: 1;
+        }
+
+        .btn-del-row:hover {
+            transform: scale(1.15);
+        }
+
         @page {
             size: A4 portrait;
             margin: 0;
@@ -457,57 +470,90 @@
 
         <!-- Control Panel (Document Settings) -->
         <div
-            class="no-print bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 p-4 mb-6 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between transition-colors">
-            <div class="flex items-center space-x-2 text-zinc-800 dark:text-zinc-100 font-bold text-sm sm:text-base">
+            class="no-print bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 p-4 mb-6 flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between transition-colors">
+            
+            <div class="flex items-center space-x-2 text-zinc-800 dark:text-zinc-100 font-bold text-sm sm:text-base shrink-0">
                 <i class="fa-solid fa-sliders text-indigo-600 dark:text-indigo-400"></i>
                 <span>Pengaturan Dokumen</span>
             </div>
-            <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                <!-- Tipe Dokumen -->
 
-                <div class="flex items-center gap-2.5">
-                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tipe Dokumen:</span>
+            <div class="flex flex-wrap items-center gap-3 sm:gap-4 w-full xl:w-auto">
+                <!-- Tipe Dokumen -->
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tipe:</span>
                     <div
                         class="flex bg-zinc-100 dark:bg-zinc-800/90 p-1 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60">
-                        <button id="btnTypeInvoice" type="button"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm">
+                        <button id="btnTypeInvoice" type="button" onclick="Invoice.setDocumentType('invoice')"
+                            class="px-3 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm">
                             Invoice
                         </button>
-                        <button id="btnTypeNota" type="button"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+                        <button id="btnTypeNota" type="button" onclick="Invoice.setDocumentType('nota')"
+                            class="px-3 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
                             Nota
                         </button>
                     </div>
                 </div>
 
                 <!-- Tema Invoice -->
-                <div class="flex items-center gap-2.5">
-                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tema Invoice:</span>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tema:</span>
                     <div
                         class="flex bg-zinc-100 dark:bg-zinc-800/90 p-1 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60">
                         <button id="btnThemeLight" type="button"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5">
+                            class="px-3 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm bg-indigo-600 text-white shadow-sm flex items-center gap-1.5">
                             <i class="fa-solid fa-sun text-amber-300"></i>
                             <span>Terang</span>
                         </button>
                         <button id="btnThemeDark" type="button"
-                            class="px-3.5 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1.5">
+                            class="px-3 py-1.5 rounded-lg font-semibold transition-all text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1.5">
                             <i class="fa-solid fa-moon text-indigo-400"></i>
                             <span>Gelap</span>
                         </button>
                     </div>
                 </div>
+
+                <!-- Rekening Bank Quick Selector -->
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Rekening:</span>
+                    <select id="selectQuickBank" onchange="Invoice.applyQuickBank(this.value)"
+                        class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/70 dark:border-zinc-700/60 outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500">
+                        <option value="">-- Rekening Bank --</option>
+                        <option value="BCA">BCA</option>
+                        <option value="MANDIRI">Mandiri</option>
+                        <option value="BRI">BRI</option>
+                        <option value="BNI">BNI</option>
+                        <option value="DANA">DANA</option>
+                        <option value="QRIS">QRIS</option>
+                        <option value="ALL">Semua Rekening</option>
+                        <option value="CLEAR">Kosongkan</option>
+                    </select>
+                </div>
+
+                <!-- Diskon & Pajak (PPN) -->
+                <div class="flex items-center gap-1.5">
+                    <button type="button" id="btnToggleDiscount" onclick="Invoice.toggleDiscountRow()"
+                        class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-zinc-200/70 dark:border-zinc-700/60 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Aktifkan / Sembunyikan Baris Diskon">
+                        <i class="fa-solid fa-percent text-[10px]"></i>
+                        <span>Diskon</span>
+                    </button>
+                    <button type="button" id="btnToggleTax" onclick="Invoice.toggleTaxRow()"
+                        class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-zinc-200/70 dark:border-zinc-700/60 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Aktifkan / Sembunyikan Baris PPN (11%)">
+                        <i class="fa-solid fa-receipt text-[10px]"></i>
+                        <span>PPN (11%)</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Tampilkan Tanda Tangan -->
-            <div class="flex items-center gap-2 self-start lg:self-auto">
+            <div class="flex items-center gap-2 self-start xl:self-auto shrink-0">
                 <label class="relative flex items-center cursor-pointer select-none">
-                    <input type="checkbox" id="chkShowSignature" class="sr-only peer" checked>
+                    <input type="checkbox" id="chkShowSignature" class="sr-only peer" checked onchange="Invoice.toggleSignature(this.checked)">
                     <div
                         class="w-11 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 dark:after:border-zinc-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600">
                     </div>
-                    <span class="ml-3 font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tampilkan Tanda
-                        Tangan</span>
+                    <span class="ml-2.5 font-semibold text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">Tanda Tangan</span>
                 </label>
             </div>
         </div>
@@ -744,9 +790,37 @@
 
                 </table>
 
+                <!-- Table Footer Actions (Tambah Baris & Info Auto-Calculate) -->
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-200/70 dark:border-zinc-800 no-print">
+                    <button type="button" onclick="Invoice.addNewRow()"
+                        class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/70 dark:border-indigo-800/60 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                        <i class="fa-solid fa-plus text-[11px]"></i>
+                        <span>Tambah Baris</span>
+                    </button>
+                    <span class="text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid fa-calculator text-indigo-500"></i>
+                        <span>Qty × Harga otomatis dihitung</span>
+                    </span>
+                </div>
+
                 <!-- Total -->
-                <div class="flex justify-end mt-8" style="page-break-inside: avoid;">
+                <div class="flex justify-end mt-6 md:mt-8" style="page-break-inside: avoid;">
                     <div id="previewTotalBox" class="w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
+                        <div id="previewSubtotalRow" class="hidden flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-semibold">Subtotal</span>
+                            <span class="font-bold text-zinc-800 text-sm outline-none px-1 py-0.5" id="previewSubtotal">Rp. 0</span>
+                        </div>
+                        <div id="previewDiscountRow" class="hidden flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-semibold flex items-center gap-1">
+                                <span>Diskon</span>
+                                <span id="discountBadge" class="text-[10px] bg-amber-100 text-amber-700 px-1 py-0.2 rounded font-mono">0%</span>
+                            </span>
+                            <span class="font-bold text-amber-600 text-sm outline-none cursor-text px-1 py-0.5" contenteditable="true" id="previewDiscount">- Rp. 0</span>
+                        </div>
+                        <div id="previewTaxRow" class="hidden flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-semibold">PPN (11%)</span>
+                            <span class="font-bold text-zinc-700 text-sm outline-none cursor-text px-1 py-0.5" contenteditable="true" id="previewTax">Rp. 0</span>
+                        </div>
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-semibold" data-i18n="inv-total">Total</span>
                             <span class="font-bold text-zinc-900 text-base outline-none cursor-text px-1 py-0.5"
