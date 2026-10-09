@@ -439,8 +439,18 @@
 
           </div>
 
-          <!-- Slider Footer: Navigation Arrows & Indicator Dots -->
+          <!-- Slider Footer: Slide Dots (Left) & Navigation Arrows (Right) -->
           <div class="flex items-center justify-between pt-3 mt-2 border-t border-white/10 dark:border-zinc-800/80">
+            <!-- Slide Dots -->
+            <div class="flex items-center space-x-1.5">
+              <button onclick="goToToolBannerSlide(0)" id="toolBannerDot-0"
+                class="tool-banner-dot w-6 h-1.5 rounded-full bg-white transition-all duration-300 focus:outline-none"
+                aria-label="Web Shortcuts Slide"></button>
+              <button onclick="goToToolBannerSlide(1)" id="toolBannerDot-1"
+                class="tool-banner-dot w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 focus:outline-none"
+                aria-label="Shortcut Prompt Slide"></button>
+            </div>
+
             <!-- Left & Right Arrow Buttons -->
             <div class="flex items-center space-x-1.5">
               <button onclick="prevToolBannerSlide()"
@@ -453,16 +463,6 @@
                 title="Slide Berikutnya">
                 <i class="fa-solid fa-chevron-right"></i>
               </button>
-            </div>
-
-            <!-- Slide Dots -->
-            <div class="flex items-center space-x-1.5">
-              <button onclick="goToToolBannerSlide(0)" id="toolBannerDot-0"
-                class="tool-banner-dot w-6 h-1.5 rounded-full bg-white transition-all duration-300 focus:outline-none"
-                aria-label="Web Shortcuts Slide"></button>
-              <button onclick="goToToolBannerSlide(1)" id="toolBannerDot-1"
-                class="tool-banner-dot w-1.5 h-1.5 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 focus:outline-none"
-                aria-label="Shortcut Prompt Slide"></button>
             </div>
           </div>
 
