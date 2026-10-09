@@ -2946,6 +2946,20 @@ async function executeBatchImportTools() {
   if (btnFinish) btnFinish.classList.remove("hidden");
 }
 
+function openToolsExcelHubModal() {
+  const modal = document.getElementById("toolsExcelHubModal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closeToolsExcelHubModal() {
+  const modal = document.getElementById("toolsExcelHubModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
 // Global Exports for Tools and Shortcuts Excel functions
 window.downloadShortcutTemplateExcel = downloadShortcutTemplateExcel;
 window.exportShortcutsToExcel = exportShortcutsToExcel;
