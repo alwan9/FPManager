@@ -1253,6 +1253,8 @@ button.rounded-full {
 /* Universal Modal / Popup Backdrop Overlay (60% Black)   */
 /* ======================================================= */
 .fixed.inset-0.z-50,
+.fixed.inset-0.z-55,
+.fixed.inset-0.z-\[55\],
 .fixed.inset-0.z-\[100\],
 .fixed.inset-0.z-\[9999\],
 #detailModal,
@@ -1271,6 +1273,12 @@ button.rounded-full {
 #globalPaymentModal,
 [id$="Modal"] {
   background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Z-Index 55 Utility */
+.z-55,
+.z-\[55\] {
+  z-index: 55 !important;
 }
 
 /* ======================================================= */
@@ -1493,6 +1501,18 @@ html:not(.dark) #mobileKeuanganPopover .popover-link:active {
 html:not(.dark) #mobileKeuanganPopover .popover-link.active-sub {
   background-color: #e0e7ff !important;
   color: #4f46e5 !important;
+}
+
+/* Header API Status Dot on Profile Avatar */
+#apiStatusBadge {
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  z-index: 20 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
 }
 
 

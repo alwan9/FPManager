@@ -23,8 +23,9 @@ const CalendarSync = {
     const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
     const title = encodeURIComponent(`Deadline Proyek: ${proyek.namaProyek || 'Proyek'} (${proyek.namaPelanggan || 'Klien'})`);
     
+    const waVal = (isDes && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(proyek.nomorWA || '-') : (proyek.nomorWA || '-');
     let text = `Projek: ${proyek.namaProyek || '-'}\n` +
-      `Klien: ${proyek.namaPelanggan || '-'} (+${proyek.nomorWA || '-'})\n` +
+      `Klien: ${proyek.namaPelanggan || '-'} (+${waVal})\n` +
       `Produk: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n`;
     
     if (!isDes) {
@@ -49,8 +50,9 @@ const CalendarSync = {
     const endDay = this.getNextDayForICal(proyek.deadline);
     const title = `Deadline Proyek: ${proyek.namaProyek || 'Proyek'} (${proyek.namaPelanggan || 'Klien'})`;
     
+    const waVal = (isDes && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(proyek.nomorWA || '-') : (proyek.nomorWA || '-');
     let text = `Projek: ${proyek.namaProyek || '-'}\n` +
-      `Klien: ${proyek.namaPelanggan || '-'} (+${proyek.nomorWA || '-'})\n` +
+      `Klien: ${proyek.namaPelanggan || '-'} (+${waVal})\n` +
       `Produk: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n`;
     
     if (!isDes) {

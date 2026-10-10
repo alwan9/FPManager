@@ -113,13 +113,13 @@ const SessionManager = {
         body.append('action', 'logout');
         body.append('token', sessionStorage.getItem('token') || localStorage.getItem('token') || '');
         body.append('apiKey', CONFIG.API_KEY || '');
-        await fetch(CONFIG.API_URL, { method: 'POST', body }).catch(() => {});
+        await fetch(CONFIG.API_URL, { method: 'POST', body }).catch(() => { });
       }
-    } catch (e) {}
+    } catch (e) { }
 
     if (typeof APICache !== 'undefined' && APICache.clear) APICache.clear();
     if (typeof FPManagerDB !== 'undefined' && FPManagerDB.clearAllStores) {
-      try { await FPManagerDB.clearAllStores(); } catch (e) {}
+      try { await FPManagerDB.clearAllStores(); } catch (e) { }
     }
 
     sessionStorage.clear();
@@ -155,7 +155,7 @@ const Auth = {
       body.append("username", username);
       body.append("password", password);
       body.append("apiKey", CONFIG.API_KEY);
-      
+
       const res = await fetch(CONFIG.API_URL, {
         method: "POST",
         body
@@ -263,6 +263,7 @@ const Auth = {
         "tambah-proyek.html", "tambah-proyek",
         "keuangan.html", "keuangan",
         "history-invoice.html", "history-invoice",
+        "invoice.html", "invoice",
         "laporan.html", "laporan",
         "admin-tasks.html", "admin-tasks",
         "user-management.html", "user-management"
@@ -285,6 +286,14 @@ const Auth = {
     return Auth.isSuperAdmin() || Auth.isService();
   },
 
+  canDeleteProject: () => {
+    return Auth.isSuperAdmin() || Auth.isService();
+  },
+
+  canCreateInvoice: () => {
+    return Auth.isSuperAdmin() || Auth.isService();
+  },
+
   canModifyProject: () => {
     return true;
   },
@@ -304,7 +313,13 @@ const Auth = {
   hasPermission: (perm) => {
     if (Auth.isSuperAdmin()) return true;
     if (perm === 'manage_users' || perm === 'settings') return false;
-    if (Auth.isDesigner() && (perm === 'tambah' || perm === 'tambah_proyek' || perm === 'add_project' || perm === 'keuangan' || perm === 'admin_tasks' || perm === 'laporan')) return false;
+    if (Auth.isDesigner() && (
+      perm === 'tambah' || perm === 'tambah_proyek' || perm === 'add_project' ||
+      perm === 'keuangan' || perm === 'admin_tasks' || perm === 'laporan' ||
+      perm === 'hapus' || perm === 'hapus_proyek' || perm === 'delete' || perm === 'delete_project' ||
+      perm === 'invoice' || perm === 'create_invoice' || perm === 'buat_invoice' ||
+      perm === 'import_excel' || perm === 'export_excel' || perm === 'excel_tools' || perm === 'excel'
+    )) return false;
     if (Auth.isService() && (perm === 'tools' || perm === 'crud_tools')) return false;
     return true;
   },
@@ -354,8 +369,8 @@ const Auth = {
       if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
         const users = await API.getUsers();
         if (Array.isArray(users) && users.length > 0) {
-          const freshUser = users.find(u => 
-            (currentUser.id && String(u.id) === String(currentUser.id)) || 
+          const freshUser = users.find(u =>
+            (currentUser.id && String(u.id) === String(currentUser.id)) ||
             (currentUser.username && String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase())
           );
           if (freshUser) {
@@ -369,13 +384,13 @@ const Auth = {
           }
         }
       }
-    } catch (e) {}
+    } catch (e) { }
   },
 
   checkLogin: () => {
     const token = Auth.getToken();
     const isLoginPage = window.location.pathname.endsWith("login.html") || window.location.pathname.endsWith("login");
-    
+
     if (!token && !isLoginPage) {
       window.location.href = "login.html";
       return;
@@ -437,10 +452,10 @@ const Auth = {
     if (Auth.isDesigner()) {
       // Designer: Home, Projek, Tools, Profil
       bottomNav.innerHTML = `
-        <!-- 1. Home -->
+        <!-- 1. Dashboard -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
         </a>
 
         <!-- 2. Project -->
@@ -464,10 +479,10 @@ const Auth = {
     } else {
       // Super Admin & Service: Home, Projek, Tambah, Keuangan, Profil
       bottomNav.innerHTML = `
-        <!-- 1. Home -->
+        <!-- 1. Dashboard -->
         <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
         </a>
 
         <!-- 2. Project -->
@@ -618,8 +633,8 @@ const Auth = {
     sublinks.forEach(link => {
       const href = link.getAttribute("href") || "";
       if ((isKeuangan && href.includes("keuangan.html")) ||
-          (isHistory && href.includes("history-invoice.html")) ||
-          (isLaporan && href.includes("laporan.html"))) {
+        (isHistory && href.includes("history-invoice.html")) ||
+        (isLaporan && href.includes("laporan.html"))) {
         link.classList.add("active", "text-indigo-400", "font-semibold");
       } else {
         link.classList.remove("active");
@@ -662,7 +677,7 @@ const Auth = {
     const navLinks = document.querySelectorAll("#navMenu .sidebar-link, #navMenu a");
     navLinks.forEach(el => {
       const href = (el.getAttribute("href") || "").toLowerCase();
-      
+
       // Keuangan Group
       if (el.closest("#navKeuanganGroup")) {
         if (isDes) {
@@ -818,10 +833,43 @@ const Auth = {
     // Tombol-tombol khusus yang hanya boleh untuk Super Admin atau Service
     if (Auth.isDesigner()) {
       const bulkDeleteBtn = document.getElementById("btnBulkDelete");
-      if (bulkDeleteBtn) bulkDeleteBtn.style.display = "none";
+      if (bulkDeleteBtn) {
+        bulkDeleteBtn.style.display = "none";
+        bulkDeleteBtn.classList.add("hidden");
+        bulkDeleteBtn.disabled = true;
+      }
 
       const bulkInvoiceBtn = document.getElementById("btnBulkCreateInvoice");
-      if (bulkInvoiceBtn) bulkInvoiceBtn.style.display = "none";
+      if (bulkInvoiceBtn) {
+        bulkInvoiceBtn.style.display = "none";
+        bulkInvoiceBtn.classList.add("hidden");
+        bulkInvoiceBtn.disabled = true;
+      }
+
+      const btnBlankInvoice = document.getElementById("btnBlankInvoice");
+      if (btnBlankInvoice) {
+        btnBlankInvoice.style.display = "none";
+        btnBlankInvoice.classList.add("hidden");
+      }
+
+      const modalInvoiceBtn = document.getElementById("modalInvoiceBtn");
+      if (modalInvoiceBtn) {
+        modalInvoiceBtn.style.display = "none";
+        modalInvoiceBtn.classList.add("hidden");
+      }
+
+      const modalHapusBtn = document.getElementById("modalHapusBtn");
+      if (modalHapusBtn) {
+        modalHapusBtn.style.display = "none";
+        modalHapusBtn.classList.add("hidden");
+      }
+
+      const selectAllEl = document.getElementById("selectAll");
+      if (selectAllEl) {
+        selectAllEl.style.display = "none";
+        const thSelect = selectAllEl.closest("th");
+        if (thSelect) thSelect.style.display = "none";
+      }
 
       const addProjectButtons = document.querySelectorAll('a[href*="tambah-proyek.html"], button[onclick*="tambah-proyek"]');
       addProjectButtons.forEach(btn => {
@@ -830,6 +878,41 @@ const Auth = {
 
       const excelGroup = document.getElementById("excelDropdownGroup");
       if (excelGroup) excelGroup.style.display = "none";
+
+      const btnFilterBelumBayar = document.getElementById("btnFilterBelumBayar");
+      if (btnFilterBelumBayar) btnFilterBelumBayar.style.display = "none";
+
+      const statusFilterGrid = document.getElementById("statusFilterGrid");
+      if (statusFilterGrid) {
+        statusFilterGrid.classList.remove('lg:grid-cols-6');
+        statusFilterGrid.classList.add('lg:grid-cols-5');
+      }
+
+      // Sembunyikan fitur Excel di halaman Tools untuk Desainer
+      const shortcutExcelDropdownWrapper = document.getElementById("shortcutExcelDropdownWrapper");
+      if (shortcutExcelDropdownWrapper) {
+        shortcutExcelDropdownWrapper.style.display = "none";
+        shortcutExcelDropdownWrapper.classList.add("hidden");
+      }
+
+      const toolExcelDropdownWrapper = document.getElementById("toolExcelDropdownWrapper");
+      if (toolExcelDropdownWrapper) {
+        toolExcelDropdownWrapper.style.display = "none";
+        toolExcelDropdownWrapper.classList.add("hidden");
+      }
+
+      const btnToolsExcelHubMobile = document.getElementById("btnToolsExcelHubMobile");
+      if (btnToolsExcelHubMobile) {
+        btnToolsExcelHubMobile.style.display = "none";
+        btnToolsExcelHubMobile.classList.add("hidden");
+      }
+
+      const toolsExcelHubModal = document.getElementById("toolsExcelHubModal");
+      if (toolsExcelHubModal) {
+        toolsExcelHubModal.style.display = "none";
+        toolsExcelHubModal.classList.add("hidden");
+        toolsExcelHubModal.classList.remove("flex");
+      }
     }
   },
 

@@ -29,7 +29,7 @@ if ('serviceWorker' in navigator) {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 if (typeof showToast === 'function') {
                   showToast({
-                    title: 'Pembaruan Aplikasi 🚀',
+                    title: 'Pembaruan Aplikasi',
                     message: 'Versi baru FPManager telah siap. Memuat ulang halaman...',
                     type: 'info'
                   });
@@ -109,14 +109,14 @@ window.addEventListener('appinstalled', () => {
     if (Notification.permission === 'default') {
       Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
-          showNotification('Selamat Bergabung di FPManager! 🎉', {
+          showNotification('Selamat Bergabung di FPManager!', {
             body: 'Terima kasih telah menginstal aplikasi kami. Nikmati kemudahan melacak deadline, status projek, & laporan keuangan secara offline.',
             icon: './assets/img/icon-192.png'
           });
         }
       });
     } else if (Notification.permission === 'granted') {
-      showNotification('Selamat Bergabung di FPManager! 🎉', {
+      showNotification('Selamat Bergabung di FPManager!', {
         body: 'Terima kasih telah menginstal aplikasi kami. Nikmati kemudahan melacak deadline, status projek, & laporan keuangan secara offline.',
         icon: './assets/img/icon-192.png'
       });
@@ -126,7 +126,7 @@ window.addEventListener('appinstalled', () => {
   // Show Toast Success
   if (typeof showToast === 'function') {
     showToast({
-      title: 'Selamat Bergabung! 🎉',
+      title: 'Selamat Bergabung!',
       message: 'Aplikasi FPManager berhasil terinstal di layar utama Anda.',
       type: 'success'
     });
@@ -424,7 +424,7 @@ async function refreshAppBadge() {
 window.addEventListener('online', async () => {
   if (typeof showToast === 'function') {
     showToast({
-      title: 'Kembali Online 🌐',
+      title: 'Kembali Online',
       message: 'Perangkat Anda telah terhubung kembali. Memulai sinkronisasi data...',
       type: 'success'
     });
@@ -437,7 +437,7 @@ window.addEventListener('online', async () => {
 window.addEventListener('offline', () => {
   if (typeof showToast === 'function') {
     showToast({
-      title: 'Mode Offline 📡',
+      title: 'Mode Offline',
       message: 'Anda sedang offline. Perubahan data akan disimpan lokal & disinkronkan nanti.',
       type: 'warning'
     });

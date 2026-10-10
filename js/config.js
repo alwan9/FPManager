@@ -184,6 +184,23 @@ function fallbackCopyText(text, label = "Teks") {
 }
 window.copyTextToClipboard = copyTextToClipboard;
 
+// Global Helper: Mask last 5 digits of WhatsApp number with asterisks (e.g. for Designer role)
+function maskWhatsAppDigits(phone) {
+  if (!phone) return phone;
+  const str = String(phone).trim();
+  let count = 0;
+  const chars = str.split('');
+  for (let i = chars.length - 1; i >= 0; i--) {
+    if (/\d/.test(chars[i])) {
+      chars[i] = '*';
+      count++;
+      if (count === 5) break;
+    }
+  }
+  return chars.join('');
+}
+window.maskWhatsAppDigits = maskWhatsAppDigits;
+
 
 // Global Helper: Check if modal has filled/dirty user inputs
 function isModalInputFilled(modal) {
@@ -1006,8 +1023,8 @@ function showPaymentAccountsModal(highlightName = '') {
 
 function copyAllPaymentAccounts() {
   const accounts = CONFIG.PAYMENT_ACCOUNTS || [];
-  const lines = accounts.map(a => `🔹 ${a.name}: ${a.number} (a.n. ${a.holder})`).join('\n');
-  const fullText = `📋 INFO REKENING & METODE PEMBAYARAN:\n\n${lines}\n\nMohon kirimkan bukti transfer setelah pembayaran ya kak. Terima kasih!`;
+  const lines = accounts.map(a => `• ${a.name}: ${a.number} (a.n. ${a.holder})`).join('\n');
+  const fullText = `INFO REKENING & METODE PEMBAYARAN:\n\n${lines}\n\nMohon kirimkan bukti transfer setelah pembayaran ya kak. Terima kasih!`;
   copyTextToClipboard(fullText, 'Seluruh Daftar Rekening');
 }
 

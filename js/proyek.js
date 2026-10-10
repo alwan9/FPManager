@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
   if (apiStatusBadge) {
-    apiStatusBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>';
-    apiStatusBadge.className = 'inline-flex items-center justify-center p-1.5';
+    apiStatusBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>';
+    apiStatusBadge.className = 'absolute bottom-0 right-0 z-20 flex items-center justify-center pointer-events-none';
     apiStatusBadge.title = 'Live Google Sheets Connected';
   }
 
@@ -14,8 +14,48 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnBlankInvoice) {
     if (isDes) {
       btnBlankInvoice.classList.add('hidden');
+      btnBlankInvoice.style.display = 'none';
     } else {
       btnBlankInvoice.classList.remove('hidden');
+    }
+  }
+
+  if (isDes) {
+    const selectAllEl = document.getElementById('selectAll');
+    if (selectAllEl) {
+      selectAllEl.style.display = 'none';
+      const thEl = selectAllEl.closest('th');
+      if (thEl) thEl.style.display = 'none';
+    }
+    const btnBulkDel = document.getElementById('btnBulkDelete');
+    if (btnBulkDel) {
+      btnBulkDel.style.display = 'none';
+      btnBulkDel.classList.add('hidden');
+      btnBulkDel.disabled = true;
+    }
+    const btnBulkInv = document.getElementById('btnBulkCreateInvoice');
+    if (btnBulkInv) {
+      btnBulkInv.style.display = 'none';
+      btnBulkInv.classList.add('hidden');
+      btnBulkInv.disabled = true;
+    }
+  }
+
+  const btnFilterBelumBayar = document.getElementById('btnFilterBelumBayar');
+  const statusFilterGrid = document.getElementById('statusFilterGrid');
+  if (btnFilterBelumBayar) {
+    if (isDes) {
+      btnFilterBelumBayar.classList.add('hidden');
+      if (statusFilterGrid) {
+        statusFilterGrid.classList.remove('lg:grid-cols-6');
+        statusFilterGrid.classList.add('lg:grid-cols-5');
+      }
+    } else {
+      btnFilterBelumBayar.classList.remove('hidden');
+      if (statusFilterGrid) {
+        statusFilterGrid.classList.add('lg:grid-cols-6');
+        statusFilterGrid.classList.remove('lg:grid-cols-5');
+      }
     }
   }
 
@@ -239,6 +279,7 @@ function initTable(data) {
       {
         data: null,
         orderable: false,
+        visible: !(typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()),
         className: 'text-center w-10',
         render: function (data, type, row) {
           const rowData = row || data || {};
@@ -297,7 +338,13 @@ function initTable(data) {
           const rowData = row || {};
           const wa = data || rowData.nomorWA || rowData.noWa || '';
           if (!wa) return '<span class="text-zinc-400 text-xs italic">-</span>';
-          return `<span onclick="copyTextToClipboard('${escapeHtml(wa)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold" title="Klik untuk salin Nomor WA">+${escapeHtml(wa)}</span>`;
+          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const displayWa = (isDes && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(wa) : wa;
+          const cleanWa = String(displayWa).startsWith('+') ? String(displayWa).slice(1) : String(displayWa);
+          if (isDes) {
+            return `<span onclick="copyTextToClipboard('${escapeHtml(displayWa)}', 'Nomor WA (Disamarkan)')" class="hover:underline cursor-pointer text-zinc-700 dark:text-zinc-300 font-semibold font-mono" title="Nomor WA (5 digit terakhir disamarkan)">+${escapeHtml(cleanWa)}</span>`;
+          }
+          return `<span onclick="copyTextToClipboard('${escapeHtml(wa)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold font-mono" title="Klik untuk salin Nomor WA">+${escapeHtml(cleanWa)}</span>`;
         }
       },
       {
@@ -476,7 +523,10 @@ function initTable(data) {
             const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
             const rowData = row || {};
             const prjId = rowData.iDProyek || rowData.idProjek || rowData.id || '';
-            const statusOptions = ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
+            const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+            const statusOptions = isDes
+              ? ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Dibatalkan']
+              : ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
             const statusLabels = isEn ? {
               'Menunggu': 'Waiting',
               'Sedang Dikerjakan': 'In Progress',
@@ -497,8 +547,6 @@ function initTable(data) {
             if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
             const badgeClass = 'badge-' + badgeKey;
 
-            // Security check: Designer can ONLY edit status if assigned to this project
-            const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
             const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
             const currentUserId = currentUser ? (currentUser.id || currentUser.userId || currentUser.username) : '';
             const assignedDesignerId = rowData.designerId || rowData.assignDesigner || '';
@@ -869,20 +917,34 @@ function populateDetailModal(proyek) {
   }
 
   const modalWaEl = document.getElementById('modalWa');
+  const isDesRole = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
   if (modalWaEl) {
     if (isPhone) {
-      modalWaEl.innerHTML = `<i class="fa-brands fa-whatsapp text-emerald-500"></i> <span>${formattedContact}</span>`;
-      modalWaEl.onclick = () => copyTextToClipboard(digitsOnly, 'Nomor WA');
-      modalWaEl.title = isEn ? 'Click to copy WhatsApp Number' : 'Klik untuk salin Nomor WA';
+      const displayPhone = (isDesRole && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(formattedContact) : formattedContact;
+      modalWaEl.innerHTML = `<i class="fa-brands fa-whatsapp ${isDesRole ? 'text-zinc-400 dark:text-zinc-500' : 'text-emerald-500'}"></i> <span>${displayPhone}</span>`;
+      if (isDesRole) {
+        modalWaEl.onclick = (e) => {
+          if (e) e.preventDefault();
+        };
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 cursor-not-allowed opacity-60 select-none";
+        modalWaEl.title = isEn ? 'WhatsApp is disabled for Designer role' : 'Nomor WhatsApp dinonaktifkan untuk role Desainer';
+      } else {
+        modalWaEl.onclick = () => copyTextToClipboard(digitsOnly, 'Nomor WA');
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800/70 cursor-pointer transition-colors";
+        modalWaEl.title = isEn ? 'Click to copy WhatsApp Number' : 'Klik untuk salin Nomor WA';
+      }
     } else if (sumber.toLowerCase() === 'shopee') {
+      modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/60 px-2 py-0.5 rounded-md border border-orange-200/70 dark:border-orange-800/70 cursor-pointer transition-colors";
       modalWaEl.innerHTML = `<i class="fa-solid fa-bag-shopping text-orange-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
       modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Shopee');
       modalWaEl.title = isEn ? 'Click to copy Shopee Contact' : 'Klik untuk salin Kontak Shopee';
     } else if (sumber.toLowerCase() === 'fiverr') {
+      modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800/70 cursor-pointer transition-colors";
       modalWaEl.innerHTML = `<i class="fa-solid fa-bolt text-emerald-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
       modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Fiverr');
       modalWaEl.title = isEn ? 'Click to copy Fiverr Contact' : 'Klik untuk salin Kontak Fiverr';
     } else {
+      modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200/70 dark:border-zinc-700/70 cursor-pointer transition-colors";
       modalWaEl.innerHTML = `<span>${escapeHtml(formattedContact)}</span>`;
       modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak');
       modalWaEl.title = isEn ? 'Click to copy contact' : 'Klik untuk salin kontak';
@@ -1104,15 +1166,49 @@ function populateDetailModal(proyek) {
 
   const waBtnEl = document.getElementById('modalWaBtn');
   if (waBtnEl) {
-    waBtnEl.classList.remove('hidden');
-    if (isPhone && digitsOnly) {
-      const waText = encodeURIComponent(CONFIG.WA_TEMPLATE || '');
-      waBtnEl.href = `https://api.whatsapp.com/send?phone=${digitsOnly}&text=${waText}`;
-      waBtnEl.target = 'FPManager_WhatsAppTab';
-      waBtnEl.classList.remove('opacity-50', 'pointer-events-none');
+    if (isDesRole) {
+      waBtnEl.classList.remove('hidden');
+      waBtnEl.href = 'javascript:void(0)';
+      waBtnEl.removeAttribute('target');
+      waBtnEl.onclick = (e) => {
+        if (e) e.preventDefault();
+        if (typeof Toast !== 'undefined') {
+          Toast.warning('Akses Ditolak', 'Fitur WhatsApp dinonaktifkan untuk role Desainer.');
+        } else if (typeof showToast === 'function') {
+          showToast({ title: 'Akses Ditolak', message: 'Fitur WhatsApp dinonaktifkan untuk role Desainer.', type: 'warning' });
+        }
+      };
+      waBtnEl.className = "w-full sm:w-auto px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 font-semibold rounded-xl text-xs text-center border border-zinc-300 dark:border-zinc-700 flex items-center justify-center gap-2 cursor-not-allowed opacity-60";
+      waBtnEl.title = isEn ? 'WhatsApp contact disabled for Designer role' : 'Kontak WhatsApp dinonaktifkan untuk role Desainer';
+      waBtnEl.setAttribute('aria-disabled', 'true');
     } else {
-      waBtnEl.href = '#';
-      waBtnEl.classList.add('opacity-50', 'pointer-events-none');
+      waBtnEl.classList.remove('hidden');
+      waBtnEl.onclick = null;
+      waBtnEl.className = "w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs text-center shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer";
+      waBtnEl.title = isEn ? 'Contact WhatsApp' : 'Hubungi WhatsApp';
+      waBtnEl.removeAttribute('aria-disabled');
+      if (isPhone && digitsOnly) {
+        const waText = encodeURIComponent(CONFIG.WA_TEMPLATE || '');
+        waBtnEl.href = `https://api.whatsapp.com/send?phone=${digitsOnly}&text=${waText}`;
+        waBtnEl.target = 'FPManager_WhatsAppTab';
+        waBtnEl.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
+        waBtnEl.href = '#';
+        waBtnEl.classList.add('opacity-50', 'pointer-events-none');
+      }
+    }
+  }
+
+  const btnSendAIWa = document.getElementById('modalBtnSendAIWhatsapp');
+  if (btnSendAIWa) {
+    if (isDesRole) {
+      btnSendAIWa.disabled = true;
+      btnSendAIWa.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+      btnSendAIWa.title = isEn ? 'WhatsApp feature is disabled for Designer role' : 'Fitur WhatsApp dinonaktifkan untuk role Desainer';
+    } else {
+      btnSendAIWa.disabled = false;
+      btnSendAIWa.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+      btnSendAIWa.title = '';
     }
   }
 
@@ -1326,6 +1422,15 @@ async function lunasiProyek() {
 }
 // Hapus Proyek Action
 async function hapusProyek(id, name) {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk menghapus projek.");
+    } else if (typeof showToast === 'function') {
+      showToast({ title: "Akses Ditolak", message: "Role Desainer tidak memiliki izin untuk menghapus projek.", type: "error" });
+    }
+    return;
+  }
+
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
   let prjName = name || '';
@@ -1421,10 +1526,10 @@ Pedoman Gaya Komunikasi (SANGAT PENTING):
 3. HINDARI bahasa yang terlalu formal, baku, kaku, atau seperti surat dinas (JANGAN gunakan kata seperti "Yth.", "Dengan ini kami informasikan", "Sehubungan dengan", dll).
 4. HINDARI pembuka basa-basi yang tidak perlu seperti "Halo Kak, apa kabar? Semoga harinya menyenangkan." Langsung ke inti pembicaraan!
 5. Jika ada pertanyaan sederhana, langsung jawab intinya secara jelas dan singkat.
-6. Gunakan emoji/emote yang relevan dan secukupnya (misal: 😊, 🙏, 🔗, ✨), jangan berlebihan.
+6. Gunakan bahasa yang sopan, ramah, dan ringkas, jangan berlebihan.
 7. Selalu gunakan fakta dan data proyek yang diberikan di bawah. JANGAN PERNAH MENGARANG informasi jika data tidak tersedia di konteks.
 8. Pola Closing: Jika pekerjaan/pesan sudah selesai, gunakan closing yang singkat, ramah, dan positif yang konsisten, contoh:
-"Semoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja. 😊"
+"Semoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja."
 
 DATA DETAIL PROJECT AKTIF:
 - ID Proyek: ${proyek.iDProyek || proyek.idProjek || proyek.id || '-'}
@@ -1465,45 +1570,45 @@ function generateSmartLocalMessage(jenis, customPrompt, proyek, gdriveLink) {
 
   if (jenis === 'followup') {
     return isEn
-      ? `Hello ${namaKlien}, following up on our project *${namaProyek}*. 😊\n\nIs there anything you would like to discuss or adjust further, Kak?\n\nPlease let me know whenever you have a moment. 🙏`
-      : `Halo Kak ${namaKlien}, mau follow up terkait kelanjutan projek *${namaProyek}* ya. 😊\n\nKira-kira ada yang perlu kita diskusikan atau sesuaikan lagi, Kak?\n\nKalau Kakak ada waktu luang, tinggal kabarin aja ya. 🙏`;
+      ? `Hello ${namaKlien}, following up on our project *${namaProyek}*.\n\nIs there anything you would like to discuss or adjust further, Kak?\n\nPlease let me know whenever you have a moment.`
+      : `Halo Kak ${namaKlien}, mau follow up terkait kelanjutan projek *${namaProyek}* ya.\n\nKira-kira ada yang perlu kita diskusikan atau sesuaikan lagi, Kak?\n\nKalau Kakak ada waktu luang, tinggal kabarin aja ya.`;
   }
 
   if (jenis === 'penawaran') {
     return isEn
-      ? `Hello ${namaKlien}, here is the quotation details for *${namaProyek}*:\n\n• Product: ${produk} (${jumlah} ${satuan})\n• Total Amount: ${nominal}\n• Payment Method: ${metode}\n\nIf everything looks good, please confirm so we can get started right away. 😊\n\nLooking forward to working with you!`
-      : `Halo Kak ${namaKlien}, ini rincian penawaran untuk pengerjaan *${namaProyek}* ya:\n\n• Produk: ${produk} (${jumlah} ${satuan})\n• Total Biaya: ${nominal}\n• Metode Pembayaran: ${metode}\n\nKalau sudah oke, bisa langsung konfirmasi ya Kak biar bisa segera saya jadwalkan pengerjaannya. 😊\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+      ? `Hello ${namaKlien}, here is the quotation details for *${namaProyek}*:\n\n• Product: ${produk} (${jumlah} ${satuan})\n• Total Amount: ${nominal}\n• Payment Method: ${metode}\n\nIf everything looks good, please confirm so we can get started right away.\n\nLooking forward to working with you!`
+      : `Halo Kak ${namaKlien}, ini rincian penawaran untuk pengerjaan *${namaProyek}* ya:\n\n• Produk: ${produk} (${jumlah} ${satuan})\n• Total Biaya: ${nominal}\n• Metode Pembayaran: ${metode}\n\nKalau sudah oke, bisa langsung konfirmasi ya Kak biar bisa segera saya jadwalkan pengerjaannya.\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
   }
 
   if (jenis === 'invoice') {
     return isEn
-      ? `Hello ${namaKlien}, here is the invoice for project *${namaProyek}*:\n\n• Total Amount: ${nominal}\n• Down Payment (DP): ${dp}\n• Remaining Balance: ${sisa}\n• Payment Method: ${metode}\n\nPlease proceed with the transfer and share the payment receipt here once completed. 😊`
-      : `Halo Kak ${namaKlien}, untuk invoice rincian tagihan projek *${namaProyek}* sudah siap ya, Kak: 😊\n\n• Total Biaya: ${nominal}\n• DP: ${dp}\n• Sisa Tagihan: ${sisa}\n• Metode Pembayaran: ${metode}\n\nNanti kalau sudah transfer, tinggal kirimkan bukti pembayarannya ke sini ya, Kak. Terima kasih banyak! 🙏`;
+      ? `Hello ${namaKlien}, here is the invoice for project *${namaProyek}*:\n\n• Total Amount: ${nominal}\n• Down Payment (DP): ${dp}\n• Remaining Balance: ${sisa}\n• Payment Method: ${metode}\n\nPlease proceed with the transfer and share the payment receipt here once completed.`
+      : `Halo Kak ${namaKlien}, untuk invoice rincian tagihan projek *${namaProyek}* sudah siap ya, Kak:\n\n• Total Biaya: ${nominal}\n• DP: ${dp}\n• Sisa Tagihan: ${sisa}\n• Metode Pembayaran: ${metode}\n\nNanti kalau sudah transfer, tinggal kirimkan bukti pembayarannya ke sini ya, Kak. Terima kasih banyak!`;
   }
 
   if (jenis === 'pelunasan') {
     return isEn
-      ? `Hello ${namaKlien}, project *${namaProyek}* is now completed! 🎉\n\nFor the remaining balance of *${sisa}*, please transfer via *${metode}*.\n\nOnce received, I'll send over the final high-resolution files right away. Thank you! 🙏`
-      : `Halo Kak ${namaKlien}, projek *${namaProyek}* sudah selesai dikerjakan ya. 😊\n\nUntuk sisa pelunasannya sebesar *${sisa}* bisa ditransfer melalui *${metode}* ya, Kak.\n\nBegitu pelunasan masuk, file resolusi tingginya langsung saya kirimkan. Makasih banyak ya, Kak! 🙏`;
+      ? `Hello ${namaKlien}, project *${namaProyek}* is now completed!\n\nFor the remaining balance of *${sisa}*, please transfer via *${metode}*.\n\nOnce received, I'll send over the final high-resolution files right away. Thank you!`
+      : `Halo Kak ${namaKlien}, projek *${namaProyek}* sudah selesai dikerjakan ya.\n\nUntuk sisa pelunasannya sebesar *${sisa}* bisa ditransfer melalui *${metode}* ya, Kak.\n\nBegitu pelunasan masuk, file resolusi tingginya langsung saya kirimkan. Makasih banyak ya, Kak!`;
   }
 
   if (jenis === 'selesai') {
     return isEn
-      ? `Hello ${namaKlien}, the final high-resolution files for *${namaProyek}* have been uploaded to Google Drive: 😊\n🔗 ${gdrive || '[Google Drive link]'}\n\nHope you love the result! If there's anything else you'd like to adjust, just let me know. 😊`
-      : `Halo Kak ${namaKlien}, untuk desain dan file final *${namaProyek}* udah saya upload di Google Drive ini ya, Kak: 😊\n🔗 ${gdrive || '[Link Google Drive]'}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja. 😊`;
+      ? `Hello ${namaKlien}, the final high-resolution files for *${namaProyek}* have been uploaded to Google Drive:\nLink: ${gdrive || '[Google Drive link]'}\n\nHope you love the result! If there's anything else you'd like to adjust, just let me know.`
+      : `Halo Kak ${namaKlien}, untuk desain dan file final *${namaProyek}* udah saya upload di Google Drive ini ya, Kak:\nLink: ${gdrive || '[Link Google Drive]'}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
   }
 
   if (jenis === 'testimoni') {
     return isEn
-      ? `Hello ${namaKlien}, thank you very much for trusting us with *${namaProyek}*! 😊\n\nIf you have a quick moment, I'd really appreciate your brief feedback or testimonial. It helps a lot!\n\nThank you again and looking forward to our next project together! 🙏✨`
-      : `Halo Kak ${namaKlien}, makasih banyak udah percayain pengerjaan *${namaProyek}* ke saya ya. 😊\n\nKalau Kakak ada waktu luang sebentar, boleh minta sedikit ulasan atau testimoni singkatnya, Kak? Sangat berharga banget buat saya.\n\nMakasih banyak atas kerja samanya, Kak! 🙏✨`;
+      ? `Hello ${namaKlien}, thank you very much for trusting us with *${namaProyek}*!\n\nIf you have a quick moment, I'd really appreciate your brief feedback or testimonial. It helps a lot!\n\nThank you again and looking forward to our next project together!`
+      : `Halo Kak ${namaKlien}, makasih banyak udah percayain pengerjaan *${namaProyek}* ke saya ya.\n\nKalau Kakak ada waktu luang sebentar, boleh minta sedikit ulasan atau testimoni singkatnya, Kak? Sangat berharga banget buat saya.\n\nMakasih banyak atas kerja samanya, Kak!`;
   }
 
   if (jenis === 'custom' && customPrompt) {
     const qLower = customPrompt.toLowerCase();
     if (qLower.includes('upload') || qLower.includes('drive') || qLower.includes('file')) {
       if (gdrive) {
-        return `Udah Kak, file finalnya sudah saya upload ke Google Drive ya. 😊 Link-nya: ${gdrive}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+        return `Udah Kak, file finalnya sudah saya upload ke Google Drive ya. Link-nya: ${gdrive}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
       } else {
         return `Untuk file finalnya saat ini belum ada link Google Drive yang terlampir di data projek ini, Kak.`;
       }
@@ -1519,7 +1624,7 @@ function generateSmartLocalMessage(jenis, customPrompt, proyek, gdriveLink) {
     }
   }
 
-  return `Halo Kak ${namaKlien}, terkait projek *${namaProyek}* statusnya saat ini *${proyek.status || 'Sedang Dikerjakan'}* ya. 😊\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+  return `Halo Kak ${namaKlien}, terkait projek *${namaProyek}* statusnya saat ini *${proyek.status || 'Sedang Dikerjakan'}* ya.\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
 }
 
 let isAIGenerating = false;
@@ -1647,7 +1752,7 @@ async function generateAI(jenis) {
 
   showToast({
     title: "AI Assistant",
-    message: isEn ? "Message ready!" : "Pesan siap digunakan! ✨",
+    message: isEn ? "Message ready!" : "Pesan siap digunakan!",
     type: "success"
   });
 
@@ -1667,6 +1772,14 @@ function copyAIText() {
 
 function sendAIWhatsapp() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    showToast({
+      title: "Akses Ditolak",
+      message: isEn ? "WhatsApp feature is disabled for Designer role." : "Fitur WhatsApp dinonaktifkan untuk role Desainer.",
+      type: "warning"
+    });
+    return;
+  }
   if (!currentProyek || !currentProyek.nomorWA) {
     showToast({
       title: "Error",
@@ -1994,11 +2107,28 @@ $(document).on('change', '.proyek-checkbox', function () {
 
 // Update status button batch delete & batch create invoice
 function updateBulkDeleteButton() {
+  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const btnDelete = document.getElementById('btnBulkDelete');
+  const btnInvoice = document.getElementById('btnBulkCreateInvoice');
+
+  if (isDes) {
+    if (btnDelete) {
+      btnDelete.classList.add('hidden');
+      btnDelete.style.display = 'none';
+      btnDelete.disabled = true;
+    }
+    if (btnInvoice) {
+      btnInvoice.classList.add('hidden');
+      btnInvoice.style.display = 'none';
+      btnInvoice.disabled = true;
+    }
+    return;
+  }
+
   const checkedBoxes = $('.proyek-checkbox:checked');
   const count = checkedBoxes.length;
   
   // Tombol Hapus Terpilih
-  const btnDelete = document.getElementById('btnBulkDelete');
   const countDeleteEl = document.getElementById('selectedCount');
   if (btnDelete && countDeleteEl) {
     countDeleteEl.textContent = count;
@@ -2014,7 +2144,6 @@ function updateBulkDeleteButton() {
   }
 
   // Tombol Create Invoice dari Checklist
-  const btnInvoice = document.getElementById('btnBulkCreateInvoice');
   const countInvoiceEl = document.getElementById('selectedInvoiceCount');
   if (btnInvoice && countInvoiceEl) {
     countInvoiceEl.textContent = count;
@@ -2034,6 +2163,15 @@ function updateBulkDeleteButton() {
 window.selectedBulkProyekData = [];
 
 function openBulkInvoiceModal() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk membuat invoice.");
+    } else if (typeof showToast === 'function') {
+      showToast({ title: "Akses Ditolak", message: "Role Desainer tidak memiliki izin untuk membuat invoice.", type: "error" });
+    }
+    return;
+  }
+
   const checkedBoxes = $('.proyek-checkbox:checked');
   const ids = [];
   checkedBoxes.each(function () {
@@ -2130,6 +2268,14 @@ function toggleCustomerCustomInput(show) {
 }
 
 function proceedToBulkInvoice() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk membuat invoice.");
+    }
+    closeBulkInvoiceModal();
+    return;
+  }
+
   const selectedProyek = window.selectedBulkProyekData || [];
   if (selectedProyek.length === 0) {
     closeBulkInvoiceModal();
@@ -2247,6 +2393,15 @@ function showProyekSkeletons() {
 
 // Action Bulk Delete
 async function bulkDeleteProyek() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') {
+      Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk menghapus projek.");
+    } else if (typeof showToast === 'function') {
+      showToast({ title: "Akses Ditolak", message: "Role Desainer tidak memiliki izin untuk menghapus projek.", type: "error" });
+    }
+    return;
+  }
+
   const checkedBoxes = $('.proyek-checkbox:checked');
   const ids = [];
   checkedBoxes.each(function () {

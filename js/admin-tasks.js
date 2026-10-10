@@ -646,9 +646,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         statusSelectHtml = `
           <select onchange="updateTaskStatusValue('${task.id}', this.value)"
             class="px-2.5 py-1 text-xs font-bold rounded-full border cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-400 ${statusBadgeClass}">
-            <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>🔴 Belum Selesai</option>
-            <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>🟡 Sedang Dikerjakan</option>
-            <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>🟢 Selesai</option>
+            <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>Belum Selesai</option>
+            <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>Sedang Dikerjakan</option>
+            <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
           </select>
         `;
       } else {
@@ -656,9 +656,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           <select disabled
             class="px-2.5 py-1 text-xs font-bold rounded-full border opacity-60 cursor-not-allowed ${statusBadgeClass}"
             title="Khusus @${escapeHtmlSafe(task.adminUser || 'service')} atau Super Admin">
-            <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>🔴 Belum Selesai</option>
-            <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>🟡 Sedang Dikerjakan</option>
-            <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>🟢 Selesai</option>
+            <option value="Belum Selesai" ${task.status === 'Belum Selesai' ? 'selected' : ''}>Belum Selesai</option>
+            <option value="Sedang Dikerjakan" ${task.status === 'Sedang Dikerjakan' ? 'selected' : ''}>Sedang Dikerjakan</option>
+            <option value="Selesai" ${task.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
           </select>
         `;
       }

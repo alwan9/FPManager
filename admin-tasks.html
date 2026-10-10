@@ -55,7 +55,7 @@
         <a href="index.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-home">Home</span>
+          <span class="text-sm font-medium" data-i18n="nav-home">Dashboard</span>
         </a>
         <a href="proyek.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
@@ -144,7 +144,7 @@
       <a href="index.html"
         class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
         <i class="fa-solid fa-chart-line text-base"></i>
-        <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
+        <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
       </a>
 
       <!-- 2. Projek -->
@@ -213,9 +213,6 @@
             title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
             <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
           </button>
-          <span id="apiStatusBadge" class="inline-flex items-center justify-center p-1.5" title="Live Google Sheets Connected">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
-          </span>
           <span id="headerUserRoleBadge"
             class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
             ADMIN
@@ -226,6 +223,11 @@
               title="Menu Profil">
               A
             </button>
+            <span id="apiStatusBadge"
+              class="absolute bottom-0 right-0 z-20 flex items-center justify-center pointer-events-none"
+              title="Live Google Sheets Connected">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
+            </span>
             <div id="profileDropdown"
               class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
               <a href="profil.html"
@@ -619,7 +621,7 @@
           </label>
           <select id="taskAdminSelect"
             class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
-            <option value="service">👥 Semua Tim Admin Service</option>
+            <option value="service">Semua Tim Admin Service</option>
             <!-- Populated dynamically with serviceUsersList -->
           </select>
         </div>
@@ -632,9 +634,9 @@
             </label>
             <select id="taskPrioritySelect"
               class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
-              <option value="high">🔴 Tinggi / Mendesak</option>
-              <option value="medium" selected>🟡 Sedang / Standar</option>
-              <option value="low">🟢 Ringan / Rutin</option>
+              <option value="high">Tinggi / Mendesak</option>
+              <option value="medium" selected>Sedang / Standar</option>
+              <option value="low">Ringan / Rutin</option>
             </select>
           </div>
 
@@ -644,9 +646,9 @@
             </label>
             <select id="taskStatusSelect"
               class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
-              <option value="Belum Selesai">🔴 Belum Selesai</option>
-              <option value="Sedang Dikerjakan">🟡 Sedang Dikerjakan</option>
-              <option value="Selesai">🟢 Selesai</option>
+              <option value="Belum Selesai">Belum Selesai</option>
+              <option value="Sedang Dikerjakan">Sedang Dikerjakan</option>
+              <option value="Selesai">Selesai</option>
             </select>
           </div>
         </div>

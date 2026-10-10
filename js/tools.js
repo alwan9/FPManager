@@ -62,6 +62,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply Shortcut Visibility on initial load
   applyShortcutsVisibility(isShortcutsVisible());
 
+  // Sembunyikan fitur Excel untuk desainer
+  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  if (isDes) {
+    const shortcutExcel = document.getElementById('shortcutExcelDropdownWrapper');
+    if (shortcutExcel) { shortcutExcel.style.display = 'none'; shortcutExcel.classList.add('hidden'); }
+    const toolExcel = document.getElementById('toolExcelDropdownWrapper');
+    if (toolExcel) { toolExcel.style.display = 'none'; toolExcel.classList.add('hidden'); }
+    const mobileExcel = document.getElementById('btnToolsExcelHubMobile');
+    if (mobileExcel) { mobileExcel.style.display = 'none'; mobileExcel.classList.add('hidden'); }
+  }
+
   // Initialize Tools Hero Banner Slider
   initToolBannerSlider();
 });
@@ -844,12 +855,247 @@ function toggleItemDesc(itemId, event) {
   renderSizeCheatSheet();
 }
 
+let currentSizeModalTab = 'converter';
+
+function switchSizeModalTab(tab) {
+  currentSizeModalTab = tab;
+  const convBtn = document.getElementById('sizeTabConverterBtn');
+  const catBtn = document.getElementById('sizeTabCatalogBtn');
+  const convPane = document.getElementById('sizeConverterTabPane');
+  const catPane = document.getElementById('sizeCatalogTabPane');
+
+  if (tab === 'converter') {
+    if (convBtn) {
+      convBtn.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all bg-indigo-600 text-white shadow-xs';
+    }
+    if (catBtn) {
+      catBtn.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white';
+    }
+    if (convPane) convPane.classList.remove('hidden');
+    if (catPane) catPane.classList.add('hidden');
+    runSizeConverter();
+  } else {
+    if (convBtn) {
+      convBtn.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white';
+    }
+    if (catBtn) {
+      catBtn.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all bg-indigo-600 text-white shadow-xs';
+    }
+    if (convPane) convPane.classList.add('hidden');
+    if (catPane) catPane.classList.remove('hidden');
+    renderSizeCheatSheet();
+  }
+}
+
+function runSizeConverter() {
+  const pInput = document.getElementById('convPanjangInput');
+  const lInput = document.getElementById('convLebarInput');
+  const unitSelect = document.getElementById('convInputUnit');
+  const dpiSelect = document.getElementById('convDpiSelect');
+
+  if (!pInput || !lInput) return;
+
+  const rawP = parseFloat(pInput.value) || 0;
+  const rawL = parseFloat(lInput.value) || 0;
+  const unit = unitSelect ? unitSelect.value : 'cm';
+  const targetDpi = parseInt(dpiSelect ? dpiSelect.value : '300', 10) || 300;
+
+  // Update badge labels
+  const pBadge = document.getElementById('convPanjangUnitBadge');
+  const lBadge = document.getElementById('convLebarUnitBadge');
+  if (pBadge) pBadge.textContent = unit;
+  if (lBadge) lBadge.textContent = unit;
+
+  // Convert to millimeters (base)
+  let mmP = 0;
+  let mmL = 0;
+
+  if (unit === 'cm') {
+    mmP = rawP * 10;
+    mmL = rawL * 10;
+  } else if (unit === 'mm') {
+    mmP = rawP;
+    mmL = rawL;
+  } else if (unit === 'inch') {
+    mmP = rawP * 25.4;
+    mmL = rawL * 25.4;
+  } else if (unit === 'px') {
+    mmP = (rawP / targetDpi) * 25.4;
+    mmL = (rawL / targetDpi) * 25.4;
+  }
+
+  // 1. Pixels at 300 DPI
+  const px300P = Math.round((mmP / 25.4) * 300);
+  const px300L = Math.round((mmL / 25.4) * 300);
+
+  // 2. Pixels at 72 DPI
+  const px72P = Math.round((mmP / 25.4) * 72);
+  const px72L = Math.round((mmL / 25.4) * 72);
+
+  // 3. Pixels at Target DPI
+  const pxTargetP = Math.round((mmP / 25.4) * targetDpi);
+  const pxTargetL = Math.round((mmL / 25.4) * targetDpi);
+
+  // 4. Physical units
+  const cmP = (mmP / 10).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+  const cmL = (mmL / 10).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+  const mmPStr = mmP.toLocaleString('id-ID', { maximumFractionDigits: 1 });
+  const mmLStr = mmL.toLocaleString('id-ID', { maximumFractionDigits: 1 });
+  const inP = (mmP / 25.4).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+  const inL = (mmL / 25.4).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+
+  // 5. Metadata
+  const mp = ((pxTargetP * pxTargetL) / 1000000).toFixed(2);
+  const areaCm = ((mmP / 10) * (mmL / 10)).toLocaleString('id-ID', { maximumFractionDigits: 1 });
+
+  // Ratio calculation
+  let ratioStr = '-';
+  let orientStr = '-';
+  if (rawP > 0 && rawL > 0) {
+    if (rawP > rawL) {
+      orientStr = 'Portrait (Tegak)';
+    } else if (rawL > rawP) {
+      orientStr = 'Landscape (Mendatar)';
+    } else {
+      orientStr = 'Square (Persegi 1:1)';
+    }
+
+    function gcd(a, b) {
+      a = Math.round(a * 100);
+      b = Math.round(b * 100);
+      while (b) {
+        let t = b;
+        b = a % b;
+        a = t;
+      }
+      return a;
+    }
+    const d = gcd(rawP, rawL);
+    const sP = Math.round((rawP * 100) / d);
+    const sL = Math.round((rawL * 100) / d);
+    if (sP <= 50 && sL <= 50) {
+      ratioStr = `${sP} : ${sL} (${(rawP / rawL).toFixed(2)})`;
+    } else {
+      ratioStr = `${(rawP / rawL).toFixed(2)} : 1`;
+    }
+  }
+
+  // Update DOM Elements
+  const elPx300Full = document.getElementById('convResPx300Full');
+  const elPx300P = document.getElementById('convResPx300P');
+  const elPx300L = document.getElementById('convResPx300L');
+  if (elPx300Full) elPx300Full.textContent = `${px300P} × ${px300L} px`;
+  if (elPx300P) elPx300P.textContent = `${px300P} px`;
+  if (elPx300L) elPx300L.textContent = `${px300L} px`;
+
+  const elPx72Full = document.getElementById('convResPx72Full');
+  const elPx72P = document.getElementById('convResPx72P');
+  const elPx72L = document.getElementById('convResPx72L');
+  if (elPx72Full) elPx72Full.textContent = `${px72P} × ${px72L} px`;
+  if (elPx72P) elPx72P.textContent = `${px72P} px`;
+  if (elPx72L) elPx72L.textContent = `${px72L} px`;
+
+  const elCm = document.getElementById('convResCm');
+  if (elCm) elCm.textContent = `${cmP} × ${cmL} cm`;
+
+  const elMm = document.getElementById('convResMm');
+  if (elMm) elMm.textContent = `${mmPStr} × ${mmLStr} mm`;
+
+  const elInch = document.getElementById('convResInch');
+  if (elInch) elInch.textContent = `${inP} × ${inL} in`;
+
+  const elSelDpi = document.getElementById('convResSelectedDpi');
+  if (elSelDpi) elSelDpi.textContent = `${targetDpi} DPI`;
+
+  const elSelPx = document.getElementById('convResSelectedPx');
+  if (elSelPx) elSelPx.textContent = `${pxTargetP} × ${pxTargetL} px`;
+
+  const elMp = document.getElementById('convResMp');
+  if (elMp) elMp.textContent = `${mp} MP`;
+
+  const elRatio = document.getElementById('convResRatio');
+  if (elRatio) elRatio.textContent = ratioStr;
+
+  const elOrient = document.getElementById('convResOrientation');
+  if (elOrient) elOrient.textContent = orientStr;
+
+  const elArea = document.getElementById('convResArea');
+  if (elArea) elArea.textContent = `${areaCm} cm²`;
+}
+
+function swapSizeConverterInputs() {
+  const pInput = document.getElementById('convPanjangInput');
+  const lInput = document.getElementById('convLebarInput');
+  if (pInput && lInput) {
+    const tmp = pInput.value;
+    pInput.value = lInput.value;
+    lInput.value = tmp;
+    runSizeConverter();
+  }
+}
+
+function applyConverterPreset(p, l, unit) {
+  const pInput = document.getElementById('convPanjangInput');
+  const lInput = document.getElementById('convLebarInput');
+  const unitSelect = document.getElementById('convInputUnit');
+  if (pInput) pInput.value = p;
+  if (lInput) lInput.value = l;
+  if (unitSelect && unit) unitSelect.value = unit;
+  runSizeConverter();
+}
+
+function sendPresetToConverter(heightMm, widthMm, name) {
+  const pCm = Number((heightMm / 10).toFixed(2));
+  const lCm = Number((widthMm / 10).toFixed(2));
+  applyConverterPreset(pCm, lCm, 'cm');
+  switchSizeModalTab('converter');
+  if (typeof Toast !== 'undefined') {
+    Toast.success('Ukuran Dimuat!', `${name} (${pCm} × ${lCm} cm) dimuat ke konverter.`);
+  }
+}
+
+function copyConverterText(text, label) {
+  const cleanText = String(text || '').trim();
+  if (!cleanText) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cleanText).then(() => {
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Tersalin!', `${label || 'Nilai'} (${cleanText}) disalin ke clipboard.`);
+      }
+    }).catch(() => {
+      fallbackCopySimple(cleanText, label);
+    });
+  } else {
+    fallbackCopySimple(cleanText, label);
+  }
+}
+
+function fallbackCopySimple(text, label) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Tersalin!', `${label || 'Nilai'} (${text}) disalin ke clipboard.`);
+    }
+  } catch (err) {
+    console.error('Gagal menyalin:', err);
+  }
+  document.body.removeChild(ta);
+}
+
 function openSizeCheatSheetModal() {
   closeAllModals();
   const modal = document.getElementById('sizeCheatSheetModal');
   if (modal) {
     modal.classList.remove('hidden');
+    switchSizeModalTab(currentSizeModalTab || 'converter');
     renderSizeCheatSheet();
+    runSizeConverter();
   }
 }
 
@@ -1011,6 +1257,14 @@ function renderSizeCheatSheet() {
                         <span class="text-[10px] font-extrabold uppercase text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">T:</span>
                         <span class="font-mono font-bold text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${dim.heightStr}</span>
                         <i class="fa-regular fa-copy text-[10px] text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                      </button>
+
+                      <!-- Send to Converter Button -->
+                      <button onclick="sendPresetToConverter(${item.heightMm}, ${item.widthMm}, '${item.name}')" 
+                        class="group bg-zinc-50 dark:bg-zinc-900/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-zinc-200/70 dark:border-zinc-700/60 hover:border-indigo-400 dark:hover:border-indigo-500 px-2 py-1 rounded-lg cursor-pointer transition-all flex items-center space-x-1 text-xs focus:outline-none" 
+                        title="Hitung dan konversi ukuran ini di Konverter">
+                        <i class="fa-solid fa-calculator text-[10px] text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"></i>
+                        <span class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 hidden sm:inline">Konversi</span>
                       </button>
 
                     </div>

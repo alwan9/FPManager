@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (Notification.permission === 'granted') {
-      showNotification('FPManager Uji Coba Notifikasi 🔔', {
+      showNotification('FPManager Uji Coba Notifikasi', {
         body: 'Selamat! Push notification bekerja dengan baik di perangkat ini.',
         icon: './assets/img/icon-192.png'
       });
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
           message: "Anda sekarang dapat menerima notifikasi pengingat deadline.",
           type: "success"
         });
-        showNotification('Notifikasi Diaktifkan! 🔔', {
+        showNotification('Notifikasi Diaktifkan!', {
           body: 'Terima kasih telah mengaktifkan notifikasi untuk FPManager.',
           icon: './assets/img/icon-192.png'
         });
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnTestToast) {
     btnTestToast.addEventListener('click', () => {
       showToast({
-        title: CONFIG.LANG === 'en' ? "In-App Notification Test" : "Uji Coba Alert Aplikasi 🔔",
+        title: CONFIG.LANG === 'en' ? "In-App Notification Test" : "Uji Coba Alert Aplikasi",
         message: CONFIG.LANG === 'en' ? "Success! This in-app alert is working properly." : "Berhasil! Alert dalam aplikasi ini berfungsi dengan baik.",
         type: "success"
       });
@@ -207,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateApiStatusBadge() {
   const badge = document.getElementById('apiStatusBadge');
   if (badge) {
-    badge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>';
-    badge.className = 'inline-flex items-center justify-center p-1.5';
+    badge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>';
+    badge.className = 'absolute bottom-0 right-0 z-20 flex items-center justify-center pointer-events-none';
     badge.title = 'Live Google Sheets Connected';
   }
 }

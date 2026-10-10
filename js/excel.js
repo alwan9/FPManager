@@ -1292,7 +1292,7 @@ async function executeBatchImport() {
   if (progressDetail) {
     progressDetail.innerHTML = `
       <span class="text-emerald-600 dark:text-emerald-400 font-bold">
-        ✅ Selesai: ${successCount} projek berhasil ditambahkan!
+        Selesai: ${successCount} projek berhasil ditambahkan!
       </span>
       ${failedCount > 0 ? `<span class="text-rose-500 ml-2 font-medium">(${failedCount} gagal tersimpan)</span>` : ''}
     `;
@@ -1736,6 +1736,10 @@ function closeShortcutExcelDropdown() {
 }
 
 function downloadShortcutTemplateExcel() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengunduh template Excel.');
+    return;
+  }
   try {
     if (typeof XLSX === 'undefined') {
       throw new Error("Pustaka SheetJS (XLSX) belum dimuat.");
@@ -1804,6 +1808,10 @@ function downloadShortcutTemplateExcel() {
 }
 
 async function exportShortcutsToExcel() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengekspor ke Excel.');
+    return;
+  }
   try {
     let data = [];
     if (typeof shortcutsData !== 'undefined' && Array.isArray(shortcutsData) && shortcutsData.length > 0) {
@@ -1857,6 +1865,10 @@ async function exportShortcutsToExcel() {
 }
 
 function openImportShortcutModal() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengimpor dari Excel.');
+    return;
+  }
   resetImportShortcutState();
   const modal = document.getElementById("importShortcutModal");
   if (!modal) return;
@@ -2322,7 +2334,7 @@ async function executeBatchImportShortcuts() {
   if (progressDetail) {
     progressDetail.innerHTML = `
       <span class="text-emerald-600 dark:text-emerald-400 font-bold">
-        ✅ Selesai: ${successCount} shortcut berhasil ditambahkan!
+        Selesai: ${successCount} shortcut berhasil ditambahkan!
       </span>
       ${failedCount > 0 ? `<span class="text-rose-500 ml-2 font-medium">(${failedCount} gagal tersimpan)</span>` : ''}
     `;
@@ -2382,6 +2394,10 @@ function closeToolExcelDropdown() {
 }
 
 function downloadToolsTemplateExcel() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengunduh template Excel.');
+    return;
+  }
   try {
     if (typeof XLSX === 'undefined') {
       throw new Error("Pustaka SheetJS (XLSX) belum dimuat.");
@@ -2445,6 +2461,10 @@ function downloadToolsTemplateExcel() {
 }
 
 async function exportToolsToExcel() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengekspor ke Excel.');
+    return;
+  }
   try {
     let data = [];
     if (typeof toolsData !== 'undefined' && Array.isArray(toolsData) && toolsData.length > 0) {
@@ -2498,6 +2518,10 @@ async function exportToolsToExcel() {
 }
 
 function openImportToolModal() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengimpor dari Excel.');
+    return;
+  }
   resetImportToolState();
   const modal = document.getElementById("importToolModal");
   if (!modal) return;
@@ -2922,7 +2946,7 @@ async function executeBatchImportTools() {
   if (progressDetail) {
     progressDetail.innerHTML = `
       <span class="text-emerald-600 dark:text-emerald-400 font-bold">
-        ✅ Selesai: ${successCount} prompt berhasil ditambahkan!
+        Selesai: ${successCount} prompt berhasil ditambahkan!
       </span>
       ${failedCount > 0 ? `<span class="text-rose-500 ml-2 font-medium">(${failedCount} gagal tersimpan)</span>` : ''}
     `;
@@ -2947,6 +2971,10 @@ async function executeBatchImportTools() {
 }
 
 function openToolsExcelHubModal() {
+  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+    if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk fitur Excel.');
+    return;
+  }
   const modal = document.getElementById("toolsExcelHubModal");
   if (!modal) return;
   modal.classList.remove("hidden");
