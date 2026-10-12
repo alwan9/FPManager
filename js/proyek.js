@@ -294,6 +294,15 @@ function initTable(data) {
           const rowData = row || {};
           const id = data || rowData.iDProyek || rowData.idProjek || rowData.id || '';
           const uid = rowData.userId || 'USR-001';
+          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          if (isDes) {
+            return `
+              <div>
+                <div><span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed select-none opacity-80" title="Salin ID Projek dinonaktifkan untuk role Desainer">${escapeHtml(id)}</span></div>
+                <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>
+              </div>
+            `;
+          }
           return `
             <div>
               <div><span onclick="copyTextToClipboard('${escapeHtml(id)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(id)}</span></div>
@@ -342,7 +351,7 @@ function initTable(data) {
           const displayWa = (isDes && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(wa) : wa;
           const cleanWa = String(displayWa).startsWith('+') ? String(displayWa).slice(1) : String(displayWa);
           if (isDes) {
-            return `<span onclick="copyTextToClipboard('${escapeHtml(displayWa)}', 'Nomor WA (Disamarkan)')" class="hover:underline cursor-pointer text-zinc-700 dark:text-zinc-300 font-semibold font-mono" title="Nomor WA (5 digit terakhir disamarkan)">+${escapeHtml(cleanWa)}</span>`;
+            return `<span class="text-zinc-400 dark:text-zinc-500 font-semibold font-mono cursor-not-allowed select-none opacity-80" title="Nomor WA dinonaktifkan untuk role Desainer">+${escapeHtml(cleanWa)}</span>`;
           }
           return `<span onclick="copyTextToClipboard('${escapeHtml(wa)}', 'Nomor WA')" class="hover:underline cursor-pointer text-indigo-600 dark:text-indigo-400 font-semibold font-mono" title="Klik untuk salin Nomor WA">+${escapeHtml(cleanWa)}</span>`;
         }
@@ -777,8 +786,20 @@ function populateDetailModal(proyek) {
 
   // 1. ID & User ID
   const modalIdEl = document.getElementById('modalId');
+  const isDesRole = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
   if (modalIdEl) {
     modalIdEl.textContent = proyekId;
+    if (isDesRole) {
+      modalIdEl.onclick = (e) => {
+        if (e) e.preventDefault();
+      };
+      modalIdEl.className = "px-2 py-0.5 text-xs font-mono font-semibold rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed select-none opacity-70";
+      modalIdEl.title = isEn ? 'Project ID copy is disabled for Designer role' : 'Salin ID Projek dinonaktifkan untuk role Desainer';
+    } else {
+      modalIdEl.onclick = () => copyTextToClipboard(proyekId, 'ID Proyek');
+      modalIdEl.className = "px-2 py-0.5 text-xs font-mono font-semibold rounded-md bg-zinc-100 hover:bg-indigo-50 dark:bg-zinc-800 dark:hover:bg-indigo-950/50 text-zinc-600 hover:text-indigo-600 dark:text-zinc-300 dark:hover:text-indigo-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors";
+      modalIdEl.title = isEn ? 'Click to copy ID' : 'Klik untuk salin ID';
+    }
     modalIdEl.classList.remove('hidden');
   }
 
@@ -934,20 +955,41 @@ function populateDetailModal(proyek) {
         modalWaEl.title = isEn ? 'Click to copy WhatsApp Number' : 'Klik untuk salin Nomor WA';
       }
     } else if (sumber.toLowerCase() === 'shopee') {
-      modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/60 px-2 py-0.5 rounded-md border border-orange-200/70 dark:border-orange-800/70 cursor-pointer transition-colors";
-      modalWaEl.innerHTML = `<i class="fa-solid fa-bag-shopping text-orange-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
-      modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Shopee');
-      modalWaEl.title = isEn ? 'Click to copy Shopee Contact' : 'Klik untuk salin Kontak Shopee';
+      if (isDesRole) {
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 cursor-not-allowed opacity-60 select-none";
+        modalWaEl.innerHTML = `<i class="fa-solid fa-bag-shopping text-zinc-400"></i> <span>${escapeHtml(formattedContact)}</span>`;
+        modalWaEl.onclick = (e) => { if (e) e.preventDefault(); };
+        modalWaEl.title = isEn ? 'Shopee Contact is disabled for Designer role' : 'Kontak Shopee dinonaktifkan untuk role Desainer';
+      } else {
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/60 px-2 py-0.5 rounded-md border border-orange-200/70 dark:border-orange-800/70 cursor-pointer transition-colors";
+        modalWaEl.innerHTML = `<i class="fa-solid fa-bag-shopping text-orange-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
+        modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Shopee');
+        modalWaEl.title = isEn ? 'Click to copy Shopee Contact' : 'Klik untuk salin Kontak Shopee';
+      }
     } else if (sumber.toLowerCase() === 'fiverr') {
-      modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800/70 cursor-pointer transition-colors";
-      modalWaEl.innerHTML = `<i class="fa-solid fa-bolt text-emerald-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
-      modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Fiverr');
-      modalWaEl.title = isEn ? 'Click to copy Fiverr Contact' : 'Klik untuk salin Kontak Fiverr';
+      if (isDesRole) {
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 cursor-not-allowed opacity-60 select-none";
+        modalWaEl.innerHTML = `<i class="fa-solid fa-bolt text-zinc-400"></i> <span>${escapeHtml(formattedContact)}</span>`;
+        modalWaEl.onclick = (e) => { if (e) e.preventDefault(); };
+        modalWaEl.title = isEn ? 'Fiverr Contact is disabled for Designer role' : 'Kontak Fiverr dinonaktifkan untuk role Desainer';
+      } else {
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800/70 cursor-pointer transition-colors";
+        modalWaEl.innerHTML = `<i class="fa-solid fa-bolt text-emerald-500"></i> <span>${escapeHtml(formattedContact)}</span>`;
+        modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak Fiverr');
+        modalWaEl.title = isEn ? 'Click to copy Fiverr Contact' : 'Klik untuk salin Kontak Fiverr';
+      }
     } else {
-      modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200/70 dark:border-zinc-700/70 cursor-pointer transition-colors";
-      modalWaEl.innerHTML = `<span>${escapeHtml(formattedContact)}</span>`;
-      modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak');
-      modalWaEl.title = isEn ? 'Click to copy contact' : 'Klik untuk salin kontak';
+      if (isDesRole) {
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700 cursor-not-allowed opacity-60 select-none";
+        modalWaEl.innerHTML = `<span>${escapeHtml(formattedContact)}</span>`;
+        modalWaEl.onclick = (e) => { if (e) e.preventDefault(); };
+        modalWaEl.title = isEn ? 'Contact is disabled for Designer role' : 'Kontak dinonaktifkan untuk role Desainer';
+      } else {
+        modalWaEl.className = "inline-flex items-center gap-1 text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200/70 dark:border-zinc-700/70 cursor-pointer transition-colors";
+        modalWaEl.innerHTML = `<span>${escapeHtml(formattedContact)}</span>`;
+        modalWaEl.onclick = () => copyTextToClipboard(formattedContact, 'Kontak');
+        modalWaEl.title = isEn ? 'Click to copy contact' : 'Klik untuk salin kontak';
+      }
     }
     modalWaEl.classList.remove('hidden');
   }

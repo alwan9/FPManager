@@ -214,7 +214,7 @@ function applyDashboardRoleCustomizations() {
   }
 
   if (recentProjectsCard) {
-    recentProjectsCard.className = 'lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
+    recentProjectsCard.className = 'lg:col-span-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between';
   }
 }
 
@@ -459,26 +459,26 @@ function renderRecentProjects(recent) {
     // Right Column: Show deadline/created date for Designer, Nominal for Admin/Service
     const rightColHtml = isDesainer ? `
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block flex items-center justify-end gap-1">
-          <i class="fa-regular fa-clock text-[10px] text-indigo-500"></i>
+        <span class="font-bold text-sm sm:text-base text-zinc-800 dark:text-zinc-200 block flex items-center justify-end gap-1.5">
+          <i class="fa-regular fa-clock text-xs text-indigo-500"></i>
           <span>${escapeHtml(p.deadline || p.tanggal || '-')}</span>
         </span>
-        <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${p.deadline ? (isEn ? 'Deadline' : 'Deadline') : (isEn ? 'Created' : 'Tgl Dibuat')}</span>
+        <span class="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-500 block mt-0.5">${p.deadline ? (isEn ? 'Deadline' : 'Deadline') : (isEn ? 'Created' : 'Tgl Dibuat')}</span>
       </div>
     ` : `
       <div class="text-right flex-shrink-0">
-        <span class="font-bold text-xs sm:text-sm text-zinc-800 dark:text-zinc-200 block">${formatFinancialDisplay(p.nominalProyek)}</span>
-        <span class="text-[8px] text-zinc-400 dark:text-zinc-500 block mt-0.5">${escapeHtml(p.tanggal || '')}</span>
+        <span class="font-bold text-sm sm:text-base text-zinc-800 dark:text-zinc-200 block">${formatFinancialDisplay(p.nominalProyek)}</span>
+        <span class="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-500 block mt-0.5">${escapeHtml(p.tanggal || '')}</span>
       </div>
     `;
 
     const item = document.createElement('div');
-    item.className = 'flex items-center justify-between p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors duration-150';
+    item.className = 'flex items-center justify-between p-3.5 sm:p-4 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors duration-150';
     item.innerHTML = `
-      <div class="min-w-0 flex-1 pr-2">
-        <span class="font-bold text-sm text-zinc-900 dark:text-zinc-100 block truncate leading-snug">${escapeHtml(p.namaProyek)}</span>
-        <span class="text-xs text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
-        <div class="flex items-center mt-1.5 flex-wrap gap-1">
+      <div class="min-w-0 flex-1 pr-2.5">
+        <span class="font-bold text-base text-zinc-900 dark:text-zinc-100 block truncate leading-snug">${escapeHtml(p.namaProyek)}</span>
+        <span class="text-[13px] text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
+        <div class="flex items-center mt-2 flex-wrap gap-1.5">
           <span class="dash-micro-badge ${badgeClass}">${displayStatus}</span>
           ${sourceBadge}
           ${gdriveBtn}
@@ -883,18 +883,18 @@ function showDashboardSkeletons() {
   // Recent Projects
   const recentList = document.getElementById('recentProyekList');
   recentList.innerHTML = Array(5).fill(`
-    <div class="flex items-center justify-between p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 animate-pulse">
-      <div class="min-w-0 flex-1 pr-2 space-y-1.5">
-        <div class="h-3.5 w-3/4 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-        <div class="h-2.5 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
-        <div class="flex gap-1.5 mt-1">
-          <div class="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
-          <div class="h-3.5 w-12 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
+    <div class="flex items-center justify-between p-3.5 sm:p-4 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 animate-pulse">
+      <div class="min-w-0 flex-1 pr-2.5 space-y-2">
+        <div class="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="h-3 w-1/2 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+        <div class="flex gap-1.5 mt-1.5">
+          <div class="h-4 w-16 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
+          <div class="h-4 w-14 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div>
         </div>
       </div>
-      <div class="text-right flex-shrink-0 space-y-1.5">
-        <div class="h-3.5 w-16 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
-        <div class="h-2.5 w-12 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
+      <div class="text-right flex-shrink-0 space-y-2">
+        <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
+        <div class="h-3 w-14 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div>
       </div>
     </div>
   `).join('');
@@ -1019,17 +1019,12 @@ function showIncomeBreakdownModal() {
       </div>
 
       <!-- Total Income Summary Card -->
-      <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm flex items-center justify-between gap-4">
+      <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm">
         <div>
           <span class="text-xs font-semibold text-emerald-100 uppercase tracking-wider block">
             ${isEn ? 'Total Income' : 'Total Pendapatan'}
           </span>
           <span class="text-xl sm:text-2xl font-extrabold block mt-0.5">${formatFinancialDisplay(totalIn)}</span>
-        </div>
-        <div class="text-right">
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/20 backdrop-blur-xs text-white">
-            <i class="fa-solid fa-shield-halved text-[10px]"></i> 100% Sinkron
-          </span>
         </div>
       </div>
 

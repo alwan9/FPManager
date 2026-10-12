@@ -79,6 +79,16 @@ if (typeof window.parseSafeDateString === 'undefined') {
 if (typeof window.copyTextToClipboard === 'undefined') {
   window.copyTextToClipboard = async function(text, label = "Teks") {
     if (!text) return;
+    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    if (isDes) {
+      const l = String(label).toLowerCase();
+      if (l.includes('wa') || l.includes('whatsapp') || l.includes('telepon') || l.includes('hp') || l.includes('kontak') || l.includes('id proyek') || l.includes('id projek') || l === 'id') {
+        if (typeof Toast !== 'undefined') {
+          Toast.warning('Akses Dibatasi', `Fitur salin ${label} dinonaktifkan untuk role Desainer.`);
+        }
+        return;
+      }
+    }
     try {
       await navigator.clipboard.writeText(text);
       if (typeof Toast !== 'undefined') {
