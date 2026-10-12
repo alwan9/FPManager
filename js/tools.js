@@ -231,11 +231,11 @@ function renderTools(query = '') {
 
     el.innerHTML = `
       <div class="flex-1 w-full min-w-0">
-        <div class="flex items-center justify-between flex-wrap gap-2 mb-1">
+        <div class="hidden md:flex items-center justify-between flex-wrap gap-2 mb-1">
           <h4 class="font-normal text-zinc-900 dark:text-zinc-100 text-lg truncate">${escapeHtml(tool.title)}</h4>
-          <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">${escapeHtml(tool.userId || 'USR-001')}</span>
+          <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1" title="${escapeHtml(tool.userId || 'USR-001')}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(tool.userId || 'USR-001')}</span></span>
         </div>
-        <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-2">${escapeHtml(tool.prompt)}</div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-0 md:mt-2">${escapeHtml(tool.prompt)}</div>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0 justify-end shrink-0">
         <button onclick="copyPrompt('${tool.id}', 'id')" class="flex-1 md:flex-none px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 font-normal rounded-xl transition-colors flex items-center justify-center space-x-1 text-base" title="Salin Prompt (ID)">
@@ -246,10 +246,10 @@ function renderTools(query = '') {
           <i class="fa-regular fa-copy"></i>
           <span>EN</span>
         </button>
-        <button onclick="editTool('${tool.id}')" class="px-2.5 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors flex items-center justify-center space-x-1" title="Edit Prompt">
+        <button onclick="editTool('${tool.id}')" class="hidden md:flex px-2.5 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors items-center justify-center space-x-1" title="Edit Prompt">
           <i class="fa-solid fa-pen"></i>
         </button>
-        <button onclick="deleteTool('${tool.id}')" class="px-2.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors flex items-center justify-center space-x-1" title="Hapus Prompt">
+        <button onclick="deleteTool('${tool.id}')" class="hidden md:flex px-2.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors items-center justify-center space-x-1" title="Hapus Prompt">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
@@ -505,7 +505,7 @@ function renderShortcuts(query = '') {
           <img src="${sanitizeUrl(iconUrl)}" alt="${escapeHtml(shortcut.title)}" class="w-full h-full object-cover">
         </div>
         <span class="font-normal text-zinc-900 dark:text-zinc-100 text-base truncate w-full px-1 group-hover:text-indigo-600 block mt-1">${escapeHtml(shortcut.title)}</span>
-        <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1">${escapeHtml(shortcut.userId || 'USR-001')}</span>
+        <span class="hidden md:inline-flex px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1 items-center gap-1" title="${escapeHtml(shortcut.userId || 'USR-001')}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(shortcut.userId || 'USR-001')}</span></span>
       </a>
       <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
         <button onclick="editShortcut('${shortcut.id}')" class="px-2 py-1 pointer-events-auto bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold flex items-center justify-center shadow-sm hover:scale-110 transition-all" title="Edit Shortcut">

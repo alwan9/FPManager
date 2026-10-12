@@ -6,7 +6,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FL6WEZT848"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'G-FL6WEZT848');
@@ -69,655 +69,651 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="manifest" href="manifest.json">
 </head>
-  <!-- Layout Wrapper -->
-  <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
+<!-- Layout Wrapper -->
+<div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
-    <!-- Desktop Sidebar Navigation -->
-    <aside
-      class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
-      <div
-        class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
-        <a href="index.html" class="flex items-center space-x-3 logo-full">
-          <img src="./assets/img/logo.png" class="w-36" alt="FPManager Logo">
-        </a>
-        <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
-          <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
-        </a>
+  <!-- Desktop Sidebar Navigation -->
+  <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
+    <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
+      <a href="index.html" class="flex items-center space-x-3 logo-full">
+        <img src="./assets/img/logo.png" class="w-36" alt="FPManager Logo">
+      </a>
+      <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
+        <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
+      </a>
+    </div>
+
+    <!-- Navigation Links (Desktop) -->
+    <nav id="navMenu" class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
+      <a href="index.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-chart-line text-base w-5"></i>
+        <span class="text-sm font-medium" data-i18n="nav-home">Dashboard</span>
+      </a>
+      <a href="proyek.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-list-check text-base w-5"></i>
+        <span class="text-sm font-medium" data-i18n="nav-proyek">Projek</span>
+      </a>
+      <a href="tambah-proyek.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-circle-plus text-base w-5"></i>
+        <span class="text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
+      </a>
+      <!-- Group Keuangan (Collapsible Dropdown - Active Parent) -->
+      <div class="sidebar-nav-group w-full" id="navKeuanganGroup">
+        <button type="button" id="btnNavKeuanganToggle"
+          class="sidebar-group-btn sidebar-link active-parent expanded w-full flex flex-row items-center justify-between px-4 py-3 rounded-xl text-indigo-400 bg-zinc-800/80 font-semibold transition-colors focus:outline-none"
+          aria-expanded="true" aria-controls="submenuKeuangan">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-wallet text-base w-5"></i>
+            <span class="text-sm font-medium" data-i18n="nav-keuangan-group">Keuangan</span>
+          </div>
+          <i
+            class="fa-solid fa-chevron-down text-xs transition-transform duration-200 transform group-chevron rotate-180"></i>
+        </button>
+
+        <div id="submenuKeuangan"
+          class="sidebar-submenu flex flex-col space-y-1 pl-4 pr-1 py-1 mt-1 border-l-2 border-indigo-500/60 ml-5">
+          <!-- 1. Keuangan (Active) -->
+          <a href="keuangan.html"
+            class="sidebar-link sidebar-sublink active flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-indigo-400 bg-zinc-800 transition-colors">
+            <i class="fa-solid fa-coins text-xs w-4"></i>
+            <span data-i18n="nav-keuangan">Keuangan</span>
+          </a>
+          <!-- 2. History Invoice -->
+          <a href="history-invoice.html"
+            class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+            <i class="fa-solid fa-receipt text-xs w-4"></i>
+            <span data-i18n="nav-history-invoice">History Invoice</span>
+          </a>
+          <!-- 3. Laporan -->
+          <a href="laporan.html"
+            class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
+            <i class="fa-solid fa-file-invoice-dollar text-xs w-4"></i>
+            <span data-i18n="nav-laporan">Laporan</span>
+          </a>
+        </div>
       </div>
+      <a href="admin-tasks.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-clipboard-check text-base w-5"></i>
+        <span class="text-sm font-medium" data-i18n="nav-admin-tasks">Aktivitas Admin</span>
+      </a>
+      <a href="tools.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-toolbox text-base w-5"></i>
+        <span class="text-sm font-medium">Tools</span>
+      </a>
+      <a href="user-management.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-users-gear text-base w-5"></i>
+        <span class="text-sm font-medium">Manajemen User</span>
+      </a>
+      <a href="pengaturan.html"
+        class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+        <i class="fa-solid fa-gear text-base w-5"></i>
+        <span class="text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
+      </a>
+      <button id="pwaInstallBtn"
+        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-indigo-400 hover:bg-indigo-950 hover:bg-opacity-30 hover:text-indigo-300 transition-all text-left w-full">
+        <i class="fa-solid fa-download text-base w-5"></i>
+        <span data-i18n="nav-install">Install Aplikasi</span>
+      </button>
+      <div class="pt-4 border-t border-zinc-800 mt-4">
+        <button onclick="Auth.logout()"
+          class="sidebar-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left"
+          title="Logout">
+          <i class="fa-solid fa-right-from-bracket text-base w-5"></i>
+          <span data-i18n="nav-logout">Logout</span>
+        </button>
+      </div>
+    </nav>
+  </aside>
 
-      <!-- Navigation Links (Desktop) -->
-      <nav id="navMenu"
-        class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
-        <a href="index.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-chart-line text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-home">Dashboard</span>
+  <!-- Mobile Bottom Navigation Bar (5 Core Menus) -->
+  <nav id="mobileBottomNav"
+    class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-1.5 flex items-center justify-around">
+    <!-- 1. Home -->
+    <a href="index.html"
+      class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
+      <i class="fa-solid fa-chart-line text-base"></i>
+      <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
+    </a>
+
+    <!-- 2. Projek -->
+    <a href="proyek.html"
+      class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
+      <i class="fa-solid fa-list-check text-base"></i>
+      <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Projek</span>
+    </a>
+
+    <!-- 3. Tambah (Center Prominent Action) -->
+    <a href="tambah-proyek.html" class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none"
+      title="Tambah Projek">
+      <div
+        class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
+        <i class="fa-solid fa-plus text-base"></i>
+      </div>
+      <span class="text-[10px] font-bold text-zinc-200 mt-0.5" data-i18n="nav-tambah">Tambah</span>
+    </a>
+
+    <!-- 4. Laporan -->
+    <a href="laporan.html"
+      class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
+      <i class="fa-solid fa-file-invoice-dollar text-base"></i>
+      <span class="text-[10px] mt-0.5" data-i18n="nav-laporan">Laporan</span>
+    </a>
+
+    <!-- 5. Tools -->
+    <a href="tools.html"
+      class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
+      <i class="fa-solid fa-toolbox text-base"></i>
+      <span class="text-[10px] mt-0.5">Tools</span>
+    </a>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+    <header
+      class="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 py-3 px-4 md:px-8 flex justify-between items-center z-10 shadow-sm">
+      <div class="flex items-center space-x-3">
+        <button
+          class="sidebarToggleBtn hidden md:inline-flex text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          title="Buka / Tutup Sidebar">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+        <!-- Mobile Logo (Shown only on mobile) -->
+        <a href="index.html" class="md:hidden flex items-center">
+          <img src="./assets/img/logo.png" class="h-7 w-auto" alt="FPManager">
         </a>
-        <a href="proyek.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-list-check text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-proyek">Projek</span>
-        </a>
-        <a href="tambah-proyek.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-circle-plus text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-tambah">Tambah</span>
-        </a>
-        <!-- Group Keuangan (Collapsible Dropdown - Active Parent) -->
-        <div class="sidebar-nav-group w-full" id="navKeuanganGroup">
-          <button type="button" id="btnNavKeuanganToggle"
-            class="sidebar-group-btn sidebar-link active-parent expanded w-full flex flex-row items-center justify-between px-4 py-3 rounded-xl text-indigo-400 bg-zinc-800/80 font-semibold transition-colors focus:outline-none"
-            aria-expanded="true" aria-controls="submenuKeuangan">
-            <div class="flex items-center space-x-3">
-              <i class="fa-solid fa-wallet text-base w-5"></i>
-              <span class="text-sm font-medium" data-i18n="nav-keuangan-group">Keuangan</span>
-            </div>
-            <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 transform group-chevron rotate-180"></i>
+        <!-- Desktop Page Icon & Title (Hidden on mobile) -->
+        <div class="hidden md:flex items-center space-x-2">
+          <i class="fa-solid fa-wallet text-sm text-indigo-600 dark:text-indigo-400"></i>
+          <h2 class="text-sm font-semibold text-zinc-800 dark:text-zinc-100" data-i18n="fin-header">Arus Kas & Keuangan
+          </h2>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button id="pwaInstallBtnMobile"
+          class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
+          title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button>
+        <button id="darkModeToggle" type="button"
+          class="p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer"
+          title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
+          <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
+        </button>
+        <span id="headerUserRoleBadge"
+          class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+          SUPER ADMIN
+        </span>
+        <div class="relative">
+          <button id="profileDropdownBtn"
+            class="h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow hover:bg-indigo-700 transition-colors focus:outline-none"
+            title="Menu Profil">
+            A
           </button>
-          
-          <div id="submenuKeuangan" class="sidebar-submenu flex flex-col space-y-1 pl-4 pr-1 py-1 mt-1 border-l-2 border-indigo-500/60 ml-5">
-            <!-- 1. Keuangan (Active) -->
+          <span id="apiStatusBadge"
+            class="absolute bottom-0 right-0 z-20 flex items-center justify-center pointer-events-none"
+            title="Live Google Sheets Connected">
+            <span
+              class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
+          </span>
+          <div id="profileDropdown"
+            class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
+            <a href="profil.html"
+              class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-user w-4 text-zinc-500"></i>
+              <span>Profil Saya</span>
+            </a>
             <a href="keuangan.html"
-              class="sidebar-link sidebar-sublink active flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-indigo-400 bg-zinc-800 transition-colors">
-              <i class="fa-solid fa-coins text-xs w-4"></i>
+              class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-wallet w-4 text-zinc-500"></i>
               <span data-i18n="nav-keuangan">Keuangan</span>
             </a>
-            <!-- 2. History Invoice -->
-            <a href="history-invoice.html"
-              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
-              <i class="fa-solid fa-receipt text-xs w-4"></i>
-              <span data-i18n="nav-history-invoice">History Invoice</span>
-            </a>
-            <!-- 3. Laporan -->
             <a href="laporan.html"
-              class="sidebar-link sidebar-sublink flex flex-row items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors">
-              <i class="fa-solid fa-file-invoice-dollar text-xs w-4"></i>
+              class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-file-invoice-dollar w-4 text-zinc-500"></i>
               <span data-i18n="nav-laporan">Laporan</span>
             </a>
-          </div>
-        </div>
-        <a href="admin-tasks.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-clipboard-check text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-admin-tasks">Aktivitas Admin</span>
-        </a>
-        <a href="tools.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-toolbox text-base w-5"></i>
-          <span class="text-sm font-medium">Tools</span>
-        </a>
-        <a href="user-management.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-users-gear text-base w-5"></i>
-          <span class="text-sm font-medium">Manajemen User</span>
-        </a>
-        <a href="pengaturan.html"
-          class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
-          <i class="fa-solid fa-gear text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-pengaturan">Pengaturan</span>
-        </a>
-        <button id="pwaInstallBtn"
-          class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-indigo-400 hover:bg-indigo-950 hover:bg-opacity-30 hover:text-indigo-300 transition-all text-left w-full">
-          <i class="fa-solid fa-download text-base w-5"></i>
-          <span data-i18n="nav-install">Install Aplikasi</span>
-        </button>
-        <div class="pt-4 border-t border-zinc-800 mt-4">
-          <button onclick="Auth.logout()"
-            class="sidebar-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950 hover:bg-opacity-30 hover:text-red-300 transition-all text-left"
-            title="Logout">
-            <i class="fa-solid fa-right-from-bracket text-base w-5"></i>
-            <span data-i18n="nav-logout">Logout</span>
-          </button>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Mobile Bottom Navigation Bar (5 Core Menus) -->
-    <nav id="mobileBottomNav"
-      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-1.5 flex items-center justify-around">
-      <!-- 1. Home -->
-      <a href="index.html"
-        class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
-        <i class="fa-solid fa-chart-line text-base"></i>
-        <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
-      </a>
-
-      <!-- 2. Projek -->
-      <a href="proyek.html"
-        class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
-        <i class="fa-solid fa-list-check text-base"></i>
-        <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Projek</span>
-      </a>
-
-      <!-- 3. Tambah (Center Prominent Action) -->
-      <a href="tambah-proyek.html"
-        class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none" title="Tambah Projek">
-        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
-          <i class="fa-solid fa-plus text-base"></i>
-        </div>
-        <span class="text-[10px] font-bold text-zinc-200 mt-0.5" data-i18n="nav-tambah">Tambah</span>
-      </a>
-
-      <!-- 4. Laporan -->
-      <a href="laporan.html"
-        class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
-        <i class="fa-solid fa-file-invoice-dollar text-base"></i>
-        <span class="text-[10px] mt-0.5" data-i18n="nav-laporan">Laporan</span>
-      </a>
-
-      <!-- 5. Tools -->
-      <a href="tools.html"
-        class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
-        <i class="fa-solid fa-toolbox text-base"></i>
-        <span class="text-[10px] mt-0.5">Tools</span>
-      </a>
-    </nav>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-
-      <header
-        class="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 py-3 px-4 md:px-8 flex justify-between items-center z-10 shadow-sm">
-        <div class="flex items-center space-x-3">
-          <button
-            class="sidebarToggleBtn hidden md:inline-flex text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 focus:outline-none p-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-            title="Buka / Tutup Sidebar">
-            <i class="fa-solid fa-bars text-lg"></i>
-          </button>
-          <!-- Mobile Logo (Shown only on mobile) -->
-          <a href="index.html" class="md:hidden flex items-center">
-            <img src="./assets/img/logo.png" class="h-7 w-auto" alt="FPManager">
-          </a>
-          <!-- Desktop Page Icon & Title (Hidden on mobile) -->
-          <div class="hidden md:flex items-center space-x-2">
-            <i class="fa-solid fa-wallet text-sm text-indigo-600 dark:text-indigo-400"></i>
-            <h2 class="text-sm font-semibold text-zinc-800 dark:text-zinc-100" data-i18n="fin-header">Arus Kas & Keuangan</h2>
-          </div>
-        </div>
-        <div class="flex items-center space-x-4">
-          <button id="pwaInstallBtnMobile"
-            class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
-            title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button>
-          <button id="darkModeToggle" type="button"
-            class="p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer"
-            title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
-            <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
-          </button>
-          <span id="headerUserRoleBadge"
-            class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-            SUPER ADMIN
-          </span>
-          <div class="relative">
-            <button id="profileDropdownBtn"
-              class="h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow hover:bg-indigo-700 transition-colors focus:outline-none"
-              title="Menu Profil">
-              A
+            <a href="admin-tasks.html"
+              class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-clipboard-check w-4 text-zinc-500"></i>
+              <span>Aktivitas Admin</span>
+            </a>
+            <a href="tools.html"
+              class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-toolbox w-4 text-zinc-500"></i>
+              <span>Tools</span>
+            </a>
+            <a href="user-management.html"
+              class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-users-gear w-4 text-zinc-500"></i>
+              <span>Manajemen User</span>
+            </a>
+            <a href="pengaturan.html"
+              class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
+              <span data-i18n="nav-pengaturan">Pengaturan</span>
+            </a>
+            <div class="border-t border-zinc-100 dark:border-zinc-700 my-1"></div>
+            <button onclick="Auth.logout()"
+              class="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
+              <i class="fa-solid fa-right-from-bracket w-4"></i>
+              <span data-i18n="nav-logout">Logout</span>
             </button>
-            <span id="apiStatusBadge"
-              class="absolute bottom-0 right-0 z-20 flex items-center justify-center pointer-events-none"
-              title="Live Google Sheets Connected">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
-            </span>
-            <div id="profileDropdown"
-              class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
-              <a href="profil.html"
-                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-user w-4 text-zinc-500"></i>
-                <span>Profil Saya</span>
-              </a>
-              <a href="keuangan.html"
-                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-wallet w-4 text-zinc-500"></i>
-                <span data-i18n="nav-keuangan">Keuangan</span>
-              </a>
-              <a href="laporan.html"
-                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-file-invoice-dollar w-4 text-zinc-500"></i>
-                <span data-i18n="nav-laporan">Laporan</span>
-              </a>
-              <a href="admin-tasks.html"
-                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-clipboard-check w-4 text-zinc-500"></i>
-                <span>Aktivitas Admin</span>
-              </a>
-              <a href="tools.html"
-                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-toolbox w-4 text-zinc-500"></i>
-                <span>Tools</span>
-              </a>
-              <a href="user-management.html"
-                class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-users-gear w-4 text-zinc-500"></i>
-                <span>Manajemen User</span>
-              </a>
-              <a href="pengaturan.html"
-                class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <i class="fa-solid fa-gear w-4 text-zinc-500"></i>
-                <span data-i18n="nav-pengaturan">Pengaturan</span>
-              </a>
-              <div class="border-t border-zinc-100 dark:border-zinc-700 my-1"></div>
-              <button onclick="Auth.logout()"
-                class="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-opacity-30 transition-colors text-left">
-                <i class="fa-solid fa-right-from-bracket w-4"></i>
-                <span data-i18n="nav-logout">Logout</span>
-              </button>
-            </div>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <!-- Page Content -->
-      <section class="flex-grow p-6 md:p-8 space-y-6">
+    <!-- Page Content -->
+    <section class="flex-grow p-6 md:p-8 space-y-6">
 
-        <!-- Welcome header -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+      <!-- Welcome header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+        <div>
+          <h3 class="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight" data-i18n="fin-title">Kas &
+            Keuangan</h3>
+          <p class="text-zinc-500 dark:text-zinc-400 text-sm" data-i18n="fin-desc">Catat pengeluaran operasional dan
+            pantau seluruh pendapatan secara real-time.</p>
+        </div>
+      </div>
+
+      <!-- Financial Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        <!-- Saldo / Laba Bersih Card (Paling Kiri - Hijau) -->
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover-card flex items-center justify-between">
           <div>
-            <h3 class="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight" data-i18n="fin-title">Kas & Keuangan</h3>
-            <p class="text-zinc-500 dark:text-zinc-400 text-sm" data-i18n="fin-desc">Catat pengeluaran operasional dan pantau seluruh pendapatan secara real-time.</p>
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block"
+              data-i18n="fin-net-profit">Saldo / Laba Bersih</span>
+            <span id="saldoBersih"
+              class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">Rp0</span>
+          </div>
+          <div class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 p-4 rounded-2xl">
+            <i class="fa-solid fa-scale-balanced text-xl"></i>
           </div>
         </div>
 
-        <!-- Financial Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-          <!-- Saldo / Laba Bersih Card (Paling Kiri - Hijau) -->
-          <div
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover-card flex items-center justify-between">
-            <div>
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block"
-                data-i18n="fin-net-profit">Saldo / Laba Bersih</span>
-              <span id="saldoBersih"
-                class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">Rp0</span>
-            </div>
-            <div class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 p-4 rounded-2xl">
-              <i class="fa-solid fa-scale-balanced text-xl"></i>
-            </div>
+        <!-- Total Pendapatan Card -->
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover-card flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block"
+              data-i18n="fin-total-income">Total Pendapatan</span>
+            <span id="totalPemasukan"
+              class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 block">Rp0</span>
           </div>
-
-          <!-- Total Pendapatan Card -->
-          <div
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover-card flex items-center justify-between">
-            <div>
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block"
-                data-i18n="fin-total-income">Total Pendapatan</span>
-              <span id="totalPemasukan"
-                class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 block">Rp0</span>
-            </div>
-            <div class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 p-4 rounded-2xl">
-              <i class="fa-solid fa-arrow-down-long text-xl"></i>
-            </div>
-          </div>
-
-          <!-- Total Pengeluaran Card -->
-          <div
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover-card flex items-center justify-between">
-            <div>
-              <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block"
-                data-i18n="fin-total-expense">Total Pengeluaran</span>
-              <span id="totalPengeluaran"
-                class="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 block">Rp0</span>
-            </div>
-            <div class="bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 p-4 rounded-2xl">
-              <i class="fa-solid fa-arrow-up-long text-xl"></i>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Sebaran & Pengelompokan Saldo Dana (QRIS, Shopee & BSI) -->
-        <div class="mb-8">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <div>
-              <h4 class="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <i class="fa-solid fa-layer-group text-indigo-600 dark:text-indigo-400"></i>
-                <span>Pengelompokan Posisi Saldo</span>
-              </h4>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400">
-                Ringkasan alokasi saldo kas berdasarkan metode pembayaran aktif (QRIS, Shopee, & BSI).
-              </p>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <div id="activeWalletFilterBadge" class="hidden items-center gap-2">
-                <span
-                  class="text-xs px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center gap-1.5 border border-indigo-200 dark:border-indigo-800 shadow-sm animate-pulse">
-                  <i class="fa-solid fa-filter text-[10px]"></i>
-                  <span>Filter: <strong id="activeWalletFilterName">Semua</strong></span>
-                  <button type="button" onclick="clearWalletFilter()"
-                    class="ml-1 text-indigo-500 hover:text-indigo-800 dark:hover:text-white font-bold p-0.5"
-                    title="Hapus Filter">
-                    <i class="fa-solid fa-xmark text-xs"></i>
-                  </button>
-                </span>
-              </div>
-              <button type="button" onclick="showPaymentAccountsModal()"
-                class="inline-flex items-center px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition">
-                <i class="fa-solid fa-credit-card mr-1.5 text-indigo-500"></i>
-                <span>Detail Rekening</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 3 Simple Category Group Overview Cards: QRIS, Shopee, BSI -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Group 1: QRIS -->
-            <div
-              class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-base">
-                    <i class="fa-solid fa-qrcode"></i>
-                  </div>
-                  <div>
-                    <span
-                      class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">All Payment / Digital</span>
-                    <h5 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">QRIS</h5>
-                  </div>
-                </div>
-                <span id="ewalletCountBadge"
-                  class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900">0
-                  Transaksi</span>
-              </div>
-              <div id="totalSaldoEwallet" class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">Rp0
-              </div>
-              <div id="ewalletMiniList"
-                class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1 text-xs">
-                <!-- populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Group 2: Shopee -->
-            <div
-              class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center text-base">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                  </div>
-                  <div>
-                    <span
-                      class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Marketplace</span>
-                    <h5 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Shopee (@premium_dz)</h5>
-                  </div>
-                </div>
-                <span id="marketCountBadge"
-                  class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border border-orange-100 dark:border-orange-900">0
-                  Transaksi</span>
-              </div>
-              <div id="totalSaldoMarket" class="text-xl font-extrabold text-orange-600 dark:text-orange-400 mt-1">Rp0
-              </div>
-              <div id="marketMiniList"
-                class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1 text-xs">
-                <!-- populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Group 3: BSI -->
-            <div
-              class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2.5">
-                  <div
-                    class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-base">
-                    <i class="fa-solid fa-building-columns"></i>
-                  </div>
-                  <div>
-                    <span
-                      class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Bank Syariah</span>
-                    <h5 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">BSI (Bank Syariah Indonesia)</h5>
-                  </div>
-                </div>
-                <span id="bsiCountBadge"
-                  class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900">0
-                  Transaksi</span>
-              </div>
-              <div id="totalSaldoBsi" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">Rp0
-              </div>
-              <div id="bsiMiniList"
-                class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1 text-xs">
-                <!-- populated dynamically -->
-              </div>
-            </div>
+          <div class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 p-4 rounded-2xl">
+            <i class="fa-solid fa-arrow-down-long text-xl"></i>
           </div>
         </div>
 
-        <!-- Two Column Layout (Form & Mutasi Table) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Total Pengeluaran Card -->
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover-card flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block"
+              data-i18n="fin-total-expense">Total Pengeluaran</span>
+            <span id="totalPengeluaran"
+              class="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 block">Rp0</span>
+          </div>
+          <div class="bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 p-4 rounded-2xl">
+            <i class="fa-solid fa-arrow-up-long text-xl"></i>
+          </div>
+        </div>
 
-          <!-- Column Form Input Transaksi -->
-          <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm h-fit">
-            <h4 class="font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-4 text-base flex items-center">
-              <i class="fa-solid fa-cash-register text-indigo-600 mr-2"></i>
-              <span data-i18n="fin-form-title">Catat Transaksi Baru</span>
+      </div>
+
+      <!-- Sebaran & Pengelompokan Saldo Dana (QRIS, Shopee & BSI) -->
+      <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <div>
+            <h4 class="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-indigo-600 dark:text-indigo-400"></i>
+              <span>Pengelompokan Posisi Saldo</span>
             </h4>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+              Ringkasan alokasi saldo kas berdasarkan metode pembayaran aktif (QRIS, Shopee, & BSI).
+            </p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div id="activeWalletFilterBadge" class="hidden items-center gap-2">
+              <span
+                class="text-xs px-3 py-1 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center gap-1.5 border border-indigo-200 dark:border-indigo-800 shadow-sm animate-pulse">
+                <i class="fa-solid fa-filter text-[10px]"></i>
+                <span>Filter: <strong id="activeWalletFilterName">Semua</strong></span>
+                <button type="button" onclick="clearWalletFilter()"
+                  class="ml-1 text-indigo-500 hover:text-indigo-800 dark:hover:text-white font-bold p-0.5"
+                  title="Hapus Filter">
+                  <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+              </span>
+            </div>
+            <button type="button" onclick="showPaymentAccountsModal()"
+              class="inline-flex items-center px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition">
+              <i class="fa-solid fa-credit-card mr-1.5 text-indigo-500"></i>
+              <span>Informasi Rekening</span>
+            </button>
+          </div>
+        </div>
 
-            <form id="transaksiForm" class="space-y-4">
-              <!-- Tanggal -->
-              <div>
-                <label for="tanggal" class="block text-xs font-medium text-zinc-700 mb-1"
-                  data-i18n="fin-label-date">Tanggal Transaksi</label>
-                <input type="date" id="tanggal" required
-                  class="w-full max-w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
-              </div>
-
-              <!-- Jenis -->
-              <div>
-                <label for="jenis" class="block text-xs font-medium text-zinc-700 mb-1" data-i18n="fin-label-type">Jenis
-                  Transaksi</label>
-                <select id="jenis" required
-                  class="w-full px-4 py-2 border border-zinc-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
-                  <option value="Pemasukan" data-i18n="fin-opt-income">Pemasukan (Kas Masuk)</option>
-                  <option value="Pengeluaran" data-i18n="fin-opt-expense">Pengeluaran (Kas Keluar)</option>
-                  <option value="Mutasi">Mutasi / Pindah Saldo Antar Metode</option>
-                </select>
-              </div>
-
-              <!-- Mutasi Transfer Container (Metode Asal -> Metode Tujuan) -->
-              <div id="mutasiFieldsContainer" class="hidden space-y-3 p-3.5 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/60">
-                <div class="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-                  <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i>
-                  <span>Pengaturan Pemindahan Saldo</span>
+        <!-- 3 Simple Category Group Overview Cards: QRIS, Shopee, BSI -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Group 1: QRIS -->
+          <div
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-base">
+                  <i class="fa-solid fa-qrcode"></i>
                 </div>
                 <div>
-                  <label for="metodeAsal" class="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Metode Pembayaran Asal (Sumber Dana)
-                  </label>
-                  <select id="metodeAsal"
-                    class="w-full px-3.5 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="QRIS" selected>QRIS</option>
-                    <option value="Shopee">Shopee (@premium_dz)</option>
-                    <option value="BSI">BSI (Bank Syariah Indonesia)</option>
-                  </select>
+                  <span
+                    class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">All
+                    Payment / Digital</span>
+                  <h5 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">QRIS</h5>
+                </div>
+              </div>
+              <span id="ewalletCountBadge"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900">0
+                Transaksi</span>
+            </div>
+            <div id="totalSaldoEwallet" class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">Rp0
+            </div>
+            <div id="ewalletMiniList"
+              class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1 text-xs">
+              <!-- populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Group 2: Shopee -->
+          <div
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center text-base">
+                  <i class="fa-solid fa-bag-shopping"></i>
                 </div>
                 <div>
-                  <label for="metodeTujuan" class="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Metode Pembayaran Tujuan (Penerima Dana)
-                  </label>
-                  <select id="metodeTujuan"
-                    class="w-full px-3.5 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="BSI" selected>BSI (Bank Syariah Indonesia)</option>
-                    <option value="QRIS">QRIS</option>
-                    <option value="Shopee">Shopee (@premium_dz)</option>
-                  </select>
+                  <span
+                    class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Marketplace</span>
+                  <h5 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Shopee (@premium_dz)</h5>
                 </div>
               </div>
+              <span id="marketCountBadge"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 border border-orange-100 dark:border-orange-900">0
+                Transaksi</span>
+            </div>
+            <div id="totalSaldoMarket" class="text-xl font-extrabold text-orange-600 dark:text-orange-400 mt-1">Rp0
+            </div>
+            <div id="marketMiniList"
+              class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1 text-xs">
+              <!-- populated dynamically -->
+            </div>
+          </div>
 
-              <!-- Keterangan -->
-              <div>
-                <label for="keterangan" class="block text-xs font-medium text-zinc-700 mb-1"
-                  data-i18n="fin-label-desc">Keterangan Transaksi</label>
-                <input type="text" id="keterangan" required
-                  class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  placeholder="Contoh: Beli kertas A4 rim / Mutasi saldo">
-              </div>
-
-              <!-- Nominal -->
-              <div>
-                <label for="nominal" class="block text-xs font-medium text-zinc-700 mb-1"
-                  data-i18n="fin-label-amount">Nominal (Rp)</label>
-                <div class="relative">
-                  <input type="number" id="nominal" min="100" required
-                    class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm pr-16"
-                    placeholder="0">
-                  <button type="button" tabindex="-1"
-                    onclick="if(document.getElementById('nominal').value) { document.getElementById('nominal').value += '000'; document.getElementById('nominal').dispatchEvent(new Event('input')); }"
-                    class="absolute inset-y-0 right-1 my-1 px-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition border border-indigo-100">
-                    +000
-                  </button>
+          <!-- Group 3: BSI -->
+          <div
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-base">
+                  <i class="fa-solid fa-building-columns"></i>
                 </div>
-                <div id="nominalPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
+                <div>
+                  <span
+                    class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Bank
+                    Syariah</span>
+                  <h5 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">BSI (Bank Syariah Indonesia)</h5>
+                </div>
               </div>
+              <span id="bsiCountBadge"
+                class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900">0
+                Transaksi</span>
+            </div>
+            <div id="totalSaldoBsi" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">Rp0
+            </div>
+            <div id="bsiMiniList" class="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800 space-y-1 text-xs">
+              <!-- populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <!-- Metode Pembayaran Standard (Untuk Pemasukan/Pengeluaran biasa) -->
-              <div id="standardMetodeContainer">
-                <label for="metodePembayaran" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  Metode Pembayaran
+      <!-- Two Column Layout (Form & Mutasi Table) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Column Form Input Transaksi -->
+        <div class="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm h-fit">
+          <h4 class="font-bold text-zinc-800 border-b border-zinc-100 pb-4 mb-4 text-base flex items-center">
+            <i class="fa-solid fa-cash-register text-indigo-600 mr-2"></i>
+            <span data-i18n="fin-form-title">Catat Transaksi Baru</span>
+          </h4>
+
+          <form id="transaksiForm" class="space-y-4">
+            <!-- Tanggal -->
+            <div>
+              <label for="tanggal" class="block text-xs font-medium text-zinc-700 mb-1"
+                data-i18n="fin-label-date">Tanggal Transaksi</label>
+              <input type="date" id="tanggal" required
+                class="w-full max-w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+            </div>
+
+            <!-- Jenis -->
+            <div>
+              <label for="jenis" class="block text-xs font-medium text-zinc-700 mb-1" data-i18n="fin-label-type">Jenis
+                Transaksi</label>
+              <select id="jenis" required
+                class="w-full px-4 py-2 border border-zinc-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                <option value="Pemasukan" data-i18n="fin-opt-income">Pemasukan (Kas Masuk)</option>
+                <option value="Pengeluaran" data-i18n="fin-opt-expense">Pengeluaran (Kas Keluar)</option>
+                <option value="Mutasi">Mutasi / Pindah Saldo Antar Metode</option>
+              </select>
+            </div>
+
+            <!-- Mutasi Transfer Container (Metode Asal -> Metode Tujuan) -->
+            <div id="mutasiFieldsContainer"
+              class="hidden space-y-3 p-3.5 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-900/60">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+                <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i>
+                <span>Pengaturan Pemindahan Saldo</span>
+              </div>
+              <div>
+                <label for="metodeAsal" class="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Metode Pembayaran Asal (Sumber Dana)
                 </label>
-                <select id="metodePembayaran"
-                  class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                <select id="metodeAsal"
+                  class="w-full px-3.5 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                   <option value="QRIS" selected>QRIS</option>
-                  <option value="Shopee">Shopee - @premium_dz (Toko Shopee)</option>
+                  <option value="Shopee">Shopee (@premium_dz)</option>
                   <option value="BSI">BSI (Bank Syariah Indonesia)</option>
                 </select>
               </div>
-
-              <!-- Catatan Pelunasan / Keterangan Pembayaran -->
-              <div id="catatanPelunasanContainer">
-                <label for="catatanPelunasan"
-                  class="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Catatan Pelunasan
-                  (Opsional)</label>
-                <input type="text" id="catatanPelunasan"
-                  class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  placeholder="Contoh: Lunas via QRIS / Transfer tgl 3 Sept">
-              </div>
-
-              <button type="submit" id="submitBtn"
-                class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all">
-                <span data-i18n="fin-btn-save">Simpan Transaksi</span>
-              </button>
-            </form>
-          </div>
-
-          <!-- Column Mutasi Kas Table -->
-          <div
-            class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 mb-4">
-              <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-base flex items-center">
-                <i class="fa-solid fa-list-ul text-indigo-600 dark:text-indigo-400 mr-2"></i>
-                <span data-i18n="fin-table-title">Riwayat Mutasi Keuangan</span>
-              </h4>
-
-              <div class="flex items-center gap-2 flex-wrap">
-                <a href="https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618"
-                  target="_blank" rel="noopener noreferrer"
-                  class="inline-flex items-center px-3 py-1.5 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/60 dark:hover:bg-orange-900 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 rounded-xl text-xs font-bold transition shadow-sm"
-                  title="Buka Halaman Toko Shopee">
-                  <i class="fa-solid fa-bag-shopping mr-1.5 text-orange-500"></i>
-                  <span>Toko Shopee</span>
-                </a>
-
-                <button type="button" onclick="showPaymentAccountsModal()"
-                  class="inline-flex items-center px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs font-bold transition shadow-sm">
-                  <i class="fa-solid fa-credit-card mr-1.5"></i>
-                  <span>Info Rekening & E-Wallet</span>
-                </button>
-
-                <!-- Excel Actions Dropdown Group (Keuangan) -->
-                <div class="relative inline-block text-left" id="keuanganExcelDropdownGroup">
-                  <button id="keuanganExcelDropdownBtn" type="button" onclick="toggleKeuanganExcelDropdown(event)"
-                    class="inline-flex items-center px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm text-xs transition-all focus:outline-none"
-                    title="Menu Kelola File Excel Keuangan">
-                    <i class="fa-solid fa-file-excel mr-1.5 text-xs"></i>
-                    <span>Menu Excel</span>
-                    <i class="fa-solid fa-chevron-down ml-1 text-[10px] opacity-80"></i>
-                  </button>
-
-                  <div id="keuanganExcelDropdownMenu"
-                    class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1.5 z-40">
-                    <button type="button" onclick="downloadKeuanganTemplateExcel(); closeKeuanganExcelDropdown();"
-                      class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
-                      title="Unduh Template Format Resmi Excel Keuangan">
-                      <i class="fa-solid fa-file-arrow-down w-5 text-indigo-500 mr-2 text-center"></i>
-                      <span>Template Keuangan</span>
-                    </button>
-
-                    <button type="button" onclick="triggerKeuanganImport(); closeKeuanganExcelDropdown();"
-                      class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
-                      title="Upload File Excel untuk Menambah Transaksi">
-                      <i class="fa-solid fa-file-arrow-up w-5 text-emerald-500 mr-2 text-center"></i>
-                      <span>Import Excel Keuangan</span>
-                    </button>
-
-                    <button type="button" onclick="exportKeuanganToExcel(); closeKeuanganExcelDropdown();"
-                      class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
-                      title="Ekspor Data Transaksi ke Excel">
-                      <i class="fa-solid fa-file-excel w-5 text-emerald-600 mr-2 text-center"></i>
-                      <span>Export Excel Keuangan</span>
-                    </button>
-                  </div>
-                </div>
-
-                <input type="file" id="keuanganExcelFileInput" accept=".xlsx, .xls, .csv" class="hidden">
-
-                <!-- Bulk Delete Button (Hidden by default, shown when items checked) -->
-                <button id="btnBulkDeleteKeuangan" onclick="bulkDeleteKeuangan()" disabled
-                  class="hidden inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
-                  <i class="fa-solid fa-trash-can mr-1.5"></i>
-                  <span>Hapus Terpilih (<span id="selectedKeuanganCount">0</span>)</span>
-                </button>
+              <div>
+                <label for="metodeTujuan" class="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                  Metode Pembayaran Tujuan (Penerima Dana)
+                </label>
+                <select id="metodeTujuan"
+                  class="w-full px-3.5 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="BSI" selected>BSI (Bank Syariah Indonesia)</option>
+                  <option value="QRIS">QRIS</option>
+                  <option value="Shopee">Shopee (@premium_dz)</option>
+                </select>
               </div>
             </div>
 
-            <div class="overflow-x-auto">
-              <table id="keuanganTable" class="w-full text-sm text-left" style="width: 100% !important;">
-                <thead>
-                  <tr>
-                    <th class="w-10 text-center"><input type="checkbox" id="selectAllKeuangan"
-                        class="rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
-                    </th>
-                    <th>ID Projek & User</th>
-                    <th data-i18n="fin-th-date">Tanggal</th>
-                    <th data-i18n="fin-th-desc">Keterangan</th>
-                    <th>DP & Metode</th>
-                    <th>Pelunasan & Metode</th>
-                    <th class="text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Populated by JS -->
-                </tbody>
-              </table>
+            <!-- Keterangan -->
+            <div>
+              <label for="keterangan" class="block text-xs font-medium text-zinc-700 mb-1"
+                data-i18n="fin-label-desc">Keterangan Transaksi</label>
+              <input type="text" id="keterangan" required
+                class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                placeholder="Contoh: Beli kertas A4 rim / Mutasi saldo">
             </div>
-          </div>
 
+            <!-- Nominal -->
+            <div>
+              <label for="nominal" class="block text-xs font-medium text-zinc-700 mb-1"
+                data-i18n="fin-label-amount">Nominal (Rp)</label>
+              <div class="relative">
+                <input type="number" id="nominal" min="100" required
+                  class="w-full px-4 py-2 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm pr-16"
+                  placeholder="0">
+                <button type="button" tabindex="-1"
+                  onclick="if(document.getElementById('nominal').value) { document.getElementById('nominal').value += '000'; document.getElementById('nominal').dispatchEvent(new Event('input')); }"
+                  class="absolute inset-y-0 right-1 my-1 px-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition border border-indigo-100">
+                  +000
+                </button>
+              </div>
+              <div id="nominalPreview" class="text-xs text-zinc-400 mt-1 font-semibold pl-1"></div>
+            </div>
+
+            <!-- Metode Pembayaran Standard (Untuk Pemasukan/Pengeluaran biasa) -->
+            <div id="standardMetodeContainer">
+              <label for="metodePembayaran" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Metode Pembayaran
+              </label>
+              <select id="metodePembayaran"
+                class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
+                <option value="QRIS" selected>QRIS</option>
+                <option value="Shopee">Shopee - @premium_dz (Toko Shopee)</option>
+                <option value="BSI">BSI (Bank Syariah Indonesia)</option>
+              </select>
+            </div>
+
+            <!-- Catatan Pelunasan / Keterangan Pembayaran -->
+            <div id="catatanPelunasanContainer">
+              <label for="catatanPelunasan"
+                class="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Catatan Pelunasan
+                (Opsional)</label>
+              <input type="text" id="catatanPelunasan"
+                class="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                placeholder="Contoh: Lunas via QRIS / Transfer tgl 3 Sept">
+            </div>
+
+            <button type="submit" id="submitBtn"
+              class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all">
+              <span data-i18n="fin-btn-save">Simpan Transaksi</span>
+            </button>
+          </form>
         </div>
 
-      </section>
+        <!-- Column Mutasi Kas Table -->
+        <div
+          class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm overflow-hidden">
+          <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 mb-4">
+            <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-base flex items-center">
+              <i class="fa-solid fa-list-ul text-indigo-600 dark:text-indigo-400 mr-2"></i>
+              <span data-i18n="fin-table-title">Riwayat Mutasi Keuangan</span>
+            </h4>
 
-      <!-- Footer -->
-      <footer
-        class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
-        &copy; 2026 Freelance Projek Manager. Created by Alwan.
-      </footer>
-    </main>
-  </div>
-
-  <!-- Load Global Scripts -->
-  <script src="js/toast.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/api.js"></script>
-  <!-- Load Local Page Script -->
-  <script src="js/keuangan.js"></script>
+            <div class="flex items-center gap-2 flex-wrap">
 
 
-  <!-- SheetJS & Excel Handlers -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="js/excel.js"></script>
-  <script src="js/pwa.js"></script>
-  <script src="js/theme.js"></script>
+
+
+              <!-- Excel Actions Dropdown Group (Keuangan) -->
+              <div class="relative inline-block text-left" id="keuanganExcelDropdownGroup">
+                <button id="keuanganExcelDropdownBtn" type="button" onclick="toggleKeuanganExcelDropdown(event)"
+                  class="inline-flex items-center px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm text-xs transition-all focus:outline-none"
+                  title="Menu Kelola File Excel Keuangan">
+                  <i class="fa-solid fa-file-excel mr-1.5 text-xs"></i>
+                  <span>Menu Excel</span>
+                  <i class="fa-solid fa-chevron-down ml-1 text-[10px] opacity-80"></i>
+                </button>
+
+                <div id="keuanganExcelDropdownMenu"
+                  class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1.5 z-40">
+                  <button type="button" onclick="downloadKeuanganTemplateExcel(); closeKeuanganExcelDropdown();"
+                    class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                    title="Unduh Template Format Resmi Excel Keuangan">
+                    <i class="fa-solid fa-file-arrow-down w-5 text-indigo-500 mr-2 text-center"></i>
+                    <span>Template Keuangan</span>
+                  </button>
+
+                  <button type="button" onclick="triggerKeuanganImport(); closeKeuanganExcelDropdown();"
+                    class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                    title="Upload File Excel untuk Menambah Transaksi">
+                    <i class="fa-solid fa-file-arrow-up w-5 text-emerald-500 mr-2 text-center"></i>
+                    <span>Import Excel Keuangan</span>
+                  </button>
+
+                  <button type="button" onclick="exportKeuanganToExcel(); closeKeuanganExcelDropdown();"
+                    class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
+                    title="Ekspor Data Transaksi ke Excel">
+                    <i class="fa-solid fa-file-excel w-5 text-emerald-600 mr-2 text-center"></i>
+                    <span>Export Excel Keuangan</span>
+                  </button>
+                </div>
+              </div>
+
+              <input type="file" id="keuanganExcelFileInput" accept=".xlsx, .xls, .csv" class="hidden">
+
+              <!-- Bulk Delete Button (Hidden by default, shown when items checked) -->
+              <button id="btnBulkDeleteKeuangan" onclick="bulkDeleteKeuangan()" disabled
+                class="hidden inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
+                <i class="fa-solid fa-trash-can mr-1.5"></i>
+                <span>Hapus Terpilih (<span id="selectedKeuanganCount">0</span>)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="keuanganTable" class="w-full text-sm text-left" style="width: 100% !important;">
+              <thead>
+                <tr>
+                  <th class="w-10 text-center"><input type="checkbox" id="selectAllKeuangan"
+                      class="rounded border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
+                  </th>
+                  <th>ID Projek & User</th>
+                  <th data-i18n="fin-th-date">Tanggal</th>
+                  <th data-i18n="fin-th-desc">Keterangan</th>
+                  <th>DP & Metode</th>
+                  <th>Pelunasan & Metode</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer
+      class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
+      &copy; 2026 Freelance Projek Manager. Created by Alwan.
+    </footer>
+  </main>
+</div>
+
+<!-- Load Global Scripts -->
+<script src="js/toast.js"></script>
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<!-- Load Local Page Script -->
+<script src="js/keuangan.js"></script>
+
+
+<!-- SheetJS & Excel Handlers -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="js/excel.js"></script>
+<script src="js/pwa.js"></script>
+<script src="js/theme.js"></script>
 
 
 </html>

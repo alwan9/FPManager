@@ -938,7 +938,6 @@ function populateDetailModal(proyek) {
   }
 
   const modalWaEl = document.getElementById('modalWa');
-  const isDesRole = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
   if (modalWaEl) {
     if (isPhone) {
       const displayPhone = (isDesRole && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(formattedContact) : formattedContact;

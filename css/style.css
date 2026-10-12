@@ -1282,6 +1282,143 @@ button.rounded-full {
 }
 
 /* ======================================================= */
+/* Mobile Viewport Modal & Popup Optimization (< 768px)    */
+/* ======================================================= */
+@media (max-width: 767px) {
+  /* 1. Modal Overlay Backdrop Padding & Safe Z-Index */
+  .modal-overlay,
+  #detailModal,
+  #exportModal,
+  #taskModal,
+  #settingsModal,
+  #userDetailModal,
+  #userModal,
+  #addToolModal,
+  #addShortcutModal,
+  #referencesModal,
+  #projectPreviewBlenderModal,
+  #watermarkGeneratorModal,
+  #sizeCheatSheetModal,
+  #calendarSyncModal,
+  #globalPaymentModal,
+  #modalDeleteInvoice,
+  #modalBulkInvoice,
+  #importExcelModal,
+  #importShortcutModal,
+  #importToolModal,
+  #toolsExcelHubModal,
+  #projectCalendarModal,
+  #globalConfirmModal,
+  #globalAlertModal,
+  #globalPromptModal,
+  [id$="Modal"] {
+    z-index: 60 !important;
+    padding: 1.5rem 1rem !important;
+    box-sizing: border-box !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* 2. Modal Card / Dialog Box Container - Floating with breathing room */
+  .modal-dialog,
+  #detailModal > div,
+  #exportModal > div,
+  #taskModal > div,
+  #settingsModal > div,
+  #userDetailModal > div,
+  #userModal > div,
+  #addToolModal > div,
+  #addShortcutModal > div,
+  #referencesModal > div,
+  #projectPreviewBlenderModal > div,
+  #watermarkGeneratorModal > div,
+  #sizeCheatSheetModal > div,
+  #calendarSyncModal > div,
+  #globalPaymentModal > div,
+  #modalDeleteInvoice > div,
+  #modalBulkInvoice > div,
+  #importExcelModal > div,
+  #importShortcutModal > div,
+  #importToolModal > div,
+  #toolsExcelHubModal > div,
+  #projectCalendarModal > div,
+  #globalConfirmModal > div,
+  #globalAlertModal > div,
+  #globalPromptModal > div,
+  [id$="Modal"] > div {
+    width: 100% !important;
+    max-width: min(calc(100vw - 2rem), 520px) !important;
+    max-height: calc(100dvh - 3.25rem) !important;
+    max-height: calc(100vh - 3.25rem) !important;
+    margin: auto !important;
+    border-radius: 1.25rem !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.45), 0 10px 15px -5px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* 3. Modal Header Spacing */
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) > div > div:first-child,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .modal-header,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .modal-header-legacy {
+    padding: 0.875rem 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Modal Title & Subtitle on Mobile */
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) h3,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) h4 {
+    font-size: 1rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 4. Modal Body / Content Area Spacing (Uncluttered, comfortable padding) */
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .p-6,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .p-5,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .modal-body {
+    padding: 1rem !important;
+  }
+
+  /* Tab bar in detailModal */
+  :is(#detailModal, [id$="Modal"]) .px-6.pt-3.pb-2 {
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* Scrollable Containers inside Modal */
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .overflow-y-auto {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  /* Form spacing & input heights on mobile modal */
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) form .space-y-4 > * + * {
+    margin-top: 0.75rem !important;
+  }
+
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) form .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) input:not([type="checkbox"]):not([type="radio"]),
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) select,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) textarea {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  /* 5. Modal Footer Spacing */
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) .modal-footer,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) form > .flex.justify-end,
+  :is(#detailModal, #exportModal, #taskModal, #settingsModal, #userDetailModal, #userModal, #addToolModal, #addShortcutModal, #referencesModal, #projectPreviewBlenderModal, #watermarkGeneratorModal, #sizeCheatSheetModal, #calendarSyncModal, #globalPaymentModal, #modalDeleteInvoice, #modalBulkInvoice, #importExcelModal, #importShortcutModal, #importToolModal, #toolsExcelHubModal, #projectCalendarModal, #globalConfirmModal, #globalAlertModal, #globalPromptModal, [id$="Modal"]) > div > div:last-child {
+    padding: 0.75rem 1rem !important;
+    flex-shrink: 0 !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* ======================================================= */
 /* Sticky Bottom Footer Enforcer                           */
 /* ======================================================= */
 body {
