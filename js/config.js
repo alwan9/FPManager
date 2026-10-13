@@ -127,11 +127,13 @@ window.escapeHtml = escapeHtml;
 function sanitizeUrl(url) {
   if (!url) return '#';
   const clean = String(url).trim();
-  if (clean.toLowerCase().startsWith('javascript:')) {
-    return '#';
-  }
-  // Disallow non-image data URLs for safety, allow data:image/ and blob:
-  if (clean.toLowerCase().startsWith('data:') && !clean.toLowerCase().startsWith('data:image/')) {
+  // Hapus karakter kontrol dan spasi tersembunyi
+  const sanitized = clean.replace(/[\u0000-\u001F\u007F-\u009F\s]/g, '');
+  if (/^(javascript|vbscript|data):/i.test(sanitized)) {
+    // Hanya izinkan data:image/ yang aman
+    if (sanitized.toLowerCase().startsWith('data:image/')) {
+      return clean;
+    }
     return '#';
   }
   // Convert Google Drive view/open links to direct embeddable links

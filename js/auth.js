@@ -328,7 +328,9 @@ const Auth = {
     if (!url || typeof url !== 'string') return '';
     const trimmed = url.trim();
     if (!trimmed) return '';
-    if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) return trimmed;
+    if (trimmed.startsWith('data:image/') || trimmed.startsWith('blob:')) return trimmed;
+    // Blokir protokol berbahaya seperti javascript: atau data non-gambar
+    if (/^(javascript|vbscript|data):/i.test(trimmed)) return '';
 
     if (trimmed.includes('drive.google.com') || trimmed.includes('docs.google.com')) {
       const matchD = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -340,7 +342,11 @@ const Auth = {
         return `https://lh3.googleusercontent.com/d/${matchId[1]}`;
       }
     }
-    return trimmed;
+    // Hanya izinkan link http/https yang valid
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return '';
   },
 
   syncUserSession: (updatedUser) => {
@@ -790,7 +796,15 @@ const Auth = {
         if (userAvatarText) {
           userAvatarText.classList.add("overflow-hidden");
           if (avatarUrl) {
-            userAvatarText.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-xl" onerror="this.onerror=null; this.outerHTML='${initial}'">`;
+            const img = document.createElement("img");
+            img.src = avatarUrl;
+            img.alt = initial;
+            img.className = "h-full w-full object-cover rounded-xl";
+            img.onerror = function() {
+              this.remove();
+              userAvatarText.textContent = initial;
+            };
+            userAvatarText.replaceChildren(img);
           } else {
             userAvatarText.textContent = initial;
           }
@@ -803,9 +817,23 @@ const Auth = {
         if (!userAvatarText) {
           profileBtn.classList.add("overflow-hidden", "flex", "items-center", "justify-center", "p-0");
           if (avatarUrl) {
-            profileBtn.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-full block" onerror="this.onerror=null; this.outerHTML='<span class=\\'font-bold text-sm text-zinc-600 dark:text-zinc-200\\'>${initial}</span>'">`;
+            const img = document.createElement("img");
+            img.src = avatarUrl;
+            img.alt = initial;
+            img.className = "h-full w-full object-cover rounded-full block";
+            img.onerror = function() {
+              this.remove();
+              const span = document.createElement("span");
+              span.className = "font-bold text-sm text-zinc-600 dark:text-zinc-200";
+              span.textContent = initial;
+              profileBtn.replaceChildren(span);
+            };
+            profileBtn.replaceChildren(img);
           } else {
-            profileBtn.innerHTML = `<span class="font-bold text-sm text-zinc-600 dark:text-zinc-200">${initial}</span>`;
+            const span = document.createElement("span");
+            span.className = "font-bold text-sm text-zinc-600 dark:text-zinc-200";
+            span.textContent = initial;
+            profileBtn.replaceChildren(span);
           }
         }
       }

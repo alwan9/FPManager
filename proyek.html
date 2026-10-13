@@ -69,8 +69,10 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="manifest" href="manifest.json">
 </head>
-<!-- Layout Wrapper -->
-<div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
+
+<body class="bg-zinc-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 font-sans antialiased">
+  <!-- Layout Wrapper -->
+  <div class="min-h-screen flex flex-col md:flex-row pb-[76px] md:pb-0">
 
   <!-- Desktop Sidebar Navigation -->
   <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
@@ -471,7 +473,7 @@
       <div
         class="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-5 sm:p-6 overflow-hidden">
         <div class="overflow-x-auto">
-          <table id="proyekTable" class="w-full text-xs text-left" style="width: 100% !important;">
+          <table id="proyekTable" class="w-full text-xs text-left min-w-[850px]" style="min-width: 850px !important;">
             <thead>
               <tr>
                 <th id="thSelectAll" class="w-10 text-center"><input type="checkbox" id="selectAll"
@@ -493,7 +495,7 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Skeleton Loader Data -->
+              <!-- Skeleton Loader Data (14 cells matching 14 headers) -->
               <tr class="border-b border-zinc-100 bg-white animate-pulse">
                 <td class="p-4 text-center">
                   <div class="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div>
@@ -515,6 +517,9 @@
                 </td>
                 <td class="p-4">
                   <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
                 </td>
                 <td class="p-4 hidden md:table-cell">
                   <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
@@ -560,6 +565,9 @@
                 <td class="p-4">
                   <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
                 </td>
+                <td class="p-4">
+                  <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+                </td>
                 <td class="p-4 hidden md:table-cell">
                   <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
                 </td>
@@ -603,6 +611,9 @@
                 </td>
                 <td class="p-4">
                   <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
                 </td>
                 <td class="p-4 hidden md:table-cell">
                   <div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
@@ -1513,6 +1524,6 @@
 
   <script src="js/pwa.js"></script>
   <script src="js/theme.js"></script>
-
+</body>
 
 </html>

@@ -24,8 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectAllEl = document.getElementById('selectAll');
     if (selectAllEl) {
       selectAllEl.style.display = 'none';
-      const thEl = selectAllEl.closest('th');
-      if (thEl) thEl.style.display = 'none';
     }
     const btnBulkDel = document.getElementById('btnBulkDelete');
     if (btnBulkDel) {
@@ -264,9 +262,15 @@ function updateStatusCounters(proyekList) {
 }
 // Initialize DataTables with customized styles and features
 function initTable(data) {
+  if (!window.originalProyekTheadHTML) {
+    window.originalProyekTheadHTML = $('#proyekTable thead').html();
+  }
   // Destroy existing table if any
   if ($.fn.DataTable.isDataTable('#proyekTable')) {
     $('#proyekTable').DataTable().destroy();
+  }
+  if (window.originalProyekTheadHTML) {
+    $('#proyekTable thead').html(window.originalProyekTheadHTML);
   }
   $('#proyekTable tbody').empty();
   table = $('#proyekTable').DataTable({
@@ -941,7 +945,7 @@ function populateDetailModal(proyek) {
   if (modalWaEl) {
     if (isPhone) {
       const displayPhone = (isDesRole && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(formattedContact) : formattedContact;
-      modalWaEl.innerHTML = `<i class="fa-brands fa-whatsapp ${isDesRole ? 'text-zinc-400 dark:text-zinc-500' : 'text-emerald-500'}"></i> <span>${displayPhone}</span>`;
+      modalWaEl.innerHTML = `<i class="fa-brands fa-whatsapp ${isDesRole ? 'text-zinc-400 dark:text-zinc-500' : 'text-emerald-500'}"></i> <span>${escapeHtml(displayPhone)}</span>`;
       if (isDesRole) {
         modalWaEl.onclick = (e) => {
           if (e) e.preventDefault();
@@ -2412,6 +2416,7 @@ function showProyekSkeletons() {
         <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4 hidden md:table-cell"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
         <td class="p-4"><div class="h-6 w-20 bg-zinc-200 dark:bg-zinc-700 rounded-full"></div></td>

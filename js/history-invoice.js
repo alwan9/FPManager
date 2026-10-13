@@ -21,7 +21,15 @@ const HistoryInvoice = {
         if (avatarEl) {
           avatarEl.classList.add('overflow-hidden');
           if (avatarUrl) {
-            avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${initial}" class="h-full w-full object-cover rounded-xl" onerror="this.outerHTML='${initial}'">`;
+            const img = document.createElement('img');
+            img.src = avatarUrl;
+            img.alt = initial;
+            img.className = 'h-full w-full object-cover rounded-xl';
+            img.onerror = function() {
+              this.remove();
+              avatarEl.textContent = initial;
+            };
+            avatarEl.replaceChildren(img);
           } else {
             avatarEl.textContent = initial;
           }
