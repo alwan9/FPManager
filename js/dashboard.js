@@ -239,21 +239,62 @@ function applyDashboardRoleCustomizations() {
   }
 }
 
+// Helper: Check if a project is assigned to a specific user
+function isProjectAssignedToUser(p, user, userIdentifiers) {
+  if (!p || !user || !userIdentifiers || userIdentifiers.length === 0) return false;
+
+  const assignVal = String(
+    p.designerId ||
+    p.assignDesigner ||
+    p.idDesigner ||
+    p.assign ||
+    p.id_designer ||
+    p.Id_designer ||
+    ''
+  ).trim().toLowerCase();
+
+  // If explicit assign exists
+  if (assignVal && assignVal !== '-- belum di-assign --' && assignVal !== 'belum di-assign' && assignVal !== 'unassigned') {
+    return userIdentifiers.includes(assignVal);
+  }
+
+  // If no explicit designer assign, check id_user / userId / Id_user
+  const userVal = String(p.id_user || p.userId || p.Id_user || '').trim().toLowerCase();
+  if (userVal) {
+    return userIdentifiers.includes(userVal);
+  }
+
+  return false;
+}
+
 // Load all project and financial data for dashboard cards and charts
 async function loadDashboardData() {
   showDashboardSkeletons();
   try {
-    // Consolidated fetch for complete dashboard payload
-    const dashboardData = await API.getDashboard();
+    const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+    const canReadFinancials = !isDesainer;
+    const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+
+    // Fetch dashboard summary and projects in parallel
+    const [dashboardData, rawProjects] = await Promise.all([
+      API.getDashboard().catch(err => {
+        console.warn("API.getDashboard error:", err);
+        return { stats: {} };
+      }),
+      API.getProyek().catch(err => {
+        console.warn("API.getProyek error:", err);
+        return [];
+      })
+    ]);
+
     if (!dashboardData) return;
 
     // Apply dashboard role customizations
     applyDashboardRoleCustomizations();
 
-    const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-    const canReadFinancials = !isDesainer;
+    const allProjects = Array.isArray(rawProjects) ? rawProjects : [];
 
-    // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth)
+    // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth) for Admin
     if (canReadFinancials) {
       try {
         const rawKeuangan = (await API.getKeuangan()) || [];
@@ -269,6 +310,109 @@ async function loadDashboardData() {
       } catch (syncErr) {
         console.warn("Failed to sync direct keuangan summary for dashboard:", syncErr);
       }
+      if (allProjects.length > 0) {
+        if (!dashboardData.stats) dashboardData.stats = {};
+        dashboardData.stats.totalProyek = allProjects.length;
+      }
+    } else {
+      // Role is Designer: calculate project metrics connected to current user's id_user / assign
+      let userIdentifiers = [];
+      if (currentUser) {
+        userIdentifiers = [
+          currentUser.id,
+          currentUser.userId,
+          currentUser.id_user,
+          currentUser.username,
+          currentUser.nama,
+          currentUser.name
+        ].filter(Boolean).map(v => String(v).trim().toLowerCase());
+
+        // Fallback: If user has no explicit ID, resolve from users list
+        if (!currentUser.id && !currentUser.userId && !currentUser.id_user && currentUser.username) {
+          try {
+            const usersList = (typeof API.getUsers === 'function') ? await API.getUsers() : [];
+            if (Array.isArray(usersList)) {
+              const matched = usersList.find(u => String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase());
+              if (matched) {
+                const extraId = matched.id || matched.userId || matched.id_user;
+                if (extraId) userIdentifiers.push(String(extraId).trim().toLowerCase());
+              }
+            }
+          } catch (uErr) {}
+        }
+      }
+
+      // Filter projects where this designer is assigned
+      const designerProjects = allProjects.filter(p => isProjectAssignedToUser(p, currentUser, userIdentifiers));
+
+      let dikerjakanCount = 0;
+      let revisiCount = 0;
+      let selesaiCount = 0;
+      let menungguCount = 0;
+      let belumPembayaranCount = 0;
+      let dibatalkanCount = 0;
+
+      designerProjects.forEach(p => {
+        const st = String(p.status || '').toLowerCase().trim();
+        if (st === 'sedang dikerjakan' || st === 'dikerjakan' || st.includes('dikerjakan')) {
+          dikerjakanCount++;
+        } else if (st === 'revisi' || st === 'dalam revisi' || st.includes('revisi')) {
+          revisiCount++;
+        } else if (st === 'selesai' || st.includes('selesai')) {
+          selesaiCount++;
+        } else if (st === 'menunggu' || st.includes('menunggu')) {
+          menungguCount++;
+        } else if (st === 'belum pembayaran' || st.includes('belum')) {
+          belumPembayaranCount++;
+        } else if (st === 'dibatalkan' || st.includes('batal')) {
+          dibatalkanCount++;
+        }
+      });
+
+      if (!dashboardData.stats) dashboardData.stats = {};
+      dashboardData.stats.totalProyek = designerProjects.length;
+      dashboardData.stats.dikerjakanCount = dikerjakanCount;
+      dashboardData.stats.revisiCount = revisiCount;
+      dashboardData.stats.selesaiCount = selesaiCount;
+      dashboardData.stats.menungguCount = menungguCount;
+      dashboardData.stats.belumPembayaranCount = belumPembayaranCount;
+      dashboardData.stats.dibatalkanCount = dibatalkanCount;
+
+      // Filter recent projects for designer
+      dashboardData.recentProjects = [...designerProjects].slice(-5).reverse();
+
+      // Filter upcoming deadline alerts for designer (<= 3 days)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const designerDeadlineAlerts = [];
+      designerProjects.forEach(p => {
+        if (p.deadline) {
+          const cleanDl = window.parseSafeDateString(p.deadline);
+          const parts = cleanDl.split('-');
+          let diffDays = -999;
+          if (parts.length === 3) {
+            const dlDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
+            diffDays = Math.round((dlDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          }
+          const st = String(p.status || '').toLowerCase();
+          if (diffDays >= 0 && diffDays <= 3 && !st.includes('selesai') && !st.includes('batal')) {
+            designerDeadlineAlerts.push({
+              iDProyek: p.iDProyek,
+              namaProyek: p.namaProyek,
+              namaPelanggan: p.namaPelanggan,
+              deadline: cleanDl,
+              diffDays: diffDays
+            });
+          }
+        }
+      });
+      dashboardData.deadlineAlerts = designerDeadlineAlerts;
+
+      // Filter revision projects for designer calendar
+      dashboardData.revisiProjects = designerProjects.filter(p => {
+        const st = String(p.status || '').toLowerCase().trim();
+        return st.includes('revisi') || st.includes('dikerjakan');
+      });
     }
 
     // 1. Tampilkan Statistik Ringkasan (Role-aware)

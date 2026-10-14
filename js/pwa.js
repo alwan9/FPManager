@@ -152,7 +152,7 @@ function createNotificationPrompt() {
 
   prompt.innerHTML = `
     <div style="z-index: 99999;" class="flex items-start space-x-3">
-      <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
+      <div class="pwa-prompt-icon-container w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] max-w-[2.5rem] max-h-[2.5rem] aspect-square rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0">
         <i class="fa-solid fa-bell text-lg"></i>
       </div>
       <div>
@@ -232,7 +232,7 @@ function showIOSInstallPrompt(callback) {
     prompt.innerHTML = `
       <div class="flex items-start justify-between">
         <div class="flex items-start space-x-3">
-          <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
+          <div class="pwa-prompt-icon-container w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] max-w-[2.5rem] max-h-[2.5rem] aspect-square rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0">
             <i class="fa-solid fa-circle-info text-lg"></i>
           </div>
           <div>
@@ -289,7 +289,7 @@ function showAndroidInstallPrompt(callback) {
 
     prompt.innerHTML = `
       <div style="z-index: 99999;" class="flex items-start space-x-3">
-        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-0.5">
+        <div class="pwa-prompt-icon-container w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] max-w-[2.5rem] max-h-[2.5rem] aspect-square rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0">
           <i class="fa-solid fa-download text-lg"></i>
         </div>
         <div>

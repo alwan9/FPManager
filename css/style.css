@@ -856,6 +856,7 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 /* ======================================================= */
 .custom-toast {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.08) !important;
 }
 
 .custom-toast .toast-icon-container {
@@ -912,7 +913,7 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   .custom-toast {
     width: 100% !important;
     border-radius: 0.875rem !important;
-    box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.25), 0 0 12px rgba(0, 0, 0, 0.08) !important;
   }
 
   .custom-toast .toast-inner {
@@ -967,6 +968,89 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   .toast-visible {
     transform: translateY(0) !important;
     opacity: 1 !important;
+  }
+}
+
+/* PWA Floating Prompts Popup Shadow & Elevation */
+#pwa-android-prompt,
+#pwa-ios-prompt,
+#pwa-notification-prompt {
+  box-shadow: 0 20px 45px -5px rgba(0, 0, 0, 0.75), 0 0 25px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* PWA Floating Prompts Icon Container Circle Fix */
+.pwa-prompt-icon-container,
+#pwa-android-prompt .pwa-prompt-icon-container,
+#pwa-ios-prompt .pwa-prompt-icon-container,
+#pwa-notification-prompt .pwa-prompt-icon-container {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  min-width: 2.5rem !important;
+  min-height: 2.5rem !important;
+  max-width: 2.5rem !important;
+  max-height: 2.5rem !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 9999px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  animation: pwa-icon-pulse-glow 2s infinite ease-in-out !important;
+}
+
+.pwa-prompt-icon-container i,
+#pwa-android-prompt .pwa-prompt-icon-container i,
+#pwa-ios-prompt .pwa-prompt-icon-container i,
+#pwa-notification-prompt .pwa-prompt-icon-container i {
+  font-size: 1.125rem !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform-origin: center center !important;
+  animation: pwa-icon-wiggle 2s infinite ease-in-out !important;
+}
+
+/* PWA Prompt Icon 2-Second Periodic Animation Keyframes */
+@keyframes pwa-icon-wiggle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  8% {
+    transform: rotate(-14deg) scale(1.18);
+  }
+  16% {
+    transform: rotate(14deg) scale(1.18);
+  }
+  24% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  32% {
+    transform: rotate(6deg) scale(1.05);
+  }
+  40% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes pwa-icon-pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+  15% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
+  }
+  30% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
   }
 }
 

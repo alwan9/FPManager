@@ -151,6 +151,55 @@ function getAssignColorStyles(dId) {
 }
 window.getAssignColorStyles = getAssignColorStyles;
 
+// Helper: Check if a project is assigned to the currently logged in user
+function isProjectAssignedToCurrent(proyek) {
+  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  if (!isDes) return true; // Super admin and service roles have full access
+
+  const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+  if (!currentUser) return false;
+
+  const userIdentifiers = [
+    currentUser.id,
+    currentUser.userId,
+    currentUser.id_user,
+    currentUser.username,
+    currentUser.nama,
+    currentUser.name
+  ].filter(Boolean).map(v => String(v).trim().toLowerCase());
+
+  if (!currentUser.id && !currentUser.userId && !currentUser.id_user && currentUser.username && Array.isArray(window.allUsersList)) {
+    const matched = window.allUsersList.find(u => String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase());
+    if (matched) {
+      const extraId = matched.id || matched.userId || matched.id_user;
+      if (extraId) userIdentifiers.push(String(extraId).trim().toLowerCase());
+    }
+  }
+
+  const p = proyek || {};
+  const assignVal = String(
+    p.designerId ||
+    p.assignDesigner ||
+    p.idDesigner ||
+    p.assign ||
+    p.id_designer ||
+    p.Id_designer ||
+    ''
+  ).trim().toLowerCase();
+
+  if (assignVal && assignVal !== '-- belum di-assign --' && assignVal !== 'belum di-assign' && assignVal !== 'unassigned') {
+    return userIdentifiers.includes(assignVal);
+  }
+
+  const userVal = String(p.id_user || p.userId || p.Id_user || '').trim().toLowerCase();
+  if (userVal) {
+    return userIdentifiers.includes(userVal);
+  }
+
+  return false;
+}
+window.isProjectAssignedToCurrent = isProjectAssignedToCurrent;
+
 // Load proyek data and initialize DataTables
 async function loadProyekData() {
   showProyekSkeletons();
@@ -571,10 +620,7 @@ function initTable(data) {
             if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
             const badgeClass = 'badge-' + badgeKey;
 
-            const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
-            const currentUserId = currentUser ? (currentUser.id || currentUser.userId || currentUser.username) : '';
-            const assignedDesignerId = rowData.designerId || rowData.assignDesigner || '';
-            const isAssignedToCurrent = isDes && assignedDesignerId && (assignedDesignerId === currentUserId || (currentUser && currentUser.username && assignedDesignerId === currentUser.username));
+            const isAssignedToCurrent = isProjectAssignedToCurrent(rowData);
             const canEditStatus = !isDes || isAssignedToCurrent;
 
             if (!canEditStatus) {
@@ -596,8 +642,21 @@ function initTable(data) {
       },
       {
         data: 'gdriveLink',
-        render: function (data) {
+        render: function (data, type, row) {
           const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+          const rowData = row || {};
+          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const canAccessDrive = !isDes || isProjectAssignedToCurrent(rowData);
+
+          if (!canAccessDrive) {
+            return `
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-md text-xs font-semibold border border-zinc-200 dark:border-zinc-700 cursor-not-allowed opacity-60 select-none" title="${isEn ? 'Drive access is restricted to assigned designer' : 'Akses Drive dinonaktifkan (Hanya untuk Designer yang di-assign)'}">
+                <i class="fa-solid fa-lock text-zinc-400 dark:text-zinc-500 text-[10px]"></i>
+                <span>Drive</span>
+              </span>
+            `;
+          }
+
           if (data) {
             return `
               <a href="${sanitizeUrl(data)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
@@ -1151,8 +1210,10 @@ function populateDetailModal(proyek) {
   const modalGDriveLink = document.getElementById('modalGDriveLink');
   const gdriveInputContainer = document.getElementById('gdriveInputContainer');
   const gdriveLinkInput = document.getElementById('gdriveLink');
+  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(proyek);
 
-  if (gdriveLink && gdriveLink.trim() !== '') {
+  if (gdriveLink && gdriveLink.trim() !== '' && canAccessDrive) {
     if (modalGDriveContainer) modalGDriveContainer.classList.remove('hidden');
     if (modalGDriveLink) {
       modalGDriveLink.href = sanitizeUrl(gdriveLink);
@@ -1163,11 +1224,15 @@ function populateDetailModal(proyek) {
   } else {
     if (modalGDriveContainer) modalGDriveContainer.classList.add('hidden');
     if (modalGDriveLink) modalGDriveLink.href = '#';
-    if (gdriveInputContainer) gdriveInputContainer.classList.remove('hidden');
+    if (gdriveInputContainer) {
+      if (isDesigner && !canAccessDrive) {
+        gdriveInputContainer.classList.add('hidden');
+      } else {
+        gdriveInputContainer.classList.remove('hidden');
+      }
+    }
     if (gdriveLinkInput) gdriveLinkInput.value = '';
   }
-
-  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
 
   const detailFinancialCard = document.getElementById('detailFinancialCard');
   if (detailFinancialCard) {
@@ -1721,9 +1786,12 @@ async function generateAI(jenis) {
     return;
   }
 
+  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(currentProyek);
+
   const gdriveContainer = document.getElementById('gdriveInputContainer');
   const gdriveInput = document.getElementById('gdriveLink');
-  let gdriveLink = gdriveInput ? gdriveInput.value.trim() : (currentProyek.gdriveLink || currentProyek.gdrive || '');
+  let gdriveLink = canAccessDrive ? (gdriveInput ? gdriveInput.value.trim() : (currentProyek.gdriveLink || currentProyek.gdrive || '')) : '';
 
   let customPrompt = '';
   if (jenis === 'custom') {
@@ -1742,7 +1810,7 @@ async function generateAI(jenis) {
 
   // Handle visibility of Google Drive input
   if (jenis === 'selesai') {
-    if (gdriveContainer && gdriveContainer.classList.contains('hidden') && !gdriveLink) {
+    if (canAccessDrive && gdriveContainer && gdriveContainer.classList.contains('hidden') && !gdriveLink) {
       gdriveContainer.classList.remove('hidden');
       if (gdriveInput) gdriveInput.focus();
       showToast({
@@ -1912,11 +1980,8 @@ async function updateProyekStatus(id, newStatus, selectEl) {
 
     // Client-side role validation: Designer can only update status if assigned to this project
     const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
-    const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
-    const currentUserId = currentUser ? (currentUser.id || currentUser.userId || currentUser.username) : '';
-    const assignedDesignerId = proyek.designerId || proyek.assignDesigner || '';
 
-    if (isDes && (!assignedDesignerId || (assignedDesignerId !== currentUserId && assignedDesignerId !== currentUser?.username))) {
+    if (isDes && !isProjectAssignedToCurrent(proyek)) {
       showToast({
         title: "Akses Ditolak",
         message: "Anda hanya dapat mengubah status projek yang di-assign kepada Anda.",
