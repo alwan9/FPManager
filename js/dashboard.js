@@ -155,6 +155,27 @@ function applyDashboardRoleCustomizations() {
       statCardKeuntungan.setAttribute('title', isEn ? 'Click to view Completed projects' : 'Klik untuk melihat projek selesai');
     }
 
+    // Designer Project Status Card Titles (Shortened on HP screens)
+    const title1 = document.getElementById('statCard1Title');
+    if (title1) {
+      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'Total Projects' : 'Total Projek'}</span><span class="inline md:hidden">${isEn ? 'Total' : 'Total'}</span>`;
+    }
+    const title2 = document.getElementById('statCard2Title');
+    if (title2) {
+      title2.removeAttribute('data-i18n');
+      title2.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Progress' : 'Dikerjakan'}</span>`;
+    }
+    const title3 = document.getElementById('statCard3Title');
+    if (title3) {
+      title3.removeAttribute('data-i18n');
+      title3.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revision' : 'Revisi'}</span>`;
+    }
+    const title4 = document.getElementById('statCard4Title');
+    if (title4) {
+      title4.removeAttribute('data-i18n');
+      title4.textContent = isEn ? 'Completed' : 'Selesai';
+    }
+
     // 6. Chart Card Header for Designer (Workload / Status Distribution)
     if (chartHeaderIcon) {
       chartHeaderIcon.className = 'fa-solid fa-chart-pie text-indigo-600 dark:text-indigo-400 mr-2';
@@ -293,7 +314,13 @@ function renderSummaryStats(stats) {
   const projSuffix = isEn ? 'Projects' : 'Proyek';
 
   const statTotalEl = document.getElementById('statTotalProyek');
-  if (statTotalEl) statTotalEl.textContent = `${totalProyek} ${projSuffix}`;
+  if (statTotalEl) {
+    if (isDesainer) {
+      statTotalEl.innerHTML = `${totalProyek} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
+    } else {
+      statTotalEl.textContent = `${totalProyek} ${projSuffix}`;
+    }
+  }
 
   if (canReadFinancials) {
     // Show Financial Metrics for Admin & Financial roles
@@ -336,31 +363,45 @@ function renderSummaryStats(stats) {
     const inRevision = stats.revisiCount !== undefined ? stats.revisiCount : (stats.revisi || 0);
     const completed = stats.selesaiCount !== undefined ? stats.selesaiCount : (stats.selesai || 0);
 
+    const title1 = document.getElementById('statCard1Title');
+    if (title1) {
+      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'Total Projects' : 'Total Projek'}</span><span class="inline md:hidden">${isEn ? 'Total' : 'Total'}</span>`;
+    }
+
     const title2 = document.getElementById('statCard2Title');
-    if (title2) title2.textContent = isEn ? 'In Progress' : 'Sedang Dikerjakan';
+    if (title2) {
+      title2.removeAttribute('data-i18n');
+      title2.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Progress' : 'Dikerjakan'}</span>`;
+    }
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
-      val2.textContent = `${inProgress} ${projSuffix}`;
+      val2.innerHTML = `${inProgress} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
       val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-amber-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
     if (icon2) icon2.className = 'bg-amber-50 text-amber-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
 
     const title3 = document.getElementById('statCard3Title');
-    if (title3) title3.textContent = isEn ? 'In Revision' : 'Dalam Revisi';
+    if (title3) {
+      title3.removeAttribute('data-i18n');
+      title3.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revision' : 'Revisi'}</span>`;
+    }
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
-      val3.textContent = `${inRevision} ${projSuffix}`;
+      val3.innerHTML = `${inRevision} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
       val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
     }
     const icon3 = document.getElementById('statCard3Icon');
     if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
 
     const title4 = document.getElementById('statCard4Title');
-    if (title4) title4.textContent = isEn ? 'Completed' : 'Selesai';
+    if (title4) {
+      title4.removeAttribute('data-i18n');
+      title4.textContent = isEn ? 'Completed' : 'Selesai';
+    }
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
-      val4.textContent = `${completed} ${projSuffix}`;
+      val4.innerHTML = `${completed} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
       val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
     }
     const icon4 = document.getElementById('statCard4Icon');
@@ -472,6 +513,15 @@ function renderRecentProjects(recent) {
       </div>
     `;
 
+    let badgeLabel = displayStatus;
+    if (p.status === 'Sedang Dikerjakan') {
+      badgeLabel = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Progress' : 'Dikerjakan'}</span>`;
+    } else if (p.status === 'Dalam Revisi' || p.status === 'Revisi') {
+      badgeLabel = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revision' : 'Revisi'}</span>`;
+    } else if (p.status === 'Belum Pembayaran') {
+      badgeLabel = `<span class="hidden md:inline">${isEn ? 'Unpaid' : 'Belum Pembayaran'}</span><span class="inline md:hidden">${isEn ? 'Unpaid' : 'Belum Bayar'}</span>`;
+    }
+
     const item = document.createElement('div');
     item.className = 'flex items-center justify-between p-3.5 sm:p-4 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors duration-150';
     item.innerHTML = `
@@ -479,7 +529,7 @@ function renderRecentProjects(recent) {
         <span class="font-bold text-base text-zinc-900 dark:text-zinc-100 block truncate leading-snug">${escapeHtml(p.namaProyek)}</span>
         <span class="text-[13px] text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">${isEn ? 'Client' : 'Klien'}: ${escapeHtml(p.namaPelanggan)}</span>
         <div class="flex items-center mt-2 flex-wrap gap-1.5">
-          <span class="dash-micro-badge ${badgeClass}">${displayStatus}</span>
+          <span class="dash-micro-badge ${badgeClass}">${badgeLabel}</span>
           ${sourceBadge}
           ${gdriveBtn}
         </div>
@@ -519,9 +569,10 @@ function renderDesignerProjectChart(stats, recentProjects) {
   const waiting = (stats && stats.menungguCount !== undefined) ? stats.menungguCount : 0;
   const completed = (stats && stats.selesaiCount !== undefined) ? stats.selesaiCount : 0;
 
+  const isMobile = window.innerWidth < 768;
   const labels = isEn 
-    ? ['In Progress', 'In Revision', 'Waiting', 'Completed'] 
-    : ['Sedang Dikerjakan', 'Dalam Revisi', 'Menunggu', 'Selesai'];
+    ? (isMobile ? ['Progress', 'Revision', 'Waiting', 'Done'] : ['In Progress', 'In Revision', 'Waiting', 'Completed']) 
+    : (isMobile ? ['Dikerjakan', 'Revisi', 'Menunggu', 'Selesai'] : ['Sedang Dikerjakan', 'Dalam Revisi', 'Menunggu', 'Selesai']);
 
   const dataValues = [inProgress, inRevision, waiting, completed];
   const bgColors = [

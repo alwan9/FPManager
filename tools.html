@@ -6,7 +6,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FL6WEZT848"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'G-FL6WEZT848');
@@ -148,7 +148,8 @@
 
     <!-- Mobile Bottom Navigation Bar (5 Core Menus) -->
     <nav id="mobileBottomNav"
-      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-1.5 flex items-center justify-around">
+      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-5 flex items-center justify-around"
+      style="padding-top: 20px !important; padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;">
       <!-- 1. Home -->
       <a href="index.html"
         class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
@@ -234,7 +235,8 @@
             <span id="apiStatusBadge"
               class="absolute bottom-0 right-0 z-20 flex items-center justify-center pointer-events-none"
               title="Live Google Sheets Connected">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
+              <span
+                class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-800 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
             </span>
             <div id="profileDropdown"
               class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-1 z-50">
@@ -285,35 +287,32 @@
       </header>
 
       <!-- Page Content -->
-      <section class="flex-grow p-6 md:p-8 space-y-6 md:space-y-8">
+      <section class="flex-grow px-2 py-4 sm:px-4 sm:py-6 md:p-8 space-y-4 md:space-y-8">
 
         <!-- =============================== -->
         <!-- MOBILE ONLY ACTION BUTTONS      -->
         <!-- =============================== -->
         <div class="flex sm:hidden flex-wrap gap-2 w-full">
           <button id="btnToggleShortcutsMobile" onclick="toggleShortcutsState()" type="button"
-            class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 font-bold rounded-xl shadow-xs text-xs active:scale-95 transition-transform gap-1">
+            class="flex-1 min-w-[60px] inline-flex items-center justify-center py-2 px-2 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 font-semibold rounded-xl shadow-xs text-xs active:scale-95 transition-transform gap-1.5"
+            title="Tampilkan / Sembunyikan Shortcuts">
             <i id="shortcutsToggleIconMobile" class="fa-solid fa-eye text-emerald-500 text-xs"></i>
-            <span id="shortcutsToggleTextMobile">Shortcuts</span>
             <span id="shortcutsToggleBadgeMobile"
-              class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-0.5">ON</span>
+              class="text-xs font-bold text-emerald-600 dark:text-emerald-400">ON</span>
           </button>
           <button onclick="openAddShortcutModal()"
-            class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+            class="flex-1 min-w-[65px] inline-flex items-center justify-center py-2 px-2 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-semibold rounded-xl shadow-xs text-xs active:scale-95 transition-transform">
             <i class="fa-solid fa-plus mr-1"></i> Shortcut
           </button>
           <button onclick="openAddToolModal()"
-            class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-indigo-600 dark:bg-indigo-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+            class="flex-1 min-w-[65px] inline-flex items-center justify-center py-2 px-2 bg-indigo-600 dark:bg-indigo-600 text-white font-semibold rounded-xl shadow-xs text-xs active:scale-95 transition-transform">
             <i class="fa-solid fa-plus mr-1"></i> Prompt
           </button>
           <button id="btnToolsExcelHubMobile" onclick="openToolsExcelHubModal()"
-            class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-emerald-600 dark:bg-emerald-600 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
+            class="flex-1 min-w-[60px] inline-flex items-center justify-center py-2 px-2 bg-emerald-600 dark:bg-emerald-600 text-white font-semibold rounded-xl shadow-xs text-xs active:scale-95 transition-transform">
             <i class="fa-solid fa-file-excel mr-1"></i> Excel
           </button>
-          <button onclick="openReferencesModal()"
-            class="flex-1 min-w-[70px] inline-flex items-center justify-center py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl shadow-sm text-xs active:scale-95 transition-transform">
-            <i class="fa-solid fa-bookmark mr-1"></i> Referensi
-          </button>
+
         </div>
 
         <!-- ============================================== -->
@@ -1469,8 +1468,7 @@
   </div>
 
   <!-- Modal Panduan Ukuran & Konversi Satuan (Clean UI) -->
-  <div id="sizeCheatSheetModal"
-    onclick="if(event.target === this) closeSizeCheatSheetModal()"
+  <div id="sizeCheatSheetModal" onclick="if(event.target === this) closeSizeCheatSheetModal()"
     style="background-color: rgba(0, 0, 0, 0.6);"
     class="hidden fixed inset-0 z-55 z-[55] flex items-center justify-center p-3 md:p-6 overflow-y-auto backdrop-blur-md transition-all duration-300">
     <div
@@ -1485,8 +1483,10 @@
             <i class="fa-solid fa-ruler-combined text-base"></i>
           </div>
           <div>
-            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">Panduan & Ukuran Media</h3>
-            <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Konversi ukuran kustom 2 kolom (Panjang × Lebar) & referensi standar desain</p>
+            <h3 class="text-zinc-900 dark:text-zinc-100 text-base md:text-xl font-bold tracking-tight">Panduan & Ukuran
+              Media</h3>
+            <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Konversi ukuran kustom 2 kolom (Panjang × Lebar) &
+              referensi standar desain</p>
           </div>
         </div>
         <button onclick="closeSizeCheatSheetModal()"
@@ -1517,11 +1517,13 @@
 
       <!-- TAB 1: KONVERTER UKURAN (2 KOLOM: PANJANG & LEBAR) -->
       <div id="sizeConverterTabPane" class="p-4 md:p-6 overflow-y-auto space-y-4 max-h-[70vh]">
-        
+
         <!-- Input Form Card -->
-        <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/80 rounded-2xl p-4 md:p-5 space-y-4">
+        <div
+          class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/80 rounded-2xl p-4 md:p-5 space-y-4">
           <!-- Top Row: Satuan Input & Target DPI -->
-          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200/70 dark:border-zinc-700/60">
+          <div
+            class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200/70 dark:border-zinc-700/60">
             <div class="flex items-center space-x-2">
               <span class="text-xs font-bold text-zinc-600 dark:text-zinc-300">Satuan Input:</span>
               <select id="convInputUnit" onchange="runSizeConverter()"
@@ -1548,13 +1550,16 @@
           <!-- 2 KOLOM INPUT: PANJANG & LEBAR -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
             <!-- Kolom 1: Panjang / Tinggi -->
-            <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-xl p-4 shadow-2xs">
+            <div
+              class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-xl p-4 shadow-2xs">
               <div class="flex items-center justify-between mb-2">
-                <label for="convPanjangInput" class="text-xs font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
+                <label for="convPanjangInput"
+                  class="text-xs font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
                   <i class="fa-solid fa-arrows-up-down text-indigo-500 text-xs"></i>
                   <span>Panjang / Tinggi (P)</span>
                 </label>
-                <span id="convPanjangUnitBadge" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md">cm</span>
+                <span id="convPanjangUnitBadge"
+                  class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md">cm</span>
               </div>
               <div class="relative flex items-center">
                 <input type="number" id="convPanjangInput" value="12" step="any" min="0" oninput="runSizeConverter()"
@@ -1570,13 +1575,16 @@
             </button>
 
             <!-- Kolom 2: Lebar -->
-            <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-xl p-4 shadow-2xs">
+            <div
+              class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/80 rounded-xl p-4 shadow-2xs">
               <div class="flex items-center justify-between mb-2">
-                <label for="convLebarInput" class="text-xs font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
+                <label for="convLebarInput"
+                  class="text-xs font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
                   <i class="fa-solid fa-arrows-left-right text-indigo-500 text-xs"></i>
                   <span>Lebar (L)</span>
                 </label>
-                <span id="convLebarUnitBadge" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md">cm</span>
+                <span id="convLebarUnitBadge"
+                  class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md">cm</span>
               </div>
               <div class="relative flex items-center">
                 <input type="number" id="convLebarInput" value="8" step="any" min="0" oninput="runSizeConverter()"
@@ -1598,17 +1606,23 @@
             <div class="flex items-center flex-wrap gap-1.5 text-xs">
               <span class="text-zinc-400 text-[11px] font-semibold mr-1">Preset:</span>
               <button type="button" onclick="applyConverterPreset(12, 8, 'cm')"
-                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">12 × 8 cm</button>
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">12
+                × 8 cm</button>
               <button type="button" onclick="applyConverterPreset(4, 3, 'cm')"
-                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">3 × 4 cm</button>
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">3
+                × 4 cm</button>
               <button type="button" onclick="applyConverterPreset(6, 4, 'cm')"
-                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">4 × 6 cm</button>
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">4
+                × 6 cm</button>
               <button type="button" onclick="applyConverterPreset(9, 5.5, 'cm')"
-                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">Kartu Nama</button>
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">Kartu
+                Nama</button>
               <button type="button" onclick="applyConverterPreset(29.7, 21, 'cm')"
-                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">A4 (cm)</button>
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">A4
+                (cm)</button>
               <button type="button" onclick="applyConverterPreset(1080, 1080, 'px')"
-                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">1080p Persegi</button>
+                class="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">1080p
+                Persegi</button>
             </div>
           </div>
         </div>
@@ -1617,40 +1631,51 @@
         <div class="space-y-4">
           <!-- Main Output: PIXEL 300 DPI & 72 DPI CARDS -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
+
             <!-- Card 1: Pixel Cetak (300 DPI) -->
-            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/60 dark:from-indigo-950/40 dark:to-zinc-900 border border-indigo-200/80 dark:border-indigo-800/60 rounded-2xl p-4 md:p-5 shadow-xs relative flex flex-col justify-between">
+            <div
+              class="bg-gradient-to-br from-indigo-50 to-indigo-100/60 dark:from-indigo-950/40 dark:to-zinc-900 border border-indigo-200/80 dark:border-indigo-800/60 rounded-2xl p-4 md:p-5 shadow-xs relative flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Cetak Standar (300 DPI)</span>
+                    <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Cetak
+                      Standar (300 DPI)</span>
                   </div>
-                  <span class="text-[11px] font-semibold text-indigo-600/80 dark:text-indigo-400 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-900">HD Print</span>
+                  <span
+                    class="text-[11px] font-semibold text-indigo-600/80 dark:text-indigo-400 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-900">HD
+                    Print</span>
                 </div>
 
                 <div class="my-3">
-                  <div class="text-2xl md:text-3xl font-black font-mono text-zinc-900 dark:text-white tracking-tight" id="convResPx300Full">
+                  <div class="text-2xl md:text-3xl font-black font-mono text-zinc-900 dark:text-white tracking-tight"
+                    id="convResPx300Full">
                     1417 × 945 px
                   </div>
                   <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-3">
-                    <span>Panjang: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx300P">1417 px</b></span>
-                    <span>Lebar: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx300L">945 px</b></span>
+                    <span>Panjang: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx300P">1417
+                        px</b></span>
+                    <span>Lebar: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx300L">945
+                        px</b></span>
                   </div>
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-indigo-200/60 dark:border-indigo-900/50 flex flex-wrap items-center gap-2">
-                <button type="button" onclick="copyConverterText(document.getElementById('convResPx300Full').textContent, 'Ukuran 300 DPI (P × L)')"
+              <div
+                class="pt-3 border-t border-indigo-200/60 dark:border-indigo-900/50 flex flex-wrap items-center gap-2">
+                <button type="button"
+                  onclick="copyConverterText(document.getElementById('convResPx300Full').textContent, 'Ukuran 300 DPI (P × L)')"
                   class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center space-x-1.5">
                   <i class="fa-regular fa-copy"></i>
                   <span>Salin P × L</span>
                 </button>
-                <button type="button" onclick="copyConverterText(document.getElementById('convResPx300P').textContent.replace(' px',''), 'Panjang 300 DPI')"
+                <button type="button"
+                  onclick="copyConverterText(document.getElementById('convResPx300P').textContent.replace(' px',''), 'Panjang 300 DPI')"
                   class="px-2.5 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition-colors">
                   Salin P
                 </button>
-                <button type="button" onclick="copyConverterText(document.getElementById('convResPx300L').textContent.replace(' px',''), 'Lebar 300 DPI')"
+                <button type="button"
+                  onclick="copyConverterText(document.getElementById('convResPx300L').textContent.replace(' px',''), 'Lebar 300 DPI')"
                   class="px-2.5 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition-colors">
                   Salin L
                 </button>
@@ -1658,38 +1683,49 @@
             </div>
 
             <!-- Card 2: Pixel Layar / Web (72 DPI) -->
-            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/60 dark:from-emerald-950/40 dark:to-zinc-900 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl p-4 md:p-5 shadow-xs relative flex flex-col justify-between">
+            <div
+              class="bg-gradient-to-br from-emerald-50 to-emerald-100/60 dark:from-emerald-950/40 dark:to-zinc-900 border border-emerald-200/80 dark:border-emerald-800/60 rounded-2xl p-4 md:p-5 shadow-xs relative flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Web / Layar (72 DPI)</span>
+                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Web
+                      / Layar (72 DPI)</span>
                   </div>
-                  <span class="text-[11px] font-semibold text-emerald-600/80 dark:text-emerald-400 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-900">Screen Web</span>
+                  <span
+                    class="text-[11px] font-semibold text-emerald-600/80 dark:text-emerald-400 bg-white dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-900">Screen
+                    Web</span>
                 </div>
 
                 <div class="my-3">
-                  <div class="text-2xl md:text-3xl font-black font-mono text-zinc-900 dark:text-white tracking-tight" id="convResPx72Full">
+                  <div class="text-2xl md:text-3xl font-black font-mono text-zinc-900 dark:text-white tracking-tight"
+                    id="convResPx72Full">
                     340 × 227 px
                   </div>
                   <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-3">
-                    <span>Panjang: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx72P">340 px</b></span>
-                    <span>Lebar: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx72L">227 px</b></span>
+                    <span>Panjang: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx72P">340
+                        px</b></span>
+                    <span>Lebar: <b class="font-mono text-zinc-800 dark:text-zinc-200" id="convResPx72L">227
+                        px</b></span>
                   </div>
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-emerald-200/60 dark:border-emerald-900/50 flex flex-wrap items-center gap-2">
-                <button type="button" onclick="copyConverterText(document.getElementById('convResPx72Full').textContent, 'Ukuran 72 DPI (P × L)')"
+              <div
+                class="pt-3 border-t border-emerald-200/60 dark:border-emerald-900/50 flex flex-wrap items-center gap-2">
+                <button type="button"
+                  onclick="copyConverterText(document.getElementById('convResPx72Full').textContent, 'Ukuran 72 DPI (P × L)')"
                   class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center space-x-1.5">
                   <i class="fa-regular fa-copy"></i>
                   <span>Salin P × L</span>
                 </button>
-                <button type="button" onclick="copyConverterText(document.getElementById('convResPx72P').textContent.replace(' px',''), 'Panjang 72 DPI')"
+                <button type="button"
+                  onclick="copyConverterText(document.getElementById('convResPx72P').textContent.replace(' px',''), 'Panjang 72 DPI')"
                   class="px-2.5 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition-colors">
                   Salin P
                 </button>
-                <button type="button" onclick="copyConverterText(document.getElementById('convResPx72L').textContent.replace(' px',''), 'Lebar 72 DPI')"
+                <button type="button"
+                  onclick="copyConverterText(document.getElementById('convResPx72L').textContent.replace(' px',''), 'Lebar 72 DPI')"
                   class="px-2.5 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition-colors">
                   Salin L
                 </button>
@@ -1700,37 +1736,49 @@
 
           <!-- Card 3: Ukuran Fisik Lainnya & Metadata Desain -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            
+
             <!-- Satuan Fisik Card -->
-            <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 space-y-2">
+            <div
+              class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 space-y-2">
               <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Dimensi Fisik</span>
               <div class="space-y-1 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Centimeter:</span>
-                  <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600" id="convResCm" onclick="copyConverterText(this.textContent, 'Centimeter')">12 × 8 cm</span>
+                  <span
+                    class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600"
+                    id="convResCm" onclick="copyConverterText(this.textContent, 'Centimeter')">12 × 8 cm</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Milimeter:</span>
-                  <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600" id="convResMm" onclick="copyConverterText(this.textContent, 'Milimeter')">120 × 80 mm</span>
+                  <span
+                    class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600"
+                    id="convResMm" onclick="copyConverterText(this.textContent, 'Milimeter')">120 × 80 mm</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Inci (inch):</span>
-                  <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600" id="convResInch" onclick="copyConverterText(this.textContent, 'Inci')">4.72 × 3.15 in</span>
+                  <span
+                    class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600"
+                    id="convResInch" onclick="copyConverterText(this.textContent, 'Inci')">4.72 × 3.15 in</span>
                 </div>
               </div>
             </div>
 
             <!-- Target DPI Kustom Card -->
-            <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 space-y-2">
+            <div
+              class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 space-y-2">
               <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Target DPI Terpilih</span>
               <div class="space-y-1 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">DPI Pilihan:</span>
-                  <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400" id="convResSelectedDpi">300 DPI</span>
+                  <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400" id="convResSelectedDpi">300
+                    DPI</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Total Pixel:</span>
-                  <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600" id="convResSelectedPx" onclick="copyConverterText(this.textContent, 'Pixel Target DPI')">1417 × 945 px</span>
+                  <span
+                    class="font-mono font-bold text-zinc-800 dark:text-zinc-200 cursor-pointer hover:text-indigo-600"
+                    id="convResSelectedPx" onclick="copyConverterText(this.textContent, 'Pixel Target DPI')">1417 × 945
+                    px</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Megapixel (MP):</span>
@@ -1740,16 +1788,19 @@
             </div>
 
             <!-- Rasio & Orientasi Card -->
-            <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 space-y-2">
+            <div
+              class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3.5 space-y-2">
               <span class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Rasio & Bentuk</span>
               <div class="space-y-1 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Aspek Rasio:</span>
-                  <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200" id="convResRatio">3 : 2 (1.50)</span>
+                  <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200" id="convResRatio">3 : 2
+                    (1.50)</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Orientasi:</span>
-                  <span class="font-semibold text-zinc-800 dark:text-zinc-200" id="convResOrientation">Portrait (Tegak)</span>
+                  <span class="font-semibold text-zinc-800 dark:text-zinc-200" id="convResOrientation">Portrait
+                    (Tegak)</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-zinc-500">Luas Cetak:</span>

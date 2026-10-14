@@ -124,7 +124,7 @@ function showToolsSkeletons() {
 
   if (toolsContainer) {
     toolsContainer.innerHTML = Array(6).fill(`
-      <div class="bg-white rounded-2xl p-5 shadow-sm border border-zinc-200 animate-pulse flex flex-col h-full">
+      <div class="bg-white rounded-2xl p-3.5 sm:p-5 shadow-sm border border-zinc-200 animate-pulse flex flex-col h-full">
         <div class="h-5 w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded mb-3"></div>
         <div class="h-4 w-full bg-zinc-200 dark:bg-zinc-700 rounded mb-1"></div>
         <div class="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-700 rounded mb-4"></div>
@@ -227,7 +227,7 @@ function renderTools(query = '') {
 
   filteredTools.forEach(tool => {
     const el = document.createElement('div');
-    el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all flex flex-col md:flex-row gap-4 items-start md:items-center justify-between';
+    el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all flex flex-col md:flex-row gap-4 items-start md:items-center justify-between';
 
     el.innerHTML = `
       <div class="flex-1 w-full min-w-0">
@@ -235,7 +235,7 @@ function renderTools(query = '') {
           <h4 class="font-normal text-zinc-900 dark:text-zinc-100 text-lg truncate">${escapeHtml(tool.title)}</h4>
           <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1" title="${escapeHtml(tool.userId || 'USR-001')}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(tool.userId || 'USR-001')}</span></span>
         </div>
-        <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-0 md:mt-2">${escapeHtml(tool.prompt)}</div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-0 md:mt-2">${escapeHtml(tool.prompt)}</div>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto mt-4 md:mt-0 justify-end shrink-0">
         <button onclick="copyPrompt('${tool.id}', 'id')" class="flex-1 md:flex-none px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 font-normal rounded-xl transition-colors flex items-center justify-center space-x-1 text-base" title="Salin Prompt (ID)">
@@ -598,8 +598,8 @@ function applyShortcutsVisibility(visible) {
   if (badgeMobile) {
     badgeMobile.textContent = visible ? 'ON' : 'OFF';
     badgeMobile.className = visible
-      ? 'text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-0.5'
-      : 'text-[10px] font-bold text-zinc-400 dark:text-zinc-500 ml-0.5';
+      ? 'text-xs font-bold text-emerald-600 dark:text-emerald-400'
+      : 'text-xs font-bold text-zinc-400 dark:text-zinc-500';
   }
 
   if (container) {

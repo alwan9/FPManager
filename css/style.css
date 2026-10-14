@@ -722,6 +722,7 @@ label:has(input[type="checkbox"]:checked) {
   backdrop-filter: blur(12px);
   border-top: 1px solid #27272a !important;
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4) !important;
+  padding-top: 20px !important;
   padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
@@ -1073,17 +1074,81 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 
   /* Table text readability on mobile */
   table, table.dataTable {
-    font-size: 0.8125rem !important;
+    font-size: 0.75rem !important;
   }
 
   table.dataTable thead th {
-    font-size: 0.75rem !important; /* text-xs */
-    padding: 0.625rem 0.5rem !important;
+    font-size: 0.6875rem !important; /* text-xs */
+    padding: 0.4rem 0.375rem !important;
   }
 
   table.dataTable tbody td {
-    font-size: 0.8125rem !important; /* text-sm */
-    padding: 0.625rem 0.5rem !important;
+    font-size: 0.75rem !important; /* text-xs */
+    padding: 0.4rem 0.375rem !important;
+  }
+
+  /* Specific Mobile Optimization for #proyekTable (Lebih lebar, padding atas-bawah ramping, teks diperkecil) */
+  #proyekTable,
+  #proyekTable.dataTable {
+    min-width: 680px !important;
+    font-size: 0.6875rem !important; /* ~11px */
+    margin: 0.25rem 0 !important;
+  }
+
+  #proyekTable thead th,
+  #proyekTable.dataTable thead th {
+    font-size: 0.625rem !important; /* 10px */
+    padding: 0.325rem 0.35rem !important;
+    white-space: nowrap !important;
+  }
+
+  #proyekTable tbody td,
+  #proyekTable.dataTable tbody td {
+    font-size: 0.6875rem !important; /* 11px */
+    padding: 0.325rem 0.35rem !important;
+    line-height: 1.25 !important;
+  }
+
+  #proyekTable td span,
+  #proyekTable td div,
+  #proyekTable td a {
+    font-size: inherit;
+  }
+
+  #proyekTable .dash-micro-badge,
+  #proyekTable [class*="badge-"] {
+    font-size: 0.6rem !important;
+    padding: 0.1rem 0.35rem !important;
+    line-height: 1.1 !important;
+  }
+
+  #proyekTable select {
+    font-size: 0.625rem !important;
+    padding: 0.15rem 1.25rem 0.15rem 0.35rem !important;
+  }
+
+  #proyekTable button {
+    padding: 0.2rem 0.35rem !important;
+    font-size: 0.625rem !important;
+  }
+
+  #proyekTable .fa-solid,
+  #proyekTable .fa-regular {
+    font-size: 0.65rem !important;
+  }
+
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    font-size: 0.725rem !important;
+    margin-top: 0.35rem !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.25rem 0.45rem !important;
+    font-size: 0.7rem !important;
   }
 
   /* Input fields and buttons on mobile use text-sm (14px) or text-base (16px) */
