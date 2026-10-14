@@ -1,5 +1,60 @@
 const Toast = (() => {
 
+    function shortenToastForMobile(text) {
+        if (!text || typeof text !== 'string') return text;
+        let s = text.trim();
+
+        const phraseMap = [
+            [/berhasil disimpan langsung di Spreadsheet/gi, 'berhasil disimpan'],
+            [/disimpan langsung di Spreadsheet/gi, 'disimpan'],
+            [/langsung di Spreadsheet/gi, ''],
+            [/ke clipboard/gi, ''],
+            [/di laci notifikasi perangkat Anda/gi, 'di perangkat Anda'],
+            [/Silakan periksa laci notifikasi perangkat Anda\.?/gi, 'Periksa notifikasi perangkat.'],
+            [/telah dihapus dari history/gi, 'berhasil dihapus'],
+            [/telah dihapus dari sistem/gi, 'berhasil dihapus'],
+            [/berhasil di-drop dan dimuat/gi, 'berhasil dimuat'],
+            [/berhasil dimasukkan ke catatan/gi, 'masuk catatan'],
+            [/otomatis dimasukkan ke catatan/gi, 'masuk catatan'],
+            [/otomatis diterapkan/gi, 'diterapkan'],
+            [/resmi berhasil diunduh/gi, 'berhasil diunduh'],
+            [/berhasil diunduh ke perangkat/gi, 'berhasil diunduh'],
+            [/Terjadi kesalahan saat memproses/gi, 'Gagal memproses'],
+            [/Terjadi kesalahan saat mengekspor/gi, 'Gagal ekspor'],
+            [/Terjadi kesalahan saat memuat/gi, 'Gagal memuat'],
+            [/Terjadi kesalahan saat menyimpan/gi, 'Gagal menyimpan'],
+            [/Terjadi kesalahan saat/gi, 'Gagal'],
+            [/Harap masukkan file gambar valid/gi, 'Format gambar tidak valid'],
+            [/Harap berikan izin notifikasi terlebih dahulu/gi, 'Perlu izin notifikasi'],
+            [/Browser Anda tidak mendukung notifikasi push/gi, 'Browser tidak dukung notifikasi'],
+            [/Browser menolak akses clipboard\.?/gi, 'Akses clipboard ditolak.'],
+            [/Anda sekarang dapat menerima notifikasi pengingat deadline\.?/gi, 'Notifikasi deadline aktif.'],
+            [/Silakan periksa kembali/gi, 'Periksa kembali'],
+            [/Harap periksa kembali/gi, 'Periksa kembali'],
+            [/Harap masukkan/gi, 'Masukkan'],
+            [/Harap isi/gi, 'Isi'],
+            [/Harap pilih/gi, 'Pilih'],
+            [/recorded successfully/gi, 'saved'],
+            [/deleted successfully/gi, 'deleted'],
+            [/updated successfully/gi, 'updated'],
+            [/copied to clipboard/gi, 'copied'],
+            [/downloaded successfully/gi, 'downloaded'],
+            [/An error occurred while compiling/gi, 'Failed compiling'],
+            [/An error occurred while exporting/gi, 'Failed export'],
+            [/An error occurred while/gi, 'Failed']
+        ];
+
+        phraseMap.forEach(([regex, replacement]) => {
+            s = s.replace(regex, replacement);
+        });
+
+        return s.replace(/\s+/g, ' ')
+            .replace(/\s+([.,!?])/g, '$1')
+            .replace(/\(\s+/g, '(')
+            .replace(/\s+\)/g, ')')
+            .trim();
+    }
+
     function show(title, message, type = "success") {
 
         let container = document.getElementById("toast-container");
@@ -46,7 +101,7 @@ const Toast = (() => {
 
             warning: {
                 bg: "#d97706",
-                icon: "fa-triangle-exclamation"
+                icon: "fa-circle-exclamation"
             },
 
             info: {
@@ -56,7 +111,11 @@ const Toast = (() => {
 
         };
 
-        const c = colors[type];
+        const c = colors[type] || colors.info;
+
+        const isMobile = (typeof window !== 'undefined' && window.innerWidth < 768);
+        const finalTitle = isMobile ? shortenToastForMobile(title) : title;
+        const finalMessage = isMobile ? shortenToastForMobile(message) : message;
 
         const toast = document.createElement("div");
 
@@ -69,10 +128,10 @@ const Toast = (() => {
 
                 <div class="flex justify-between items-start">
 
-                    <div class="flex">
+                    <div class="flex items-center">
 
                         <div
-                            class="toast-icon-container w-10 h-10 rounded-full flex items-center justify-center text-white mr-4 shrink-0"
+                            class="toast-icon-container w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] max-w-[2.5rem] max-h-[2.5rem] aspect-square rounded-full flex items-center justify-center text-white mr-4 shrink-0"
                             style="background:${c.bg}">
 
                             <i class="fa-solid ${c.icon}"></i>
@@ -83,15 +142,16 @@ const Toast = (() => {
 
                             <h3 class="toast-title font-bold text-zinc-800">
 
-                                ${title}
+                                ${finalTitle}
 
                             </h3>
 
+                            ${finalMessage ? `
                             <p class="toast-message text-sm text-zinc-500 mt-1">
 
-                                ${message}
+                                ${finalMessage}
 
-                            </p>
+                            </p>` : ''}
 
                         </div>
 
