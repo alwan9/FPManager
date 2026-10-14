@@ -507,7 +507,7 @@ const Auth = {
         </a>
 
         <!-- 4. Keuangan Group (Collapsible / Action Menu) -->
-        <button type="button" id="btnMobileKeuanganNav" onclick="Auth.toggleMobileKeuanganMenu()"
+        <button type="button" id="btnMobileKeuanganNav" onclick="Auth.handleMobileKeuanganClick(event)"
           class="${isKeuanganGroup ? activeClass : inactiveClass} focus:outline-none cursor-pointer">
           <i class="fa-solid fa-wallet text-base"></i>
           <span class="text-[10px] mt-0.5 flex items-center gap-0.5" data-i18n="nav-keuangan-group">
@@ -556,15 +556,15 @@ const Auth = {
           </button>
         </div>
         <div class="flex flex-col space-y-1">
-          <a href="keuangan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
+          <a href="keuangan.html" onclick="Auth.handlePopoverLinkClick(event, 'keuangan.html')" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
             <i class="fa-solid fa-coins text-sm text-indigo-400 w-5"></i>
             <span data-i18n="nav-keuangan">Keuangan</span>
           </a>
-          <a href="history-invoice.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isHistory ? 'active-sub' : ''}">
+          <a href="history-invoice.html" onclick="Auth.handlePopoverLinkClick(event, 'history-invoice.html')" class="popover-link ${isHistory ? 'active-sub' : ''}">
             <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
             <span data-i18n="nav-history-invoice">History Invoice</span>
           </a>
-          <a href="laporan.html" onclick="Auth.toggleMobileKeuanganMenu(false)" class="popover-link ${isLaporan ? 'active-sub' : ''}">
+          <a href="laporan.html" onclick="Auth.handlePopoverLinkClick(event, 'laporan.html')" class="popover-link ${isLaporan ? 'active-sub' : ''}">
             <i class="fa-solid fa-file-invoice-dollar text-sm text-indigo-400 w-5"></i>
             <span data-i18n="nav-laporan">Laporan</span>
           </a>
@@ -575,7 +575,163 @@ const Auth = {
     if (typeof i18n !== 'undefined' && i18n.translatePage) {
       i18n.translatePage();
     }
+
+    Auth.initMobileBottomNavScrollToTop();
   },
+
+  getScrollTop: () => {
+    const main = document.querySelector("main");
+    return Math.max(
+      window.pageYOffset || 0,
+      document.documentElement.scrollTop || 0,
+      document.body.scrollTop || 0,
+      main ? main.scrollTop : 0
+    );
+  },
+
+  scrollToTop: () => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    try {
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    } catch (e) {
+      document.documentElement.scrollTop = 0;
+    }
+    try {
+      document.body.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    } catch (e) {
+      document.body.scrollTop = 0;
+    }
+
+    const main = document.querySelector("main");
+    if (main) {
+      try {
+        main.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      } catch (e) {
+        main.scrollTop = 0;
+      }
+    }
+
+    const scrollables = document.querySelectorAll(".overflow-y-auto, .overflow-auto");
+    scrollables.forEach(el => {
+      if (el && el !== main && el.scrollTop > 0) {
+        try {
+          el.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        } catch (e) {
+          el.scrollTop = 0;
+        }
+      }
+    });
+
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      try {
+        navigator.vibrate(20);
+      } catch (e) {}
+    }
+  },
+
+  animateNavClick: (element) => {
+    if (!element) return;
+    const target = element.querySelector("i, .rounded-full") || element;
+    target.classList.remove("nav-tap-pulse");
+    void target.offsetWidth;
+    target.classList.add("nav-tap-pulse");
+    setTimeout(() => {
+      target.classList.remove("nav-tap-pulse");
+    }, 400);
+  },
+
+  isCurrentPageLink: (href) => {
+    if (!href) return false;
+    const cleanHref = href.split("?")[0].split("#")[0].trim();
+    let targetFile = cleanHref.split("/").pop().toLowerCase();
+    if (!targetFile || targetFile === "index") targetFile = "index.html";
+
+    const currentPath = (window.location.pathname || "").toLowerCase();
+    let currentFile = currentPath.split("/").pop();
+    if (!currentFile || currentFile === "index") currentFile = "index.html";
+
+    const stripExt = (f) => f.replace(/\.html?$/i, "");
+    return stripExt(targetFile) === stripExt(currentFile);
+  },
+
+  handleMobileKeuanganClick: (e) => {
+    const currentPath = (window.location.pathname || "").toLowerCase();
+    const filename = currentPath.split("/").pop() || "index.html";
+    const isKeuangan = filename.includes("keuangan");
+    const isHistory = filename.includes("history-invoice");
+    const isLaporan = filename.includes("laporan");
+    const isKeuanganGroup = isKeuangan || isHistory || isLaporan;
+
+    const btn = document.getElementById("btnMobileKeuanganNav");
+
+    if (isKeuanganGroup) {
+      const scrollTop = Auth.getScrollTop();
+      if (scrollTop > 60) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        Auth.scrollToTop();
+        if (btn) Auth.animateNavClick(btn);
+        return;
+      }
+    }
+
+    Auth.toggleMobileKeuanganMenu();
+    if (btn) Auth.animateNavClick(btn);
+  },
+
+  handlePopoverLinkClick: (e, targetHref) => {
+    Auth.toggleMobileKeuanganMenu(false);
+    if (Auth.isCurrentPageLink(targetHref)) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      Auth.scrollToTop();
+    }
+  },
+
+  initMobileBottomNavScrollToTop: () => {
+    const bottomNav = document.getElementById("mobileBottomNav");
+    if (bottomNav && !bottomNav._hasBackToTopInit) {
+      bottomNav._hasBackToTopInit = true;
+
+      bottomNav.addEventListener("click", (e) => {
+        const link = e.target.closest("a");
+        if (!link || !bottomNav.contains(link)) return;
+
+        const href = link.getAttribute("href");
+        if (!href) return;
+
+        if (Auth.isCurrentPageLink(href)) {
+          e.preventDefault();
+          e.stopPropagation();
+          Auth.scrollToTop();
+          Auth.animateNavClick(link);
+        }
+      });
+    }
+
+    // Also support desktop sidebar active link back-to-top
+    const desktopLinks = document.querySelectorAll("#navMenu a.sidebar-link");
+    desktopLinks.forEach(link => {
+      if (link._hasScrollInit) return;
+      link._hasScrollInit = true;
+      link.addEventListener("click", (e) => {
+        const href = link.getAttribute("href");
+        if (href && Auth.isCurrentPageLink(href)) {
+          e.preventDefault();
+          Auth.scrollToTop();
+        }
+      });
+    });
+  },
+
 
   toggleMobileKeuanganMenu: (forceState) => {
     const backdrop = document.getElementById("mobileKeuanganBackdrop");
@@ -980,4 +1136,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   Auth.checkLogin();
+  Auth.initMobileBottomNavScrollToTop();
 });
