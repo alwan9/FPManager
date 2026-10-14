@@ -722,7 +722,7 @@ label:has(input[type="checkbox"]:checked) {
   backdrop-filter: blur(12px);
   border-top: 1px solid #27272a !important;
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4) !important;
-  padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 #mobileBottomNav.py-5 {
@@ -767,9 +767,6 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 
 @media (max-width: 767px) {
   main {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  body:has(#mobileBottomNav.py-5) main {
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
