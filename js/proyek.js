@@ -208,9 +208,9 @@ async function loadProyekData() {
         }
       });
 
-      // If filtering by 'Revisi', sort by deadline (column index 9) ascending (closest deadline first)
+      // If filtering by 'Revisi', sort by deadline (column index 10) ascending (closest deadline first)
       if (statusFilter.toLowerCase() === 'revisi') {
-        table.order([9, 'asc']).draw();
+        table.order([10, 'asc']).draw();
       }
     }
   } catch (error) {
@@ -289,6 +289,17 @@ function initTable(data) {
           const rowData = row || data || {};
           const id = rowData.iDProyek || rowData.idProjek || rowData.id || '';
           return `<input type="checkbox" value="${escapeHtml(id)}" class="proyek-checkbox rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle">`;
+        }
+      },
+      {
+        name: 'col-number',
+        data: null,
+        orderable: false,
+        searchable: false,
+        defaultContent: '',
+        className: 'text-center w-10 font-semibold text-zinc-500 dark:text-zinc-400 font-mono text-xs col-number',
+        render: function () {
+          return '';
         }
       },
       {
@@ -606,14 +617,16 @@ function initTable(data) {
           const id = rowData.iDProyek || rowData.idProjek || rowData.id || '';
           const escapedId = escapeHtml(id);
           const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const isMobile = (typeof window !== 'undefined' && window.innerWidth < 768);
+          const tip = (label) => isMobile ? '' : `title="${label}"`;
 
           if (isDes) {
             return `
-              <div class="flex space-x-1.5">
-                <button onclick="viewDetail('${escapedId}')" class="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-md text-xs font-semibold" title="Detail Proyek (Read Only)">
-                  <i class="fa-solid fa-eye mr-1"></i> Detail
+              <div class="flex items-center space-x-1 sm:space-x-1.5">
+                <button onclick="viewDetail('${escapedId}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-md text-xs font-semibold transition-colors" ${tip('Detail')}>
+                  <i class="fa-solid fa-eye"></i><span class="hidden md:inline ml-1">Detail</span>
                 </button>
-                <button onclick="syncCalendarPromptByProyekId('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
+                <button onclick="syncCalendarPromptByProyekId('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" ${tip('Kalender')}>
                   <i class="fa-solid fa-calendar-plus"></i>
                 </button>
               </div>
@@ -621,17 +634,17 @@ function initTable(data) {
           }
 
           return `
-            <div class="flex space-x-1.5">
-              <button onclick="viewDetail('${escapedId}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-md text-xs font-semibold" title="Detail Proyek">
+            <div class="flex items-center space-x-1 sm:space-x-1.5">
+              <button onclick="viewDetail('${escapedId}')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-md text-xs font-semibold transition-colors" ${tip('Detail')}>
                 <i class="fa-solid fa-eye"></i>
               </button>
-              <button onclick="syncCalendarPromptByProyekId('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold" title="Tambah ke Kalender (Google / iCal)">
+              <button onclick="syncCalendarPromptByProyekId('${escapedId}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" ${tip('Kalender')}>
                 <i class="fa-solid fa-calendar-plus"></i>
               </button>
-              <a href="tambah-proyek.html?id=${encodeURIComponent(id)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => (p.iDProyek || p.idProjek || p.id) === '${escapedId}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" title="Edit Proyek">
+              <a href="tambah-proyek.html?id=${encodeURIComponent(id)}" onclick="try{sessionStorage.setItem('cached_edit_proyek', JSON.stringify(window.allProyekList ? window.allProyekList.find(p => (p.iDProyek || p.idProjek || p.id) === '${escapedId}') : null))}catch(e){}" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold transition-colors" ${tip('Edit')}>
                 <i class="fa-solid fa-pen"></i>
               </a>
-              <button onclick="hapusProyek('${escapedId}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" title="Hapus Proyek">
+              <button onclick="hapusProyek('${escapedId}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 text-rose-700 dark:text-rose-300 rounded-md text-xs font-semibold transition-colors" ${tip('Hapus')}>
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
@@ -646,9 +659,9 @@ function initTable(data) {
       }
     ],
     orderFixed: {
-      pre: [[13, 'asc']]
+      pre: [[14, 'asc']]
     },
-    order: [[1, 'desc']], // Urutkan berdasarkan ID proyek terbaru (kolom ID sekarang di indeks 1)
+    order: [[2, 'desc']], // Urutkan berdasarkan ID proyek terbaru (kolom ID sekarang di indeks 2)
     language: (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en') ? {
       search: "Search Project:",
       lengthMenu: "Show _MENU_ projects",
@@ -686,6 +699,29 @@ function initTable(data) {
     }
     updateBulkDeleteButton();
   });
+
+  // Update penomoran visual baris tabel (UI only, selalu mulai 1 di paling atas dan berlanjut per halaman)
+  function updateProyekRowNumbers() {
+    const info = (table && typeof table.page === 'function' && table.page.info) ? table.page.info() : null;
+    const start = (info && typeof info.start === 'number') ? info.start : 0;
+    const col = table.column('.col-number', { search: 'applied', order: 'applied', page: 'current' });
+    if (col && col.nodes) {
+      col.nodes().each(function (cell, i) {
+        const el = cell || this;
+        if (el) el.innerHTML = start + i + 1;
+      });
+    }
+  }
+  table.on('order.dt search.dt draw.dt', updateProyekRowNumbers);
+  updateProyekRowNumbers();
+
+  // Hapus tooltip bawaan browser saat disentuh di layar HP/touchscreen agar UI tetap bersih
+  document.addEventListener('touchstart', function (e) {
+    const btn = e.target.closest('#proyekTable button, #proyekTable a');
+    if (btn && btn.hasAttribute('title')) {
+      btn.removeAttribute('title');
+    }
+  }, { passive: true });
 }
 // Filter status by badges
 function filterStatus(status) {
@@ -699,10 +735,10 @@ function filterStatus(status) {
     activeBtn.classList.add('ring-2', 'ring-indigo-500');
   }
   if (status === 'all') {
-    table.column(10).search('').draw();
+    table.column(11).search('').draw();
   } else {
     // Regex exact match agar status tidak saling menyaring
-    table.column(10).search('^' + status + '$', true, false).draw();
+    table.column(11).search('^' + status + '$', true, false).draw();
   }
 }
 
@@ -710,9 +746,9 @@ function filterStatus(status) {
 function filterBySumber(sumber) {
   if (!table) return;
   if (!sumber || sumber === 'all') {
-    table.column(3).search('').draw();
+    table.column(4).search('').draw();
   } else {
-    table.column(3).search(sumber, true, false).draw();
+    table.column(4).search(sumber, true, false).draw();
   }
 }
 window.filterBySumber = filterBySumber;

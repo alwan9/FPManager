@@ -316,7 +316,7 @@ function renderSummaryStats(stats) {
   const statTotalEl = document.getElementById('statTotalProyek');
   if (statTotalEl) {
     if (isDesainer) {
-      statTotalEl.innerHTML = `${totalProyek} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
+      statTotalEl.innerHTML = `${totalProyek} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
     } else {
       statTotalEl.textContent = `${totalProyek} ${projSuffix}`;
     }
@@ -375,7 +375,7 @@ function renderSummaryStats(stats) {
     }
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
-      val2.innerHTML = `${inProgress} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
+      val2.innerHTML = `${inProgress} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
       val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-amber-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
@@ -388,7 +388,7 @@ function renderSummaryStats(stats) {
     }
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
-      val3.innerHTML = `${inRevision} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
+      val3.innerHTML = `${inRevision} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
       val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
     }
     const icon3 = document.getElementById('statCard3Icon');
@@ -401,7 +401,7 @@ function renderSummaryStats(stats) {
     }
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
-      val4.innerHTML = `${completed} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Pj'}</span>`;
+      val4.innerHTML = `${completed} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
       val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
     }
     const icon4 = document.getElementById('statCard4Icon');
@@ -570,8 +570,8 @@ function renderDesignerProjectChart(stats, recentProjects) {
   const completed = (stats && stats.selesaiCount !== undefined) ? stats.selesaiCount : 0;
 
   const isMobile = window.innerWidth < 768;
-  const labels = isEn 
-    ? (isMobile ? ['Progress', 'Revision', 'Waiting', 'Done'] : ['In Progress', 'In Revision', 'Waiting', 'Completed']) 
+  const labels = isEn
+    ? (isMobile ? ['Progress', 'Revision', 'Waiting', 'Done'] : ['In Progress', 'In Revision', 'Waiting', 'Completed'])
     : (isMobile ? ['Dikerjakan', 'Revisi', 'Menunggu', 'Selesai'] : ['Sedang Dikerjakan', 'Dalam Revisi', 'Menunggu', 'Selesai']);
 
   const dataValues = [inProgress, inRevision, waiting, completed];

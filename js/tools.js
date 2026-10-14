@@ -149,11 +149,10 @@ function showToolsSkeletons() {
   if (tableBody) {
     tableBody.innerHTML = Array(3).fill(`
       <tr class="animate-pulse">
-        <td class="px-6 py-4"><div class="h-4 w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="px-6 py-4"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="px-6 py-4"><div class="h-4 w-24 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="px-6 py-4"><div class="h-4 w-12 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
-        <td class="px-6 py-4 text-right"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div></td>
+        <td class="px-4 py-3 text-center"><div class="h-4 w-6 bg-zinc-200 dark:bg-zinc-700 rounded mx-auto"></div></td>
+        <td class="px-4 py-3"><div class="h-4 w-2/3 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="px-4 py-3"><div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded"></div></td>
+        <td class="px-4 py-3 text-right"><div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded ml-auto"></div></td>
       </tr>
     `).join('');
   }
@@ -2595,7 +2594,7 @@ function renderReferences(query = '') {
   if (filtered.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="3" class="text-center py-8 text-zinc-400 dark:text-zinc-500">
+        <td colspan="4" class="text-center py-8 text-zinc-400 dark:text-zinc-500">
           <i class="fa-solid fa-bookmark text-2xl mb-1.5 block"></i>
           Tidak ada referensi ditemukan.
         </td>
@@ -2613,7 +2612,7 @@ function renderReferences(query = '') {
     'Lainnya': '<i class="fa-solid fa-bookmark text-zinc-500 text-base"></i>'
   };
 
-  filtered.forEach(ref => {
+  filtered.forEach((ref, idx) => {
     const icon = sourceIcons[ref.source] || sourceIcons['Lainnya'];
     
     // Capitalize each word (Title Case) for display
@@ -2622,6 +2621,7 @@ function renderReferences(query = '') {
     const tr = document.createElement('tr');
     tr.className = 'bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50';
     tr.innerHTML = `
+      <td class="px-4 py-3 text-center text-xs font-semibold text-zinc-400 dark:text-zinc-500 font-mono">${idx + 1}</td>
       <td class="px-4 py-3 font-semibold text-zinc-800 dark:text-zinc-100">${escapeHtml(displayTitle)}</td>
       <td class="px-4 py-3">
         <a href="${sanitizeUrl(ref.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-md font-bold transition" title="Buka tautan referensi">

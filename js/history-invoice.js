@@ -149,10 +149,14 @@ const HistoryInvoice = {
       order: [[1, 'desc']], // Urutkan berdasarkan nomor invoice terbaru
       columns: [
         {
+          name: 'col-number',
           data: null,
-          className: 'text-center w-12 font-semibold text-zinc-500',
-          render: function (data, type, row, meta) {
-            return meta.row + 1;
+          orderable: false,
+          searchable: false,
+          defaultContent: '',
+          className: 'text-center w-12 font-semibold text-zinc-500 font-mono text-xs col-number',
+          render: function () {
+            return '';
           }
         },
         {
@@ -292,6 +296,22 @@ const HistoryInvoice = {
         zeroRecords: "Tidak ada invoice yang sesuai"
       }
     });
+
+    // Update penomoran visual baris tabel (UI only, selalu mulai 1 di paling atas dan berlanjut per halaman)
+    const selfTable = this.table;
+    function updateHistoryInvoiceRowNumbers() {
+      const info = (selfTable && typeof selfTable.page === 'function' && selfTable.page.info) ? selfTable.page.info() : null;
+      const start = (info && typeof info.start === 'number') ? info.start : 0;
+      const col = selfTable.column('.col-number', { search: 'applied', order: 'applied', page: 'current' });
+      if (col && col.nodes) {
+        col.nodes().each(function (cell, i) {
+          const el = cell || this;
+          if (el) el.innerHTML = start + i + 1;
+        });
+      }
+    }
+    this.table.on('order.dt search.dt draw.dt', updateHistoryInvoiceRowNumbers);
+    updateHistoryInvoiceRowNumbers();
   },
 
   applyFilters() {

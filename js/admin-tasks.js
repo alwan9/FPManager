@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else if (taskTableBody) {
         taskTableBody.innerHTML = `
           <tr>
-            <td colspan="7" class="text-center py-10 text-zinc-400">
+            <td colspan="9" class="text-center py-10 text-zinc-400">
               <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-indigo-500"></i>
               <p class="font-medium">Memuat data aktivitas tindakan admin...</p>
             </td>
@@ -563,7 +563,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (filtered.length === 0) {
       taskTableBody.innerHTML = `
         <tr>
-          <td colspan="8" class="text-center py-12 text-zinc-400">
+          <td colspan="9" class="text-center py-12 text-zinc-400">
             <div class="max-w-sm mx-auto space-y-2">
               <i class="fa-solid fa-clipboard-check text-4xl text-zinc-300 dark:text-zinc-600 block mb-1"></i>
               <p class="font-bold text-zinc-600 dark:text-zinc-300">Tidak ada tindakan yang sesuai.</p>
@@ -583,7 +583,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (tableRecordCount) tableRecordCount.innerText = `Menampilkan ${filtered.length} dari ${tasksData.length} tugas`;
 
-    taskTableBody.innerHTML = filtered.map((task) => {
+    taskTableBody.innerHTML = filtered.map((task, idx) => {
       const canCheck = canUserCheckTask(task);
       const isDone = task.status === "Selesai";
       const isProgress = task.status === "Sedang Dikerjakan";
@@ -666,6 +666,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `
         <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors ${isDone ? 'bg-emerald-50/20 dark:bg-emerald-950/10' : ''}">
           
+          <!-- No -->
+          <td class="px-4 py-3.5 text-center text-xs font-semibold text-zinc-400 font-mono">
+            ${idx + 1}
+          </td>
+
           <!-- Checkbox Selesai Toggle -->
           <td class="px-4 py-3.5 text-center">
             ${checkBtnHtml}

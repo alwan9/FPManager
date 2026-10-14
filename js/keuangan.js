@@ -481,6 +481,17 @@ function initTable(data) {
         }
       },
       {
+        name: 'col-number',
+        data: null,
+        orderable: false,
+        searchable: false,
+        defaultContent: '',
+        className: 'text-center w-10 font-semibold text-zinc-500 dark:text-zinc-400 font-mono text-xs col-number',
+        render: function () {
+          return '';
+        }
+      },
+      {
         data: 'id',
         className: 'font-mono text-xs',
         render: function (data, type, row) {
@@ -680,7 +691,7 @@ function initTable(data) {
         }
       }
     ],
-    order: [[2, 'desc']], // Urutkan tanggal terbaru
+    order: [[3, 'desc']], // Urutkan tanggal terbaru (indeks 3 setelah kolom No)
     language: dtLang
   });
 
@@ -688,6 +699,21 @@ function initTable(data) {
   const selectAllCb = document.getElementById('selectAllKeuangan');
   if (selectAllCb) selectAllCb.checked = false;
   updateBulkDeleteKeuanganButton();
+
+  // Update penomoran visual baris tabel (UI only, selalu mulai 1 di paling atas dan berlanjut per halaman)
+  function updateKeuanganRowNumbers() {
+    const info = (table && typeof table.page === 'function' && table.page.info) ? table.page.info() : null;
+    const start = (info && typeof info.start === 'number') ? info.start : 0;
+    const col = table.column('.col-number', { search: 'applied', order: 'applied', page: 'current' });
+    if (col && col.nodes) {
+      col.nodes().each(function (cell, i) {
+        const el = cell || this;
+        if (el) el.innerHTML = start + i + 1;
+      });
+    }
+  }
+  table.on('order.dt search.dt draw.dt', updateKeuanganRowNumbers);
+  updateKeuanganRowNumbers();
 }
 
 // Quick Update DP (Inline dari Dropdown Kolom DP)

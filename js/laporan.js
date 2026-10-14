@@ -465,9 +465,9 @@ function renderDetailTables(filteredList) {
   const incomeTbody = document.getElementById('incomeTableBody');
   if (incomeTbody) {
     if (incomeItems.length === 0) {
-      incomeTbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No income records found.' : 'Tidak ada data transaksi pendapatan untuk filter ini.'}</td></tr>`;
+      incomeTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No income records found.' : 'Tidak ada data transaksi pendapatan untuk filter ini.'}</td></tr>`;
     } else {
-      incomeTbody.innerHTML = incomeItems.map(item => {
+      incomeTbody.innerHTML = incomeItems.map((item, idx) => {
         const rawDate = item.createdAt || item.tanggal || '';
         const st = String(item.statusPembayaran || '').toLowerCase();
         const isLunas = st.includes('lunas');
@@ -498,6 +498,7 @@ function renderDetailTables(filteredList) {
 
         return `
           <tr class="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
+            <td class="py-2.5 px-3 text-center text-xs font-semibold text-zinc-400 font-mono">${idx + 1}</td>
             <td class="py-2.5 px-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">${formatDateTime(rawDate)}</td>
             <td class="py-2.5 px-3">
               <div class="font-semibold text-zinc-900 dark:text-zinc-100">${escapeHtml(title)}</div>
@@ -520,15 +521,16 @@ function renderDetailTables(filteredList) {
   const expenseTbody = document.getElementById('expenseTableBody');
   if (expenseTbody) {
     if (expenseItems.length === 0) {
-      expenseTbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No expense records found.' : 'Tidak ada data transaksi pengeluaran untuk filter ini.'}</td></tr>`;
+      expenseTbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No expense records found.' : 'Tidak ada data transaksi pengeluaran untuk filter ini.'}</td></tr>`;
     } else {
-      expenseTbody.innerHTML = expenseItems.map(item => {
+      expenseTbody.innerHTML = expenseItems.map((item, idx) => {
         const rawDate = item.createdAt || item.tanggal || '';
         const method = item.metodePembayaran || item.metode || 'QRIS';
         const badgeMethod = renderPaymentMethodBadge(method, item.sumber);
 
         return `
           <tr class="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
+            <td class="py-2.5 px-3 text-center text-xs font-semibold text-zinc-400 font-mono">${idx + 1}</td>
             <td class="py-2.5 px-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">${formatDateTime(rawDate)}</td>
             <td class="py-2.5 px-3 font-semibold text-zinc-900 dark:text-zinc-100">${escapeHtml(item.keterangan || 'Pengeluaran')}</td>
             <td class="py-2.5 px-3">${badgeMethod}</td>
@@ -547,9 +549,9 @@ function renderDetailTables(filteredList) {
   const mutasiTbody = document.getElementById('mutasiTableBody');
   if (mutasiTbody) {
     if (mutasiItems.length === 0) {
-      mutasiTbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No balance transfer records found.' : 'Tidak ada riwayat mutasi saldo untuk filter ini.'}</td></tr>`;
+      mutasiTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No balance transfer records found.' : 'Tidak ada riwayat mutasi saldo untuk filter ini.'}</td></tr>`;
     } else {
-      mutasiTbody.innerHTML = mutasiItems.map(item => {
+      mutasiTbody.innerHTML = mutasiItems.map((item, idx) => {
         const rawDate = item.createdAt || item.tanggal || '';
         const asalMethod = item.metodeBayarDp || item.metodeAsal || item.sumber || 'QRIS';
         const tujuanMethod = item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan || 'BSI';
@@ -559,6 +561,7 @@ function renderDetailTables(filteredList) {
 
         return `
           <tr class="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
+            <td class="py-2.5 px-3 text-center text-xs font-semibold text-zinc-400 font-mono">${idx + 1}</td>
             <td class="py-2.5 px-3 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">${formatDateTime(rawDate)}</td>
             <td class="py-2.5 px-3 font-semibold text-zinc-900 dark:text-zinc-100">${escapeHtml(item.keterangan || 'Mutasi Saldo')}</td>
             <td class="py-2.5 px-3">
