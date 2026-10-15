@@ -298,9 +298,9 @@
               A
             </div>
             <button type="button" onclick="event.stopPropagation(); document.getElementById('avatarFileInput').click()"
-              class="absolute bottom-0 right-0 p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-all hover:scale-110 border-2 border-white dark:border-zinc-800"
+              class="absolute bottom-0 right-0 w-8 h-8 min-w-[2rem] min-h-[2rem] max-w-[2rem] max-h-[2rem] aspect-square flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-all hover:scale-110 border-2 border-white dark:border-zinc-800 cursor-pointer shrink-0 focus:outline-none"
               title="Unggah Foto Profil">
-              <i class="fa-solid fa-camera text-xs"></i>
+              <i class="fa-solid fa-camera text-xs leading-none flex items-center justify-center"></i>
             </button>
             <input type="file" id="avatarFileInput" accept="image/*" class="hidden"
               onchange="handleAvatarFileSelect(event)">

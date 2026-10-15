@@ -79,12 +79,68 @@ const CONFIG = {
 
   PAYMENT_ACCOUNTS: [
     {
+      id: 'bsi',
+      name: 'BSI (Bank Syariah Indonesia)',
+      number: '7312337627',
+      displayNumber: '7312337627',
+      holder: 'Hafiz Alwan',
+      type: 'Transfer Bank',
+      note: 'Rekening utama bank',
+      icon: 'fa-solid fa-building-columns text-emerald-500',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
+    },
+    {
+      id: 'bank_jago',
+      name: 'Bank Jago',
+      number: '104873618392',
+      displayNumber: '104873618392',
+      holder: 'Hafiz Alwan',
+      type: 'Transfer Bank',
+      note: 'Rekening bank digital',
+      icon: 'fa-solid fa-credit-card text-amber-500',
+      badgeClass: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400'
+    },
+    {
+      id: 'dana',
+      name: 'DANA',
+      number: '0883216760774',
+      displayNumber: '0883216760774',
+      holder: 'Hafiz Alwan',
+      type: 'E-Wallet',
+      note: 'Nomor akun DANA',
+      icon: 'fa-solid fa-wallet text-sky-500',
+      badgeClass: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400'
+    },
+    {
+      id: 'spay',
+      name: 'ShopeePay (SPay)',
+      number: '0883216760774',
+      displayNumber: '0883216760774',
+      holder: 'Hafiz Alwan',
+      type: 'E-Wallet',
+      note: 'Terhubung ke nomor HP yang sama',
+      icon: 'fa-solid fa-bag-shopping text-orange-500',
+      badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
+    },
+    {
+      id: 'gopay',
+      name: 'GoPay',
+      number: '085117651702',
+      displayNumber: '085117651702',
+      holder: 'Pasya Putri',
+      type: 'E-Wallet',
+      note: 'Nomor akun GoPay',
+      icon: 'fa-solid fa-money-bill-wave text-emerald-500',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
+    },
+    {
       id: 'shopee',
-      name: 'Shopee',
+      name: 'Shopee (Toko)',
       number: 'https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618',
-      displayNumber: '@premium_dz (Toko Shopee)',
+      displayNumber: 'Toko @premium_dz (Shopee)',
       holder: 'Hafiz Alwan / @premium_dz',
       type: 'Marketplace',
+      note: 'Tautan checkout toko',
       url: 'https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618',
       icon: 'fa-solid fa-bag-shopping text-orange-500',
       badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
@@ -95,19 +151,10 @@ const CONFIG = {
       number: 'QRIS All Payment',
       displayNumber: 'QRIS (All E-Wallet / Bank)',
       holder: 'Hafiz Alwan',
-      type: 'QRIS',
+      type: 'Digital QRIS',
+      note: 'Scan semua bank/e-wallet',
       icon: 'fa-solid fa-qrcode text-indigo-500',
       badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-400'
-    },
-    {
-      id: 'bsi',
-      name: 'BSI',
-      number: 'Bank Syariah Indonesia',
-      displayNumber: 'BSI (Bank Syariah Indonesia)',
-      holder: 'Hafiz Alwan',
-      type: 'Bank Syariah',
-      icon: 'fa-solid fa-building-columns text-emerald-500',
-      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
     }
   ]
 };
@@ -821,7 +868,7 @@ function calculateKeuanganSummary(mutasiList) {
   const accountsMap = {
     'QRIS': { name: 'QRIS', group: 'ewallet', groupName: 'QRIS & E-Wallet', type: 'QRIS', number: 'All Payment', holder: 'Hafiz Alwan', icon: 'fa-solid fa-qrcode text-indigo-500', bgClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800', totalIn: 0, totalOut: 0, txCount: 0 },
     'Shopee': { name: 'Shopee', group: 'market', groupName: 'Marketplace', type: 'Marketplace', number: '@premium_dz', holder: 'Toko Shopee', icon: 'fa-solid fa-bag-shopping text-orange-500', bgClass: 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800', totalIn: 0, totalOut: 0, txCount: 0 },
-    'BSI': { name: 'BSI', group: 'bank', groupName: 'Bank Syariah Indonesia', type: 'Bank Syariah', number: 'Bank Syariah', holder: 'Hafiz Alwan', icon: 'fa-solid fa-building-columns text-emerald-500', bgClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800', totalIn: 0, totalOut: 0, txCount: 0 }
+    'BSI': { name: 'BSI', group: 'bank', groupName: 'Bank Syariah Indonesia', type: 'Bank Syariah', number: '7312337627', holder: 'Hafiz Alwan', icon: 'fa-solid fa-building-columns text-emerald-500', bgClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800', totalIn: 0, totalOut: 0, txCount: 0 }
   };
 
   function ensureAccountExists(key) {
@@ -973,25 +1020,30 @@ function showPaymentAccountsModal(highlightName = '') {
         ${accounts.map(acc => {
     const isHighlighted = searchLower && (acc.name.toLowerCase().includes(searchLower) || acc.id.toLowerCase().includes(searchLower));
     const highlightBg = isHighlighted ? 'bg-indigo-50/50 dark:bg-indigo-950/30 -mx-2 px-2 rounded-xl' : '';
-    const copyValue = acc.holder ? `${acc.number} a.n. ${acc.holder}` : acc.number;
+    const copyValue = acc.url ? acc.url : (acc.holder ? `${acc.number} a.n. ${acc.holder}` : acc.number);
     const escapedCopyValue = copyValue.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const escapedAccName = (acc.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const targetUrl = acc.url || (String(acc.number || '').startsWith('http') ? acc.number : '');
+    const accIcon = acc.icon || 'fa-solid fa-credit-card text-indigo-500';
 
     return `
             <div class="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 ${highlightBg}">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs shrink-0">
+                    <i class="${accIcon}"></i>
+                  </div>
                   <span class="font-bold text-zinc-900 dark:text-zinc-100 text-sm truncate">${acc.name}</span>
                   <span class="text-[11px] text-zinc-400 font-medium shrink-0">· ${acc.type}</span>
                 </div>
-                <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">a.n. ${acc.holder}</div>
-                <div onclick="copyTextToClipboard('${escapedCopyValue}', '${escapedAccName}')" class="font-mono font-bold text-sm text-zinc-800 dark:text-zinc-200 mt-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 tracking-wide select-all truncate" title="Klik untuk salin nomor & a.n.">
+                <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 ml-9">a.n. ${acc.holder}</div>
+                ${acc.note ? `<div class="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5 ml-9 italic">${acc.note}</div>` : ''}
+                <div onclick="copyTextToClipboard('${escapedCopyValue}', '${escapedAccName}')" class="font-mono font-bold text-sm text-zinc-800 dark:text-zinc-200 mt-1 ml-9 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 tracking-wide select-all truncate" title="Klik untuk salin nomor & a.n.">
                   ${acc.displayNumber || acc.number}
                 </div>
               </div>
 
-              <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1.5 shrink-0 self-center">
                 ${targetUrl ? `
                   <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs rounded-xl transition flex items-center gap-1.5 active:scale-95 shadow-xs" title="Buka Toko ${acc.name}">
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
@@ -1035,7 +1087,11 @@ function showPaymentAccountsModal(highlightName = '') {
 
 function copyAllPaymentAccounts() {
   const accounts = CONFIG.PAYMENT_ACCOUNTS || [];
-  const lines = accounts.map(a => `• ${a.name}: ${a.number} (a.n. ${a.holder})`).join('\n');
+  const lines = accounts.map(a => {
+    const val = (a.url && !a.number.startsWith('http')) ? a.url : a.number;
+    const noteText = a.note ? ` (${a.note})` : '';
+    return `• ${a.name}: ${val} (a.n. ${a.holder})${noteText}`;
+  }).join('\n');
   const fullText = `INFO REKENING & METODE PEMBAYARAN:\n\n${lines}\n\nMohon kirimkan bukti transfer setelah pembayaran ya kak. Terima kasih!`;
   copyTextToClipboard(fullText, 'Seluruh Daftar Rekening');
 }
