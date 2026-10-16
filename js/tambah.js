@@ -521,24 +521,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
     }
 
-    function formatDate(date) {
-      if (!date) return '';
-      if (typeof date === 'string') {
-        const parsed = parseLocalDate(date);
-        if (parsed && !isNaN(parsed.getTime())) {
-          const year = parsed.getFullYear();
-          const month = String(parsed.getMonth() + 1).padStart(2, "0");
-          const day = String(parsed.getDate()).padStart(2, "0");
-          return `${year}-${month}-${day}`;
-        }
-        return date;
-      }
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
-
     function updateDeadlinePresetHighlight(selectedDateStr) {
       const cleanDateStr = String(selectedDateStr || '').split('T')[0];
       const presets = [

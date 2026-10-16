@@ -911,25 +911,6 @@ const API = {
     }
   },
 
-  // Get pre-calculated dashboard statistics
-  getDashboardStats: async () => {
-    try {
-      const response = await fetch(
-        `${CONFIG.API_URL}?action=getDashboardStats&token=${API.getToken()}&apiKey=${CONFIG.API_KEY}`
-      );
-      const result = await response.json();
-      if (handleUnauthorized(result)) return null;
-      if (!result.success) {
-        console.error("API ERROR :", result.message);
-        return null;
-      }
-      return result.data;
-    } catch (error) {
-      console.error("FETCH ERROR :", error);
-      return null;
-    }
-  },
-
   getDashboard: async () => {
     let backendStats = null;
     try {

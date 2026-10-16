@@ -523,36 +523,6 @@ html.dark textarea::placeholder {
   color: #71717a !important;
 }
 
-/* 11. Status Badges in Tables & Modals */
-html.dark .badge-belumpembayaran,
-html.dark .badge-belumbayar,
-html.dark .badge-dibatalkan,
-html.dark .badge-batal {
-  background-color: rgba(220, 38, 38, 0.2) !important;
-  color: #fca5a5 !important;
-}
-
-html.dark .badge-selesai {
-  background-color: rgba(5, 150, 105, 0.2) !important;
-  color: #6ee7b7 !important;
-}
-
-html.dark .badge-menunggu {
-  background-color: rgba(37, 99, 235, 0.2) !important;
-  color: #93c5fd !important;
-}
-
-html.dark .badge-dikerjakan,
-html.dark .badge-sedangdikerjakan {
-  background-color: rgba(217, 119, 6, 0.2) !important;
-  color: #fde68a !important;
-}
-
-html.dark .badge-revisi {
-  background-color: rgba(220, 38, 38, 0.2) !important;
-  color: #fca5a5 !important;
-}
-
 html.dark #globalLoader {
   background-color: #18181b !important;
 }
