@@ -59,18 +59,17 @@
   <link rel="manifest" href="manifest.json">
 
 
-  <!-- Tailwind CSS v2 CDN okeee -->
+  <!-- Google Fonts Preconnect & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+  <!-- Tailwind CSS -->
   <link href="css/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Iconify -->
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/darkmode.css">
-
-
 </head>
 
 <body class="bg-zinc-50 text-zinc-800">
@@ -81,7 +80,7 @@
     <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
       <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
         <a href="index.html" class="flex items-center space-x-3 logo-full">
-          <img src="./assets/img/logo.png" class="w-36" alt="Logo">
+          <img src="./assets/img/logo.webp" class="w-36" alt="Logo">
         </a>
         <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
           <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
@@ -232,7 +231,7 @@
           </button>
           <!-- Mobile Logo (Shown only on mobile) -->
           <a href="index.html" class="md:hidden flex items-center">
-            <img src="./assets/img/logo.png" class="h-7 w-auto" alt="FPManager">
+            <img src="./assets/img/logo.webp" class="h-7 w-auto" alt="FPManager">
           </a>
           <!-- Desktop Page Icon & Title (Hidden on mobile) -->
           <div class="hidden md:flex items-center space-x-2">
@@ -338,8 +337,8 @@
           <div>
             <h3 id="dashWelcomeTitle"
               class="text-xl md:text-2xl font-bold tracking-tight inline-flex items-center gap-1.5"><span
-                data-i18n="dash-welcome">Selamat Datang Admin!</span> <iconify-icon icon="fluent-emoji-flat:waving-hand"
-                class="inline-block align-middle text-2xl"></iconify-icon></h3>
+                data-i18n="dash-welcome">Selamat Datang Admin!</span> <span
+                class="inline-block align-middle text-2xl">👋</span></h3>
             <p id="dashWelcomeDesc" class="text-indigo-100 text-xs md:text-sm mt-1" data-i18n="dash-desc">
               <span class="hidden md:inline">Berikut adalah ringkasan performa dan laporan usaha FPManager hari
                 ini.</span>
@@ -559,18 +558,17 @@
     </main>
   </div>
 
-  <!-- Load Global Scripts -->
-  <script src="js/toast.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/calendar.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/pwa.js"></script>
-  <script src="js/theme.js"></script>
-
-
+  <!-- Load Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="js/toast.js" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/i18n.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/calendar.js" defer></script>
+  <script src="js/dashboard.js" defer></script>
+  <script src="js/pwa.js" defer></script>
+  <script src="js/theme.js" defer></script>
 </body>
 
 </html>

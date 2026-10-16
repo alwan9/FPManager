@@ -58,8 +58,33 @@ function updatePrintDate() {
 // Load all project and financial data and compile reports
 async function loadLaporanData() {
 
-  showLaporanSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  let hasRenderedCached = false;
+
+  // 1. FAST LOCAL CACHE RENDER (0ms / Stale-While-Revalidate)
+  try {
+    const [localK, localP] = await Promise.all([
+      (typeof FPManagerDB !== 'undefined') ? FPManagerDB.getAll('keuangan') : [],
+      (typeof FPManagerDB !== 'undefined') ? FPManagerDB.getAll('proyek') : []
+    ]);
+    if (Array.isArray(localK) && localK.length > 0) {
+      rawKeuanganData = localK;
+      rawProyekData = Array.isArray(localP) ? localP : [];
+      consolidatedKeuanganData = (typeof consolidateKeuanganList === 'function')
+        ? consolidateKeuanganList(rawKeuanganData)
+        : rawKeuanganData;
+      applyReportFilters();
+      hasRenderedCached = true;
+    }
+  } catch (e) {
+    console.debug('Local laporan cache read skipped:', e);
+  }
+
+  if (!hasRenderedCached) {
+    showLaporanSkeletons();
+  }
+
+  // 2. BACKGROUND SERVER REVALIDATION
   try {
     const [keuangan, proyek] = await Promise.all([
       API.getKeuangan(),
@@ -79,7 +104,7 @@ async function loadLaporanData() {
 
   } catch (error) {
     console.error('Error loading laporan data:', error);
-    if (typeof Toast !== 'undefined') {
+    if (!hasRenderedCached && typeof Toast !== 'undefined') {
       Toast.error(isEn ? 'Error' : 'Gagal', isEn ? 'An error occurred while compiling financial report.' : 'Terjadi kesalahan saat memproses laporan bisnis & keuangan.');
     }
   }

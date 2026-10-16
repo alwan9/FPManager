@@ -87,18 +87,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Load and calculate finance summaries
+// Load and calculate finance summaries (Stale-While-Revalidate)
 async function loadKeuanganData() {
-  showKeuanganSkeletons();
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  let hasRenderedCached = false;
+
+  // 1. FAST LOCAL CACHE RENDER (0ms)
+  try {
+    const local = (typeof FPManagerDB !== 'undefined') ? await FPManagerDB.getAll('keuangan') : [];
+    if (Array.isArray(local) && local.length > 0) {
+      currentKeuanganList = consolidateKeuanganList(local);
+      calculateSummary(currentKeuanganList);
+      initTable(currentKeuanganList);
+      hasRenderedCached = true;
+    }
+  } catch (e) {
+    console.debug('Local keuangan cache read skipped:', e);
+  }
+
+  if (!hasRenderedCached) {
+    showKeuanganSkeletons();
+  }
+
+  // 2. BACKGROUND SERVER REVALIDATION
   try {
     let listMutasi = await API.getKeuangan();
-    currentKeuanganList = consolidateKeuanganList(listMutasi || []);
-    calculateSummary(currentKeuanganList);
-    initTable(currentKeuanganList);
+    if (Array.isArray(listMutasi) && listMutasi.length > 0) {
+      currentKeuanganList = consolidateKeuanganList(listMutasi);
+      calculateSummary(currentKeuanganList);
+      initTable(currentKeuanganList);
+    }
   } catch (error) {
     console.error('Gagal memuat mutasi kas:', error);
-    if (typeof Toast !== 'undefined') {
+    if (!hasRenderedCached && typeof Toast !== 'undefined') {
       Toast.error(isEn ? 'Error' : 'Gagal', isEn ? 'An error occurred while fetching financial records.' : 'Terjadi kesalahan saat mengambil riwayat keuangan.');
     }
   }
@@ -467,6 +488,7 @@ function initTable(data) {
 
   table = $('#keuanganTable').DataTable({
     autoWidth: false,
+    deferRender: true,
     data: data,
     columns: [
       {

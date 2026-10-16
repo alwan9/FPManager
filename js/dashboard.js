@@ -129,7 +129,7 @@ function applyDashboardRoleCustomizations() {
     // 2. Personalize Welcome Banner for Designer
     const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : 'Designer';
     if (dashWelcomeTitle) {
-      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <iconify-icon icon="fluent-emoji-flat:artist-palette" class="inline-block align-middle ml-1 text-2xl"></iconify-icon>`;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <span class="inline-block align-middle ml-1 text-2xl">🎨</span>`;
     }
     if (dashWelcomeDesc) {
       dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
@@ -194,7 +194,7 @@ function applyDashboardRoleCustomizations() {
     // Super Admin & Service Roles (Allow Financial View)
     if (user && (user.nama || user.username) && dashWelcomeTitle) {
       const displayName = user.nama || user.username;
-      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <iconify-icon icon="fluent-emoji-flat:waving-hand" class="inline-block align-middle text-2xl"></iconify-icon>`;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <span class="inline-block align-middle text-2xl">👋</span>`;
     }
     if (chartCard) chartCard.classList.remove('hidden');
     if (toggleHideNominalBtn) toggleHideNominalBtn.classList.remove('hidden');
@@ -269,14 +269,38 @@ function isProjectAssignedToUser(p, user, userIdentifiers) {
 
 // Load all project and financial data for dashboard cards and charts
 async function loadDashboardData() {
-  showDashboardSkeletons();
-  try {
-    const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-    const canReadFinancials = !isDesainer;
-    const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  const canReadFinancials = !isDesainer;
+  const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
 
-    // Fetch dashboard summary and projects in parallel
-    const [dashboardData, rawProjects] = await Promise.all([
+  // 1. FAST LOCAL CACHE RENDER (0ms / Stale-While-Revalidate)
+  let hasRenderedCached = false;
+  try {
+    const rawCache = localStorage.getItem('fpmanager_dashboard_cache');
+    if (rawCache) {
+      const cached = JSON.parse(rawCache);
+      if (cached && cached.stats) {
+        applyDashboardRoleCustomizations();
+        if (cached.stats) renderSummaryStats(cached.stats);
+        if (cached.deadlineAlerts) renderDeadlineAlerts(cached.deadlineAlerts);
+        if (cached.recentProjects) renderRecentProjects(cached.recentProjects);
+        if (canReadFinancials && cached.chartData) renderDashboardChart(cached.chartData);
+        else if (!canReadFinancials && cached.stats) renderDesignerProjectChart(cached.stats, cached.recentProjects);
+        if (cached.revisiProjects) initDeadlineCalendar(cached.revisiProjects);
+        hasRenderedCached = true;
+      }
+    }
+  } catch (e) {
+    console.debug('Dashboard cache read skipped:', e);
+  }
+
+  if (!hasRenderedCached) {
+    showDashboardSkeletons();
+  }
+
+  // 2. PARALLEL SERVER REVALIDATION (Eliminates sequential waterfall)
+  try {
+    const [dashboardData, rawProjects, rawKeuangan] = await Promise.all([
       API.getDashboard().catch(err => {
         console.warn("API.getDashboard error:", err);
         return { stats: {} };
@@ -284,7 +308,11 @@ async function loadDashboardData() {
       API.getProyek().catch(err => {
         console.warn("API.getProyek error:", err);
         return [];
-      })
+      }),
+      canReadFinancials ? API.getKeuangan().catch(err => {
+        console.warn("API.getKeuangan error:", err);
+        return [];
+      }) : Promise.resolve([])
     ]);
 
     if (!dashboardData) return;
@@ -297,7 +325,6 @@ async function loadDashboardData() {
     // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth) for Admin
     if (canReadFinancials) {
       try {
-        const rawKeuangan = (await API.getKeuangan()) || [];
         const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(rawKeuangan) : rawKeuangan;
         const summary = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
         if (summary) {
@@ -433,13 +460,26 @@ async function loadDashboardData() {
     }
     // 5. Inisialisasi Kalender Deadline
     initDeadlineCalendar(dashboardData.revisiProjects || []);
+
+    // Save dashboard cache for instant reload next time
+    try {
+      localStorage.setItem('fpmanager_dashboard_cache', JSON.stringify({
+        stats: dashboardData.stats,
+        deadlineAlerts: dashboardData.deadlineAlerts,
+        recentProjects: dashboardData.recentProjects,
+        chartData: dashboardData.chartData,
+        revisiProjects: dashboardData.revisiProjects
+      }));
+    } catch(e) {}
   } catch (error) {
     console.error("Error loading dashboard data:", error);
-    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-    Toast.error(
-      isEn ? "Failed to Load Dashboard" : "Dashboard Gagal Dimuat",
-      isEn ? "An error occurred while compiling the dashboard information." : "Terjadi kesalahan saat memproses informasi dashboard."
-    );
+    if (!hasRenderedCached) {
+      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+      Toast.error(
+        isEn ? "Failed to Load Dashboard" : "Dashboard Gagal Dimuat",
+        isEn ? "An error occurred while compiling the dashboard information." : "Terjadi kesalahan saat memproses informasi dashboard."
+      );
+    }
   }
 }
 

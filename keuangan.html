@@ -53,18 +53,18 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/favicon.png">
-  <!-- Tailwind CSS v2 CDN -->
+  <!-- Google Fonts Preconnect & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+  <!-- Tailwind CSS -->
   <link href="css/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- jQuery (Required for DataTables) -->
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <!-- DataTables -->
+  <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
-  <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 
-  <!-- Iconify -->
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="manifest" href="manifest.json">
@@ -76,7 +76,7 @@
   <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
     <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
       <a href="index.html" class="flex items-center space-x-3 logo-full">
-        <img src="./assets/img/logo.png" class="w-36" alt="FPManager Logo">
+        <img src="./assets/img/logo.webp" class="w-36" alt="FPManager Logo">
       </a>
       <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
         <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
@@ -227,7 +227,7 @@
         </button>
         <!-- Mobile Logo (Shown only on mobile) -->
         <a href="index.html" class="md:hidden flex items-center">
-          <img src="./assets/img/logo.png" class="h-7 w-auto" alt="FPManager">
+          <img src="./assets/img/logo.webp" class="h-7 w-auto" alt="FPManager">
         </a>
         <!-- Desktop Page Icon & Title (Hidden on mobile) -->
         <div class="hidden md:flex items-center space-x-2">
@@ -701,6 +701,11 @@
   </main>
 </div>
 
+<!-- Libraries (Moved from head for non-blocking render) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+
 <!-- Load Global Scripts -->
 <script src="js/toast.js"></script>
 <script src="js/config.js"></script>
@@ -710,12 +715,9 @@
 <!-- Load Local Page Script -->
 <script src="js/keuangan.js"></script>
 
-
 <!-- SheetJS & Excel Handlers -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="js/excel.js"></script>
 <script src="js/pwa.js"></script>
 <script src="js/theme.js"></script>
-
-
+</body>
 </html>

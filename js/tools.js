@@ -92,7 +92,32 @@ async function loadData() {
     return;
   }
 
-  showToolsSkeletons();
+  let hasRenderedCached = false;
+
+  // 1. FAST LOCAL CACHE RENDER (0ms / Stale-While-Revalidate)
+  try {
+    const rawCache = localStorage.getItem('fpmanager_tools_cache');
+    if (rawCache) {
+      const cached = JSON.parse(rawCache);
+      if (cached && (cached.tools || cached.shortcuts || cached.references)) {
+        toolsData = cached.tools || [];
+        shortcutsData = cached.shortcuts || [];
+        referencesData = cached.references || [];
+        renderTools();
+        renderShortcuts();
+        renderReferences();
+        hasRenderedCached = true;
+      }
+    }
+  } catch (e) {
+    console.debug('Tools cache read skipped:', e);
+  }
+
+  if (!hasRenderedCached) {
+    showToolsSkeletons();
+  }
+
+  // 2. BACKGROUND SERVER REVALIDATION
   try {
     const [tools, shortcuts, references] = await Promise.all([
       API.getTools(),
@@ -107,10 +132,19 @@ async function loadData() {
     renderTools();
     renderShortcuts();
     renderReferences();
-    if (typeof Toast !== 'undefined') Toast.info('Info', 'Data Tools berhasil dimuat');
+
+    try {
+      localStorage.setItem('fpmanager_tools_cache', JSON.stringify({
+        tools: toolsData,
+        shortcuts: shortcutsData,
+        references: referencesData
+      }));
+    } catch (e) {}
   } catch (error) {
     console.error(error);
-    if (typeof Toast !== 'undefined') Toast.error('Error', 'Gagal memuat data.');
+    if (!hasRenderedCached && typeof Toast !== 'undefined') {
+      Toast.error('Error', 'Gagal memuat data.');
+    }
   }
 }
 

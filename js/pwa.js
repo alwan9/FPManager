@@ -461,11 +461,22 @@ async function checkDeadlines() {
   if (!('Notification' in window)) return;
 
   if (Notification.permission === 'granted') {
-    if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
-      try {
-        const proyekList = await API.getProyek();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+    try {
+      let proyekList = [];
+      if (typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.getAll === 'function') {
+        proyekList = await FPManagerDB.getAll('proyek');
+      }
+      if (!proyekList || proyekList.length === 0) {
+        if (Array.isArray(window.allProyekList) && window.allProyekList.length > 0) {
+          proyekList = window.allProyekList;
+        } else if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
+          proyekList = await API.getProyek();
+        }
+      }
+      if (!Array.isArray(proyekList) || proyekList.length === 0) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
         proyekList.forEach(proyek => {
           const statusLower = (proyek.status || '').toLowerCase();
@@ -512,7 +523,6 @@ async function checkDeadlines() {
         console.error('Gagal mengecek deadline', err);
       }
     }
-  }
 }
 
 function showNotification(title, options) {

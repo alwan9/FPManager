@@ -200,18 +200,89 @@ function isProjectAssignedToCurrent(proyek) {
 }
 window.isProjectAssignedToCurrent = isProjectAssignedToCurrent;
 
-// Load proyek data and initialize DataTables
+// Helper to render dataset to DataTable and counters
+function renderProyekDataset(listProyek) {
+  if (!Array.isArray(listProyek)) return;
+  // Add statusOrder property dynamically for custom sorting
+  listProyek.forEach(p => {
+    if (!p) return;
+    const st = String(p.status || '').toLowerCase().trim();
+    if (st === 'menunggu') p.statusOrder = 1;
+    else if (st === 'revisi') p.statusOrder = 2;
+    else if (st === 'sedang dikerjakan') p.statusOrder = 3;
+    else if (st === 'belum pembayaran') p.statusOrder = 4;
+    else if (st === 'selesai') p.statusOrder = 5;
+    else if (st === 'dibatalkan') p.statusOrder = 6;
+    else p.statusOrder = 99;
+  });
+
+  updateStatusCounters(listProyek);
+  initTable(listProyek);
+
+  // Apply URL status filter if present
+  const urlParams = new URLSearchParams(window.location.search);
+  const statusFilter = urlParams.get('status');
+  if (statusFilter && typeof table !== 'undefined' && table) {
+    filterStatus(statusFilter);
+
+    // Auto-focus the filter button
+    const btns = document.querySelectorAll('.status-filter-btn');
+    btns.forEach(btn => {
+      if (btn.getAttribute('onclick')?.includes(statusFilter)) {
+        btn.classList.add('ring-2', 'ring-indigo-500');
+      } else {
+        btn.classList.remove('ring-2', 'ring-indigo-500');
+      }
+    });
+
+    // If filtering by 'Revisi', sort by deadline (column index 10) ascending (closest deadline first)
+    if (statusFilter.toLowerCase() === 'revisi') {
+      table.order([10, 'asc']).draw();
+    }
+  }
+}
+
+// Load proyek data with instant local render (Stale-While-Revalidate)
 async function loadProyekData() {
-  showProyekSkeletons();
+  let hasRenderedCached = false;
+
+  // 1. FAST LOCAL CACHE RENDER (0ms / Stale-While-Revalidate)
+  try {
+    const cachedUsers = localStorage.getItem('fpmanager_users_cache');
+    if (cachedUsers) {
+      const uList = JSON.parse(cachedUsers);
+      if (Array.isArray(uList)) {
+        window.allUsersList = uList;
+        window.allDesignersList = uList.filter(u => {
+          const r = String(u.role || '').toLowerCase().trim();
+          const uname = String(u.username || '').toLowerCase().trim();
+          const uid = String(u.id || u.userId || '').toUpperCase().trim();
+          return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+        });
+      }
+    }
+    const local = (typeof FPManagerDB !== 'undefined') ? await FPManagerDB.getAll('proyek') : [];
+    if (Array.isArray(local) && local.length > 0) {
+      window.allProyekList = local;
+      renderProyekDataset(local);
+      hasRenderedCached = true;
+    }
+  } catch (e) {
+    console.debug('Local proyek cache read skipped:', e);
+  }
+
+  if (!hasRenderedCached) {
+    showProyekSkeletons();
+  }
+
+  // 2. BACKGROUND SERVER REVALIDATION
   try {
     let [listProyek, users] = await Promise.all([
       API.getProyek().catch(e => { console.warn("Error fetching proyek:", e); return []; }),
       API.getUsers().catch(e => { console.warn("Error fetching users:", e); return []; })
     ]);
-    if (!Array.isArray(listProyek)) {
-      listProyek = [];
-    }
-    if (Array.isArray(users)) {
+
+    if (Array.isArray(users) && users.length > 0) {
       window.allUsersList = users;
       window.allDesignersList = users.filter(u => {
         const r = String(u.role || '').toLowerCase().trim();
@@ -219,60 +290,19 @@ async function loadProyekData() {
         const uid = String(u.id || u.userId || '').toUpperCase().trim();
         return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
       });
-    } else {
-      window.allUsersList = [];
-      window.allDesignersList = [];
+      try { localStorage.setItem('fpmanager_users_cache', JSON.stringify(users)); } catch(e) {}
     }
-    window.allProyekList = listProyek; // Cache list globally for status updates
 
-    // Add statusOrder property dynamically for custom sorting
-    listProyek.forEach(p => {
-      if (!p) return;
-      const st = String(p.status || '').toLowerCase().trim();
-      if (st === 'menunggu') p.statusOrder = 1;
-      else if (st === 'revisi') p.statusOrder = 2;
-      else if (st === 'sedang dikerjakan') p.statusOrder = 3;
-      else if (st === 'belum pembayaran') p.statusOrder = 4;
-      else if (st === 'selesai') p.statusOrder = 5;
-      else if (st === 'dibatalkan') p.statusOrder = 6;
-      else p.statusOrder = 99;
-    });
-
-    updateStatusCounters(listProyek);
-    initTable(listProyek);
-
-    // Apply URL status filter if present
-    const urlParams = new URLSearchParams(window.location.search);
-    const statusFilter = urlParams.get('status');
-    if (statusFilter && typeof table !== 'undefined' && table) {
-      filterStatus(statusFilter);
-
-      // Auto-focus the filter button
-      const btns = document.querySelectorAll('.status-filter-btn');
-      btns.forEach(btn => {
-        if (btn.getAttribute('onclick')?.includes(statusFilter)) {
-          btn.classList.add('ring-2', 'ring-indigo-500');
-        } else {
-          btn.classList.remove('ring-2', 'ring-indigo-500');
-        }
-      });
-
-      // If filtering by 'Revisi', sort by deadline (column index 10) ascending (closest deadline first)
-      if (statusFilter.toLowerCase() === 'revisi') {
-        table.order([10, 'asc']).draw();
-      }
+    if (Array.isArray(listProyek) && listProyek.length > 0) {
+      window.allProyekList = listProyek;
+      renderProyekDataset(listProyek);
     }
   } catch (error) {
     console.error('Gagal memuat data proyek:', error);
-
-    if (typeof Toast !== 'undefined' && Toast.error) {
-      Toast.error("Data Proyek", "Terjadi kesalahan saat memuat data proyek.");
-    } else if (typeof showToast === 'function') {
-      showToast({
-        title: "Data Proyek",
-        message: "Terjadi kesalahan saat memuat data proyek.",
-        type: "error"
-      });
+    if (!hasRenderedCached) {
+      if (typeof Toast !== 'undefined' && Toast.error) {
+        Toast.error("Data Proyek", "Terjadi kesalahan saat memuat data proyek.");
+      }
     }
   }
 }
@@ -324,6 +354,7 @@ function initTable(data) {
   $('#proyekTable tbody').empty();
   table = $('#proyekTable').DataTable({
     autoWidth: false,
+    deferRender: true,
     data: Array.isArray(data) ? data : [],
     columnDefs: [
       { defaultContent: '', targets: '_all' }

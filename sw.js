@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v165';
+const CACHE_NAME = 'fpmanager-v170';
 
 const urlsToCache = [
   './',
@@ -43,11 +43,7 @@ const urlsToCache = [
   './assets/img/favicon.png',
   './assets/img/icon-192.png',
   './assets/img/icon-512.png',
-  './assets/img/logo.png',
-  './assets/img/mockups/tshirt_mockup.jpg',
-  './assets/img/mockups/businesscard_mockup.jpg',
-  './assets/img/mockups/mug_mockup.jpg',
-  './assets/img/mockups/billboard_mockup.jpg',
+  './assets/img/logo.webp',
   './assets/watermark/wm_white.png',
   './assets/watermark/wm_black.png',
   './assets/watermark/wm_warna.png',
@@ -97,22 +93,43 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Skip caching for external API calls and dynamic CDNs — let browser handle directly
+  // Skip caching for external API calls and dynamic Google services
   if (
     url.includes('script.google.com') ||
     url.includes('action=') ||
     url.includes('apiKey=') ||
     url.includes('generativelanguage.googleapis.com') ||
     url.includes('googleapis.com') ||
-    url.includes('cdn.jsdelivr.net') ||
-    url.includes('unpkg.com') ||
     url.includes('/ws')
   ) {
     return;
   }
 
-  // Network-first strategy for HTML pages/navigation and JS scripts
-  if (event.request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('.js') || url.endsWith('/') || !url.includes('.')) {
+  // Stale-While-Revalidate strategy for static JS and CSS (Instant 0ms delivery + background update)
+  if (url.endsWith('.js') || url.endsWith('.css') || event.request.destination === 'script' || event.request.destination === 'style') {
+    event.respondWith(
+      caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
+        const fetchPromise = fetch(event.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseCopy = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseCopy);
+            });
+          }
+          return networkResponse;
+        }).catch(err => {
+          console.debug('SW background revalidate skipped:', err);
+        });
+
+        // Return cached response instantly if present, otherwise await network
+        return cachedResponse || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // Network-first strategy for HTML pages/navigation
+  if (event.request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('/') || !url.includes('.')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {

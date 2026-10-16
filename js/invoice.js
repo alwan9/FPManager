@@ -294,7 +294,10 @@ const Invoice = {
                 const rowNo = i + 1;
                 if (item) {
                     const prodName = escapeHtml(item.produk || '');
-                    const qtySatuan = `${escapeHtml(String(item.jumlah || item.qty || 1))} ${escapeHtml(item.satuan || '')}`.trim();
+                    const rawSat = String(item.satuan || '').trim();
+                    const cleanSat = (rawSat.toLowerCase() === 'pcs') ? '' : rawSat;
+                    const cleanQty = String(item.jumlah || item.qty || 1).replace(/\s*pcs\b/gi, '').trim();
+                    const qtySatuan = cleanSat ? `${escapeHtml(cleanQty)} ${escapeHtml(cleanSat)}`.trim() : escapeHtml(cleanQty);
                     const hargaFormatted = this.format(item.hargaSatuan || item.harga || item.nominal || 0);
                     const nomFormatted = this.format(item.nominal || 0);
 
@@ -379,6 +382,11 @@ const Invoice = {
         if (tableBody) {
             if (record.tableHtml) {
                 tableBody.innerHTML = record.tableHtml;
+                tableBody.querySelectorAll('.qty-cell').forEach(cell => {
+                    if (cell.innerText.toLowerCase().includes('pcs')) {
+                        cell.innerText = cell.innerText.replace(/\s*pcs\b/gi, '').trim();
+                    }
+                });
             } else if (Array.isArray(record.items) && record.items.length > 0) {
                 // Urutkan item berdasarkan sort_order
                 const sortedItems = record.items.slice().sort((a, b) => (Number(a.sort_order || a.no || 0) - Number(b.sort_order || b.no || 0)));
@@ -388,7 +396,13 @@ const Invoice = {
                     const rowNo = i + 1;
                     if (item) {
                         const prodName = escapeHtml(item.produk || item.namaProyek || '');
-                        const qtyStr = item.qty !== undefined ? String(item.qty) : `${item.jumlah || 1} ${item.satuan || 'pcs'}`;
+                        let qtyStr = item.qty !== undefined ? String(item.qty) : String(item.jumlah || 1);
+                        const rawSat = String(item.satuan || '').trim();
+                        const cleanSat = (rawSat.toLowerCase() === 'pcs') ? '' : rawSat;
+                        if (cleanSat && !qtyStr.toLowerCase().includes(cleanSat.toLowerCase())) {
+                            qtyStr = `${qtyStr} ${cleanSat}`;
+                        }
+                        qtyStr = qtyStr.replace(/\s*pcs\b/gi, '').trim();
                         const hargaVal = item.harga !== undefined ? item.harga : (item.hargaSatuan || 0);
                         const nomVal = item.nominal !== undefined ? item.nominal : (item.nominalProyek || 0);
 
@@ -513,7 +527,10 @@ const Invoice = {
 
         // PRODUK
         document.getElementById("previewProduk").innerText = data.produk || data.namaProyek || "-";
-        document.getElementById("previewJumlah").innerText = `${data.jumlah || 1} ${data.satuan || 'pcs'}`;
+        const rawSat = String(data.satuan || '').trim();
+        const cleanSat = (rawSat.toLowerCase() === 'pcs') ? '' : rawSat;
+        const cleanJumlah = String(data.jumlah || 1).replace(/\s*pcs\b/gi, '').trim();
+        document.getElementById("previewJumlah").innerText = cleanSat ? `${cleanJumlah} ${cleanSat}` : cleanJumlah;
         document.getElementById("previewHarga").innerText = this.format(data.hargaSatuan || data.nominalProyek);
         document.getElementById("previewNominal").innerText = this.format(data.nominalProyek);
 
@@ -537,7 +554,14 @@ const Invoice = {
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
-                if (parsed.tableHtml) document.getElementById('invoiceTableBody').innerHTML = parsed.tableHtml;
+                if (parsed.tableHtml) {
+                    document.getElementById('invoiceTableBody').innerHTML = parsed.tableHtml;
+                    document.querySelectorAll('#invoiceTableBody .qty-cell').forEach(cell => {
+                        if (cell.innerText.toLowerCase().includes('pcs')) {
+                            cell.innerText = cell.innerText.replace(/\s*pcs\b/gi, '').trim();
+                        }
+                    });
+                }
                 if (parsed.totalHtml) document.getElementById('previewTotal').innerHTML = parsed.totalHtml;
                 if (parsed.dpHtml) document.getElementById('previewDP').innerHTML = parsed.dpHtml;
                 if (parsed.pelunasanHtml && document.getElementById('previewPelunasan')) {
@@ -604,7 +628,7 @@ const Invoice = {
                                 </div>
                             </td>
                             <td class="border p-1 md:p-3 editable-cell cursor-text" contenteditable="true" id="previewProduk">${isEn ? 'Service / Product Name' : 'Nama Produk / Jasa'}</td>
-                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true" id="previewJumlah">1 pcs</td>
+                            <td class="border text-center editable-cell qty-cell cursor-text" contenteditable="true" id="previewJumlah">1</td>
                             <td class="border text-center editable-cell price-cell cursor-text" contenteditable="true" id="previewHarga">Rp. 0</td>
                             <td class="border text-center font-bold nominal-cell editable-cell cursor-text" contenteditable="true" id="previewNominal">Rp. 0</td>
                         </tr>
@@ -1010,7 +1034,7 @@ const Invoice = {
                         sort_order: idx + 1,
                         no: idx + 1,
                         produk: prodText,
-                        qty: qty ? qty.innerText.trim() : '1 pcs',
+                        qty: qty ? qty.innerText.trim().replace(/\s*pcs\b/gi, '').trim() : '1',
                         harga: price ? this.getRawNumber(price.innerText) : 0,
                         nominal: nom ? this.getRawNumber(nom.innerText) : 0
                     });
