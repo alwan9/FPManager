@@ -61,6 +61,67 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProyekData();
 });
 
+// Helper: Color styling & arrow for project status
+function getStatusColorStyles(status) {
+  const s = String(status || '').toLowerCase().replace(/\s+/g, '');
+  if (s === 'menunggu') {
+    return {
+      key: 'menunggu',
+      bgClass: 'badge-menunggu',
+      optClass: 'status-opt-menunggu',
+      arrowColor: '%2392400e',
+      styleBg: '#fef3c7',
+      styleColor: '#92400e'
+    };
+  } else if (s === 'sedangdikerjakan' || s === 'dikerjakan') {
+    return {
+      key: 'sedangdikerjakan',
+      bgClass: 'badge-sedangdikerjakan',
+      optClass: 'status-opt-sedangdikerjakan',
+      arrowColor: '%231e40af',
+      styleBg: '#dbeafe',
+      styleColor: '#1e40af'
+    };
+  } else if (s === 'revisi') {
+    return {
+      key: 'revisi',
+      bgClass: 'badge-revisi',
+      optClass: 'status-opt-revisi',
+      arrowColor: '%239a3412',
+      styleBg: '#ffedd5',
+      styleColor: '#9a3412'
+    };
+  } else if (s === 'selesai') {
+    return {
+      key: 'selesai',
+      bgClass: 'badge-selesai',
+      optClass: 'status-opt-selesai',
+      arrowColor: '%23065f46',
+      styleBg: '#d1fae5',
+      styleColor: '#065f46'
+    };
+  } else if (s === 'belumpembayaran') {
+    return {
+      key: 'belumpembayaran',
+      bgClass: 'badge-belumpembayaran',
+      optClass: 'status-opt-belumpembayaran',
+      arrowColor: '%239f1239',
+      styleBg: '#ffe4e6',
+      styleColor: '#9f1239'
+    };
+  } else {
+    return {
+      key: 'dibatalkan',
+      bgClass: 'badge-dibatalkan',
+      optClass: 'status-opt-dibatalkan',
+      arrowColor: '%2352525b',
+      styleBg: '#f4f4f5',
+      styleColor: '#52525b'
+    };
+  }
+}
+window.getStatusColorStyles = getStatusColorStyles;
+
 // Helper: Dynamic distinct color styling for each assigned user
 function getAssignColorStyles(dId) {
   if (!dId) {
@@ -647,22 +708,23 @@ function initTable(data) {
               'Dibatalkan': 'Dibatalkan'
             };
             const statusStr = String(data || rowData.status || '').trim();
-            let badgeKey = statusStr.toLowerCase().replace(/\s+/g, '');
-            if (badgeKey === 'dikerjakan') badgeKey = 'sedangdikerjakan';
-            const badgeClass = 'badge-' + badgeKey;
+            const currentStyle = getStatusColorStyles(statusStr);
 
             const isAssignedToCurrent = isProjectAssignedToCurrent(rowData);
             const canEditStatus = !isDes || isAssignedToCurrent;
 
             if (!canEditStatus) {
-              return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${badgeClass}" title="Hanya Designer yang di-assign / Admin / Service yang dapat mengubah status">${statusLabels[statusStr] || statusStr}</span>`;
+              return `<span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full border ${currentStyle.bgClass}" title="Hanya Designer yang di-assign / Admin / Service yang dapat mengubah status">${statusLabels[statusStr] || statusStr}</span>`;
             }
 
-            let selectHtml = `<select onchange="const k=this.value.toLowerCase().replace(/\\s+/g,''); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k==='dikerjakan'?'sedangdikerjakan':k); updateProyekStatus('${escapeHtml(prjId)}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 ${badgeClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
+            const statusArrowSvg = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22${currentStyle.arrowColor}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')`;
+
+            let selectHtml = `<select onchange="const style=getStatusColorStyles(this.value); this.className='inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ' + style.bgClass; this.style.backgroundImage='url(\\'data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22' + style.arrowColor + '%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E\\')'; updateProyekStatus('${escapeHtml(prjId)}', this.value, this)" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ${currentStyle.bgClass}" style="appearance: none; -webkit-appearance: none; text-align-last: center; padding-right: 1.5rem; background-image: ${statusArrowSvg}; background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65rem auto;">`;
 
             statusOptions.forEach(opt => {
+              const optStyle = getStatusColorStyles(opt);
               const selected = (opt.toLowerCase() === statusStr.toLowerCase()) ? 'selected' : '';
-              selectHtml += `<option value="${opt}" ${selected} class="bg-white text-zinc-800">${statusLabels[opt] || opt}</option>`;
+              selectHtml += `<option value="${opt}" ${selected} class="${optStyle.optClass}" style="background-color: ${optStyle.styleBg}; color: ${optStyle.styleColor}; font-weight: 600;">${statusLabels[opt] || opt}</option>`;
             });
 
             selectHtml += `</select>`;
@@ -696,7 +758,7 @@ function initTable(data) {
               </a>
             `;
           }
-          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-500" title="${isEn ? 'Google Drive disabled or not connected' : 'Google Drive dinonaktifkan / belum tersambung'}"><i class="fa-solid fa-folder-minus text-[10px]"></i> ${isEn ? 'Disabled' : 'Nonaktif'}</span>`;
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-500" title="${isEn ? 'Google Drive empty or not connected' : 'Google Drive belum ada / tidak digunakan'}"><i class="fa-solid fa-folder-minus text-[10px]"></i> ${isEn ? 'None' : 'Belum Ada'}</span>`;
         }
       },
       {
@@ -971,9 +1033,8 @@ function populateDetailModal(proyek) {
       'Dibatalkan': 'Cancelled'
     };
     modalStatusEl.textContent = isEn ? (statusMap[status] || status) : status;
-    let badgeStatusKey = String(status).toLowerCase().replace(/\s+/g, '');
-    if (badgeStatusKey === 'dikerjakan') badgeStatusKey = 'sedangdikerjakan';
-    modalStatusEl.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full badge-${badgeStatusKey}`;
+    const stStyle = getStatusColorStyles(status);
+    modalStatusEl.className = `inline-block px-2.5 py-1 text-xs font-semibold rounded-full border ${stStyle.bgClass}`;
   }
 
   // 3. Sumber Badge
@@ -1414,6 +1475,7 @@ function getOtherProjectsForSameClient(proyek) {
 
 function renderModalGDriveSection(proyek) {
   if (!proyek) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const gdriveLink = proyek.gdriveLink || proyek.gdrive || '';
   const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
   const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(proyek);
@@ -1442,7 +1504,7 @@ function renderModalGDriveSection(proyek) {
       `;
     }
     if (badge) {
-      badge.textContent = 'Terkunci';
+      badge.textContent = isEn ? 'Locked' : 'Terkunci';
       badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400';
     }
     return;
@@ -1458,14 +1520,14 @@ function renderModalGDriveSection(proyek) {
       linkEl.href = sanitizeUrl(gdriveLink);
     }
     if (badge) {
-      badge.textContent = 'Tersambung';
+      badge.textContent = isEn ? 'Connected' : 'Tersambung';
       badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
     }
   } else {
     if (activeBox) activeBox.classList.add('hidden');
     if (disabledBox) disabledBox.classList.remove('hidden');
     if (badge) {
-      badge.textContent = 'Dinonaktifkan / Gabung';
+      badge.textContent = isEn ? 'None' : 'Belum Ada';
       badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700';
     }
   }
@@ -1488,8 +1550,8 @@ async function disableProjectDrive() {
   const confirmed = typeof showConfirmModal === 'function' ? await showConfirmModal({
     title: isEn ? "Disable Google Drive" : "Nonaktifkan Google Drive",
     message: isEn 
-      ? "Are you sure you want to disable and unlink Google Drive for this project? (Useful if files are merged into another project)."
-      : "Apakah Anda yakin ingin menonaktifkan Google Drive untuk projek ini? Folder/link Drive projek ini akan dilepas (sangat cocok jika 1 klien memesan 2 projek dan foldernya digabung ke projek lainnya).",
+      ? "Are you sure you want to disable and unlink Google Drive for this project? (Status will be set to 'None')."
+      : "Apakah Anda yakin ingin menonaktifkan Google Drive untuk projek ini? Folder/link Drive projek ini akan dikosongkan (status menjadi 'Belum ada').",
     type: "warning",
     confirmText: isEn ? "Disable Drive" : "Nonaktifkan Drive"
   }) : confirm("Nonaktifkan Google Drive untuk projek ini?");
@@ -1527,7 +1589,7 @@ async function disableProjectDrive() {
       if (typeof showToast === 'function') {
         showToast({
           title: isEn ? "Drive Disabled" : "Drive Dinonaktifkan",
-          message: isEn ? "Google Drive folder for this project has been disabled." : "Google Drive untuk projek ini berhasil dinonaktifkan.",
+          message: isEn ? "Google Drive folder for this project is now cleared (None)." : "Google Drive untuk projek ini berhasil dinonaktifkan (Status: Belum ada).",
           type: "success"
         });
       }
@@ -1707,7 +1769,7 @@ async function saveQuickGDriveLink() {
       if (typeof showToast === 'function') {
         showToast({
           title: isEn ? "Drive Saved" : "Link Drive Disimpan",
-          message: newLink ? "Link Google Drive berhasil diperbarui." : "Google Drive untuk projek ini telah dinonaktifkan.",
+          message: newLink ? (isEn ? "Google Drive link updated successfully." : "Link Google Drive berhasil diperbarui.") : (isEn ? "Google Drive has been cleared (None)." : "Google Drive untuk projek ini telah dikosongkan (Status: Belum ada)."),
           type: "success"
         });
       }
@@ -2033,7 +2095,11 @@ function buildGeminiProjectPrompt(jenis, customPrompt, proyek, gdriveLink) {
   } else if (jenis === 'pelunasan') {
     tugas = 'Buat pesan pengingat sisa pelunasan pembayaran projek secara ramah, santun, dan to the point, menyebutkan sisa tagihan.';
   } else if (jenis === 'selesai') {
-    tugas = `Buat pesan ramah bahwa pekerjaan/desain telah selesai dan file final resolusi tinggi sudah diupload di Google Drive. Sertakan link Google Drive: ${gdrive || '[Link Google Drive]'}`;
+    if (gdrive) {
+      tugas = `Buat pesan ramah bahwa pekerjaan/desain telah selesai dan file final resolusi tinggi sudah diupload di Google Drive. Sertakan link Google Drive: ${gdrive}`;
+    } else {
+      tugas = `Buat pesan ramah bahwa pekerjaan/desain telah selesai. Sebutkan bahwa link Google Drive: Belum ada (file siap dikirimkan langsung lewat chat ini / email).`;
+    }
   } else if (jenis === 'testimoni') {
     tugas = 'Buat pesan singkat dan ramah untuk meminta sedikit ulasan / feedback singkat dari klien atas hasil pekerjaan projek ini.';
   } else if (jenis === 'custom') {
@@ -2066,7 +2132,7 @@ DATA DETAIL PROJECT AKTIF:
 - Tenggat Waktu (Deadline): ${deadline}
 - Metode Pembayaran: ${metode}
 - Catatan / Keterangan: ${catatan}
-- Link Google Drive: ${gdrive || 'Belum tersedia'}
+- Link Google Drive: ${gdrive || 'Belum ada'}
 
 TUGAS / INSTRUKSI:
 ${tugas}
@@ -2114,9 +2180,15 @@ function generateSmartLocalMessage(jenis, customPrompt, proyek, gdriveLink) {
   }
 
   if (jenis === 'selesai') {
-    return isEn
-      ? `Hello ${namaKlien}, the final high-resolution files for *${namaProyek}* have been uploaded to Google Drive:\nLink: ${gdrive || '[Google Drive link]'}\n\nHope you love the result! If there's anything else you'd like to adjust, just let me know.`
-      : `Halo Kak ${namaKlien}, untuk desain dan file final *${namaProyek}* udah saya upload di Google Drive ini ya, Kak:\nLink: ${gdrive || '[Link Google Drive]'}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+    if (gdrive) {
+      return isEn
+        ? `Hello ${namaKlien}, the final high-resolution files for *${namaProyek}* have been uploaded to Google Drive:\nLink: ${gdrive}\n\nHope you love the result! If there's anything else you'd like to adjust, just let me know.`
+        : `Halo Kak ${namaKlien}, untuk desain dan file final *${namaProyek}* udah saya upload di Google Drive ini ya, Kak:\nLink: ${gdrive}\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+    } else {
+      return isEn
+        ? `Hello ${namaKlien}, project *${namaProyek}* is now completed!\n\n(Google Drive Link: None / files will be sent directly via chat).\n\nHope you love the result! If there's anything else you'd like to adjust, just let me know.`
+        : `Halo Kak ${namaKlien}, untuk desain dan file final *${namaProyek}* sudah selesai ya, Kak!\n\n(Link Google Drive: Belum ada / file siap dikirim langsung via chat ini).\n\nSemoga sesuai ya, Kak. Kalau ada yang mau disesuaikan lagi, tinggal kabarin aja.`;
+    }
   }
 
   if (jenis === 'testimoni') {
@@ -2185,15 +2257,8 @@ async function generateAI(jenis) {
 
   // Handle visibility of Google Drive input
   if (jenis === 'selesai') {
-    if (canAccessDrive && gdriveContainer && gdriveContainer.classList.contains('hidden') && !gdriveLink) {
+    if (canAccessDrive && gdriveContainer) {
       gdriveContainer.classList.remove('hidden');
-      if (gdriveInput) gdriveInput.focus();
-      showToast({
-        title: isEn ? "Google Drive Link" : "Link Google Drive",
-        message: isEn ? "Please enter the Google Drive link for the design files above." : "Silakan masukkan link Google Drive hasil desain di atas.",
-        type: "info"
-      });
-      return;
     }
 
     if (gdriveInput && gdriveInput.value.trim()) {
@@ -2371,8 +2436,9 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       });
       if (selectEl) {
         selectEl.value = oldStatus;
-        const k = oldStatus.toLowerCase().replace(/\s+/g, '');
-        selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k === 'dikerjakan' ? 'sedangdikerjakan' : k);
+        const stStyle = getStatusColorStyles(oldStatus);
+        selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ' + stStyle.bgClass;
+        selectEl.style.backgroundImage = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22${stStyle.arrowColor}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')`;
       }
       return;
     }
@@ -2402,8 +2468,9 @@ async function updateProyekStatus(id, newStatus, selectEl) {
         // User batalkan popup: Kembalikan dropdown ke status semula
         if (selectEl) {
           selectEl.value = oldStatus;
-          const k = oldStatus.toLowerCase().replace(/\s+/g, '');
-          selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 badge-' + (k === 'dikerjakan' ? 'sedangdikerjakan' : k);
+          const stStyle = getStatusColorStyles(oldStatus);
+          selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ' + stStyle.bgClass;
+          selectEl.style.backgroundImage = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22${stStyle.arrowColor}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')`;
         }
         return;
       }
@@ -2430,6 +2497,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     }
 
     // Construct full update payload
+    const assignedDesignerId = proyek.designerId || proyek.assignDesigner || '';
     const payload = {
       namaProyek: proyek.namaProyek,
       pelanggan: proyek.namaPelanggan,
@@ -2450,7 +2518,8 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       metodeBayarDp: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
       metodeBayarPelunasan: chosenMetode,
       sumber: proyek.sumber || 'WhatsApp',
-      catatan: newCatatan
+      catatan: newCatatan,
+      gdriveLink: proyek.gdriveLink || ''
     };
 
     const res = await API.updateProyek(id, payload);

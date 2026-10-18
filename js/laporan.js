@@ -5,13 +5,20 @@ let currentFilteredData = [];
 let barChartInstance = null;
 let pieChartInstance = null;
 
-// Filter states
+// Filter & Sort states
 let currentPeriodFilter = 'all';
 let currentWalletFilter = 'all';
 let currentTypeFilter = 'all';
 let currentSearchQuery = '';
+let currentSortOrder = 'newest'; // 'newest' | 'oldest'
 let customStartDate = '';
 let customEndDate = '';
+
+// Section-level search queries
+let incomeSectionSearch = '';
+let expenseSectionSearch = '';
+let mutasiSectionSearch = '';
+let monthlySectionSearch = '';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
@@ -168,6 +175,93 @@ function renderPaymentMethodBadge(rawMethod, fallbackSumber) {
   return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700" title="Metode: ${cleanName}"><i class="fa-solid fa-credit-card text-zinc-500 text-[10px]"></i> ${cleanName}</span>`;
 }
 
+// Helper: Extract valid timestamp from transaction item
+function getTxTimestamp(item) {
+  if (!item) return 0;
+  const raw = item.createdAt || item.tanggal || '';
+  if (!raw) return 0;
+  const t = new Date(raw).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
+// Helper: Sort transactions by date (newest or oldest)
+function sortTxList(list, order = currentSortOrder) {
+  if (!Array.isArray(list)) return [];
+  return [...list].sort((a, b) => {
+    const timeA = getTxTimestamp(a);
+    const timeB = getTxTimestamp(b);
+    if (order === 'oldest') {
+      return timeA - timeB;
+    }
+    return timeB - timeA;
+  });
+}
+
+// Sort Order Change Handler (Terbaru vs Paling Lama)
+function handleSortOrderChange(order) {
+  currentSortOrder = order || 'newest';
+  applyReportFilters();
+}
+window.handleSortOrderChange = handleSortOrderChange;
+
+// Section-Level Search Handlers
+function handleIncomeSearch(val) {
+  incomeSectionSearch = String(val || '').trim().toLowerCase();
+  const btn = document.getElementById('clearIncomeSearchBtn');
+  if (btn) btn.classList.toggle('hidden', !incomeSectionSearch);
+  renderDetailTables(currentFilteredData);
+}
+function clearIncomeSearch() {
+  const input = document.getElementById('incomeSearchInput');
+  if (input) input.value = '';
+  handleIncomeSearch('');
+}
+window.handleIncomeSearch = handleIncomeSearch;
+window.clearIncomeSearch = clearIncomeSearch;
+
+function handleExpenseSearch(val) {
+  expenseSectionSearch = String(val || '').trim().toLowerCase();
+  const btn = document.getElementById('clearExpenseSearchBtn');
+  if (btn) btn.classList.toggle('hidden', !expenseSectionSearch);
+  renderDetailTables(currentFilteredData);
+}
+function clearExpenseSearch() {
+  const input = document.getElementById('expenseSearchInput');
+  if (input) input.value = '';
+  handleExpenseSearch('');
+}
+window.handleExpenseSearch = handleExpenseSearch;
+window.clearExpenseSearch = clearExpenseSearch;
+
+function handleMutasiSearch(val) {
+  mutasiSectionSearch = String(val || '').trim().toLowerCase();
+  const btn = document.getElementById('clearMutasiSearchBtn');
+  if (btn) btn.classList.toggle('hidden', !mutasiSectionSearch);
+  renderDetailTables(currentFilteredData);
+}
+function clearMutasiSearch() {
+  const input = document.getElementById('mutasiSearchInput');
+  if (input) input.value = '';
+  handleMutasiSearch('');
+}
+window.handleMutasiSearch = handleMutasiSearch;
+window.clearMutasiSearch = clearMutasiSearch;
+
+function handleMonthlySearch(val) {
+  monthlySectionSearch = String(val || '').trim().toLowerCase();
+  const btn = document.getElementById('clearMonthlySearchBtn');
+  if (btn) btn.classList.toggle('hidden', !monthlySectionSearch);
+  const monthlySummary = compileMonthlyData(currentFilteredData);
+  renderMonthlySummaryList(monthlySummary);
+}
+function clearMonthlySearch() {
+  const input = document.getElementById('monthlySearchInput');
+  if (input) input.value = '';
+  handleMonthlySearch('');
+}
+window.handleMonthlySearch = handleMonthlySearch;
+window.clearMonthlySearch = clearMonthlySearch;
+
 // Period Change Handler
 function handlePeriodChange(val) {
   currentPeriodFilter = val;
@@ -191,6 +285,14 @@ function resetReportFilters() {
   currentWalletFilter = 'all';
   currentTypeFilter = 'all';
   currentSearchQuery = '';
+  currentSortOrder = 'newest';
+  incomeSectionSearch = '';
+  expenseSectionSearch = '';
+  mutasiSectionSearch = '';
+  monthlySectionSearch = '';
+
+  const sortSelect = document.getElementById('filterSortOrder');
+  if (sortSelect) sortSelect.value = 'newest';
 
   const periodSelect = document.getElementById('filterPeriodSelect');
   if (periodSelect) periodSelect.value = 'all';
@@ -203,6 +305,21 @@ function resetReportFilters() {
 
   const searchInput = document.getElementById('filterSearchInput');
   if (searchInput) searchInput.value = '';
+
+  // Clear section search inputs
+  const incIn = document.getElementById('incomeSearchInput');
+  if (incIn) incIn.value = '';
+  const expIn = document.getElementById('expenseSearchInput');
+  if (expIn) expIn.value = '';
+  const mutIn = document.getElementById('mutasiSearchInput');
+  if (mutIn) mutIn.value = '';
+  const monIn = document.getElementById('monthlySearchInput');
+  if (monIn) monIn.value = '';
+
+  document.getElementById('clearIncomeSearchBtn')?.classList.add('hidden');
+  document.getElementById('clearExpenseSearchBtn')?.classList.add('hidden');
+  document.getElementById('clearMutasiSearchBtn')?.classList.add('hidden');
+  document.getElementById('clearMonthlySearchBtn')?.classList.add('hidden');
 
   const customContainer = document.getElementById('customDateRangeContainer');
   if (customContainer) {
@@ -264,6 +381,11 @@ function isDateInPeriod(dateStr, period, customStart, customEnd) {
 function applyReportFilters() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   
+  const sortSelect = document.getElementById('filterSortOrder');
+  if (sortSelect) {
+    currentSortOrder = sortSelect.value || 'newest';
+  }
+
   const walletSelect = document.getElementById('filterWalletSelect');
   if (walletSelect) {
     currentWalletFilter = walletSelect.value;
@@ -355,6 +477,9 @@ function applyReportFilters() {
 
     return true;
   });
+
+  // Apply sorting order (newest vs oldest)
+  currentFilteredData = sortTxList(currentFilteredData, currentSortOrder);
 
   // Calculate Financial Summary using Source of Truth function
   const summary = (typeof calculateKeuanganSummary === 'function')
@@ -473,7 +598,7 @@ function renderDetailTables(filteredList) {
   const expenseItems = [];
   const mutasiItems = [];
 
-  filteredList.forEach(item => {
+  (filteredList || []).forEach(item => {
     if (item.jenis === 'Pemasukan') {
       incomeItems.push(item);
     } else if (item.jenis === 'Pengeluaran') {
@@ -483,16 +608,40 @@ function renderDetailTables(filteredList) {
     }
   });
 
+  // Ensure tables honor currentSortOrder
+  const sortedIncome = sortTxList(incomeItems, currentSortOrder);
+  const sortedExpense = sortTxList(expenseItems, currentSortOrder);
+  const sortedMutasi = sortTxList(mutasiItems, currentSortOrder);
+
   // A. Tabel Pendapatan
+  const totalIncome = sortedIncome.length;
+  let displayIncome = sortedIncome;
+  if (incomeSectionSearch) {
+    displayIncome = sortedIncome.filter(item => {
+      const q = incomeSectionSearch;
+      const prjId = String(item.idProyek || item.id || '').toLowerCase();
+      const title = String(item.keterangan || item.namaProyek || '').toLowerCase();
+      const cat = String(item.catatanPelunasan || '').toLowerCase();
+      const method = String(item.metodeBayarPelunasan || item.metodeBayarDp || item.metodePembayaran || item.sumber || '').toLowerCase();
+      const st = String(item.statusPembayaran || '').toLowerCase();
+      const nom = String(item.nominal || item.totalProyek || '').toLowerCase();
+      return prjId.includes(q) || title.includes(q) || cat.includes(q) || method.includes(q) || st.includes(q) || nom.includes(q);
+    });
+  }
+
   const incomeCountBadge = document.getElementById('incomeCountBadge');
-  if (incomeCountBadge) incomeCountBadge.textContent = `${incomeItems.length} Data`;
+  if (incomeCountBadge) {
+    incomeCountBadge.textContent = incomeSectionSearch
+      ? `${displayIncome.length} / ${totalIncome} Data`
+      : `${totalIncome} Data`;
+  }
 
   const incomeTbody = document.getElementById('incomeTableBody');
   if (incomeTbody) {
-    if (incomeItems.length === 0) {
-      incomeTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No income records found.' : 'Tidak ada data transaksi pendapatan untuk filter ini.'}</td></tr>`;
+    if (displayIncome.length === 0) {
+      incomeTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-zinc-400 text-xs">${incomeSectionSearch ? (isEn ? 'No income records match your search.' : 'Tidak ada data pendapatan yang cocok dengan pencarian.') : (isEn ? 'No income records found.' : 'Tidak ada data transaksi pendapatan untuk filter ini.')}</td></tr>`;
     } else {
-      incomeTbody.innerHTML = incomeItems.map((item, idx) => {
+      incomeTbody.innerHTML = displayIncome.map((item, idx) => {
         const rawDate = item.createdAt || item.tanggal || '';
         const st = String(item.statusPembayaran || '').toLowerCase();
         const isLunas = st.includes('lunas');
@@ -540,15 +689,32 @@ function renderDetailTables(filteredList) {
   }
 
   // B. Tabel Pengeluaran
+  const totalExpense = sortedExpense.length;
+  let displayExpense = sortedExpense;
+  if (expenseSectionSearch) {
+    displayExpense = sortedExpense.filter(item => {
+      const q = expenseSectionSearch;
+      const ket = String(item.keterangan || '').toLowerCase();
+      const method = String(item.metodePembayaran || item.metode || item.sumber || '').toLowerCase();
+      const user = String(item.userId || '').toLowerCase();
+      const nom = String(item.nominal || '').toLowerCase();
+      return ket.includes(q) || method.includes(q) || user.includes(q) || nom.includes(q);
+    });
+  }
+
   const expenseCountBadge = document.getElementById('expenseCountBadge');
-  if (expenseCountBadge) expenseCountBadge.textContent = `${expenseItems.length} Data`;
+  if (expenseCountBadge) {
+    expenseCountBadge.textContent = expenseSectionSearch
+      ? `${displayExpense.length} / ${totalExpense} Data`
+      : `${totalExpense} Data`;
+  }
 
   const expenseTbody = document.getElementById('expenseTableBody');
   if (expenseTbody) {
-    if (expenseItems.length === 0) {
-      expenseTbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No expense records found.' : 'Tidak ada data transaksi pengeluaran untuk filter ini.'}</td></tr>`;
+    if (displayExpense.length === 0) {
+      expenseTbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-zinc-400 text-xs">${expenseSectionSearch ? (isEn ? 'No expense records match your search.' : 'Tidak ada data pengeluaran yang cocok dengan pencarian.') : (isEn ? 'No expense records found.' : 'Tidak ada data transaksi pengeluaran untuk filter ini.')}</td></tr>`;
     } else {
-      expenseTbody.innerHTML = expenseItems.map((item, idx) => {
+      expenseTbody.innerHTML = displayExpense.map((item, idx) => {
         const rawDate = item.createdAt || item.tanggal || '';
         const method = item.metodePembayaran || item.metode || 'QRIS';
         const badgeMethod = renderPaymentMethodBadge(method, item.sumber);
@@ -568,15 +734,33 @@ function renderDetailTables(filteredList) {
   }
 
   // C. Tabel Mutasi Saldo
+  const totalMutasi = sortedMutasi.length;
+  let displayMutasi = sortedMutasi;
+  if (mutasiSectionSearch) {
+    displayMutasi = sortedMutasi.filter(item => {
+      const q = mutasiSectionSearch;
+      const ket = String(item.keterangan || '').toLowerCase();
+      const asalMethod = String(item.metodeBayarDp || item.metodeAsal || item.sumber || '').toLowerCase();
+      const tujuanMethod = String(item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan || '').toLowerCase();
+      const user = String(item.userId || '').toLowerCase();
+      const nom = String(item.nominal || '').toLowerCase();
+      return ket.includes(q) || asalMethod.includes(q) || tujuanMethod.includes(q) || user.includes(q) || nom.includes(q);
+    });
+  }
+
   const mutasiCountBadge = document.getElementById('mutasiCountBadge');
-  if (mutasiCountBadge) mutasiCountBadge.textContent = `${mutasiItems.length} Data`;
+  if (mutasiCountBadge) {
+    mutasiCountBadge.textContent = mutasiSectionSearch
+      ? `${displayMutasi.length} / ${totalMutasi} Data`
+      : `${totalMutasi} Data`;
+  }
 
   const mutasiTbody = document.getElementById('mutasiTableBody');
   if (mutasiTbody) {
-    if (mutasiItems.length === 0) {
-      mutasiTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-zinc-400 text-xs">${isEn ? 'No balance transfer records found.' : 'Tidak ada riwayat mutasi saldo untuk filter ini.'}</td></tr>`;
+    if (displayMutasi.length === 0) {
+      mutasiTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-zinc-400 text-xs">${mutasiSectionSearch ? (isEn ? 'No balance transfer records match your search.' : 'Tidak ada riwayat mutasi yang cocok dengan pencarian.') : (isEn ? 'No balance transfer records found.' : 'Tidak ada riwayat mutasi saldo untuk filter ini.')}</td></tr>`;
     } else {
-      mutasiTbody.innerHTML = mutasiItems.map((item, idx) => {
+      mutasiTbody.innerHTML = displayMutasi.map((item, idx) => {
         const rawDate = item.createdAt || item.tanggal || '';
         const asalMethod = item.metodeBayarDp || item.metodeAsal || item.sumber || 'QRIS';
         const tujuanMethod = item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan || 'BSI';
@@ -675,15 +859,34 @@ function renderMonthlySummaryList(monthlyList) {
   container.innerHTML = '';
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
-  if (monthlyList.length === 0) {
+  if (!monthlyList || monthlyList.length === 0) {
     container.innerHTML = `<div class="text-center py-6 text-zinc-400 text-xs col-span-full">${isEn ? 'No financial history in selected filter.' : 'Belum ada data pada periode ini.'}</div>`;
     return;
   }
 
-  // Tampilkan dari bulan terbaru
-  const reversedList = [...monthlyList].reverse();
+  // Tampilkan sesuai urutan (Terbaru vs Paling Lama)
+  let orderedList = (currentSortOrder === 'oldest')
+    ? [...monthlyList] // ascending sortKey (bulan paling lama di depan)
+    : [...monthlyList].reverse(); // descending sortKey (bulan terbaru di depan)
 
-  reversedList.forEach(item => {
+  // Filter pencarian di section ringkasan bulanan
+  if (monthlySectionSearch) {
+    const q = monthlySectionSearch;
+    orderedList = orderedList.filter(item => {
+      const label = String(item.monthLabel || '').toLowerCase();
+      const inStr = String(item.pemasukan || '');
+      const outStr = String(item.pengeluaran || '');
+      const netStr = String(item.pemasukan - item.pengeluaran);
+      return label.includes(q) || inStr.includes(q) || outStr.includes(q) || netStr.includes(q);
+    });
+  }
+
+  if (orderedList.length === 0) {
+    container.innerHTML = `<div class="text-center py-6 text-zinc-400 text-xs col-span-full">${isEn ? 'No monthly data matches your search.' : 'Tidak ada ringkasan bulan yang cocok dengan pencarian.'}</div>`;
+    return;
+  }
+
+  orderedList.forEach(item => {
     const profit = item.pemasukan - item.pengeluaran;
     const itemEl = document.createElement('div');
     itemEl.className = 'p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-xl space-y-2 bg-zinc-50/70 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shadow-xs';

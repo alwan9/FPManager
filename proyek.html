@@ -900,9 +900,12 @@
 
               <!-- Case 2: Drive Dinonaktifkan / Kosong -->
               <div id="modalGDriveDisabledBox" class="hidden space-y-2">
-                <div class="p-2.5 bg-zinc-100/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-700/60 text-zinc-500 dark:text-zinc-400 text-xs flex items-center gap-2">
-                  <i class="fa-solid fa-folder-minus text-zinc-400 text-sm shrink-0"></i>
-                  <span>Google Drive dinonaktifkan (Tanpa folder terpisah, cocok jika digabung).</span>
+                <div class="p-2.5 bg-zinc-100/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-700/60 text-zinc-500 dark:text-zinc-400 text-xs flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-folder-minus text-zinc-400 text-sm shrink-0"></i>
+                    <span>Link Google Drive: <strong class="italic font-semibold text-zinc-700 dark:text-zinc-300">Belum ada</strong></span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-200/70 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300">Kosong</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 pt-0.5">
                   <button type="button" onclick="openMergeDriveDialog()" id="btnMergeProjectDriveDisabled"
@@ -923,12 +926,17 @@
               <div id="modalGDriveEditContainer" class="hidden pt-2 border-t border-zinc-200/80 dark:border-zinc-700/60 space-y-2">
                 <label for="modalGDriveQuickInput" class="block text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">Masukkan / Tempel Link Google Drive:</label>
                 <div class="flex gap-2">
-                  <input type="url" id="modalGDriveQuickInput"
+                  <input type="text" id="modalGDriveQuickInput"
                     class="flex-1 px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200"
-                    placeholder="https://drive.google.com/drive/folders/...">
+                    placeholder="https://drive.google.com/drive/folders/... (atau kosongkan untuk hapus link)">
                   <button type="button" onclick="saveQuickGDriveLink()" id="btnSaveQuickGDrive"
                     class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition shrink-0 cursor-pointer">
                     Simpan
+                  </button>
+                  <button type="button" onclick="const el=document.getElementById('modalGDriveQuickInput'); if(el){ el.value=''; saveQuickGDriveLink(); }"
+                    class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition shrink-0 cursor-pointer"
+                    title="Kosongkan link Google Drive">
+                    Kosongkan
                   </button>
                   <button type="button" onclick="toggleEditDriveInput(false)"
                     class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition shrink-0 cursor-pointer">

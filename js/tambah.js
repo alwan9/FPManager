@@ -183,8 +183,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (typeof showToast === 'function') {
         showToast({
-          title: "Drive Dinonaktifkan",
-          message: "Pembuatan folder Google Drive otomatis dinonaktifkan untuk projek ini.",
+          title: isEn ? "Drive Disabled" : "Drive Dinonaktifkan",
+          message: isEn ? "Google Drive folder creation disabled for this project (Status: None)." : "Pembuatan folder Google Drive otomatis dinonaktifkan untuk projek ini (Status: Belum ada).",
           type: "info"
         });
       }
@@ -957,10 +957,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         deadline: deadlineInput.value,
         status: statusInput.value,
         sumber: sumberInput ? (sumberInput.value || 'WhatsApp') : 'WhatsApp',
-        metodePembayaran: metodePembayaranInput ? (metodePembayaranInput.value || 'QRIS') : 'QRIS',
-        catatan: catatanInput.value,
-        createDriveFolder: createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false,
-        gdriveLink: gdriveLinkInput ? gdriveLinkInput.value.trim() : currentGDriveLink,
+        createDriveFolder: isEditMode ? false : (createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false),
+        gdriveLink: isEditMode
+          ? (gdriveLinkInput ? gdriveLinkInput.value.trim() : "")
+          : ((createDriveFolderCheckbox && createDriveFolderCheckbox.checked) ? "" : (gdriveLinkInput ? gdriveLinkInput.value.trim() : "")),
         designerId: assignDesignerSelect ? assignDesignerSelect.value : "",
         assignDesigner: assignDesignerSelect ? assignDesignerSelect.value : "",
         userId: displayUserIdEl ? displayUserIdEl.textContent : (currUser ? currUser.id : 'USR-001')
@@ -1046,6 +1046,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             type: "success"
           });
 
+          try { sessionStorage.removeItem('cached_edit_proyek'); } catch (e) { }
           setTimeout(() => {
             window.location.href = "proyek.html";
           }, 1500);
