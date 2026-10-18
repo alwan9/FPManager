@@ -144,14 +144,121 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Handle smart client drive buttons
+  const btnUseExistingDrive = document.getElementById('btnUseExistingDrive');
+  if (btnUseExistingDrive) {
+    btnUseExistingDrive.addEventListener('click', () => {
+      const matched = window._matchedExistingClientProject;
+      if (!matched || !matched.gdriveLink) return;
+      if (createDriveFolderCheckbox) {
+        createDriveFolderCheckbox.checked = false;
+      }
+      if (manualGDriveContainer) {
+        manualGDriveContainer.classList.remove('hidden');
+      }
+      if (gdriveLinkInput) {
+        gdriveLinkInput.value = matched.gdriveLink;
+      }
+      if (typeof showToast === 'function') {
+        showToast({
+          title: "Drive Digabungkan",
+          message: `Folder Google Drive otomatis diarahkan ke projek: ${matched.namaProyek || matched.iDProyek}`,
+          type: "success"
+        });
+      }
+    });
+  }
+
+  const btnDisableDriveForClient = document.getElementById('btnDisableDriveForClient');
+  if (btnDisableDriveForClient) {
+    btnDisableDriveForClient.addEventListener('click', () => {
+      if (createDriveFolderCheckbox) {
+        createDriveFolderCheckbox.checked = false;
+      }
+      if (manualGDriveContainer) {
+        manualGDriveContainer.classList.remove('hidden');
+      }
+      if (gdriveLinkInput) {
+        gdriveLinkInput.value = '';
+      }
+      if (typeof showToast === 'function') {
+        showToast({
+          title: "Drive Dinonaktifkan",
+          message: "Pembuatan folder Google Drive otomatis dinonaktifkan untuk projek ini.",
+          type: "info"
+        });
+      }
+    });
+  }
+
+  let clientDriveCheckTimeout = null;
+  async function checkExistingClientDrive() {
+    if (clientDriveCheckTimeout) clearTimeout(clientDriveCheckTimeout);
+    clientDriveCheckTimeout = setTimeout(async () => {
+      const clientName = pelangganInput ? pelangganInput.value.trim().toLowerCase() : '';
+      const clientWa = waInput ? waInput.value.trim().replace(/\D/g, '') : '';
+      const noticeBox = document.getElementById('existingClientDriveNotice');
+      const noticeText = document.getElementById('existingClientDriveText');
+      if (!noticeBox) return;
+
+      if (!clientName && !clientWa) {
+        noticeBox.classList.add('hidden');
+        window._matchedExistingClientProject = null;
+        return;
+      }
+
+      try {
+        let allProjects = [];
+        if (typeof FPManagerDB !== 'undefined' && FPManagerDB.getAll) {
+          allProjects = await FPManagerDB.getAll('proyek');
+        }
+        if ((!allProjects || allProjects.length === 0) && typeof API !== 'undefined' && API.getProyek) {
+          allProjects = await API.getProyek();
+        }
+
+        const found = (allProjects || []).find(p => {
+          if (!p) return false;
+          const pId = String(p.iDProyek || p.idProjek || p.id || '').trim();
+          if (isEditMode && pId === String(proyekId).trim()) return false;
+
+          const pName = String(p.namaPelanggan || p.pelanggan || '').trim().toLowerCase();
+          const pWa = String(p.nomorWA || p.wa || '').replace(/\D/g, '');
+          const pDrive = String(p.gdriveLink || p.gdrive || '').trim();
+
+          const isMatch = (clientName && pName && clientName === pName) ||
+                          (clientWa && pWa && clientWa === pWa);
+          return isMatch && pDrive !== '';
+        });
+
+        if (found) {
+          window._matchedExistingClientProject = found;
+          if (noticeText) {
+            const pNama = found.namaProyek || found.iDProyek;
+            noticeText.innerHTML = `Ditemukan folder Drive dari projek <strong>${escapeHtml(pNama)}</strong> (${escapeHtml(found.iDProyek)}). Klik tombol di bawah untuk menggabungkan folder Drive agar klien tidak memiliki folder terpisah.`;
+          }
+          noticeBox.classList.remove('hidden');
+        } else {
+          window._matchedExistingClientProject = null;
+          noticeBox.classList.add('hidden');
+        }
+      } catch (err) {
+        console.warn("Gagal mengecek existing client drive:", err);
+      }
+    }, 250);
+  }
+
   // Auto-format Nomor WA (08... -> 628...)
   if (waInput) {
+    waInput.addEventListener('input', () => {
+      checkExistingClientDrive();
+    });
     waInput.addEventListener('blur', () => {
       let val = waInput.value.trim().replace(/\D/g, '');
       if (val.startsWith('0')) {
         val = '62' + val.substring(1);
       }
       if (val) waInput.value = val;
+      checkExistingClientDrive();
     });
   }
 
@@ -694,6 +801,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       pelangganInput.addEventListener('input', () => {
         userManuallyEditedClient = true;
         updateNamaProyekPreview();
+        checkExistingClientDrive();
+      });
+      pelangganInput.addEventListener('blur', () => {
+        checkExistingClientDrive();
       });
     }
 

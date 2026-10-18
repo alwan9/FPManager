@@ -688,7 +688,7 @@ function initTable(data) {
             `;
           }
 
-          if (data) {
+          if (data && String(data).trim() !== '') {
             return `
               <a href="${sanitizeUrl(data)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-semibold border border-indigo-100 transition" title="Buka Google Drive">
                 <i class="fa-solid fa-folder-open text-indigo-600"></i>
@@ -696,7 +696,7 @@ function initTable(data) {
               </a>
             `;
           }
-          return `<span class="text-zinc-400 text-xs italic">${isEn ? 'None' : 'Belum ada'}</span>`;
+          return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-500" title="${isEn ? 'Google Drive disabled or not connected' : 'Google Drive dinonaktifkan / belum tersambung'}"><i class="fa-solid fa-folder-minus text-[10px]"></i> ${isEn ? 'Disabled' : 'Nonaktif'}</span>`;
         }
       },
       {
@@ -1236,34 +1236,8 @@ function populateDetailModal(proyek) {
     modalCatatanEl.classList.remove('hidden');
   }
 
-  // 11. Google Drive Link
-  const modalGDriveContainer = document.getElementById('modalGDriveContainer');
-  const modalGDriveLink = document.getElementById('modalGDriveLink');
-  const gdriveInputContainer = document.getElementById('gdriveInputContainer');
-  const gdriveLinkInput = document.getElementById('gdriveLink');
-  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
-  const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(proyek);
-
-  if (gdriveLink && gdriveLink.trim() !== '' && canAccessDrive) {
-    if (modalGDriveContainer) modalGDriveContainer.classList.remove('hidden');
-    if (modalGDriveLink) {
-      modalGDriveLink.href = sanitizeUrl(gdriveLink);
-      modalGDriveLink.classList.remove('hidden');
-    }
-    if (gdriveInputContainer) gdriveInputContainer.classList.add('hidden');
-    if (gdriveLinkInput) gdriveLinkInput.value = gdriveLink;
-  } else {
-    if (modalGDriveContainer) modalGDriveContainer.classList.add('hidden');
-    if (modalGDriveLink) modalGDriveLink.href = '#';
-    if (gdriveInputContainer) {
-      if (isDesigner && !canAccessDrive) {
-        gdriveInputContainer.classList.add('hidden');
-      } else {
-        gdriveInputContainer.classList.remove('hidden');
-      }
-    }
-    if (gdriveLinkInput) gdriveLinkInput.value = '';
-  }
+  // 11. Google Drive Link & Controls
+  renderModalGDriveSection(proyek);
 
   const detailFinancialCard = document.getElementById('detailFinancialCard');
   if (detailFinancialCard) {
@@ -1411,6 +1385,350 @@ function populateDetailModal(proyek) {
   }
 }
 window.populateDetailModal = populateDetailModal;
+
+// =================================================================
+// GOOGLE DRIVE CONTROLS (NONAKTIFKAN / GABUNG DRIVE KLIEN / EDIT)
+// =================================================================
+
+function getOtherProjectsForSameClient(proyek) {
+  if (!proyek || !window.allProyekList) return [];
+  const currId = String(proyek.iDProyek || proyek.idProjek || proyek.id || '').trim();
+  const clientName = String(proyek.namaPelanggan || proyek.pelanggan || '').trim().toLowerCase();
+  const clientWa = String(proyek.nomorWA || proyek.wa || '').replace(/\D/g, '');
+
+  return (window.allProyekList || []).filter(p => {
+    if (!p) return false;
+    const pId = String(p.iDProyek || p.idProjek || p.id || '').trim();
+    if (pId === currId) return false;
+
+    const pName = String(p.namaPelanggan || p.pelanggan || '').trim().toLowerCase();
+    const pWa = String(p.nomorWA || p.wa || '').replace(/\D/g, '');
+    const hasDrive = !!(p.gdriveLink && String(p.gdriveLink).trim() !== '');
+
+    const isSameClient = (clientName && pName && clientName === pName) ||
+                         (clientWa && pWa && clientWa === pWa);
+
+    return isSameClient && hasDrive;
+  });
+}
+
+function renderModalGDriveSection(proyek) {
+  if (!proyek) return;
+  const gdriveLink = proyek.gdriveLink || proyek.gdrive || '';
+  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(proyek);
+
+  const activeBox = document.getElementById('modalGDriveActiveBox');
+  const disabledBox = document.getElementById('modalGDriveDisabledBox');
+  const badge = document.getElementById('modalGDriveStatusBadge');
+  const linkEl = document.getElementById('modalGDriveLink');
+  const mergeContainer = document.getElementById('modalGDriveMergeContainer');
+  const editContainer = document.getElementById('modalGDriveEditContainer');
+  const gdriveInput = document.getElementById('gdriveLink');
+
+  if (mergeContainer) mergeContainer.classList.add('hidden');
+  if (editContainer) editContainer.classList.add('hidden');
+  if (gdriveInput) gdriveInput.value = gdriveLink || '';
+
+  if (!canAccessDrive) {
+    if (activeBox) activeBox.classList.add('hidden');
+    if (disabledBox) {
+      disabledBox.classList.remove('hidden');
+      disabledBox.innerHTML = `
+        <div class="p-2.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-400 text-xs flex items-center gap-2">
+          <i class="fa-solid fa-lock"></i>
+          <span>Akses Google Drive dibatasi (Hanya untuk Designer yang ditugaskan).</span>
+        </div>
+      `;
+    }
+    if (badge) {
+      badge.textContent = 'Terkunci';
+      badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400';
+    }
+    return;
+  }
+
+  const otherProjects = getOtherProjectsForSameClient(proyek);
+  const hasOtherDrive = otherProjects.length > 0;
+
+  if (gdriveLink && gdriveLink.trim() !== '') {
+    if (activeBox) activeBox.classList.remove('hidden');
+    if (disabledBox) disabledBox.classList.add('hidden');
+    if (linkEl) {
+      linkEl.href = sanitizeUrl(gdriveLink);
+    }
+    if (badge) {
+      badge.textContent = 'Tersambung';
+      badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800';
+    }
+  } else {
+    if (activeBox) activeBox.classList.add('hidden');
+    if (disabledBox) disabledBox.classList.remove('hidden');
+    if (badge) {
+      badge.textContent = 'Dinonaktifkan / Gabung';
+      badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700';
+    }
+  }
+
+  const btnMergeActive = document.getElementById('btnMergeProjectDrive');
+  const btnMergeDisabled = document.getElementById('btnMergeProjectDriveDisabled');
+  if (btnMergeActive) {
+    if (hasOtherDrive) btnMergeActive.classList.remove('hidden');
+    else btnMergeActive.classList.add('hidden');
+  }
+  if (btnMergeDisabled) {
+    if (hasOtherDrive) btnMergeDisabled.classList.remove('hidden');
+    else btnMergeDisabled.classList.add('hidden');
+  }
+}
+
+async function disableProjectDrive() {
+  if (!currentProyek) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const confirmed = typeof showConfirmModal === 'function' ? await showConfirmModal({
+    title: isEn ? "Disable Google Drive" : "Nonaktifkan Google Drive",
+    message: isEn 
+      ? "Are you sure you want to disable and unlink Google Drive for this project? (Useful if files are merged into another project)."
+      : "Apakah Anda yakin ingin menonaktifkan Google Drive untuk projek ini? Folder/link Drive projek ini akan dilepas (sangat cocok jika 1 klien memesan 2 projek dan foldernya digabung ke projek lainnya).",
+    type: "warning",
+    confirmText: isEn ? "Disable Drive" : "Nonaktifkan Drive"
+  }) : confirm("Nonaktifkan Google Drive untuk projek ini?");
+
+  if (!confirmed) return;
+
+  const prjId = currentProyek.iDProyek || currentProyek.idProjek || currentProyek.id;
+  try {
+    const res = await API.updateProyek(prjId, { gdriveLink: "" });
+    if (res && res.success) {
+      currentProyek.gdriveLink = "";
+      currentProyek.gdrive = "";
+
+      if (window.allProyekList) {
+        const item = window.allProyekList.find(p => (p.iDProyek || p.idProjek || p.id) === prjId);
+        if (item) {
+          item.gdriveLink = "";
+          item.gdrive = "";
+        }
+      }
+
+      if (typeof table !== 'undefined' && table) {
+        table.rows().every(function () {
+          const d = this.data();
+          if (d && (d.iDProyek || d.idProjek || d.id) === prjId) {
+            d.gdriveLink = "";
+            d.gdrive = "";
+            this.data(d).draw(false);
+          }
+        });
+      }
+
+      renderModalGDriveSection(currentProyek);
+
+      if (typeof showToast === 'function') {
+        showToast({
+          title: isEn ? "Drive Disabled" : "Drive Dinonaktifkan",
+          message: isEn ? "Google Drive folder for this project has been disabled." : "Google Drive untuk projek ini berhasil dinonaktifkan.",
+          type: "success"
+        });
+      }
+    } else {
+      throw new Error((res && res.message) || "Gagal menonaktifkan link Drive.");
+    }
+  } catch (err) {
+    console.error("disableProjectDrive error:", err);
+    if (typeof showToast === 'function') {
+      showToast({
+        title: "Gagal",
+        message: err.message || "Gagal menonaktifkan Google Drive.",
+        type: "error"
+      });
+    }
+  }
+}
+
+function openMergeDriveDialog() {
+  if (!currentProyek) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const otherProjects = getOtherProjectsForSameClient(currentProyek);
+  const mergeContainer = document.getElementById('modalGDriveMergeContainer');
+  const mergeList = document.getElementById('modalGDriveMergeList');
+
+  if (!mergeContainer || !mergeList) return;
+
+  if (otherProjects.length === 0) {
+    if (typeof showToast === 'function') {
+      showToast({
+        title: isEn ? "No Other Drive Folders" : "Tidak Ada Folder Klien Lain",
+        message: isEn 
+          ? "This customer does not have any other projects with an active Google Drive folder."
+          : "Klien ini belum memiliki projek lain yang tersambung Google Drive. Silakan gunakan tombol Pasang Link untuk menempel link manual.",
+        type: "info"
+      });
+    }
+    return;
+  }
+
+  mergeList.innerHTML = otherProjects.map(p => `
+    <div class="flex items-center justify-between p-2 bg-white dark:bg-zinc-800 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
+      <div class="min-w-0 flex-1 pr-2">
+        <span class="font-bold text-zinc-800 dark:text-zinc-100 block truncate text-xs">${escapeHtml(p.namaProyek || p.iDProyek)}</span>
+        <span class="text-[10px] text-zinc-400 font-mono block truncate">${escapeHtml(p.iDProyek)} • ${escapeHtml(p.produk || 'Desain')}</span>
+      </div>
+      <button type="button" onclick="applyMergeDriveLink('${escapeHtml(p.iDProyek || p.idProjek || p.id)}')"
+        class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold rounded-lg text-[11px] shadow-2xs transition shrink-0 cursor-pointer flex items-center gap-1">
+        <i class="fa-solid fa-link text-xs"></i>
+        <span>Gunakan Folder Ini</span>
+      </button>
+    </div>
+  `).join('');
+
+  mergeContainer.classList.remove('hidden');
+}
+
+function closeMergeDriveDialog() {
+  const mergeContainer = document.getElementById('modalGDriveMergeContainer');
+  if (mergeContainer) mergeContainer.classList.add('hidden');
+}
+
+async function applyMergeDriveLink(sourceId) {
+  if (!currentProyek || !window.allProyekList) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const source = window.allProyekList.find(p => String(p.iDProyek || p.idProjek || p.id) === String(sourceId));
+  if (!source || !source.gdriveLink) {
+    if (typeof showToast === 'function') {
+      showToast({ title: "Error", message: "Folder projek sumber tidak ditemukan.", type: "error" });
+    }
+    return;
+  }
+
+  const prjId = currentProyek.iDProyek || currentProyek.idProjek || currentProyek.id;
+  const targetDriveLink = source.gdriveLink;
+
+  try {
+    const res = await API.updateProyek(prjId, { gdriveLink: targetDriveLink });
+    if (res && res.success) {
+      currentProyek.gdriveLink = targetDriveLink;
+      currentProyek.gdrive = targetDriveLink;
+
+      if (window.allProyekList) {
+        const item = window.allProyekList.find(p => (p.iDProyek || p.idProjek || p.id) === prjId);
+        if (item) {
+          item.gdriveLink = targetDriveLink;
+          item.gdrive = targetDriveLink;
+        }
+      }
+
+      if (typeof table !== 'undefined' && table) {
+        table.rows().every(function () {
+          const d = this.data();
+          if (d && (d.iDProyek || d.idProjek || d.id) === prjId) {
+            d.gdriveLink = targetDriveLink;
+            d.gdrive = targetDriveLink;
+            this.data(d).draw(false);
+          }
+        });
+      }
+
+      closeMergeDriveDialog();
+      renderModalGDriveSection(currentProyek);
+
+      if (typeof showToast === 'function') {
+        showToast({
+          title: isEn ? "Drive Merged" : "Drive Berhasil Digabung",
+          message: isEn 
+            ? `Google Drive merged with ${source.namaProyek || source.iDProyek}.` 
+            : `Folder Google Drive projek ini berhasil digabungkan dengan projek ${source.namaProyek || source.iDProyek}!`,
+          type: "success"
+        });
+      }
+    } else {
+      throw new Error((res && res.message) || "Gagal menyambungkan Google Drive.");
+    }
+  } catch (err) {
+    console.error("applyMergeDriveLink error:", err);
+    if (typeof showToast === 'function') {
+      showToast({ title: "Gagal", message: err.message || "Gagal menyambungkan Google Drive.", type: "error" });
+    }
+  }
+}
+
+function toggleEditDriveInput(forceShow) {
+  const container = document.getElementById('modalGDriveEditContainer');
+  const input = document.getElementById('modalGDriveQuickInput');
+  if (!container) return;
+
+  const shouldShow = (typeof forceShow === 'boolean') ? forceShow : container.classList.contains('hidden');
+  if (shouldShow) {
+    container.classList.remove('hidden');
+    if (input) {
+      input.value = currentProyek ? (currentProyek.gdriveLink || currentProyek.gdrive || '') : '';
+      input.focus();
+    }
+  } else {
+    container.classList.add('hidden');
+  }
+}
+
+async function saveQuickGDriveLink() {
+  if (!currentProyek) return;
+  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+  const input = document.getElementById('modalGDriveQuickInput');
+  const newLink = input ? input.value.trim() : '';
+  const prjId = currentProyek.iDProyek || currentProyek.idProjek || currentProyek.id;
+
+  try {
+    const res = await API.updateProyek(prjId, { gdriveLink: newLink });
+    if (res && res.success) {
+      currentProyek.gdriveLink = newLink;
+      currentProyek.gdrive = newLink;
+
+      if (window.allProyekList) {
+        const item = window.allProyekList.find(p => (p.iDProyek || p.idProjek || p.id) === prjId);
+        if (item) {
+          item.gdriveLink = newLink;
+          item.gdrive = newLink;
+        }
+      }
+
+      if (typeof table !== 'undefined' && table) {
+        table.rows().every(function () {
+          const d = this.data();
+          if (d && (d.iDProyek || d.idProjek || d.id) === prjId) {
+            d.gdriveLink = newLink;
+            d.gdrive = newLink;
+            this.data(d).draw(false);
+          }
+        });
+      }
+
+      toggleEditDriveInput(false);
+      renderModalGDriveSection(currentProyek);
+
+      if (typeof showToast === 'function') {
+        showToast({
+          title: isEn ? "Drive Saved" : "Link Drive Disimpan",
+          message: newLink ? "Link Google Drive berhasil diperbarui." : "Google Drive untuk projek ini telah dinonaktifkan.",
+          type: "success"
+        });
+      }
+    } else {
+      throw new Error((res && res.message) || "Gagal menyimpan link Drive.");
+    }
+  } catch (err) {
+    console.error("saveQuickGDriveLink error:", err);
+    if (typeof showToast === 'function') {
+      showToast({ title: "Gagal", message: err.message || "Gagal menyimpan link Drive.", type: "error" });
+    }
+  }
+}
+
+window.renderModalGDriveSection = renderModalGDriveSection;
+window.disableProjectDrive = disableProjectDrive;
+window.openMergeDriveDialog = openMergeDriveDialog;
+window.closeMergeDriveDialog = closeMergeDriveDialog;
+window.applyMergeDriveLink = applyMergeDriveLink;
+window.toggleEditDriveInput = toggleEditDriveInput;
+window.saveQuickGDriveLink = saveQuickGDriveLink;
 
 // Tab Switcher for Detail Modal
 function switchDetailModalTab(tabName) {
