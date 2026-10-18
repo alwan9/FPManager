@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v176';
+const CACHE_NAME = 'fpmanager-v181';
 
 const urlsToCache = [
   './',
@@ -44,6 +44,7 @@ const urlsToCache = [
   './assets/img/icon-192.png',
   './assets/img/icon-512.png',
   './assets/img/logo.webp',
+  './assets/img/qris.jpg',
   './assets/watermark/wm_white.png',
   './assets/watermark/wm_black.png',
   './assets/watermark/wm_warna.png',

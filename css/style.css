@@ -447,6 +447,18 @@ html:not(.dark) .status-filter-btn:hover {
 .hover\:border-emerald-500:hover { border-color: #10b981; }
 .hover\:border-emerald-600:hover { border-color: #059669; }
 
+#btnBackupNow, .btn-backup-emerald {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #059669 100%) !important;
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25) !important;
+}
+#btnBackupNow:hover, .btn-backup-emerald:hover {
+  background: linear-gradient(135deg, #047857 0%, #0f766e 50%, #047857 100%) !important;
+  background-color: #047857 !important;
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35) !important;
+}
+
 /* --- 3. ROSE PALETTE (Danger / Expense / Cancelled / Errors) --- */
 .bg-rose-50 { background-color: #fff1f2; }
 .bg-rose-100 { background-color: #ffe4e6; }
@@ -1327,6 +1339,31 @@ html:not(.dark) aside .sidebar-link:not(.bg-indigo-600):hover {
   color: #18181b !important;
 }
 
+/* Active sidebar link in light mode - Abu sangat muda (#f4f4f5 / zinc-100) */
+html:not(.dark) aside .sidebar-link.active,
+html:not(.dark) aside a.sidebar-link.active,
+html:not(.dark) aside .sidebar-link.bg-zinc-800,
+html:not(.dark) aside a.sidebar-link.bg-zinc-800 {
+  background-color: #f4f4f5 !important;
+  color: #4f46e5 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) aside .sidebar-link.active i,
+html:not(.dark) aside a.sidebar-link.active i,
+html:not(.dark) aside .sidebar-link.bg-zinc-800 i,
+html:not(.dark) aside a.sidebar-link.bg-zinc-800 i {
+  color: #4f46e5 !important;
+}
+
+html:not(.dark) aside .sidebar-link.active:hover,
+html:not(.dark) aside a.sidebar-link.active:hover,
+html:not(.dark) aside .sidebar-link.bg-zinc-800:hover,
+html:not(.dark) aside a.sidebar-link.bg-zinc-800:hover {
+  background-color: #e4e4e7 !important;
+  color: #4338ca !important;
+}
+
 html:not(.dark) aside .logo-full img,
 html:not(.dark) aside .logo-mini img {
   filter: brightness(0.15) !important;
@@ -1366,6 +1403,18 @@ html.dark aside .sidebar-link:not(.bg-indigo-600) {
 html.dark aside .sidebar-link:not(.bg-indigo-600):hover {
   background-color: #18181b !important;
   color: #ffffff !important;
+}
+
+/* Active sidebar link in dark mode */
+html.dark aside .sidebar-link.active,
+html.dark aside a.sidebar-link.active {
+  background-color: #27272a !important;
+  color: #818cf8 !important;
+}
+
+html.dark aside .sidebar-link.active i,
+html.dark aside a.sidebar-link.active i {
+  color: #818cf8 !important;
 }
 
 /* Enforce perfect circles for all avatar images, dropdowns, and circular icon buttons */

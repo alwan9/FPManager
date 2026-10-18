@@ -1106,6 +1106,11 @@ function showPaymentAccountsModal(highlightName = '') {
             <i class="fa-solid fa-bag-shopping"></i>
             <span>Toko Shopee</span>
           </a>
+
+          <button onclick="showQrisModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1.5" title="Lihat Foto QRIS">
+            <i class="fa-solid fa-qrcode"></i>
+            <span>Foto QRIS</span>
+          </button>
         </div>
 
         <button onclick="document.getElementById('globalPaymentModal').classList.add('hidden')" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition">
@@ -1128,6 +1133,190 @@ function copyAllPaymentAccounts() {
   }).join('\n');
   const fullText = `INFO REKENING & METODE PEMBAYARAN:\n\n${lines}\n\nMohon kirimkan bukti transfer setelah pembayaran ya kak. Terima kasih!`;
   copyTextToClipboard(fullText, 'Seluruh Daftar Rekening');
+}
+
+// ==========================================
+// Global QRIS Image Modal, Copy & Download
+// ==========================================
+function showQrisModal() {
+  let modal = document.getElementById('globalQrisModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'globalQrisModal';
+    modal.className = 'fixed inset-0 bg-black/70 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-all animate-fade-in';
+    modal.onclick = function (e) {
+      if (e.target === modal) {
+        closeQrisModal();
+      }
+    };
+    document.body.appendChild(modal);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeQrisModal();
+      }
+    });
+  }
+
+  modal.innerHTML = `
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto transform transition-all animate-scale-up">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm shadow-xs">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-zinc-900 dark:text-zinc-100 text-sm">Pembayaran QRIS</h3>
+            <p class="text-[11px] text-zinc-400">Scan QRIS untuk semua e-wallet & m-banking</p>
+          </div>
+        </div>
+        <button onclick="closeQrisModal()" class="w-7 h-7 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition" title="Tutup">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- QRIS Image Card -->
+      <div class="p-3 bg-zinc-50 dark:bg-zinc-950/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col items-center justify-center">
+        <img id="qrisImageElement" src="assets/img/qris.jpg" alt="Kode QRIS FPManager" class="w-full max-h-[380px] object-contain rounded-xl shadow-xs" />
+        <span class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-2 font-medium">assets/img/qris.jpg</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2 pt-1">
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Tombol Salin Foto -->
+          <button type="button" onclick="copyQrisImage()" id="btnCopyQrisImage"
+            class="w-full py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20 transition cursor-pointer"
+            title="Salin foto QRIS ke clipboard agar bisa langsung di-paste (Ctrl+V) di chat">
+            <i class="fa-solid fa-copy text-sm"></i>
+            <span>Salin Foto</span>
+          </button>
+
+          <!-- Tombol Unduh Foto -->
+          <button type="button" onclick="downloadQrisImage()" id="btnDownloadQrisImage"
+            class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition cursor-pointer"
+            title="Unduh file gambar QRIS">
+            <i class="fa-solid fa-download text-sm"></i>
+            <span>Unduh Foto</span>
+          </button>
+        </div>
+
+        <button type="button" onclick="closeQrisModal()"
+          class="w-full py-2 px-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold rounded-xl text-xs transition cursor-pointer">
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+}
+
+function closeQrisModal() {
+  const modal = document.getElementById('globalQrisModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+function downloadQrisImage() {
+  const link = document.createElement('a');
+  link.href = 'assets/img/qris.jpg';
+  link.download = 'QRIS_FPManager.jpg';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  if (typeof showToast === 'function') {
+    showToast({
+      title: "Foto Berhasil Diunduh",
+      message: "Gambar QRIS telah diunduh ke perangkat Anda.",
+      type: "success"
+    });
+  } else if (typeof Toast !== 'undefined' && Toast.success) {
+    Toast.success("Foto Berhasil Diunduh", "Gambar QRIS telah diunduh ke perangkat Anda.");
+  }
+}
+
+async function copyQrisImage() {
+  const copyBtn = document.getElementById('btnCopyQrisImage');
+  const originalHtml = copyBtn ? copyBtn.innerHTML : '';
+  if (copyBtn) {
+    copyBtn.disabled = true;
+    copyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Menyalin...</span>';
+  }
+
+  try {
+    let img = document.getElementById('qrisImageElement');
+    if (!img) {
+      img = new Image();
+      img.src = 'assets/img/qris.jpg';
+    }
+
+    if (!img.complete) {
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || img.width || 800;
+    canvas.height = img.naturalHeight || img.height || 1000;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    await new Promise((resolve, reject) => {
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          reject(new Error("Gagal konversi gambar"));
+          return;
+        }
+
+        try {
+          if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            resolve();
+          } else {
+            reject(new Error("Clipboard API tidak didukung"));
+          }
+        } catch (clipErr) {
+          reject(clipErr);
+        }
+      }, 'image/png');
+    });
+
+    if (typeof showToast === 'function') {
+      showToast({
+        title: "Foto QRIS Berhasil Disalin",
+        message: "Gambar QRIS berhasil disalin! Anda bisa langsung tempel (Ctrl+V) di WhatsApp / chat.",
+        type: "success"
+      });
+    } else if (typeof Toast !== 'undefined' && Toast.success) {
+      Toast.success("Foto QRIS Berhasil Disalin", "Gambar QRIS siap di-paste di WhatsApp atau chat.");
+    }
+  } catch (err) {
+    console.warn("Clipboard Image Write Error:", err);
+    if (typeof showToast === 'function') {
+      showToast({
+        title: "Salin Gambar Dibatasi",
+        message: "Browser atau perangkat membatasi salin file gambar langsung. Silakan gunakan tombol Unduh Foto.",
+        type: "warning"
+      });
+    } else if (typeof Toast !== 'undefined' && Toast.warning) {
+      Toast.warning("Salin Gambar Dibatasi", "Silakan gunakan tombol Unduh Foto.");
+    }
+  } finally {
+    if (copyBtn) {
+      copyBtn.disabled = false;
+      copyBtn.innerHTML = originalHtml;
+    }
+  }
 }
 
 // Hide Global Loader when page loaded
