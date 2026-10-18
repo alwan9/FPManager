@@ -96,6 +96,387 @@ function loadProfileData() {
   }
 }
 
+// =================================================================
+// SISTEM ATUR POSISI & ZOOM FOTO PROFIL (PAN & ZOOM CROPPER)
+// =================================================================
+let cropState = {
+  img: null,
+  userZoom: 1.0,
+  minZoom: 1.0,
+  maxZoom: 3.5,
+  offsetX: 0,
+  offsetY: 0,
+  rotation: 0,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  pinchDist: null,
+  pinchZoomStart: 1.0,
+  isListenersAttached: false
+};
+
+function initCropEventListeners() {
+  if (cropState.isListenersAttached) return;
+  cropState.isListenersAttached = true;
+
+  const canvas = document.getElementById('cropCanvas');
+  const wrapper = document.getElementById('cropCanvasWrapper');
+  const slider = document.getElementById('cropZoomSlider');
+  const btnZoomIn = document.getElementById('btnCropZoomIn');
+  const btnZoomOut = document.getElementById('btnCropZoomOut');
+  const btnRotate = document.getElementById('btnCropRotate');
+  const btnReset = document.getElementById('btnCropReset');
+  const modal = document.getElementById('photoCropModal');
+
+  if (!canvas || !wrapper) return;
+
+  // 1. Mouse Dragging
+  wrapper.addEventListener('mousedown', (e) => {
+    if (!cropState.img) return;
+    cropState.isDragging = true;
+    cropState.startX = e.clientX - cropState.offsetX;
+    cropState.startY = e.clientY - cropState.offsetY;
+    wrapper.classList.remove('cursor-grab');
+    wrapper.classList.add('cursor-grabbing');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!cropState.isDragging) return;
+    cropState.offsetX = e.clientX - cropState.startX;
+    cropState.offsetY = e.clientY - cropState.startY;
+    renderCropCanvas();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (cropState.isDragging) {
+      cropState.isDragging = false;
+      if (wrapper) {
+        wrapper.classList.remove('cursor-grabbing');
+        wrapper.classList.add('cursor-grab');
+      }
+    }
+  });
+
+  // 2. Mouse Wheel Zoom
+  wrapper.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (!cropState.img) return;
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    setCropZoom(cropState.userZoom + delta);
+  }, { passive: false });
+
+  // 3. Touch Gestures (Mobile Pan & Pinch-to-Zoom)
+  wrapper.addEventListener('touchstart', (e) => {
+    if (!cropState.img) return;
+    if (e.touches.length === 1) {
+      cropState.isDragging = true;
+      cropState.startX = e.touches[0].clientX - cropState.offsetX;
+      cropState.startY = e.touches[0].clientY - cropState.offsetY;
+    } else if (e.touches.length === 2) {
+      cropState.isDragging = false;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      cropState.pinchDist = Math.hypot(dx, dy);
+      cropState.pinchZoomStart = cropState.userZoom;
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchmove', (e) => {
+    if (!cropState.img) return;
+    if (e.touches.length === 1 && cropState.isDragging) {
+      e.preventDefault();
+      cropState.offsetX = e.touches[0].clientX - cropState.startX;
+      cropState.offsetY = e.touches[0].clientY - cropState.startY;
+      renderCropCanvas();
+    } else if (e.touches.length === 2 && cropState.pinchDist) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const currentDist = Math.hypot(dx, dy);
+      if (cropState.pinchDist > 0) {
+        const ratio = currentDist / cropState.pinchDist;
+        setCropZoom(cropState.pinchZoomStart * ratio);
+      }
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      cropState.pinchDist = null;
+    }
+    if (e.touches.length === 0) {
+      cropState.isDragging = false;
+    }
+  });
+
+  // 4. Zoom Slider
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      setCropZoom(parseFloat(e.target.value));
+    });
+  }
+
+  // 5. Zoom In/Out Buttons
+  if (btnZoomIn) {
+    btnZoomIn.addEventListener('click', () => {
+      setCropZoom(cropState.userZoom + 0.15);
+    });
+  }
+  if (btnZoomOut) {
+    btnZoomOut.addEventListener('click', () => {
+      setCropZoom(cropState.userZoom - 0.15);
+    });
+  }
+
+  // 6. Rotate Button
+  if (btnRotate) {
+    btnRotate.addEventListener('click', () => {
+      cropState.rotation = (cropState.rotation + 90) % 360;
+      renderCropCanvas();
+    });
+  }
+
+  // 7. Reset Button
+  if (btnReset) {
+    btnReset.addEventListener('click', () => {
+      resetCropState();
+    });
+  }
+
+  // 8. Close on Click Outside or Escape
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closePhotoAdjuster();
+    });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+      closePhotoAdjuster();
+    }
+  });
+}
+
+function setCropZoom(newZoom) {
+  const clamped = Math.max(cropState.minZoom, Math.min(cropState.maxZoom, parseFloat(newZoom) || 1.0));
+  cropState.userZoom = Math.round(clamped * 100) / 100;
+  const slider = document.getElementById('cropZoomSlider');
+  if (slider) slider.value = cropState.userZoom;
+  const zoomText = document.getElementById('cropZoomValueText');
+  if (zoomText) zoomText.textContent = cropState.userZoom.toFixed(1) + 'x';
+  renderCropCanvas();
+}
+
+function resetCropState() {
+  cropState.userZoom = 1.0;
+  cropState.offsetX = 0;
+  cropState.offsetY = 0;
+  cropState.rotation = 0;
+  setCropZoom(1.0);
+}
+
+function nudgeCrop(dx, dy) {
+  cropState.offsetX += dx;
+  cropState.offsetY += dy;
+  renderCropCanvas();
+}
+
+function renderCropCanvas() {
+  const canvas = document.getElementById('cropCanvas');
+  if (!canvas || !cropState.img) return;
+
+  const ctx = canvas.getContext('2d');
+  const size = canvas.width; // 280
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = size * 0.42; // ~118px radius
+
+  ctx.clearRect(0, 0, size, size);
+
+  // Background
+  ctx.fillStyle = '#09090b';
+  ctx.fillRect(0, 0, size, size);
+
+  const img = cropState.img;
+  const minDim = Math.min(img.width, img.height);
+  const baseScale = (radius * 2) / minDim;
+  const totalScale = baseScale * cropState.userZoom;
+
+  const drawW = img.width * totalScale;
+  const drawH = img.height * totalScale;
+
+  // Draw image with translation, rotation and zoom
+  ctx.save();
+  ctx.translate(cx + cropState.offsetX, cy + cropState.offsetY);
+  if (cropState.rotation !== 0) {
+    ctx.rotate((cropState.rotation * Math.PI) / 180);
+  }
+  ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+  ctx.restore();
+
+  // Draw Darkened Overlay outside the circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, size, size);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2, true);
+  ctx.fillStyle = 'rgba(9, 9, 11, 0.65)';
+  ctx.fill();
+
+  // Draw Circular Guide Border
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#6366f1'; // Indigo ring
+  ctx.stroke();
+
+  // Subtle Rule-of-Thirds Grid inside the circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.lineWidth = 1;
+  const third = (radius * 2) / 3;
+  ctx.beginPath();
+  // Vertical grid lines
+  ctx.moveTo(cx - third / 2, cy - radius);
+  ctx.lineTo(cx - third / 2, cy + radius);
+  ctx.moveTo(cx + third / 2, cy - radius);
+  ctx.lineTo(cx + third / 2, cy + radius);
+  // Horizontal grid lines
+  ctx.moveTo(cx - radius, cy - third / 2);
+  ctx.lineTo(cx + radius, cy - third / 2);
+  ctx.moveTo(cx - radius, cy + third / 2);
+  ctx.lineTo(cx + radius, cy + third / 2);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function applyPhotoCrop() {
+  if (!cropState.img) return;
+
+  const canvas = document.getElementById('cropCanvas');
+  const size = canvas ? canvas.width : 280;
+  const radius = size * 0.42;
+
+  const exportSize = 360; // High resolution square avatar
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportSize;
+  exportCanvas.height = exportSize;
+  const expCtx = exportCanvas.getContext('2d');
+
+  const expScale = exportSize / (radius * 2);
+  const expCenter = exportSize / 2;
+
+  const img = cropState.img;
+  const minDim = Math.min(img.width, img.height);
+  const baseScale = (radius * 2) / minDim;
+  const totalScale = baseScale * cropState.userZoom;
+
+  const expDrawW = img.width * totalScale * expScale;
+  const expDrawH = img.height * totalScale * expScale;
+
+  expCtx.save();
+  expCtx.translate(expCenter + (cropState.offsetX * expScale), expCenter + (cropState.offsetY * expScale));
+  if (cropState.rotation !== 0) {
+    expCtx.rotate((cropState.rotation * Math.PI) / 180);
+  }
+  expCtx.drawImage(img, -expDrawW / 2, -expDrawH / 2, expDrawW, expDrawH);
+  expCtx.restore();
+
+  const croppedDataUrl = exportCanvas.toDataURL('image/jpeg', 0.88);
+
+  // Update UI avatar preview
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.innerHTML = `<img src="${croppedDataUrl}" class="w-full h-full rounded-full object-cover">`;
+  }
+
+  // Update form input field
+  const aInput = document.getElementById('profAvatarUrl');
+  if (aInput) {
+    aInput.value = croppedDataUrl;
+  }
+
+  closePhotoAdjuster();
+
+  if (typeof Toast !== 'undefined') {
+    Toast.success('Foto Disesuaikan', 'Klik "Simpan Perubahan" untuk menyimpan ke database.');
+  } else if (typeof showToast === 'function') {
+    showToast('Foto disesuaikan! Klik Simpan Perubahan untuk menyimpan.', 'success');
+  }
+}
+
+function openPhotoAdjusterWithImage(img) {
+  initCropEventListeners();
+  cropState.img = img;
+  resetCropState();
+
+  const modal = document.getElementById('photoCropModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    const canvas = document.getElementById('cropCanvas');
+    if (canvas) {
+      canvas.width = 280;
+      canvas.height = 280;
+    }
+    renderCropCanvas();
+  }
+}
+
+function closePhotoAdjuster() {
+  const modal = document.getElementById('photoCropModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function openPhotoAdjuster() {
+  initCropEventListeners();
+  if (cropState.img) {
+    const modal = document.getElementById('photoCropModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      renderCropCanvas();
+    }
+    return;
+  }
+
+  // Try to load current avatar
+  const aInput = document.getElementById('profAvatarUrl');
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  let currentSrc = (aInput && aInput.value.trim()) ? aInput.value.trim() : '';
+  if (!currentSrc && avatarEl) {
+    const imgTag = avatarEl.querySelector('img');
+    if (imgTag && imgTag.src) currentSrc = imgTag.src;
+  }
+
+  if (currentSrc) {
+    const tempImg = new Image();
+    tempImg.crossOrigin = 'anonymous';
+    tempImg.onload = () => {
+      openPhotoAdjusterWithImage(tempImg);
+    };
+    tempImg.onerror = () => {
+      if (typeof Toast !== 'undefined') {
+        Toast.info('Pilih Foto', 'Silakan pilih foto dari perangkat Anda untuk mengatur posisi & zoom.');
+      }
+      document.getElementById('avatarFileInput').click();
+    };
+    tempImg.src = currentSrc;
+  } else {
+    if (typeof Toast !== 'undefined') {
+      Toast.info('Pilih Foto', 'Harap pilih foto terlebih dahulu.');
+    }
+    document.getElementById('avatarFileInput').click();
+  }
+}
+
 // Handle Avatar File Upload with Image Resizing
 function handleAvatarFileSelect(e) {
   const file = e.target.files && e.target.files[0];
@@ -107,10 +488,10 @@ function handleAvatarFileSelect(e) {
     return;
   }
 
-  // Limit file size to 5MB
-  if (file.size > 5 * 1024 * 1024) {
-    if (typeof Toast !== 'undefined') Toast.error('Error', 'Ukuran foto maksimal adalah 5MB!');
-    else if (typeof showToast === 'function') showToast('Ukuran foto maksimal adalah 5MB!', 'error');
+  // Limit file size to 8MB
+  if (file.size > 8 * 1024 * 1024) {
+    if (typeof Toast !== 'undefined') Toast.error('Error', 'Ukuran foto maksimal adalah 8MB!');
+    else if (typeof showToast === 'function') showToast('Ukuran foto maksimal adalah 8MB!', 'error');
     return;
   }
 
@@ -118,45 +499,20 @@ function handleAvatarFileSelect(e) {
   reader.onload = function (evt) {
     const img = new Image();
     img.onload = function () {
-      // Resize image to max 250x250 for lightweight Data URL
-      const canvas = document.createElement('canvas');
-      const maxDim = 250;
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > maxDim) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        }
-      } else {
-        if (height > maxDim) {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-
-      const avatarEl = document.getElementById('profileAvatarLarge');
-      if (avatarEl) {
-        avatarEl.innerHTML = `<img src="${resizedDataUrl}" class="w-full h-full rounded-full object-cover">`;
-      }
-
-      const aInput = document.getElementById('profAvatarUrl');
-      if (aInput) aInput.value = resizedDataUrl;
-
-      if (typeof Toast !== 'undefined') Toast.success('Foto Dipilih', 'Klik "Simpan Perubahan" untuk menyimpan profil.');
+      openPhotoAdjusterWithImage(img);
     };
     img.src = evt.target.result;
   };
   reader.readAsDataURL(file);
+
+  e.target.value = '';
 }
+
+window.openPhotoAdjuster = openPhotoAdjuster;
+window.closePhotoAdjuster = closePhotoAdjuster;
+window.applyPhotoCrop = applyPhotoCrop;
+window.nudgeCrop = nudgeCrop;
+window.handleAvatarFileSelect = handleAvatarFileSelect;
 
 // Handle Save Profile Info
 let isProfileSubmitting = false;
@@ -201,7 +557,8 @@ async function handleSaveProfileInfo(e) {
     }
     try {
       const ext = avatar.split(';')[0].split('/')[1] || 'jpg';
-      const uploadRes = await API.uploadFile(`avatar-${user.id || 'usr'}.${ext}`, `image/${ext}`, avatar);
+      const folderId = (typeof CONFIG !== 'undefined' && CONFIG.PROFILE_FOLDER_ID) ? CONFIG.PROFILE_FOLDER_ID : '1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE';
+      const uploadRes = await API.uploadFile(`avatar-${user.id || 'usr'}.${ext}`, `image/${ext}`, avatar, { isProfile: true, folderId });
       if (uploadRes && uploadRes.success && uploadRes.url) {
         finalAvatar = uploadRes.url;
       } else {

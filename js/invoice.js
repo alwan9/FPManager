@@ -994,6 +994,17 @@ const Invoice = {
     },
 
     async saveEditedInvoice(isSilent = false) {
+        const btnSave = document.getElementById('btnSaveInvoice');
+        if (this._isSavingInvoice || (btnSave && btnSave.disabled)) return;
+
+        this._isSavingInvoice = true;
+        const origHtml = btnSave ? btnSave.innerHTML : '';
+        if (btnSave && !isSilent) {
+            btnSave.disabled = true;
+            btnSave.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+            btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...';
+        }
+
         const previewInvNo = document.getElementById('previewInvoiceNo');
         let invNo = previewInvNo ? previewInvNo.innerText.trim() : '';
         if (!invNo || invNo === '-') {
@@ -1071,13 +1082,6 @@ const Invoice = {
 
         const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
-        const btnSave = document.getElementById('btnSaveInvoice');
-        const origHtml = btnSave ? btnSave.innerHTML : '';
-        if (btnSave && !isSilent) {
-            btnSave.disabled = true;
-            btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...';
-        }
-
         try {
             await API.saveInvoice(invoiceRecord);
             this.currentInvoiceId = invNo;
@@ -1100,8 +1104,10 @@ const Invoice = {
                 Toast.error('Gagal Menyimpan', err.message || 'Terjadi kesalahan saat menyimpan data invoice.');
             }
         } finally {
+            this._isSavingInvoice = false;
             if (btnSave && !isSilent) {
                 btnSave.disabled = false;
+                btnSave.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
                 btnSave.innerHTML = origHtml;
             }
         }

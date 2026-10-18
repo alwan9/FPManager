@@ -73,6 +73,10 @@ const TRANSLATIONS = {
     "settings-device-browser": "Browser",
     "settings-device-ip": "Koneksi / IP",
     "settings-device-time": "Waktu Login",
+    "settings-backup-title": "Backup Database & Google Drive",
+    "settings-backup-desc": "Pencadangan otomatis data excel FPManager ke Google Drive & unduh spreadsheet instan.",
+    "settings-btn-backup-now": "Backup Now (Unduh & Upload)",
+
     // Dashboard Page (index.html)
     "dash-title": "Dashboard Keuangan & Projek",
     "dash-desc": "Ringkasan data projek aktif, deadline terdekat, dan performa omzet Anda secara real-time.",
@@ -338,6 +342,10 @@ const TRANSLATIONS = {
     "settings-device-browser": "Browser",
     "settings-device-ip": "Connection / IP",
     "settings-device-time": "Login Time",
+    "settings-backup-title": "Database & Google Drive Backup",
+    "settings-backup-desc": "Automated backup of all FPManager excel data to Google Drive & instant spreadsheet download.",
+    "settings-btn-backup-now": "Backup Now (Download & Upload)",
+
 
 
     // Dashboard Page (index.html)

@@ -77,6 +77,30 @@ const CONFIG = {
     localStorage.setItem('cfg_lang', val);
   },
 
+  get BACKUP_FOLDER_ID() {
+    return '111c2EllGHzFpHctklke2N-Dwi0gd-Vrc';
+  },
+
+  get BACKUP_FOLDER_URL() {
+    return 'https://drive.google.com/drive/folders/111c2EllGHzFpHctklke2N-Dwi0gd-Vrc?usp=sharing';
+  },
+
+  get PROFILE_FOLDER_ID() {
+    return '1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE';
+  },
+
+  get PROFILE_FOLDER_URL() {
+    return 'https://drive.google.com/drive/folders/1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE?usp=sharing';
+  },
+
+  get AUTO_BACKUP_ENABLED() {
+    const val = localStorage.getItem('cfg_auto_backup_enabled');
+    return val === null ? true : val === 'true';
+  },
+  set AUTO_BACKUP_ENABLED(val) {
+    localStorage.setItem('cfg_auto_backup_enabled', val);
+  },
+
   PAYMENT_ACCOUNTS: [
     {
       id: 'bsi',
@@ -500,7 +524,14 @@ function showConfirmModal(options) {
     const okBtn = modal.querySelector('#gConfirmOkBtn');
 
     if (cancelBtn) cancelBtn.onclick = () => cleanup(false);
-    if (okBtn) okBtn.onclick = () => cleanup(true);
+    if (okBtn) {
+      okBtn.onclick = () => {
+        if (okBtn.disabled) return;
+        okBtn.disabled = true;
+        okBtn.classList.add('opacity-60', 'pointer-events-none');
+        cleanup(true);
+      };
+    }
 
     modal.onclick = (e) => {
       if (e.target === modal) cleanup(false);
@@ -688,6 +719,9 @@ function promptMetodePelunasanModal(options = {}) {
 
     if (confirmBtn) {
       confirmBtn.onclick = () => {
+        if (confirmBtn.disabled) return;
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add('opacity-60', 'pointer-events-none');
         const chosenMetode = selectEl ? selectEl.value : 'Shopee';
         const chosenNote = noteEl ? noteEl.value.trim() : '';
         cleanup({

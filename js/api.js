@@ -1327,13 +1327,21 @@ const API = {
   },
 
   // Upload file to Google Drive folder parent (stores link in cell instead of massive base64)
-  uploadFile: async (fileName, fileType, base64Data) => {
+  uploadFile: async (fileName, fileType, base64Data, options = {}) => {
     try {
       const body = new URLSearchParams();
       body.append("action", "uploadFile");
       body.append("token", API.getToken());
       body.append("apiKey", CONFIG.API_KEY);
-      body.append("data", JSON.stringify({ fileName, fileType, base64Data }));
+
+      const isProfile = typeof options === 'boolean'
+        ? options
+        : (options.isProfile || String(fileName).toLowerCase().includes('avatar') || String(fileName).toLowerCase().includes('profile'));
+
+      const defaultFolderId = isProfile ? (CONFIG.PROFILE_FOLDER_ID || '1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE') : '';
+      const folderId = (typeof options === 'object' && options.folderId) ? options.folderId : defaultFolderId;
+
+      body.append("data", JSON.stringify({ fileName, fileType, base64Data, isProfile, folderId }));
       const res = await fetch(CONFIG.API_URL, { method: "POST", body });
       return await res.json();
     } catch (e) {
@@ -1877,12 +1885,167 @@ const API = {
       success: true,
       message: isEn ? "Invoice successfully deleted." : "Invoice berhasil dihapus."
     };
+  },
+
+  // -------------------------------------------------------------
+  // BACKUP DATABASE SPREADSHEET KE GOOGLE DRIVE
+  // -------------------------------------------------------------
+  _activeBackupPromise: null,
+  _lastBackupFinishedTime: 0,
+
+  backupDatabase: async (options = {}) => {
+    // 1. Proteksi Request Ganda: jika sedang ada request backup yang berjalan, gunakan promise yang sama
+    if (API._activeBackupPromise) {
+      console.warn("[API.backupDatabase] Backup sedang dalam proses, mencegah request ganda.");
+      return API._activeBackupPromise;
+    }
+
+    // 2. Proteksi Request Ganda: cegah spam klik jika backup baru saja selesai dalam 10 detik terakhir
+    const now = Date.now();
+    if (!options.force && (now - API._lastBackupFinishedTime) < 10000) {
+      return {
+        success: false,
+        isDuplicate: true,
+        message: "Backup baru saja selesai diproses beberapa detik yang lalu. Mohon tunggu 10 detik untuk menghindari duplikasi."
+      };
+    }
+
+    API._activeBackupPromise = (async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "backupDatabase");
+        if (options.triggerType) body.append("triggerType", options.triggerType);
+        if (options.folderId) body.append("folderId", options.folderId);
+
+        const res = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        const result = await res.json();
+        if (result && result.success) {
+          API._lastBackupFinishedTime = Date.now();
+        }
+        return result;
+      } catch (err) {
+        console.error("POST backupDatabase error:", err);
+        return {
+          success: false,
+          message: "Tidak dapat terhubung ke server backup: " + (err.message || err)
+        };
+      } finally {
+        API._activeBackupPromise = null;
+      }
+    })();
+
+    return API._activeBackupPromise;
+  },
+
+  // Daftarkan trigger Cloud 24/7 di Google Apps Script (06:00 & 21:00 WIB)
+  setupAutoBackupTriggers: async () => {
+    try {
+      const body = new URLSearchParams();
+      API.appendAuthBody(body, "setupAutoBackupTriggers");
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await res.json();
+    } catch (err) {
+      try {
+        const url = API.getAuthUrl("setupAutoBackupTriggers");
+        const resGet = await fetch(url);
+        return await resGet.json();
+      } catch (errGet) {
+        return {
+          success: false,
+          message: "Gagal menghubungkan ke server untuk setup trigger: " + (err.message || err)
+        };
+      }
+    }
+  },
+
+  // Ambil riwayat status backup dari server
+  getBackupStatus: async () => {
+    try {
+      const url = API.getAuthUrl("getBackupStatus");
+      const res = await fetch(url);
+      return await res.json();
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // Pengecekan cerdas Auto-Backup harian (Pagi 06:00 WIB)
+  checkAndRunAutoBackup: async () => {
+    try {
+      if (typeof CONFIG !== 'undefined' && CONFIG.AUTO_BACKUP_ENABLED === false) {
+        return;
+      }
+      const token = API.getToken();
+      if (!token) return;
+
+      if (API._activeBackupPromise) {
+        console.log("[AutoBackup] Backup sedang berlangsung, auto-backup ditunda.");
+        return;
+      }
+
+      const now = new Date();
+      const hour = now.getHours();
+      const todayStr = now.toISOString().split('T')[0];
+
+      // Auto backup harian dimulai tepat pada jam 06:00 WIB
+      if (hour < 6) return;
+      const slot = 'pagi';
+
+      const storageKey = `fpm_auto_backup_${slot}_date`;
+      const lastDoneDate = localStorage.getItem(storageKey);
+      if (lastDoneDate === todayStr) {
+        return;
+      }
+
+      const lockKey = `fpm_backup_running_${slot}`;
+      if (sessionStorage.getItem(lockKey)) return;
+      sessionStorage.setItem(lockKey, 'true');
+
+      console.log(`[AutoBackup] Menjalankan pencadangan otomatis slot ${slot}...`);
+      const res = await API.backupDatabase({ triggerType: `Auto-${slot.toUpperCase()}` });
+      sessionStorage.removeItem(lockKey);
+
+      if (res && res.success) {
+        localStorage.setItem(storageKey, todayStr);
+        localStorage.setItem('fpm_last_backup_time', new Date().toISOString());
+        localStorage.setItem('fpm_last_backup_readable', res.backupTime || new Date().toLocaleString('id-ID'));
+        if (res.excelDriveUrl || res.spreadsheetCopyUrl) {
+          localStorage.setItem('fpm_last_backup_url', res.excelDriveUrl || res.spreadsheetCopyUrl);
+        }
+        console.log(`[AutoBackup] Berhasil mencadangkan data slot ${slot} ke Google Drive.`, res);
+      }
+    } catch (err) {
+      console.warn("[AutoBackup] Pengecekan otomatis dilewati:", err);
+    }
   }
 };
 
 window.API = API;
 window.APICache = APICache;
 window.FPManagerDB = FPManagerDB;
+
+// Jalankan pengecekan cerdas Auto-Backup (Pagi & Malam) secara otomatis di background saat halaman web siap
+if (typeof document !== 'undefined') {
+  const triggerAutoBackupWhenReady = () => {
+    setTimeout(() => {
+      if (typeof API !== 'undefined' && typeof API.checkAndRunAutoBackup === 'function') {
+        API.checkAndRunAutoBackup();
+      }
+    }, 4000);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', triggerAutoBackupWhenReady);
+  } else {
+    triggerAutoBackupWhenReady();
+  }
+}
 
 
 

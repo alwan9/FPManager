@@ -1452,7 +1452,9 @@ async function handleSisaChange(selectEl) {
 }
 
 // Fitur Lunasi Proyek
+let isLunasiProcessing = false;
 async function lunasiProyek() {
+  if (isLunasiProcessing) return;
   if (!currentProyek) return;
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
@@ -1466,17 +1468,25 @@ async function lunasiProyek() {
     return;
   }
 
-  const result = await promptMetodePelunasanModal({
-    proyekId: currentProyek.iDProyek || '',
-    namaPelanggan: currentProyek.namaPelanggan,
-    namaProyek: currentProyek.namaProyek,
-    nominal: nominalVal,
-    dp: dpVal,
-    sisa: sisa,
-    currentMetode: currentProyek.metodePembayaran || currentProyek.metode || 'Shopee'
-  });
+  isLunasiProcessing = true;
+  let result = null;
+  try {
+    result = await promptMetodePelunasanModal({
+      proyekId: currentProyek.iDProyek || '',
+      namaPelanggan: currentProyek.namaPelanggan,
+      namaProyek: currentProyek.namaProyek,
+      nominal: nominalVal,
+      dp: dpVal,
+      sisa: sisa,
+      currentMetode: currentProyek.metodePembayaran || currentProyek.metode || 'Shopee'
+    });
+  } catch (mErr) {
+    isLunasiProcessing = false;
+    return;
+  }
 
   if (!result || !result.confirmed) {
+    isLunasiProcessing = false;
     return;
   }
 
@@ -1591,6 +1601,7 @@ async function lunasiProyek() {
     console.error(error);
     showToast({ title: "Error", message: "Terjadi kesalahan saat melunasi proyek.", type: "error" });
   } finally {
+    isLunasiProcessing = false;
     const sisaSelect = document.getElementById('modalSisaSelect');
     if (sisaSelect) {
       sisaSelect.disabled = false;
@@ -1598,7 +1609,10 @@ async function lunasiProyek() {
   }
 }
 // Hapus Proyek Action
+let isDeletingProyek = false;
 async function hapusProyek(id, name) {
+  if (isDeletingProyek) return;
+
   if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
     if (typeof Toast !== 'undefined') {
       Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk menghapus projek.");
@@ -1620,12 +1634,20 @@ async function hapusProyek(id, name) {
     ? `Are you sure you want to delete project ${prjName ? `"${prjName}"` : `(${id})`}? This action cannot be undone.`
     : `Apakah Anda yakin ingin menghapus projek ${prjName ? `"${prjName}"` : `(${id})`}? Tindakan ini tidak dapat dibatalkan.`;
 
-  const isConfirmed = await showConfirmModal({
-    title: isEn ? "Delete Project" : "Hapus Projek",
-    message: confirmMsg,
-    type: "danger",
-    confirmText: isEn ? "Delete Project" : "Hapus Projek"
-  });
+  isDeletingProyek = true;
+  let isConfirmed = false;
+  try {
+    isConfirmed = await showConfirmModal({
+      title: isEn ? "Delete Project" : "Hapus Projek",
+      message: confirmMsg,
+      type: "danger",
+      confirmText: isEn ? "Delete Project" : "Hapus Projek"
+    });
+  } catch (cErr) {
+    isDeletingProyek = false;
+    return;
+  }
+
   if (isConfirmed) {
     try {
       const res = await API.deleteProyek(id);
@@ -1651,7 +1673,11 @@ async function hapusProyek(id, name) {
         message: isEn ? "An error occurred while deleting project." : "Terjadi kesalahan saat menghapus projek.",
         type: "error"
       });
+    } finally {
+      isDeletingProyek = false;
     }
+  } else {
+    isDeletingProyek = false;
   }
 }
 function getGeminiApiKey() {
@@ -1999,6 +2025,13 @@ function formatRupiah(number) {
 
 // Update status of project inline from table select
 async function updateProyekStatus(id, newStatus, selectEl) {
+  if (selectEl) {
+    if (selectEl.dataset.isUpdating === 'true') return;
+    selectEl.dataset.isUpdating = 'true';
+    selectEl.disabled = true;
+    selectEl.classList.add('opacity-60', 'pointer-events-none');
+  }
+
   try {
     // Find original project object
     const list = window.allProyekList || [];
@@ -2176,11 +2209,24 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       type: "error"
     });
     loadProyekData();
+  } finally {
+    if (selectEl) {
+      delete selectEl.dataset.isUpdating;
+      selectEl.disabled = false;
+      selectEl.classList.remove('opacity-60', 'pointer-events-none');
+    }
   }
 }
 
 // Update assign designer of project inline from table select
 async function updateProyekAssign(id, newDesignerId, selectEl) {
+  if (selectEl) {
+    if (selectEl.dataset.isUpdating === 'true') return;
+    selectEl.dataset.isUpdating = 'true';
+    selectEl.disabled = true;
+    selectEl.classList.add('opacity-60', 'pointer-events-none');
+  }
+
   try {
     const list = window.allProyekList || [];
     const proyek = list.find(p => (p.iDProyek || p.idProjek || p.id) === id);
@@ -2259,6 +2305,12 @@ async function updateProyekAssign(id, newDesignerId, selectEl) {
       type: "error"
     });
     loadProyekData();
+  } finally {
+    if (selectEl) {
+      delete selectEl.dataset.isUpdating;
+      selectEl.disabled = false;
+      selectEl.classList.remove('opacity-60', 'pointer-events-none');
+    }
   }
 }
 window.updateProyekAssign = updateProyekAssign;
@@ -2570,7 +2622,10 @@ function showProyekSkeletons() {
 }
 
 // Action Bulk Delete
+let isBulkDeletingProyek = false;
 async function bulkDeleteProyek() {
+  if (isBulkDeletingProyek) return;
+
   if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
     if (typeof Toast !== 'undefined') {
       Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk menghapus projek.");
@@ -2588,17 +2643,26 @@ async function bulkDeleteProyek() {
 
   if (ids.length === 0) return;
 
-  const isConfirmed = await showConfirmModal({
-    title: "Hapus Projek Terpilih",
-    message: `Apakah Anda yakin ingin menghapus ${ids.length} projek terpilih? Tindakan ini tidak dapat dibatalkan.`,
-    type: "danger",
-    confirmText: "Hapus Semua"
-  });
+  isBulkDeletingProyek = true;
+  let isConfirmed = false;
+  try {
+    isConfirmed = await showConfirmModal({
+      title: "Hapus Projek Terpilih",
+      message: `Apakah Anda yakin ingin menghapus ${ids.length} projek terpilih? Tindakan ini tidak dapat dibatalkan.`,
+      type: "danger",
+      confirmText: "Hapus Semua"
+    });
+  } catch (cErr) {
+    isBulkDeletingProyek = false;
+    return;
+  }
+
   if (isConfirmed) {
     try {
       const btn = document.getElementById('btnBulkDelete');
       if (btn) {
         btn.disabled = true;
+        btn.classList.add('opacity-60', 'pointer-events-none');
         btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>Menghapus...`;
       }
 
@@ -2626,13 +2690,17 @@ async function bulkDeleteProyek() {
         type: "error"
       });
     } finally {
+      isBulkDeletingProyek = false;
       const btn = document.getElementById('btnBulkDelete');
       if (btn) {
         btn.innerHTML = `<i class="fa-solid fa-trash-can mr-2"></i><span>Hapus Terpilih (<span id="selectedCount">0</span>)</span>`;
         btn.disabled = true;
+        btn.classList.remove('opacity-60', 'pointer-events-none');
         btn.classList.add('hidden');
       }
     }
+  } else {
+    isBulkDeletingProyek = false;
   }
 }
 

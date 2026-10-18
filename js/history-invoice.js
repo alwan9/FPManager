@@ -365,9 +365,13 @@ const HistoryInvoice = {
     if (!id) return;
 
     const btn = document.getElementById('btnConfirmDeleteInvoice');
+    if (this._isDeletingInvoice || (btn && btn.disabled)) return;
+
+    this._isDeletingInvoice = true;
     const origHtml = btn ? btn.innerHTML : '';
     if (btn) {
       btn.disabled = true;
+      btn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menghapus...';
     }
 
@@ -390,8 +394,10 @@ const HistoryInvoice = {
         Toast.error("Error", "Terjadi kesalahan saat menghapus invoice.");
       }
     } finally {
+      this._isDeletingInvoice = false;
       if (btn) {
         btn.disabled = false;
+        btn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
         btn.innerHTML = origHtml;
       }
     }
