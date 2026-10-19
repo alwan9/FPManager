@@ -1165,7 +1165,7 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 /* ======================================================= */
 #dynamic-island-container {
   position: fixed;
-  top: max(env(safe-area-inset-top, 0px), 11px);
+  top: 9px !important;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999999;
@@ -1175,12 +1175,12 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   pointer-events: none;
   width: 100%;
   max-width: 440px;
-  padding: 0 12px;
+  padding: 0 !important;
   box-sizing: border-box;
 }
 
 #dynamic-island-container.standalone-island {
-  top: 11px !important;
+  top: 9px !important;
   padding: 0 !important;
 }
 
