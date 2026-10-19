@@ -3,6 +3,11 @@ body {
   background-color: #fafafa;
 }
 
+/* Typography: Plus Jakarta Sans for all Titles & Headings */
+h1, h2, h3, h4, h5, h6, .font-heading, .heading-font, .font-jakarta {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+}
+
 .no-print {
   display: block;
 }
@@ -262,6 +267,88 @@ aside {
 .hover-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05), 0 8px 8px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* Dashboard Stat Cards: 4 Badge Icons must never overlap or cover value/data */
+#statCardTotal,
+#statCardPendapatan,
+#statCardPengeluaran,
+#statCardKeuntungan {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+#statCardTotal > div:first-child,
+#statCardPendapatan > div:first-child,
+#statCardPengeluaran > div:first-child,
+#statCardKeuntungan > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 0.35rem !important;
+}
+
+#statTotalProyek,
+#statPendapatan,
+#statPengeluaran,
+#statKeuntungan {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 0.35rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#statCard1Icon,
+#statCard2Icon,
+#statCard3Icon,
+#statCard4Icon {
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: static !important;
+}
+
+@media (max-width: 639px) {
+  #statCardTotal,
+  #statCardPendapatan,
+  #statCardPengeluaran,
+  #statCardKeuntungan {
+    padding: 0.75rem 0.85rem !important;
+    min-height: 94px !important;
+  }
+
+  #statTotalProyek,
+  #statPendapatan,
+  #statPengeluaran,
+  #statKeuntungan {
+    font-size: 1.05rem !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  #statCard1Icon,
+  #statCard2Icon,
+  #statCard3Icon,
+  #statCard4Icon {
+    padding: 0.35rem 0.45rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  #statCard1Icon i,
+  #statCard2Icon i,
+  #statCard3Icon i,
+  #statCard4Icon i {
+    font-size: 0.825rem !important;
+  }
 }
 
 /* Dashboard History / Recent Projects Micro Badges */

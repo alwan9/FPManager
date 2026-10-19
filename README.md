@@ -49,47 +49,64 @@ Aplikasi FPManager dikembangkan dengan standar visual premium dan responsif demi
 
 ```bash
 FPManager/
+├── assets/                 # Aset statis grafis & media
+│   ├── img/                # Logo, favicon, ikon PWA, tanda tangan, QRIS
+│   ├── watermark/          # Watermark dokumen nota/invoice
+│   └── maintenance-assets/ # Video animasi mode maintenance
 ├── css/
-│   ├── style.css           # Styling kustom & animasi transisi panel
-│   ├── darkmode.css        # Variabel warna & tema gelap
-│   └── tailwind.min.css    # Pustaka framework Tailwind CSS v2 (Terlokalisasi Offline)
+│   ├── style.css           # Styling kustom, tipografi Plus Jakarta Sans, & tabel
+│   ├── darkmode.css        # Variabel warna & tema gelap (HSL)
+│   └── tailwind.min.css    # Framework Tailwind CSS v2 (Terlokalisasi Offline ~44KB)
+├── docs/                   # Dokumentasi resmi arsitektur & desain
+│   ├── FOLDER_STRUCTURE.md # Panduan struktur folder & tata kelola berkas
+│   ├── DESIGN_SYSTEM.md    # Standar UI/UX, warna, modal popup, & tipografi
+│   └── README.md           # Indeks navigasi dokumentasi
 ├── js/
-│   ├── admin-tasks.js      # Controller manajemen tugas dan delegasi aktivitas staf/admin
-│   ├── api.js              # Controller komunikasi data Sheets API & Mesin Offline Queue
+│   ├── admin-tasks.js      # Controller manajemen checklist tugas harian admin
+│   ├── api.js              # Controller komunikasi data Sheets API & offline queue
 │   ├── auth.js             # Validasi hak akses 3-Role (super_admin, designer, service)
 │   ├── calendar.js         # Eksportir berkas iCal (.ics) & template Google Calendar
-│   ├── config.js           # Getters/Setters konfigurasi aplikasi & modal konfirmasi custom
-│   ├── dashboard.js        # Logic perhitungan dasbor, grafik Chart.js, & pengingat
-│   ├── excel.js            # Modul ekspor tabel proyek ke format spreadsheet Excel (.xlsx)
+│   ├── config.js           # Konfigurasi aplikasi & proteksi form modal terisi
+│   ├── dashboard.js        # Logic perhitungan dasbor & grafik analitik
+│   ├── excel.js            # Modul ekspor/impor tabel ke Excel (.xlsx)
 │   ├── history-invoice.js  # Controller riwayat pencatatan dan invoice
 │   ├── i18n.js             # Manajemen pelokalan bahasa (ID / EN)
-│   ├── invoice.js          # Generator template nota pembayaran & ekspor PDF
+│   ├── invoice.js          # Generator template nota pembayaran & cetak PDF
 │   ├── keuangan.js         # Handler formulir & mutasi kas masuk/keluar keuangan
 │   ├── laporan.js          # Logic pemrosesan analitik laba rugi & omzet bulanan
-│   ├── pengaturan.js       # Kontrol ekspor-impor database lokal cadangan & konfigurasi API
-│   ├── profil.js           # Pengolah data pengguna & interseptor upload foto profil GDrive
+│   ├── pengaturan.js       # Kontrol ekspor-impor database lokal & konfigurasi API
+│   ├── profil.js           # Pengolah data pengguna & upload foto profil
 │   ├── proyek.js           # Logic pencarian, pagination, filter, & integrasi WhatsApp
 │   ├── pwa.js              # PWA install banner prompt & liveness detector
 │   ├── tambah.js           # Validasi formulir pendaftaran proyek baru
 │   ├── theme.js            # Switcher tema gelap/terang
-│   ├── toast.js            # Sistem notifikasi pop-up cantik yang dinamis
+│   ├── toast.js            # Sistem notifikasi pop-up dinamis
 │   ├── tools.js            # AI Assistant Gemini, Prompt Generator, & Shortcut tools
 │   └── user-management.js  # Modul Manajemen User 3 Role (Super Admin Only)
+├── notes/                  # Catatan internal pengembang
+│   ├── aturan_prompt.txt   # Pedoman baku prompt & standar koding
+│   ├── next_fitur.txt      # Backlog ide & perencanaan fitur
+│   └── README.md           # Panduan direktori notes
+├── admin-tasks.html        # Halaman Aktivitas & Checklist Harian Staf
+├── history-invoice.html    # Halaman Riwayat Invoice & Status Pembayaran
 ├── index.html              # Halaman Dashboard Utama
-├── proyek.html             # Daftar Manajemen Proyek (DataTables)
-├── tambah-proyek.html      # Formulir Input & Edit Proyek
-├── keuangan.html           # Pencatatan Buku Kas & Mutasi Keuangan
-├── history-invoice.html    # Riwayat Invoice
-├── laporan.html            # Laporan Keuangan Tahunan & Grafik
-├── tools.html              # Pusat Prompt AI, Pintasan, & Referensi Desain
-├── profil.html             # Halaman Pengaturan Akun & Unggah Foto
-├── invoice.html            # Pratinjau & Cetak Nota Pembayaran
-├── login.html              # Halaman Masuk Akun Pengguna
-├── user-management.html    # Modul Manajemen User & Role (Super Admin Only)
-├── manifest.json           # PWA Manifest metadata
-├── sw.js                   # Service Worker untuk Caching Berkas Luring
-└── kode.gs                 # Backend Google Apps Script (Keamanan, Upload Drive, & DB Sheets)
+├── invoice.html            # Halaman Generator & Cetak Nota Pembayaran
+├── keuangan.html           # Halaman Pencatatan Buku Kas & Mutasi Keuangan
+├── laporan.html            # Halaman Laporan Keuangan & Analitik Bisnis
+├── login.html              # Halaman Masuk Akun Pengguna (Sesi 3 Hari)
+├── maintenance.html        # Halaman Mode Pemeliharaan Sistem
+├── pengaturan.html         # Halaman Pengaturan Aplikasi & Backup Database
+├── profil.html             # Halaman Pengaturan Akun & Profil Pengguna
+├── proyek.html             # Halaman Daftar Manajemen Proyek (DataTables)
+├── tambah-proyek.html      # Halaman Formulir Input & Edit Proyek
+├── tools.html              # Halaman Pusat Prompt AI, Pintasan, & Referensi Desain
+├── user-management.html    # Halaman Manajemen Pengguna & Hak Akses (Super Admin)
+├── manifest.json           # PWA Web App Manifest metadata
+├── sw.js                   # PWA Service Worker (Cache Versi Luring)
+└── kode.gs                 # Backend Google Apps Script (Keamanan & DB Sheets)
 ```
+
+> 📖 **Panduan Lengkap Arsitektur**: Lihat rincian detail pada [docs/FOLDER_STRUCTURE.md](file:///c:/Users/user/Desktop/FPManager/docs/FOLDER_STRUCTURE.md) dan standar UI pada [docs/DESIGN_SYSTEM.md](file:///c:/Users/user/Desktop/FPManager/docs/DESIGN_SYSTEM.md).
 
 ---
 

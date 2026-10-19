@@ -129,7 +129,7 @@ function applyDashboardRoleCustomizations() {
     // 2. Personalize Welcome Banner for Designer
     const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : 'Designer';
     if (dashWelcomeTitle) {
-      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <span class="inline-block align-middle ml-1 text-2xl">🎨</span>`;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <i class="fa-solid fa-palette text-amber-300 ml-1 text-xl md:text-2xl"></i>`;
     }
     if (dashWelcomeDesc) {
       dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
@@ -194,7 +194,7 @@ function applyDashboardRoleCustomizations() {
     // Super Admin & Service Roles (Allow Financial View)
     if (user && (user.nama || user.username) && dashWelcomeTitle) {
       const displayName = user.nama || user.username;
-      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <span class="inline-block align-middle text-2xl">👋</span>`;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <i class="fa-solid fa-hand text-amber-300 ml-1 text-xl md:text-2xl"></i>`;
     }
     if (chartCard) chartCard.classList.remove('hidden');
     if (toggleHideNominalBtn) toggleHideNominalBtn.classList.remove('hidden');
