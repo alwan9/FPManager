@@ -1165,7 +1165,7 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 /* ======================================================= */
 #dynamic-island-container {
   position: fixed;
-  top: 12px;
+  top: 9px !important;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999999;
@@ -1175,12 +1175,13 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   pointer-events: none;
   width: 100%;
   max-width: 440px;
-  padding: 0 12px;
+  padding: 0 !important;
   box-sizing: border-box;
 }
 
 #dynamic-island-container.standalone-island {
-  top: 12px !important;
+  top: 9px !important;
+  padding: 0 !important;
 }
 
 /* iOS PWA Safe Area Inset Support for black-translucent status bar */
@@ -1206,11 +1207,10 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   overflow: hidden;
   box-sizing: border-box;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 
-    0 20px 48px -6px rgba(0, 0, 0, 0.92),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 0 24px rgba(0, 0, 0, 0.6);
+    0 8px 20px -4px rgba(0, 0, 0, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.2);
   transform-origin: top center;
   will-change: width, min-height, transform, opacity, border-radius;
   backdrop-filter: blur(20px);
