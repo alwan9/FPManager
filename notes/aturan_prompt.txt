@@ -1,0 +1,9 @@
+- judul gunakan font  jakarta, 
+- jangan menggunakan emotikon windows, gunakan emotikon ifonfy.
+- jangan mengubah fungsi utama,
+- ukuran padding, dan margin nya buat konsisten antar tabel. acuannya di tabel projek
+- jangan menambah fungsi baru yang tidak ada di aturan
+- jangan merubah css secara drastis (kecuali sudah ada persetujuan dari saya)
+- gunakan cara yang performanya paling ringan dan paling efisien
+- prioritas tetap pada user experience dan kemudahan penggunaan
+- warnanya buat menjadi konsisten

@@ -1,0 +1,12 @@
+restruktur  folder dan untuk target url/routenya bisa di sesuaikan 
+
+buatkan fitut animasi untuk di dinamic island bagi iphone 15+ [SELESAI - morphing pill animation, circular countdown ring, swipe up gesture dismiss, tactile haptics & auto-detection]
+
+
+semua tabel di tampilan hp  beriakn padding dan margin khusus(lebuh kecil agar tbael mudah untuk dilihat)  on profgreasss 
+
+di bagian fitur pelunasan uang itu belum bener, dan harus di cek lagi. buat aghar tidak bisa ganda/ status 2 berubah(selesei)  1 doang uang yang masuyk
+
+fitur auto logout dan bersihkan chatge nya buat agar menjadi minimal akan terlogout setelah 3 hari, berarti hari ke 4 nya harus login lagi. 
+
+buatkan desain md nya buat tampilaan awal. khusunya untuk ukuran fontnya 

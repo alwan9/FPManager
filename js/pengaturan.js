@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const notifStyleSelect = document.getElementById('notifStyle');
   const notifVibrateCheckbox = document.getElementById('notifVibrate');
   const notifSilentCheckbox = document.getElementById('notifSilent');
+  const toastStyleSelect = document.getElementById('toastStyle');
   const toastPositionSelect = document.getElementById('toastPosition');
   const toastDurationSelect = document.getElementById('toastDuration');
   const appLanguageSelect = document.getElementById('appLanguage');
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnTestNotif = document.getElementById('btnTestNotif');
   const btnReqNotif = document.getElementById('btnReqNotif');
   const btnTestToast = document.getElementById('btnTestToast');
+  const btnTestDynamicIsland = document.getElementById('btnTestDynamicIsland');
 
   const waTemplateCard = document.getElementById('waTemplateCard');
   if (waTemplateCard) {
@@ -38,8 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (notifStyleSelect) notifStyleSelect.value = CONFIG.NOTIF_STYLE || 'casual';
   if (notifVibrateCheckbox) notifVibrateCheckbox.checked = CONFIG.NOTIF_VIBRATE !== false;
   if (notifSilentCheckbox) notifSilentCheckbox.checked = !!CONFIG.NOTIF_SILENT;
+  if (toastStyleSelect) toastStyleSelect.value = CONFIG.TOAST_STYLE || 'auto';
   if (toastPositionSelect) toastPositionSelect.value = CONFIG.TOAST_POSITION || 'top-right';
-  if (toastDurationSelect) toastDurationSelect.value = (CONFIG.TOAST_DURATION || 1000).toString();
+  if (toastDurationSelect) toastDurationSelect.value = (CONFIG.TOAST_DURATION || 2500).toString();
   if (appLanguageSelect) appLanguageSelect.value = CONFIG.LANG || 'id';
 
   // Handle Form Submission
@@ -68,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (notifStyleSelect) CONFIG.NOTIF_STYLE = notifStyleSelect.value;
       if (notifVibrateCheckbox) CONFIG.NOTIF_VIBRATE = notifVibrateCheckbox.checked;
       if (notifSilentCheckbox) CONFIG.NOTIF_SILENT = notifSilentCheckbox.checked;
+      if (toastStyleSelect) CONFIG.TOAST_STYLE = toastStyleSelect.value;
       if (toastPositionSelect) CONFIG.TOAST_POSITION = toastPositionSelect.value;
       if (toastDurationSelect) CONFIG.TOAST_DURATION = parseInt(toastDurationSelect.value);
 
@@ -183,6 +187,26 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // Test Apple Dynamic Island Animation
+  if (btnTestDynamicIsland) {
+    btnTestDynamicIsland.addEventListener('click', () => {
+      const isEn = CONFIG.LANG === 'en';
+      if (typeof Toast !== 'undefined' && typeof Toast.dynamicIsland === 'function') {
+        Toast.dynamicIsland(
+          isEn ? "Dynamic Island Active" : "Dynamic Island Aktif",
+          isEn ? "Notification morphing animation for iPhone 15+ & mobile" : "Animasi notifikasi morphing Dynamic Island iPhone 15+ aktif!",
+          "success"
+        );
+      } else {
+        showToast({
+          title: "Dynamic Island",
+          message: "Animasi notifikasi siap digunakan.",
+          type: "success"
+        });
+      }
+    });
+  }
   // Handle Clear Cache & Session Button
   const btnClearStorageCache = document.getElementById('btnClearStorageCache');
   if (btnClearStorageCache) {
@@ -241,6 +265,7 @@ async function resetDefaults() {
     localStorage.removeItem('cfg_notif_style');
     localStorage.removeItem('cfg_notif_vibrate');
     localStorage.removeItem('cfg_notif_silent');
+    localStorage.removeItem('cfg_toast_style');
     localStorage.removeItem('cfg_toast_position');
     localStorage.removeItem('cfg_toast_duration');
     localStorage.removeItem('cfg_lang');
@@ -269,7 +294,11 @@ function renderDeviceInfo() {
   else if (ua.indexOf("X11") !== -1) os = "UNIX";
   else if (ua.indexOf("Linux") !== -1) os = "Linux";
   else if (/Android/.test(ua)) os = "Android";
-  else if (/iPhone|iPad|iPod/.test(ua)) os = "iOS";
+  else if (/iPhone|iPad|iPod/.test(ua)) {
+    os = (typeof Toast !== 'undefined' && typeof Toast.isDynamicIslandSupported === 'function' && Toast.isDynamicIslandSupported())
+      ? "iOS (iPhone 15+ Dynamic Island)"
+      : "iOS";
+  }
 
   // Browser detection
   if (ua.indexOf("Chrome") !== -1 && ua.indexOf("Chromium") === -1) {

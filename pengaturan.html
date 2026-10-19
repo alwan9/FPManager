@@ -22,7 +22,7 @@
     })();
   </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Pengaturan - Kelola FPManager</title>
   <!-- meta infoemasi -->
   <meta name="title" content="FPM - Freelance Project Manager - by Alwan">
@@ -610,9 +610,24 @@
 
               <div class="space-y-4">
                 <div>
+                  <label for="toastStyle"
+                    class="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-1.5"
+                    data-i18n="settings-toast-style">Gaya Tampilan Notifikasi (Toast)</label>
+                  <select id="toastStyle"
+                    class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
+                    <option value="auto">Otomatis (Dynamic Island untuk iPhone 15+ / Layar HP)</option>
+                    <option value="dynamic-island">Dynamic Island (iOS 15+ Pill Animasi - Selalu Aktif)</option>
+                    <option value="classic">Klasik (Kotak Toast Standar)</option>
+                  </select>
+                  <p class="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1">
+                    Animasi Dynamic Island menyesuaikan hardware cutout iPhone 15 / 15 Plus dengan efek spring morphing & gestur swipe up.
+                  </p>
+                </div>
+
+                <div>
                   <label for="toastPosition"
                     class="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-1.5"
-                    data-i18n="settings-toast-pos">Posisi Tampilan Alert</label>
+                    data-i18n="settings-toast-pos">Posisi Tampilan Alert (Mode Klasik)</label>
                   <select id="toastPosition"
                     class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
                     <option value="top-right" data-i18n="settings-opt-tr">Kanan Atas</option>
@@ -629,19 +644,24 @@
                     data-i18n="settings-toast-dur">Durasi Tampil Alert</label>
                   <select id="toastDuration"
                     class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
-                    <option value="1000" selected data-i18n="settings-opt-1s">Sangat Cepat / Default (1 Detik)</option>
-                    <option value="2000" data-i18n="settings-opt-fast">Cepat (2 Detik)</option>
-                    <option value="4000" data-i18n="settings-opt-normal">Sedang / Standar (4 Detik)</option>
-                    <option value="8000" data-i18n="settings-opt-slow">Lama (8 Detik)</option>
+                    <option value="1500" data-i18n="settings-opt-1s">Cepat (1.5 Detik)</option>
+                    <option value="2500" selected data-i18n="settings-opt-fast">Standar Dynamic Island (2.5 Detik)</option>
+                    <option value="4000" data-i18n="settings-opt-normal">Sedang (4 Detik)</option>
+                    <option value="7000" data-i18n="settings-opt-slow">Lama (7 Detik)</option>
                   </select>
                 </div>
               </div>
 
               <div class="pt-2 flex flex-wrap gap-2">
                 <button type="button" id="btnTestToast"
-                  class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-xl border border-indigo-100 transition flex items-center gap-2">
+                  class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-xl border border-indigo-100 dark:border-indigo-800 transition flex items-center gap-2">
                   <i class="fa-solid fa-circle-info"></i>
                   <span data-i18n="settings-btn-test-toast">Kirim Test Alert</span>
+                </button>
+                <button type="button" id="btnTestDynamicIsland"
+                  class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-xl border border-zinc-700 shadow-md transition flex items-center gap-2 cursor-pointer">
+                  <i class="fa-solid fa-mobile-screen"></i>
+                  <span>Test Dynamic Island</span>
                 </button>
               </div>
             </div>

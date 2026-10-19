@@ -56,6 +56,13 @@ const CONFIG = {
     localStorage.setItem('cfg_notif_style', val);
   },
 
+  get TOAST_STYLE() {
+    return localStorage.getItem('cfg_toast_style') || 'auto';
+  },
+  set TOAST_STYLE(val) {
+    localStorage.setItem('cfg_toast_style', val);
+  },
+
   get TOAST_POSITION() {
     return localStorage.getItem('cfg_toast_position') || 'top-right';
   },
@@ -109,7 +116,6 @@ const CONFIG = {
       displayNumber: '7312337627',
       holder: 'Hafiz Alwan',
       type: 'Transfer Bank',
-      note: 'Rekening utama bank',
       icon: 'fa-solid fa-building-columns text-emerald-500',
       badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
     },
@@ -120,7 +126,6 @@ const CONFIG = {
       displayNumber: '104873618392',
       holder: 'Hafiz Alwan',
       type: 'Transfer Bank',
-      note: 'Rekening bank digital',
       icon: 'fa-solid fa-credit-card text-amber-500',
       badgeClass: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400'
     },
@@ -131,7 +136,6 @@ const CONFIG = {
       displayNumber: '0883216760774',
       holder: 'Hafiz Alwan',
       type: 'E-Wallet',
-      note: 'Nomor akun DANA',
       icon: 'fa-solid fa-wallet text-sky-500',
       badgeClass: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400'
     },
@@ -142,7 +146,6 @@ const CONFIG = {
       displayNumber: '0883216760774',
       holder: 'Hafiz Alwan',
       type: 'E-Wallet',
-      note: 'Terhubung ke nomor HP yang sama',
       icon: 'fa-solid fa-bag-shopping text-orange-500',
       badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
     },
@@ -153,7 +156,6 @@ const CONFIG = {
       displayNumber: '085117651702',
       holder: 'Pasya Putri',
       type: 'E-Wallet',
-      note: 'Nomor akun GoPay',
       icon: 'fa-solid fa-money-bill-wave text-emerald-500',
       badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400'
     },
@@ -164,7 +166,6 @@ const CONFIG = {
       displayNumber: 'Toko @premium_dz (Shopee)',
       holder: 'Hafiz Alwan / @premium_dz',
       type: 'Marketplace',
-      note: 'Tautan checkout toko',
       url: 'https://shopee.co.id/premium_dz?categoryId=100642&entryPoint=ShopByPDP&itemId=55317597618',
       icon: 'fa-solid fa-bag-shopping text-orange-500',
       badgeClass: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400'
@@ -176,7 +177,6 @@ const CONFIG = {
       displayNumber: 'QRIS (All E-Wallet / Bank)',
       holder: 'Hafiz Alwan',
       type: 'Digital QRIS',
-      note: 'Scan semua bank/e-wallet',
       icon: 'fa-solid fa-qrcode text-indigo-500',
       badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-400'
     }
@@ -832,10 +832,10 @@ function consolidateKeuanganList(list) {
         const curPelunasan = parseCleanNumber(item.pelunasan, 0);
         const finalPelunasan = Math.max(exPelunasan, curPelunasan);
 
-        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || 
-                        String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || 
-                        (finalDp + finalPelunasan >= finalTotal && finalTotal > 0) ||
-                        (existing.sisa !== undefined && Number(existing.sisa) <= 0 && finalTotal > 0);
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') ||
+          String(existing.statusPembayaran || '').toLowerCase().includes('lunas') ||
+          (finalDp + finalPelunasan >= finalTotal && finalTotal > 0) ||
+          (existing.sisa !== undefined && Number(existing.sisa) <= 0 && finalTotal > 0);
         const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp - finalPelunasan);
         const finalStatus = isLunas ? 'Lunas' : (finalDp > 0 ? 'DP' : 'Belum');
 
@@ -857,9 +857,9 @@ function consolidateKeuanganList(list) {
         const total = parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0));
         const dp = parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0);
         const pelunasan = parseCleanNumber(item.pelunasan, 0);
-        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || 
-                        ((dp + pelunasan) >= total && total > 0) || 
-                        (item.sisa !== undefined && Number(item.sisa) <= 0 && total > 0);
+        const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') ||
+          ((dp + pelunasan) >= total && total > 0) ||
+          (item.sisa !== undefined && Number(item.sisa) <= 0 && total > 0);
         const sisa = isLunas ? 0 : (item.sisa !== undefined ? parseCleanNumber(item.sisa, 0) : Math.max(0, total - dp - pelunasan));
         const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
 

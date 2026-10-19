@@ -1160,6 +1160,363 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   }
 }
 
+/* ======================================================= */
+/* Apple iPhone 15+ Dynamic Island Notification System     */
+/* ======================================================= */
+#dynamic-island-container {
+  position: fixed;
+  top: max(env(safe-area-inset-top, 0px), 11px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  width: 100%;
+  max-width: 440px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+#dynamic-island-container.standalone-island {
+  top: 11px !important;
+}
+
+.dynamic-island {
+  position: relative;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  background: #000000;
+  color: #ffffff;
+  border-radius: 28px;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 20px 48px -6px rgba(0, 0, 0, 0.92),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 24px rgba(0, 0, 0, 0.6);
+  transform-origin: top center;
+  will-change: width, min-height, transform, opacity, border-radius;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Island State: Enter & Fluid Spring Morph */
+.dynamic-island.di-enter {
+  animation: diSpringExpand 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Island State: Fast Jiggle when new notification arrives in-place */
+.dynamic-island.di-morph-jiggle {
+  animation: diMorphJiggle 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.3) forwards;
+}
+
+/* Island State: Smooth Shrink & Exit back into pill cutout */
+.dynamic-island.di-exit {
+  animation: diSpringShrink 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+@keyframes diSpringExpand {
+  0% {
+    width: 124px;
+    min-height: 36px;
+    height: 36px;
+    border-radius: 22px;
+    transform: scale(0.65) translateY(-8px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    width: min(calc(100vw - 20px), 376px);
+    min-height: 56px;
+    height: auto;
+    border-radius: 28px;
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes diMorphJiggle {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.035) translateY(2px);
+  }
+  65% {
+    transform: scale(0.985);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes diSpringShrink {
+  0% {
+    width: min(calc(100vw - 20px), 376px);
+    min-height: 56px;
+    height: auto;
+    border-radius: 28px;
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    width: 124px;
+    min-height: 36px;
+    height: 36px;
+    border-radius: 22px;
+    transform: scale(0.6) translateY(-12px);
+    opacity: 0;
+  }
+}
+
+/* Inner Layout */
+.di-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 13px;
+  gap: 11px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Leading Icon Badge */
+.di-icon-badge {
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+  min-height: 35px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: #ffffff;
+  position: relative;
+  animation: diIconPop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+.di-icon-badge::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  opacity: 0.35;
+  filter: blur(5px);
+  z-index: -1;
+}
+
+@keyframes diIconPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* iOS Dynamic Island Color Palettes */
+.di-badge-success {
+  background: rgba(48, 209, 88, 0.22);
+  color: #30D158;
+  border: 1.5px solid rgba(48, 209, 88, 0.45);
+}
+.di-badge-success::after {
+  background: #30D158;
+}
+
+.di-badge-error {
+  background: rgba(255, 69, 58, 0.22);
+  color: #FF453A;
+  border: 1.5px solid rgba(255, 69, 58, 0.45);
+}
+.di-badge-error::after {
+  background: #FF453A;
+}
+
+.di-badge-warning {
+  background: rgba(255, 159, 10, 0.22);
+  color: #FF9F0A;
+  border: 1.5px solid rgba(255, 159, 10, 0.45);
+}
+.di-badge-warning::after {
+  background: #FF9F0A;
+}
+
+.di-badge-info {
+  background: rgba(10, 132, 255, 0.22);
+  color: #0A84FF;
+  border: 1.5px solid rgba(10, 132, 255, 0.45);
+}
+.di-badge-info::after {
+  background: #0A84FF;
+}
+
+/* Body / Text */
+.di-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: diTextFade 0.35s ease 0.12s both;
+}
+
+@keyframes diTextFade {
+  0% {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.di-title {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", Roboto, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #FFFFFF;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.di-message {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", Roboto, sans-serif;
+  font-size: 0.7188rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.25;
+  margin-top: 1.5px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+/* Trailing Section */
+.di-trailing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  animation: diTrailingPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes diTrailingPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Dynamic Activity Waveform */
+.di-wave-box {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 12px;
+  padding: 0 1px;
+}
+
+.di-wave-bar {
+  width: 2px;
+  border-radius: 9999px;
+  animation: diWaveBounce 0.8s ease-in-out infinite alternate;
+  display: inline-block;
+}
+
+.di-wave-bar:nth-child(1) {
+  height: 5px;
+  animation-delay: 0s;
+}
+.di-wave-bar:nth-child(2) {
+  height: 12px;
+  animation-delay: 0.22s;
+}
+.di-wave-bar:nth-child(3) {
+  height: 8px;
+  animation-delay: 0.44s;
+}
+
+@keyframes diWaveBounce {
+  0% {
+    transform: scaleY(0.4);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scaleY(1.15);
+    opacity: 1;
+  }
+}
+
+/* Circular SVG Timer Ring */
+.di-timer-svg {
+  width: 22px;
+  height: 22px;
+  transform: rotate(-90deg);
+  display: block;
+}
+
+.di-timer-bg {
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 2.2;
+  fill: none;
+}
+
+.di-timer-bar {
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 62.83;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset linear;
+}
+
+/* Micro Close Button */
+.di-close-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.65);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.di-close-btn:hover,
+.di-close-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
 /* PWA Floating Prompts Popup Shadow & Elevation */
 #pwa-android-prompt,
 #pwa-ios-prompt,
