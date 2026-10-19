@@ -986,9 +986,10 @@ document.addEventListener('DOMContentLoaded', async () => {
               if (!isLunas) {
                 const extraPelunasanTxs = (keuanganList || []).filter(k => {
                   if (!k) return false;
-                  const kIdPrj = String(k.idProyek || '').trim();
+                  const isMatch = (typeof isMatchProjectId === 'function')
+                    ? (isMatchProjectId(k.idProyek, k.keterangan, rawTargetId) || isMatchProjectId(k.idProyek, k.keterangan, decodedTargetId))
+                    : ((k.idProyek && (String(k.idProyek).trim() === rawTargetId || String(k.idProyek).trim() === decodedTargetId)));
                   const ket = String(k.keterangan || '').trim().toLowerCase();
-                  const isMatch = (kIdPrj && (kIdPrj === rawTargetId || kIdPrj === decodedTargetId)) || ket.includes(rawTargetId.toLowerCase()) || ket.includes(decodedTargetId.toLowerCase());
                   return isMatch && ket.includes('pelunasan') && !ket.includes('dp');
                 });
                 for (const extraTx of extraPelunasanTxs) {
@@ -999,19 +1000,15 @@ document.addEventListener('DOMContentLoaded', async () => {
               // Cari transaksi keuangan utama yang terhubung dengan projek ini
               const linkedTx = (keuanganList || []).find(k => {
                 if (!k) return false;
+                if (typeof isMatchProjectId === 'function') {
+                  return isMatchProjectId(k.idProyek, k.keterangan, rawTargetId) || isMatchProjectId(k.idProyek, k.keterangan, decodedTargetId);
+                }
                 const kIdPrj = String(k.idProyek || '').trim();
-                const ket = String(k.keterangan || '').trim();
-                const ketLower = ket.toLowerCase();
-                return (
-                  (kIdPrj && (kIdPrj === rawTargetId || kIdPrj === decodedTargetId)) ||
-                  ket.includes(rawTargetId) ||
-                  ket.includes(decodedTargetId) ||
-                  (clientName && ketLower.includes(clientName) && (ketLower.includes('dp') || ketLower.includes('pelunasan') || ketLower.includes('pembayaran') || ketLower.includes('tagihan')))
-                );
+                return kIdPrj && (kIdPrj === rawTargetId || kIdPrj === decodedTargetId);
               });
 
               const statusBayar = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
-              const realCash = isLunas ? (effectivePelunasan > 0 && dp < nominal ? effectivePelunasan : nominal) : (dp > 0 ? dp : 0);
+              const realCash = isLunas ? nominal : (dp > 0 ? dp : 0);
               const updatedDesc = isLunas
                 ? `Pembayaran Lunas - ${payload.pelanggan} (${proyekId})`
                 : (statusBayar === 'DP'

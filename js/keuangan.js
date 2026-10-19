@@ -200,7 +200,7 @@ function consolidateKeuanganList(list) {
         existing.pelunasan = finalPelunasan;
         existing.sisa = finalSisa;
         existing.statusPembayaran = finalStatus;
-        existing.nominal = isLunas ? (finalPelunasan > 0 && finalDp < finalTotal ? finalPelunasan : finalTotal) : finalDp;
+        existing.nominal = isLunas ? finalTotal : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
         if (item.metodeBayarDp) existing.metodeBayarDp = item.metodeBayarDp;
         if (item.metodeBayarPelunasan) existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
@@ -224,7 +224,7 @@ function consolidateKeuanganList(list) {
           pelunasan: pelunasan,
           sisa: sisa,
           statusPembayaran: status,
-          nominal: isLunas ? (pelunasan > 0 && dp < total ? pelunasan : total) : dp,
+          nominal: isLunas ? total : dp,
           catatanPelunasan: item.catatanPelunasan || '',
           metodeBayarDp: item.metodeBayarDp || item.metodePembayaran || '',
           metodeBayarPelunasan: item.metodeBayarPelunasan || item.metodePembayaran || '',
@@ -864,7 +864,7 @@ async function quickUpdatePelunasan(id, action) {
     }
 
     const isLunas = newStatus === 'Lunas' || newSisa <= 0;
-    const realCash = isLunas ? (newPelunasan > 0 && newDp < totalNom ? newPelunasan : totalNom) : newDp;
+    const realCash = isLunas ? totalNom : newDp;
 
     const payload = {
       statusPembayaran: newStatus,

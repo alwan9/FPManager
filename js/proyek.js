@@ -978,7 +978,8 @@ function populateDetailModal(proyek) {
 
   // 1. ID & User ID
   const modalIdEl = document.getElementById('modalId');
-  const isDesRole = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDesRole = isDesigner;
   if (modalIdEl) {
     modalIdEl.textContent = proyekId;
     if (isDesRole) {
@@ -1920,17 +1921,20 @@ async function lunasiProyek() {
         const keuanganList = await API.getKeuangan();
         const prjId = currentProyek.iDProyek;
         
-        // Cari transaksi keuangan DP dari projek ini jika ada
+        // Cari transaksi keuangan dari projek ini secara presisi
         const linkedDpTx = (keuanganList || []).find(k => {
           if (!k) return false;
+          if (typeof isMatchProjectId === 'function') {
+            return isMatchProjectId(k.idProyek, k.keterangan, prjId);
+          }
           const kPrj = String(k.idProyek || '');
-          const ket = String(k.keterangan || '');
-          return (kPrj === prjId || ket.includes(prjId)) && String(k.statusPembayaran || '').toLowerCase() === 'dp';
+          return kPrj === prjId;
         });
 
         if (linkedDpTx) {
-          // Update status & pelunasan di baris DP tanpa merusak nominal kas DP yang sudah masuk
+          // Update status & pelunasan di baris utama proyek (seluruh kas proyek menjadi nominalVal penuh)
           await API.updateKeuangan(linkedDpTx.id, {
+            nominal: nominalVal,
             dp: dpVal,
             pelunasan: settledPelunasan,
             sisa: 0,
@@ -1941,26 +1945,39 @@ async function lunasiProyek() {
             metodePembayaran: chosenMetode,
             catatanPelunasan: result.catatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
           });
-        }
 
-        // Tambah entri mutasi penerimaan kas pelunasan baru di buku Keuangan
-        const txPayload = {
-          tanggal: new Date().toISOString().split('T')[0],
-          jenis: 'Pemasukan',
-          keterangan: `Pelunasan Projek - ${currentProyek.namaPelanggan} (${prjId})`,
-          nominal: sisa, // Kas riil pelunasan yang baru masuk
-          dp: dpVal,
-          pelunasan: settledPelunasan,
-          sisa: 0,
-          totalProyek: nominalVal,
-          statusPembayaran: 'Lunas',
-          metodeBayarDp: dpMetodeAsli,
-          metodeBayarPelunasan: chosenMetode,
-          metodePembayaran: chosenMetode,
-          idProyek: prjId,
-          catatanPelunasan: result.catatan || `Pelunasan tagihan projek via ${chosenMetode} (${formatRupiah(sisa)})`
-        };
-        await API.addKeuangan(txPayload);
+          // Bersihkan entri duplikat ekstra jika ada riwayat transaksi terpisah dari sesi lama
+          const duplicatePelunasanTxs = (keuanganList || []).filter(k => {
+            if (!k || k.id === linkedDpTx.id) return false;
+            const isMatch = (typeof isMatchProjectId === 'function')
+              ? isMatchProjectId(k.idProyek, k.keterangan, prjId)
+              : (String(k.idProyek || '') === prjId);
+            const ket = String(k.keterangan || '').toLowerCase();
+            return isMatch && ket.includes('pelunasan') && !ket.includes('dp');
+          });
+          for (const dTx of duplicatePelunasanTxs) {
+            await API.deleteKeuangan(dTx.id);
+          }
+        } else {
+          // Jika belum ada entri sama sekali di buku Keuangan, buat 1 entri pemasukan lunas
+          const txPayload = {
+            tanggal: new Date().toISOString().split('T')[0],
+            jenis: 'Pemasukan',
+            keterangan: `Pembayaran Lunas - ${currentProyek.namaPelanggan} (${prjId})`,
+            nominal: nominalVal, // Kas riil penuh masuk
+            dp: dpVal,
+            pelunasan: settledPelunasan,
+            sisa: 0,
+            totalProyek: nominalVal,
+            statusPembayaran: 'Lunas',
+            metodeBayarDp: dpMetodeAsli,
+            metodeBayarPelunasan: chosenMetode,
+            metodePembayaran: chosenMetode,
+            idProyek: prjId,
+            catatanPelunasan: result.catatan || `Pelunasan tagihan projek via ${chosenMetode} (${formatRupiah(sisa)})`
+          };
+          await API.addKeuangan(txPayload);
+        }
 
       } catch (kErr) {
         console.warn("Sync keuangan on lunasi error:", kErr);
@@ -2593,13 +2610,16 @@ async function updateProyekStatus(id, newStatus, selectEl) {
           
           const linkedDpTx = (keuanganList || []).find(k => {
             if (!k) return false;
+            if (typeof isMatchProjectId === 'function') {
+              return isMatchProjectId(k.idProyek, k.keterangan, prjId);
+            }
             const kPrj = String(k.idProyek || '');
-            const ket = String(k.keterangan || '');
-            return (kPrj === prjId || ket.includes(prjId));
+            return kPrj === prjId;
           });
 
           if (linkedDpTx) {
             await API.updateKeuangan(linkedDpTx.id, {
+              nominal: nominalVal, // Kas riil penuh masuk saat projek selesai / lunas
               dp: dpVal,
               pelunasan: settledPelunasan,
               sisa: 0,
@@ -2610,6 +2630,19 @@ async function updateProyekStatus(id, newStatus, selectEl) {
               metodePembayaran: chosenMetode,
               catatanPelunasan: addedCatatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
             });
+
+            // Bersihkan entri duplikat ekstra jika ada
+            const extraPelunasanTxs = (keuanganList || []).filter(k => {
+              if (!k || k.id === linkedDpTx.id) return false;
+              const isMatch = (typeof isMatchProjectId === 'function')
+                ? isMatchProjectId(k.idProyek, k.keterangan, prjId)
+                : (String(k.idProyek || '') === prjId);
+              const ket = String(k.keterangan || '').toLowerCase();
+              return isMatch && ket.includes('pelunasan') && !ket.includes('dp');
+            });
+            for (const dTx of extraPelunasanTxs) {
+              await API.deleteKeuangan(dTx.id);
+            }
           } else {
             const txPayload = {
               tanggal: new Date().toISOString().split('T')[0],
@@ -2641,9 +2674,11 @@ async function updateProyekStatus(id, newStatus, selectEl) {
 
           const linkedTxs = (keuanganList || []).filter(k => {
             if (!k) return false;
+            if (typeof isMatchProjectId === 'function') {
+              return isMatchProjectId(k.idProyek, k.keterangan, prjId);
+            }
             const kPrj = String(k.idProyek || '').trim();
-            const ket = String(k.keterangan || '').trim();
-            return kPrj === prjId || ket.includes(prjId);
+            return kPrj === prjId;
           });
 
           for (const tx of linkedTxs) {

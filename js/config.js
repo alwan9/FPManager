@@ -803,6 +803,23 @@ function normalizePaymentMethod(rawMetode, fallbackSumber) {
 window.normalizePaymentMethod = normalizePaymentMethod;
 
 /**
+ * Global Helper: Safe project ID matching with word boundaries to prevent ID collisions (e.g. PRJ-1 matching PRJ-10)
+ */
+function isMatchProjectId(kIdProyek, kKeterangan, targetId) {
+  if (!targetId) return false;
+  const cleanTarget = String(targetId).trim();
+  if (!cleanTarget) return false;
+  if (kIdProyek && String(kIdProyek).trim() === cleanTarget) return true;
+  if (kKeterangan) {
+    const escaped = cleanTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(^|[^a-zA-Z0-9_-])${escaped}([^a-zA-Z0-9_-]|$)`, 'i');
+    return regex.test(String(kKeterangan));
+  }
+  return false;
+}
+window.isMatchProjectId = isMatchProjectId;
+
+/**
  * Global Helper: Consolidate Financial Mutasi List (1 Project = 1 Consolidated Row)
  */
 function consolidateKeuanganList(list) {
@@ -845,7 +862,7 @@ function consolidateKeuanganList(list) {
         existing.pelunasan = finalPelunasan;
         existing.sisa = finalSisa;
         existing.statusPembayaran = finalStatus;
-        existing.nominal = isLunas ? (finalPelunasan > 0 && finalDp < finalTotal ? finalPelunasan : finalTotal) : finalDp;
+        existing.nominal = isLunas ? finalTotal : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
         if (item.metodeBayarDp) existing.metodeBayarDp = item.metodeBayarDp;
         if (item.metodeBayarPelunasan) existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
@@ -872,7 +889,7 @@ function consolidateKeuanganList(list) {
           pelunasan: pelunasan,
           sisa: sisa,
           statusPembayaran: status,
-          nominal: isLunas ? (pelunasan > 0 && dp < total ? pelunasan : total) : dp,
+          nominal: isLunas ? total : dp,
           catatanPelunasan: item.catatanPelunasan || '',
           metodeBayarDp: item.metodeBayarDp || item.metodePembayaran || '',
           metodeBayarPelunasan: item.metodeBayarPelunasan || item.metodePembayaran || '',

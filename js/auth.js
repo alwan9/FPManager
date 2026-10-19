@@ -125,11 +125,21 @@ const SessionManager = {
       try { await FPManagerDB.clearAllStores(); } catch (e) { }
     }
 
+    // Bersihkan seluruh CacheStorage browser agar bersih & minimal
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      } catch (e) { }
+    }
+
     sessionStorage.clear();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('auth_login_time');
     localStorage.removeItem('fpm_offline_queue');
+    localStorage.removeItem('cached_proyek_data');
+    localStorage.removeItem('cached_keuangan_data');
 
     if (document.cookie) {
       const cookies = document.cookie.split(';');
