@@ -1345,7 +1345,7 @@ const Invoice = {
         const logoEl = document.getElementById('previewLogo');
 
         if (logoEl) {
-            logoEl.src = (theme === 'dark') ? 'assets/watermark/wm_white.png' : 'assets/watermark/wm_warna.png';
+            logoEl.src = (theme === 'dark') ? '../assets/watermark/wm_white.png' : '../assets/watermark/wm_warna.png';
         }
 
         if (theme === 'dark') {
@@ -1411,7 +1411,7 @@ const Invoice = {
             const stagger = (r % 2 === 0) ? (gap / 2) : 0;
             for (let c = 0; c < cols; c++) {
                 const img = document.createElement('img');
-                img.src = isDark ? 'assets/watermark/wm_white.png' : 'assets/watermark/wm_warna.png';
+                img.src = isDark ? '../assets/watermark/wm_white.png' : '../assets/watermark/wm_warna.png';
                 img.style.position = 'absolute';
                 img.style.width = `${logoWidth}px`;
                 img.style.height = 'auto';

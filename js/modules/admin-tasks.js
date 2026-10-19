@@ -1199,7 +1199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (permission === "granted") {
         new Notification("FPManager Notifikasi Aktif", {
           body: `Pengingat tugas admin aktif tiap ${settingsData.defaultIntervalHours || 1} jam.`,
-          icon: "./assets/img/icon-192.png"
+          icon: "../assets/img/icon-192.png"
         });
         if (typeof Toast !== "undefined") Toast.success("Izin Diberikan", "Notifikasi browser aktif!");
       } else {
@@ -1249,8 +1249,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (settingsData.browserNotification !== false && "Notification" in window && Notification.permission === "granted") {
       new Notification("Pengingat Tindakan Admin FPManager", {
         body: msg,
-        icon: "./assets/img/icon-192.png",
-        badge: "./assets/img/icon-192.png",
+        icon: "../assets/img/icon-192.png",
+        badge: "../assets/img/icon-192.png",
         tag: "admin-task-reminder"
       });
     }
@@ -1266,6 +1266,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTasks();
     const tableEl = document.querySelector("#taskTableBody");
     if (tableEl) tableEl.scrollIntoView({ behavior: "smooth" });
+  };
+
+  window.setFilterAdmin = (val) => {
+    if (filterAdminSelect) {
+      filterAdminSelect.value = val;
+      renderTasks();
+    }
   };
 
   // Search & Filter event listeners

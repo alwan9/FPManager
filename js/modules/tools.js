@@ -1359,9 +1359,9 @@ let currentWmImage = null;
 let selectedWmVariant = 'auto'; // 'auto' | 'white' | 'black' | 'warna' | 'custom'
 
 const WM_PRESETS = {
-  white: 'assets/watermark/wm_white.png',
-  black: 'assets/watermark/wm_black.png',
-  warna: 'assets/watermark/wm_warna.png'
+  white: '../assets/watermark/wm_white.png',
+  black: '../assets/watermark/wm_black.png',
+  warna: '../assets/watermark/wm_warna.png'
 };
 
 const wmImages = {

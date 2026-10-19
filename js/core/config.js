@@ -1155,6 +1155,11 @@ function copyAllPaymentAccounts() {
 // ==========================================
 // Global QRIS Image Modal, Copy & Download
 // ==========================================
+function getQrisImagePath() {
+  const isInPages = (window.location.pathname || '').includes('/pages/');
+  return isInPages ? '../assets/img/qris.jpg' : 'assets/img/qris.jpg';
+}
+
 function showQrisModal() {
   let modal = document.getElementById('globalQrisModal');
   if (!modal) {
@@ -1196,7 +1201,7 @@ function showQrisModal() {
 
       <!-- QRIS Image Card -->
       <div class="p-3 bg-zinc-50 dark:bg-zinc-950/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 flex flex-col items-center justify-center">
-        <img id="qrisImageElement" src="assets/img/qris.jpg" alt="Kode QRIS FPManager" class="w-full max-h-[380px] object-contain rounded-xl shadow-xs" />
+        <img id="qrisImageElement" src="${getQrisImagePath()}" alt="Kode QRIS FPManager" class="w-full max-h-[380px] object-contain rounded-xl shadow-xs" />
         <span class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-2 font-medium">assets/img/qris.jpg</span>
       </div>
 
@@ -1241,7 +1246,7 @@ function closeQrisModal() {
 
 function downloadQrisImage() {
   const link = document.createElement('a');
-  link.href = 'assets/img/qris.jpg';
+  link.href = getQrisImagePath();
   link.download = 'QRIS_FPManager.jpg';
   document.body.appendChild(link);
   link.click();
@@ -1270,7 +1275,7 @@ async function copyQrisImage() {
     let img = document.getElementById('qrisImageElement');
     if (!img) {
       img = new Image();
-      img.src = 'assets/img/qris.jpg';
+      img.src = getQrisImagePath();
     }
 
     if (!img.complete) {

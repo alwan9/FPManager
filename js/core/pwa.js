@@ -527,10 +527,27 @@ async function checkDeadlines() {
 }
 
 function showNotification(title, options) {
+  const isInPages = (window.location.pathname || '').includes('/pages/');
+  const prefix = isInPages ? '../' : './';
+
   const finalOptions = {
-    badge: './assets/img/favicon.png',
+    badge: prefix + 'assets/img/favicon.png',
+    icon: prefix + 'assets/img/icon-192.png',
     ...options
   };
+
+  if (isInPages) {
+    if (typeof finalOptions.icon === 'string' && finalOptions.icon.startsWith('./assets/')) {
+      finalOptions.icon = '../' + finalOptions.icon.slice(2);
+    } else if (typeof finalOptions.icon === 'string' && finalOptions.icon.startsWith('assets/')) {
+      finalOptions.icon = '../' + finalOptions.icon;
+    }
+    if (typeof finalOptions.badge === 'string' && finalOptions.badge.startsWith('./assets/')) {
+      finalOptions.badge = '../' + finalOptions.badge.slice(2);
+    } else if (typeof finalOptions.badge === 'string' && finalOptions.badge.startsWith('assets/')) {
+      finalOptions.badge = '../' + finalOptions.badge;
+    }
+  }
 
   // Set vibrate if enabled
   if (CONFIG.NOTIF_VIBRATE) {

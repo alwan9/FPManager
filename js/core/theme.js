@@ -62,11 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Active Link Highlight
-  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+  const currentFile = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0];
   const links = document.querySelectorAll('#navMenu a.sidebar-link:not(.sidebar-sublink)');
   links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === currentPath || (currentPath === '' && href === 'index.html')) {
+    const href = link.getAttribute('href') || '';
+    const linkFile = href.split('?')[0].split('#')[0].split('/').pop();
+    if (linkFile === currentFile || (currentFile === '' && linkFile === 'index.html')) {
       link.classList.add('bg-indigo-600', 'text-white', 'font-medium', 'shadow-md');
       link.classList.remove('text-zinc-400', 'hover:bg-zinc-800', 'hover:text-zinc-100');
     } else {

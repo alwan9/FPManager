@@ -184,7 +184,7 @@ function applyDashboardRoleCustomizations() {
       chartHeaderTitle.innerHTML = `<span class="hidden md:inline">${isEn ? 'Project Status Distribution' : 'Distribusi Status Projek'}</span><span class="inline md:hidden">${isEn ? 'Status Distribution' : 'Status Projek'}</span>`;
     }
     if (chartHeaderLink) {
-      chartHeaderLink.setAttribute('href', 'proyek.html');
+      chartHeaderLink.setAttribute('href', 'pages/proyek.html');
       chartHeaderLink.setAttribute('title', isEn ? 'View all projects' : 'Lihat semua projek');
     }
     if (chartHeaderLinkText) {
@@ -211,7 +211,7 @@ function applyDashboardRoleCustomizations() {
       statCardPendapatan.setAttribute('title', 'Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran');
     }
     if (statCardPengeluaran) {
-      statCardPengeluaran.setAttribute('href', 'keuangan.html');
+      statCardPengeluaran.setAttribute('href', 'pages/keuangan.html');
       statCardPengeluaran.setAttribute('title', 'Buka modul Keuangan untuk melihat detail Pengeluaran');
     }
     if (statCardKeuntungan) {
@@ -226,7 +226,7 @@ function applyDashboardRoleCustomizations() {
       chartHeaderTitle.innerHTML = `<span class="hidden md:inline">${isEn ? 'Monthly Cashflow Chart' : 'Grafik Arus Keuangan Bulanan'}</span><span class="inline md:hidden">${isEn ? 'Financial Chart' : 'Grafik Keuangan'}</span>`;
     }
     if (chartHeaderLink) {
-      chartHeaderLink.setAttribute('href', 'laporan.html');
+      chartHeaderLink.setAttribute('href', 'pages/laporan.html');
       chartHeaderLink.setAttribute('title', isEn ? 'View financial report' : 'Buka modul laporan');
     }
     if (chartHeaderLinkText) {
@@ -621,7 +621,7 @@ function renderDeadlineAlerts(deadlineAlerts) {
         <button onclick="syncCalendarPromptByProyekId('${alert.iDProyek}')" class="px-2.5 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded-lg text-xs font-bold transition-colors" title="Tambah ke Kalender">
           <i class="fa-solid fa-calendar-plus"></i>
         </button>
-        <a href="proyek.html" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
+        <a href="pages/proyek.html" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
           ${isEn ? 'Check' : 'Cek'}
         </a>
       </div>
@@ -1297,7 +1297,7 @@ function showIncomeBreakdownModal() {
 
       <!-- Footer Actions -->
       <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2 flex-wrap">
-        <a href="keuangan.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">
+        <a href="pages/keuangan.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">
           <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
           <span>${isEn ? 'Open Finance Module' : 'Buka Halaman Keuangan'}</span>
         </a>
