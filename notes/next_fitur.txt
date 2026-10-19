@@ -1,6 +1,6 @@
 restruktur  folder dan untuk target url/routenya bisa di sesuaikan 
 
-buatkan fitut animasi untuk di dinamic island bagi iphone 15+ [SELESAI - morphing pill animation, circular countdown ring, swipe up gesture dismiss, tactile haptics & auto-detection]
+buatkan fitut animasi untuk di dinamic island bagi iphone 15+ [DIHAPUS / DIBATALKAN]
 
 
 semua tabel di tampilan hp  beriakn padding dan margin khusus(lebuh kecil agar tbael mudah untuk dilihat)  on profgreasss 
