@@ -148,18 +148,30 @@ function formatDateTime(dateStr) {
 // Helper: Normalisasi nama akun pembayaran
 function normalizePaymentMethod(rawMetode, fallbackSumber) {
   const m = String(rawMetode || '').trim().toLowerCase();
-  const s = String(fallbackSumber || '').trim().toLowerCase();
+  if (m) {
+    if (m.includes('bsi') || m.includes('syariah')) return 'BSI';
+    if (m.includes('shopee')) return 'Shopee';
+    if (m.includes('qris') || m.includes('kris')) return 'QRIS';
+    if (m.includes('fiverr')) return 'Fiverr';
+    if (m.includes('paypal')) return 'PayPal';
+    if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
+    if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
+    return String(rawMetode).trim();
+  }
 
-  if (m.includes('bsi') || s.includes('bsi') || m.includes('syariah')) return 'BSI';
-  if (m.includes('shopee') || s.includes('shopee')) return 'Shopee';
-  if (m.includes('qris')) return 'QRIS';
-  if (m.includes('fiverr') || s.includes('fiverr')) return 'Fiverr';
-  if (m.includes('paypal') || s.includes('paypal')) return 'PayPal';
-  if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
-  if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
-  if (rawMetode && String(rawMetode).trim()) return String(rawMetode).trim();
-  if (s.includes('shopee')) return 'Shopee';
-  if (s.includes('fiverr')) return 'Fiverr';
+  // Fallback hanya jika rawMetode kosong
+  const s = String(fallbackSumber || '').trim().toLowerCase();
+  if (s) {
+    if (s.includes('bsi') || s.includes('syariah')) return 'BSI';
+    if (s.includes('shopee')) return 'Shopee';
+    if (s.includes('qris') || s.includes('kris')) return 'QRIS';
+    if (s.includes('fiverr')) return 'Fiverr';
+    if (s.includes('paypal')) return 'PayPal';
+    if (s.includes('bca') || s.includes('bank') || s.includes('transfer') || s.includes('mandiri') || s.includes('bri') || s.includes('bni')) return 'Transfer Bank';
+    if (s.includes('tunai') || s.includes('cash')) return 'Tunai';
+    return String(fallbackSumber).trim();
+  }
+
   return 'QRIS';
 }
 
@@ -177,6 +189,7 @@ function consolidateKeuanganList(list) {
 
     // Jika tertaut ke ID Projek dan bertipe Pemasukan
     if (prjId && item.jenis === 'Pemasukan') {
+      const isCurPelunasanRow = Boolean(item.isPelunasan || String(item.keterangan || '').toLowerCase().includes('pelunasan'));
       if (projectMap.has(prjId)) {
         const existing = projectMap.get(prjId);
         const exTotal = (typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.totalProyek, parseCleanNumber(existing.nominal, 0)) : (Number(existing.totalProyek) || Number(existing.nominal) || 0);
@@ -184,34 +197,52 @@ function consolidateKeuanganList(list) {
         const finalTotal = Math.max(exTotal, curTotal);
 
         const exDp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.dp, 0) : (Number(existing.dp) || 0);
-        const curDp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp, 0) : (Number(item.dp) || 0);
-        const finalDp = Math.max(exDp, curDp);
+        let curDp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp, 0) : (Number(item.dp) || 0);
 
-        const exPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.pelunasan, 0) : (Number(existing.pelunasan) || 0);
-        const curPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan, 0) : (Number(item.pelunasan) || 0);
-        const finalPelunasan = Math.max(exPelunasan, curPelunasan);
+        let curPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan, 0) : (Number(item.pelunasan) || 0);
+        if (curPelunasan === 0 && isCurPelunasanRow) {
+          curPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.nominal, 0) : (Number(item.nominal) || 0);
+        } else if (curPelunasan === 0 && curDp === 0 && (Number(item.nominal) || 0) > 0 && exDp > 0) {
+          curPelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.nominal, 0) : (Number(item.nominal) || 0);
+        }
+
+        const finalDp = Math.max(exDp, curDp);
+        const finalPelunasan = Math.max((typeof parseCleanNumber === 'function') ? parseCleanNumber(existing.pelunasan, 0) : (Number(existing.pelunasan) || 0), curPelunasan);
 
         const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || String(existing.statusPembayaran || '').toLowerCase().includes('lunas') || (finalDp + finalPelunasan >= finalTotal && finalTotal > 0);
         const finalSisa = isLunas ? 0 : Math.max(0, finalTotal - finalDp - finalPelunasan);
         const finalStatus = isLunas ? 'Lunas' : (finalDp > 0 ? 'DP' : 'Belum');
 
         existing.totalProyek = finalTotal;
+        existing.totalPembayaran = finalTotal;
         existing.dp = finalDp;
         existing.pelunasan = finalPelunasan;
         existing.sisa = finalSisa;
         existing.statusPembayaran = finalStatus;
         existing.nominal = isLunas ? finalTotal : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
-        if (item.metodeBayarDp) existing.metodeBayarDp = item.metodeBayarDp;
-        if (item.metodeBayarPelunasan) existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
-        if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
+        if (item.metodeBayarDp && (curDp > 0 || !existing.metodeBayarDp)) existing.metodeBayarDp = item.metodeBayarDp;
+        if (item.metodeBayarPelunasan) {
+          existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
+        } else if (isCurPelunasanRow || curPelunasan > 0) {
+          existing.metodeBayarPelunasan = item.metodePembayaran || existing.metodeBayarPelunasan;
+        }
+        if (item.metodePembayaran && !existing.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
         if (item.sumber) existing.sumber = item.sumber;
         if (item.tanggal) existing.tanggal = item.tanggal;
         if (item.createdAt) existing.createdAt = item.createdAt;
       } else {
         const total = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0)) : (Number(item.totalProyek) || Number(item.nominal) || 0);
-        const dp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0) : (Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0);
-        const pelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan, 0) : (Number(item.pelunasan) || 0);
+        let dp = 0;
+        let pelunasan = 0;
+        if (isCurPelunasanRow) {
+          pelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan || item.nominal, 0) : (Number(item.pelunasan || item.nominal) || 0);
+          dp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp, 0) : (Number(item.dp) || 0);
+        } else {
+          dp = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0) : (Number(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal)) || 0);
+          pelunasan = (typeof parseCleanNumber === 'function') ? parseCleanNumber(item.pelunasan, 0) : (Number(item.pelunasan) || 0);
+        }
+
         const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') || ((dp + pelunasan) >= total && total > 0);
         const sisa = isLunas ? 0 : (item.sisa !== undefined ? ((typeof parseCleanNumber === 'function') ? parseCleanNumber(item.sisa, 0) : Number(item.sisa)) : Math.max(0, total - dp - pelunasan));
         const status = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
@@ -220,14 +251,15 @@ function consolidateKeuanganList(list) {
           ...item,
           idProyek: prjId,
           totalProyek: total,
+          totalPembayaran: total,
           dp: dp,
           pelunasan: pelunasan,
           sisa: sisa,
           statusPembayaran: status,
           nominal: isLunas ? total : dp,
           catatanPelunasan: item.catatanPelunasan || '',
-          metodeBayarDp: item.metodeBayarDp || item.metodePembayaran || '',
-          metodeBayarPelunasan: item.metodeBayarPelunasan || item.metodePembayaran || '',
+          metodeBayarDp: item.metodeBayarDp || (!isCurPelunasanRow ? item.metodePembayaran : '') || '',
+          metodeBayarPelunasan: item.metodeBayarPelunasan || (isCurPelunasanRow || isLunas ? item.metodePembayaran : '') || '',
           sumber: item.sumber || '',
           createdAt: item.createdAt || item.tanggal || ''
         };
@@ -898,13 +930,30 @@ async function quickUpdatePelunasan(id, action) {
 async function quickUpdatePaymentMethod(id, newMethod) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   try {
-    const res = await API.updateKeuangan(id, { metodePembayaran: newMethod });
+    const tx = currentKeuanganList.find(k => String(k.id) === String(id));
+    const payload = { metodePembayaran: newMethod };
+    if (tx && tx.idProyek) {
+      if (tx.dp > 0 && tx.pelunasan === 0) {
+        payload.metodeBayarDp = newMethod;
+      } else {
+        payload.metodeBayarPelunasan = newMethod;
+      }
+    } else {
+      payload.metodeBayarDp = newMethod;
+      payload.metodeBayarPelunasan = newMethod;
+    }
+
+    const res = await API.updateKeuangan(id, payload);
     if (res && res.success) {
       if (typeof Toast !== 'undefined') {
         Toast.success(isEn ? "Success" : "Berhasil", isEn ? "Payment method updated." : `Metode pembayaran diubah menjadi ${newMethod}.`);
       }
-      const tx = currentKeuanganList.find(k => String(k.id) === String(id));
-      if (tx) tx.metodePembayaran = newMethod;
+      if (tx) {
+        tx.metodePembayaran = newMethod;
+        if (payload.metodeBayarDp) tx.metodeBayarDp = payload.metodeBayarDp;
+        if (payload.metodeBayarPelunasan) tx.metodeBayarPelunasan = payload.metodeBayarPelunasan;
+      }
+      calculateSummary(currentKeuanganList);
     } else {
       if (typeof Toast !== 'undefined') {
         Toast.error(isEn ? "Failed" : "Gagal", res ? res.message : "Gagal memperbarui metode.");
@@ -1054,6 +1103,28 @@ async function handleAddTransaksi(e) {
     if (payload.nominal > currentSaldo) {
       if (typeof Toast !== 'undefined') {
         Toast.warning(isEn ? "Warning" : "Peringatan", isEn ? `Expense cannot exceed available balance (${formatRupiah(currentSaldo)})!` : `Pengeluaran tidak boleh melebihi saldo yang tersedia (${formatRupiah(currentSaldo)})!`);
+      }
+      resetSubmitBtn();
+      return;
+    }
+  }
+
+  if (payload.jenis === 'Mutasi') {
+    const summary = (typeof calculateKeuanganSummary === 'function')
+      ? calculateKeuanganSummary(currentKeuanganList)
+      : { accountsMap: {} };
+    const asalKey = normalizePaymentMethod(metodeAsal);
+    const accAsal = summary.accountsMap && summary.accountsMap[asalKey];
+    const saldoAsal = accAsal ? (accAsal.totalIn - accAsal.totalOut) : 0;
+
+    if (payload.nominal > saldoAsal) {
+      if (typeof Toast !== 'undefined') {
+        Toast.warning(
+          isEn ? "Warning" : "Peringatan",
+          isEn 
+            ? `Transfer amount cannot exceed available balance in ${asalKey} (${formatRupiah(saldoAsal)})!` 
+            : `Nominal mutasi tidak boleh melebihi saldo tersedia di ${asalKey} (${formatRupiah(saldoAsal)})!`
+        );
       }
       resetSubmitBtn();
       return;

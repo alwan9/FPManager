@@ -102,7 +102,6 @@ const SessionManager = {
       }
 
       localStorage.setItem('last_daily_cleanup', Date.now().toString());
-      console.log('[SessionManager] Pembersihan harian (1 hari) selesai. Status login tetap aktif.');
     } catch (e) {
       console.warn('[SessionManager] Peringatan pembersihan harian:', e);
     }
@@ -978,10 +977,20 @@ const Auth = {
           userAvatarText.classList.add("overflow-hidden");
           if (avatarUrl) {
             const img = document.createElement("img");
+            img.referrerPolicy = "no-referrer";
+            img.loading = "lazy";
             img.src = avatarUrl;
             img.alt = initial;
             img.className = "h-full w-full object-cover rounded-xl";
             img.onerror = function() {
+              if (!this.dataset.fallbackTried && (avatarUrl.includes("googleusercontent.com") || avatarUrl.includes("drive.google.com"))) {
+                this.dataset.fallbackTried = "true";
+                const match = avatarUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || avatarUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                  this.src = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w200`;
+                  return;
+                }
+              }
               this.remove();
               userAvatarText.textContent = initial;
             };
@@ -999,10 +1008,20 @@ const Auth = {
           profileBtn.classList.add("overflow-hidden", "flex", "items-center", "justify-center", "p-0");
           if (avatarUrl) {
             const img = document.createElement("img");
+            img.referrerPolicy = "no-referrer";
+            img.loading = "lazy";
             img.src = avatarUrl;
             img.alt = initial;
             img.className = "h-full w-full object-cover rounded-full block";
             img.onerror = function() {
+              if (!this.dataset.fallbackTried && (avatarUrl.includes("googleusercontent.com") || avatarUrl.includes("drive.google.com"))) {
+                this.dataset.fallbackTried = "true";
+                const match = avatarUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || avatarUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                  this.src = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w200`;
+                  return;
+                }
+              }
               this.remove();
               const span = document.createElement("span");
               span.className = "font-bold text-sm text-zinc-600 dark:text-zinc-200";

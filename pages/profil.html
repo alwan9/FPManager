@@ -293,11 +293,11 @@
       </header>
 
       <!-- Page Content -->
-      <section class="flex-grow p-6 md:p-8 space-y-6">
+      <section class="flex-grow p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
 
         <!-- Hero Card (User Header Banner) -->
         <div
-          class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+          class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
           <div class="relative group flex-shrink-0 cursor-pointer"
             onclick="document.getElementById('avatarFileInput').click()"
             ondragover="event.preventDefault(); this.querySelector('#profileAvatarLarge').classList.add('ring-4', 'ring-indigo-400');"
@@ -534,7 +534,7 @@
         </div>
 
         <!-- Quick Toolbar: Rotate, Reset, Nudge Pan -->
-        <div class="flex items-center justify-between pt-1">
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
           <div class="flex items-center gap-1.5">
             <button type="button" id="btnCropRotate" class="py-1.5 px-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-medium flex items-center gap-1.5 transition active:scale-95" title="Putar Foto 90°">
               <i class="fa-solid fa-rotate-right text-[11px]"></i>

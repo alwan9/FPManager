@@ -1,8 +1,12 @@
 /**
  * FPManager - Modern Toast & Dynamic Island Notification System
  * Specifically crafted for iPhone 15 / 15 Plus / 15 Pro & Dynamic Island devices,
- * with adaptive fallback for desktop and other mobile environments.
  */
+// Neutralize console.log across all pages
+if (typeof console !== 'undefined' && typeof console.log === 'function') {
+  console.log = function () {};
+}
+
 const Toast = (() => {
 
     // Helper: Shorten common long phrases for compact mobile & pill displays

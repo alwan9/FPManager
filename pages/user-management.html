@@ -231,10 +231,10 @@
       </header>
 
       <!-- Page Content -->
-      <section class="flex-grow p-6 md:p-8 space-y-6">
+      <section class="flex-grow p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
 
-        <!-- Stats Cards (4 Columns) -->
-        <div class="grid grid-cols-4 gap-2 sm:gap-4">
+        <!-- Stats Cards (2 Columns Mobile, 4 Columns Desktop) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
             <div class="p-2 sm:p-3 bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 rounded-lg sm:rounded-xl">
               <i class="fa-solid fa-users text-lg sm:text-2xl"></i>
@@ -292,7 +292,7 @@
 
           <!-- Table -->
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-zinc-600 dark:text-zinc-300">
+            <table id="userTable" class="w-full text-left text-sm text-zinc-600 dark:text-zinc-300 min-w-[600px]">
               <thead class="bg-zinc-50 dark:bg-zinc-900/50 text-xs uppercase text-zinc-400 font-semibold border-b border-zinc-200 dark:border-zinc-700">
                 <tr>
                   <th class="px-4 py-3.5 text-center w-12">No.</th>

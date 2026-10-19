@@ -202,11 +202,24 @@ const FPManagerDB = {
     try {
       const tx = db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
+      store.clear();
       items.forEach(item => {
         if (item && (item.iDProyek || item.id)) store.put(item);
       });
     } catch (e) {
       console.error('Save to IndexedDB error:', e);
+    }
+  },
+
+  async clearStore(storeName) {
+    const db = await this.init();
+    if (!db) return;
+    try {
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      store.clear();
+    } catch (e) {
+      console.error('Clear store error:', e);
     }
   },
 
@@ -833,7 +846,11 @@ const API = {
         method: "POST",
         body
       });
-      return await response.json();
+      const result = await response.json();
+      if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
+        await FPManagerDB.clearStore('keuangan');
+      }
+      return result;
     } catch (error) {
       console.error(error);
       return {
@@ -856,7 +873,11 @@ const API = {
         method: "POST",
         body
       });
-      return await response.json();
+      const result = await response.json();
+      if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
+        await FPManagerDB.clearStore('keuangan');
+      }
+      return result;
     } catch (error) {
       console.error(error);
       return {
@@ -877,7 +898,11 @@ const API = {
         method: "POST",
         body
       });
-      return await response.json();
+      const result = await response.json();
+      if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
+        await FPManagerDB.clearStore('keuangan');
+      }
+      return result;
     } catch (error) {
       console.error(error);
       return {
@@ -1985,7 +2010,6 @@ const API = {
       if (!token) return;
 
       if (API._activeBackupPromise) {
-        console.log("[AutoBackup] Backup sedang berlangsung, auto-backup ditunda.");
         return;
       }
 
@@ -2007,7 +2031,6 @@ const API = {
       if (sessionStorage.getItem(lockKey)) return;
       sessionStorage.setItem(lockKey, 'true');
 
-      console.log(`[AutoBackup] Menjalankan pencadangan otomatis slot ${slot}...`);
       const res = await API.backupDatabase({ triggerType: `Auto-${slot.toUpperCase()}` });
       sessionStorage.removeItem(lockKey);
 
@@ -2018,7 +2041,6 @@ const API = {
         if (res.excelDriveUrl || res.spreadsheetCopyUrl) {
           localStorage.setItem('fpm_last_backup_url', res.excelDriveUrl || res.spreadsheetCopyUrl);
         }
-        console.log(`[AutoBackup] Berhasil mencadangkan data slot ${slot} ke Google Drive.`, res);
       }
     } catch (err) {
       console.warn("[AutoBackup] Pengecekan otomatis dilewati:", err);

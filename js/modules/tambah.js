@@ -942,9 +942,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      const effectivePelunasan = (isEditMode && statusInput.value === 'Selesai') ? (Number(currentPelunasan) || 0) : 0;
-      const calculatedSisa = Math.max(0, Math.round(nominal - dp - effectivePelunasan));
-
+      const chosenMetode = metodePembayaranInput ? (metodePembayaranInput.value || 'QRIS') : 'QRIS';
       const payload = {
         namaProyek: namaProyekInput.value,
         pelanggan: pelangganInput.value,
@@ -960,6 +958,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         deadline: deadlineInput.value,
         status: statusInput.value,
         sumber: sumberInput ? (sumberInput.value || 'WhatsApp') : 'WhatsApp',
+        metodePembayaran: chosenMetode,
+        metodeBayarDp: chosenMetode,
         createDriveFolder: isEditMode ? false : (createDriveFolderCheckbox ? createDriveFolderCheckbox.checked : false),
         gdriveLink: isEditMode
           ? (gdriveLinkInput ? gdriveLinkInput.value.trim() : "")
@@ -1024,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   totalProyek: nominal,
                   statusPembayaran: statusBayar,
                   metodePembayaran: payload.metodePembayaran,
+                  metodeBayarDp: payload.metodeBayarDp || payload.metodePembayaran,
                   metodeBayarPelunasan: isLunas ? (linkedTx.metodeBayarPelunasan || payload.metodePembayaran) : '',
                   catatanPelunasan: isLunas ? linkedTx.catatanPelunasan : '',
                   keterangan: updatedDesc,
@@ -1041,6 +1042,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   totalProyek: nominal,
                   statusPembayaran: statusBayar,
                   metodePembayaran: payload.metodePembayaran,
+                  metodeBayarDp: payload.metodeBayarDp || payload.metodePembayaran,
                   metodeBayarPelunasan: isLunas ? payload.metodePembayaran : '',
                   catatanPelunasan: '',
                   idProyek: proyekId

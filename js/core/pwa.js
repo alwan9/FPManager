@@ -6,7 +6,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true;
-      console.log('PWA: Controller changed. Reloading page for latest update...');
       window.location.reload();
     }
   });
@@ -15,7 +14,6 @@ if ('serviceWorker' in navigator) {
     const swPath = (window.location.pathname || '').includes('/pages/') ? '../sw.js' : './sw.js';
     navigator.serviceWorker.register(swPath)
       .then(registration => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
 
         // Force check for updates on load
         registration.update().catch(err => {
@@ -40,9 +38,7 @@ if ('serviceWorker' in navigator) {
           }
         });
       })
-      .catch(err => {
-        console.log('ServiceWorker registration failed: ', err);
-      });
+      .catch(() => {});
   });
 
   // Check for SW updates whenever user switches back to the app window
@@ -89,8 +85,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
       }
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to the install prompt: ${outcome}`);
+        await deferredPrompt.userChoice;
         deferredPrompt = null;
       }
     });
@@ -103,7 +98,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // Detect successful PWA installation
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
-  console.log('FPManager PWA was installed successfully');
 
   // Request notification permission and show welcome notification
   if ('Notification' in window) {
@@ -377,9 +371,9 @@ window.addEventListener('load', () => {
 function updateAppBadge(count) {
   if ('setAppBadge' in navigator) {
     if (count > 0) {
-      navigator.setAppBadge(count).catch(err => console.log('App badging error:', err));
+      navigator.setAppBadge(count).catch(() => {});
     } else {
-      navigator.clearAppBadge().catch(err => console.log('App badging clear error:', err));
+      navigator.clearAppBadge().catch(() => {});
     }
   }
 }

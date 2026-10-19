@@ -85,10 +85,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     lastResetDate: getTodayDateString()
   };
 
-  const canDeleteTask = true;
-  const canCreateTask = true;
-  const canUpdateTask = true;
-  const canManageSettings = true;
+  // User Authentication & Permissions State
+  let currentUser = (typeof Auth !== "undefined" && typeof Auth.getUser === "function") ? Auth.getUser() : null;
+  if (!currentUser) {
+    try {
+      const stored = sessionStorage.getItem("user") || localStorage.getItem("user") || sessionStorage.getItem("fp_auth_user") || localStorage.getItem("fp_auth_user");
+      if (stored) currentUser = JSON.parse(stored);
+    } catch (e) { }
+  }
+  if (!currentUser || typeof currentUser !== "object") {
+    currentUser = { id: "USR-001", username: "service", name: "Admin Service", role: "service" };
+  }
+
+  function getCurrentUser() {
+    if (typeof Auth !== "undefined" && typeof Auth.getUser === "function") {
+      const u = Auth.getUser();
+      if (u) {
+        currentUser = u;
+        return u;
+      }
+    }
+    return currentUser || { id: "USR-001", username: "service", name: "Admin Service", role: "service" };
+  }
+
+  const userRole = (typeof Auth !== "undefined" && typeof Auth.getRole === "function")
+    ? Auth.getRole()
+    : String(currentUser.role || "service").toLowerCase().trim();
+
+  const isSuperAdmin = (typeof Auth !== "undefined" && typeof Auth.isSuperAdmin === "function")
+    ? Auth.isSuperAdmin()
+    : (userRole === "super_admin" || userRole === "superadmin" || userRole.includes("admin") || String(currentUser.username).toLowerCase() === "wansmin");
+
+  const canDeleteTask = isSuperAdmin;
+  const canCreateTask = isSuperAdmin || userRole === "service" || userRole.includes("service");
+  const canUpdateTask = isSuperAdmin || userRole === "service" || userRole.includes("service");
+  const canManageSettings = isSuperAdmin;
 
   // ==========================================
   // DECOUPLED SYNC STATUS MANAGER
@@ -238,9 +269,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Authorization Checker: Super Admin & Assigned Admin can check/uncheck
   function canUserCheckTask(task) {
     if (isSuperAdmin) return true;
-    if (!currentUser || !currentUser.username) return false;
+    const user = getCurrentUser();
+    if (!user || !user.username) return false;
 
-    const myUsername = String(currentUser.username || "").toLowerCase().trim();
+    const myUsername = String(user.username || "").toLowerCase().trim();
     const assigned = String(task.adminUser || "").toLowerCase().trim();
 
     // If assigned specifically to this user
@@ -307,8 +339,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const savedLastReset = localStorage.getItem("fpmanager_admin_tasks_last_reset") || settingsData.lastResetDate;
 
     if (savedLastReset && savedLastReset !== today && settingsData.autoDailyReset !== false) {
-      console.log(`[Auto-Reset Harian] Pergantian tanggal terdeteksi (${savedLastReset} -> ${today}). Me-reset status checklist.`);
-
       tasksData = tasksData.map(task => {
         return {
           ...task,
@@ -406,10 +436,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.loadAdminTasks = loadAdminTasks;
 
   function populateUserDropdowns() {
+    const user = getCurrentUser();
+    const myUsername = String((user && user.username) || "service");
+
     if (filterAdminSelect) {
       let filterOptionsHtml = `
         <option value="all">Semua Checklist Admin Service</option>
-        <option value="mine">Tugas Saya Saja (@${escapeHtmlSafe(currentUser.username)})</option>
+        <option value="mine">Tugas Saya Saja (@${escapeHtmlSafe(myUsername)})</option>
       `;
 
       serviceUsersList.forEach(u => {
@@ -488,8 +521,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
 
+    const user = getCurrentUser();
+    const currentUsername = String((user && user.username) || "").toLowerCase().trim();
+
     serviceUsersList.forEach(u => {
-      const isMe = u.username === currentUser.username;
+      const uUsername = String(u.username || "").toLowerCase().trim();
+      const isMe = Boolean(currentUsername && uUsername === currentUsername);
       const roleLabel = (u.role || 'Service').toUpperCase();
 
       cardsHtml += `
@@ -616,7 +653,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Admin Penugasan Badge
       let adminBadgeHtml = `<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60"><i class="fa-solid fa-users text-[10px]"></i><span>Semua Tim Service</span></span>`;
       if (task.adminUser && task.adminUser !== "service" && task.adminUser !== "all") {
-        const isMyTask = (currentUser.username || "").toLowerCase() === task.adminUser.toLowerCase();
+        const user = getCurrentUser();
+        const currentUsername = String((user && user.username) || "").toLowerCase().trim();
+        const isMyTask = Boolean(currentUsername && currentUsername === String(task.adminUser).toLowerCase().trim());
         adminBadgeHtml = `<span class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${isMyTask ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 ring-1 ring-emerald-400/30' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700'}"><i class="fa-solid fa-user-check text-[10px] text-indigo-500"></i><span>@${escapeHtmlSafe(task.adminUser)}</span></span>`;
       }
 

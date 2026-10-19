@@ -1,6 +1,28 @@
+html {
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #fafafa;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img, video, canvas {
+  max-width: 100%;
+}
+
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
 }
 
 /* Typography: Plus Jakarta Sans for all Titles & Headings */
@@ -2308,6 +2330,33 @@ html:not(.dark) #mobileKeuanganPopover .popover-link.active-sub {
   user-select: none;
   cursor: pointer;
 }
+
+/* ==========================================================================
+   Global Mobile Viewport & Modal Safety Guards
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* Prevent any modal card from overflowing mobile screen width */
+  .fixed.inset-0 > div[class*="max-w-"],
+  .fixed.inset-0 .max-w-md,
+  .fixed.inset-0 .max-w-lg,
+  .fixed.inset-0 .max-w-xl,
+  .fixed.inset-0 .max-w-2xl,
+  .fixed.inset-0 .max-w-3xl,
+  .fixed.inset-0 .max-w-4xl,
+  .fixed.inset-0 .max-w-5xl {
+    max-width: min(calc(100vw - 1.5rem), 100%) !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Pre, code and long words auto-wrap */
+  pre, code {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+}
+
 
 
 

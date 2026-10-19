@@ -140,18 +140,30 @@ function formatDateTime(dateStr) {
 // Helper: Normalisasi nama akun pembayaran
 function normalizePaymentMethod(rawMetode, fallbackSumber) {
   const m = String(rawMetode || '').trim().toLowerCase();
-  const s = String(fallbackSumber || '').trim().toLowerCase();
+  if (m) {
+    if (m.includes('bsi') || m.includes('syariah')) return 'BSI';
+    if (m.includes('shopee')) return 'Shopee';
+    if (m.includes('qris') || m.includes('kris')) return 'QRIS';
+    if (m.includes('fiverr')) return 'Fiverr';
+    if (m.includes('paypal')) return 'PayPal';
+    if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
+    if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
+    return String(rawMetode).trim();
+  }
 
-  if (m.includes('bsi') || s.includes('bsi') || m.includes('syariah')) return 'BSI';
-  if (m.includes('shopee') || s.includes('shopee')) return 'Shopee';
-  if (m.includes('qris')) return 'QRIS';
-  if (m.includes('fiverr') || s.includes('fiverr')) return 'Fiverr';
-  if (m.includes('paypal') || s.includes('paypal')) return 'PayPal';
-  if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
-  if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
-  if (rawMetode && String(rawMetode).trim()) return String(rawMetode).trim();
-  if (s.includes('shopee')) return 'Shopee';
-  if (s.includes('fiverr')) return 'Fiverr';
+  // Fallback hanya jika rawMetode kosong
+  const s = String(fallbackSumber || '').trim().toLowerCase();
+  if (s) {
+    if (s.includes('bsi') || s.includes('syariah')) return 'BSI';
+    if (s.includes('shopee')) return 'Shopee';
+    if (s.includes('qris') || s.includes('kris')) return 'QRIS';
+    if (s.includes('fiverr')) return 'Fiverr';
+    if (s.includes('paypal')) return 'PayPal';
+    if (s.includes('bca') || s.includes('bank') || s.includes('transfer') || s.includes('mandiri') || s.includes('bri') || s.includes('bni')) return 'Transfer Bank';
+    if (s.includes('tunai') || s.includes('cash')) return 'Tunai';
+    return String(fallbackSumber).trim();
+  }
+
   return 'QRIS';
 }
 

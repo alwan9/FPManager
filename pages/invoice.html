@@ -460,7 +460,7 @@
 
         <!-- Header -->
         <div class="no-print flex justify-between items-center mb-6">
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <button onclick="history.back()"
                     class="no-print bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center text-xs sm:text-sm">
                     <i class="fa fa-arrow-left mr-2"></i>
@@ -659,8 +659,8 @@
                 </div>
 
                 <!-- Table -->
-
-                <table class="w-full mt-4 md:mt-8 border text-[10px] md:text-base">
+                <div class="overflow-x-auto w-full max-w-full">
+                <table class="w-full mt-4 md:mt-8 border text-[10px] md:text-base min-w-[360px] sm:min-w-[420px]">
 
                     <thead class="bg-indigo-600 text-white">
 
@@ -801,6 +801,7 @@
                     </tbody>
 
                 </table>
+                </div>
 
                 <!-- Table Footer Actions (Tambah Baris & Info Auto-Calculate) -->
                 <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-200/70 dark:border-zinc-800 no-print">
@@ -817,7 +818,7 @@
 
                 <!-- Total -->
                 <div class="flex justify-end mt-6 md:mt-8" style="page-break-inside: avoid;">
-                    <div id="previewTotalBox" class="w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
+                    <div id="previewTotalBox" class="w-full max-w-xs md:w-80 bg-zinc-50 rounded-xl border border-zinc-200 p-4 space-y-3">
                         <div id="previewSubtotalRow" class="hidden flex justify-between items-center text-sm">
                             <span class="text-zinc-500 font-semibold">Subtotal</span>
                             <span class="font-bold text-zinc-800 text-sm outline-none px-1 py-0.5" id="previewSubtotal">Rp. 0</span>

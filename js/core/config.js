@@ -1,3 +1,8 @@
+// Neutralize console.log across all pages
+if (typeof console !== 'undefined' && typeof console.log === 'function') {
+  console.log = function () {};
+}
+
 const CONFIG = {
   // Helper functions to get/set settings in LocalStorage
 
@@ -786,18 +791,30 @@ window.renderPaymentMethodBadge = renderPaymentMethodBadge;
 // Global Helper: Normalisasi nama akun pembayaran
 function normalizePaymentMethod(rawMetode, fallbackSumber) {
   const m = String(rawMetode || '').trim().toLowerCase();
-  const s = String(fallbackSumber || '').trim().toLowerCase();
+  if (m) {
+    if (m.includes('bsi') || m.includes('syariah')) return 'BSI';
+    if (m.includes('shopee')) return 'Shopee';
+    if (m.includes('qris') || m.includes('kris')) return 'QRIS';
+    if (m.includes('fiverr')) return 'Fiverr';
+    if (m.includes('paypal')) return 'PayPal';
+    if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
+    if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
+    return String(rawMetode).trim();
+  }
 
-  if (m.includes('bsi') || s.includes('bsi') || m.includes('syariah')) return 'BSI';
-  if (m.includes('shopee') || s.includes('shopee')) return 'Shopee';
-  if (m.includes('qris')) return 'QRIS';
-  if (m.includes('fiverr') || s.includes('fiverr')) return 'Fiverr';
-  if (m.includes('paypal') || s.includes('paypal')) return 'PayPal';
-  if (m.includes('bca') || m.includes('bank') || m.includes('transfer') || m.includes('mandiri') || m.includes('bri') || m.includes('bni')) return 'Transfer Bank';
-  if (m.includes('tunai') || m.includes('cash')) return 'Tunai';
-  if (rawMetode && String(rawMetode).trim()) return String(rawMetode).trim();
-  if (s.includes('shopee')) return 'Shopee';
-  if (s.includes('fiverr')) return 'Fiverr';
+  // Fallback hanya jika rawMetode kosong
+  const s = String(fallbackSumber || '').trim().toLowerCase();
+  if (s) {
+    if (s.includes('bsi') || s.includes('syariah')) return 'BSI';
+    if (s.includes('shopee')) return 'Shopee';
+    if (s.includes('qris') || s.includes('kris')) return 'QRIS';
+    if (s.includes('fiverr')) return 'Fiverr';
+    if (s.includes('paypal')) return 'PayPal';
+    if (s.includes('bca') || s.includes('bank') || s.includes('transfer') || s.includes('mandiri') || s.includes('bri') || s.includes('bni')) return 'Transfer Bank';
+    if (s.includes('tunai') || s.includes('cash')) return 'Tunai';
+    return String(fallbackSumber).trim();
+  }
+
   return 'QRIS';
 }
 window.normalizePaymentMethod = normalizePaymentMethod;
@@ -835,6 +852,7 @@ function consolidateKeuanganList(list) {
 
     // Jika tertaut ke ID Projek dan bertipe Pemasukan
     if (prjId && item.jenis === 'Pemasukan') {
+      const isCurPelunasanRow = Boolean(item.isPelunasan || String(item.keterangan || '').toLowerCase().includes('pelunasan'));
       if (projectMap.has(prjId)) {
         const existing = projectMap.get(prjId);
         const exTotal = parseCleanNumber(existing.totalProyek, parseCleanNumber(existing.nominal, 0));
@@ -842,12 +860,17 @@ function consolidateKeuanganList(list) {
         const finalTotal = Math.max(exTotal, curTotal);
 
         const exDp = parseCleanNumber(existing.dp, 0);
-        const curDp = parseCleanNumber(item.dp, 0);
-        const finalDp = Math.max(exDp, curDp);
+        let curDp = parseCleanNumber(item.dp, 0);
 
-        const exPelunasan = parseCleanNumber(existing.pelunasan, 0);
-        const curPelunasan = parseCleanNumber(item.pelunasan, 0);
-        const finalPelunasan = Math.max(exPelunasan, curPelunasan);
+        let curPelunasan = parseCleanNumber(item.pelunasan, 0);
+        if (curPelunasan === 0 && isCurPelunasanRow) {
+          curPelunasan = parseCleanNumber(item.nominal, 0);
+        } else if (curPelunasan === 0 && curDp === 0 && item.nominal > 0 && exDp > 0) {
+          curPelunasan = parseCleanNumber(item.nominal, 0);
+        }
+
+        const finalDp = Math.max(exDp, curDp);
+        const finalPelunasan = Math.max(parseCleanNumber(existing.pelunasan, 0), curPelunasan);
 
         const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') ||
           String(existing.statusPembayaran || '').toLowerCase().includes('lunas') ||
@@ -864,16 +887,28 @@ function consolidateKeuanganList(list) {
         existing.statusPembayaran = finalStatus;
         existing.nominal = isLunas ? finalTotal : finalDp;
         if (item.catatanPelunasan) existing.catatanPelunasan = item.catatanPelunasan;
-        if (item.metodeBayarDp) existing.metodeBayarDp = item.metodeBayarDp;
-        if (item.metodeBayarPelunasan) existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
-        if (item.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
+        if (item.metodeBayarDp && (curDp > 0 || !existing.metodeBayarDp)) existing.metodeBayarDp = item.metodeBayarDp;
+        if (item.metodeBayarPelunasan) {
+          existing.metodeBayarPelunasan = item.metodeBayarPelunasan;
+        } else if (isCurPelunasanRow || curPelunasan > 0) {
+          existing.metodeBayarPelunasan = item.metodePembayaran || existing.metodeBayarPelunasan;
+        }
+        if (item.metodePembayaran && !existing.metodePembayaran) existing.metodePembayaran = item.metodePembayaran;
         if (item.sumber) existing.sumber = item.sumber;
         if (item.tanggal) existing.tanggal = item.tanggal;
         if (item.createdAt) existing.createdAt = item.createdAt;
       } else {
         const total = parseCleanNumber(item.totalProyek, parseCleanNumber(item.nominal, 0));
-        const dp = parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0);
-        const pelunasan = parseCleanNumber(item.pelunasan, 0);
+        let dp = 0;
+        let pelunasan = 0;
+        if (isCurPelunasanRow) {
+          pelunasan = parseCleanNumber(item.pelunasan || item.nominal, 0);
+          dp = parseCleanNumber(item.dp, 0);
+        } else {
+          dp = parseCleanNumber(item.dp !== undefined ? item.dp : (String(item.statusPembayaran || '').toLowerCase() === 'belum' ? 0 : item.nominal), 0);
+          pelunasan = parseCleanNumber(item.pelunasan, 0);
+        }
+
         const isLunas = String(item.statusPembayaran || '').toLowerCase().includes('lunas') ||
           ((dp + pelunasan) >= total && total > 0) ||
           (item.sisa !== undefined && Number(item.sisa) <= 0 && total > 0);
@@ -891,8 +926,8 @@ function consolidateKeuanganList(list) {
           statusPembayaran: status,
           nominal: isLunas ? total : dp,
           catatanPelunasan: item.catatanPelunasan || '',
-          metodeBayarDp: item.metodeBayarDp || item.metodePembayaran || '',
-          metodeBayarPelunasan: item.metodeBayarPelunasan || item.metodePembayaran || '',
+          metodeBayarDp: item.metodeBayarDp || (!isCurPelunasanRow ? item.metodePembayaran : '') || '',
+          metodeBayarPelunasan: item.metodeBayarPelunasan || (isCurPelunasanRow || isLunas ? item.metodePembayaran : '') || '',
           sumber: item.sumber || '',
           createdAt: item.createdAt || item.tanggal || ''
         };
@@ -944,7 +979,11 @@ function calculateKeuanganSummary(mutasiList) {
     return accountsMap[key];
   }
 
-  (mutasiList || []).forEach(item => {
+  const normalizedList = (typeof consolidateKeuanganList === 'function')
+    ? consolidateKeuanganList(mutasiList)
+    : (mutasiList || []);
+
+  normalizedList.forEach(item => {
     if (!item) return;
 
     if (item.jenis === 'Pemasukan') {
@@ -1006,14 +1045,63 @@ function calculateKeuanganSummary(mutasiList) {
       totalOut += outVal;
 
     } else if (item.jenis === 'Mutasi' || item.jenis === 'Pindah Saldo') {
-      // Pemindahan Saldo Antar Metode Pembayaran:
+      // Pemindahan Saldo Antar Metode Pembayaran (Semua 6 Kombinasi 2 Arah):
       // Saldo asal berkurang, saldo tujuan bertambah.
       // Tidak merubah total pemasukan maupun total pengeluaran global.
       const mutasiVal = parseCleanNumber(item.nominal, 0);
-      const asalMethodKey = normalizePaymentMethod(item.metodeBayarDp || item.metodeAsal || item.sumber, 'QRIS');
-      const tujuanMethodKey = normalizePaymentMethod(item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan, 'BSI');
+      let asalMethodKey = '';
+      let tujuanMethodKey = '';
 
-      if (mutasiVal > 0) {
+      // 1. Ekstraksi dari format panah metodePembayaran atau keterangan (contoh: "BSI -> Shopee" atau "QRIS -> BSI")
+      const mStr = (String(item.metodePembayaran || '') + ' ' + String(item.keterangan || '')).trim();
+      if (mStr.includes('->') || mStr.includes('→')) {
+        const arrowMatch = mStr.match(/([a-zA-Z0-9_\s]+?)\s*(?:->|→)\s*([a-zA-Z0-9_\s]+)/);
+        if (arrowMatch) {
+          asalMethodKey = normalizePaymentMethod(arrowMatch[1]);
+          tujuanMethodKey = normalizePaymentMethod(arrowMatch[2]);
+        }
+      }
+
+      // 2. Ekstraksi dari keterangan atau catatan ("dari X ke Y")
+      if (!asalMethodKey || !tujuanMethodKey || asalMethodKey === tujuanMethodKey) {
+        const text = (String(item.keterangan || '') + ' ' + String(item.catatanPelunasan || '')).toLowerCase();
+        const match = text.match(/(?:dari|from)\s+([a-z0-9_\s]+?)\s+(?:ke|to)\s+([a-z0-9_\s]+)/i);
+        if (match) {
+          asalMethodKey = normalizePaymentMethod(match[1]);
+          tujuanMethodKey = normalizePaymentMethod(match[2]);
+        }
+      }
+
+      // 3. Fallback ke field spesifik
+      if (!asalMethodKey) {
+        asalMethodKey = normalizePaymentMethod(item.metodeBayarDp || item.metodeAsal);
+      }
+      if (!tujuanMethodKey) {
+        tujuanMethodKey = normalizePaymentMethod(item.metodeBayarPelunasan || item.metodeTujuan);
+      }
+
+      // 4. Resolusi jika asal dan tujuan masih sama akibat data historis
+      if (asalMethodKey === tujuanMethodKey) {
+        const text = (String(item.keterangan || '') + ' ' + String(item.catatanPelunasan || '')).toLowerCase();
+        if (text.includes('bsi') && (text.includes('qris') || text.includes('kris'))) {
+          const bsiPos = text.indexOf('bsi');
+          const qrisPos = text.indexOf('qris') !== -1 ? text.indexOf('qris') : text.indexOf('kris');
+          asalMethodKey = bsiPos < qrisPos ? 'BSI' : 'QRIS';
+          tujuanMethodKey = bsiPos < qrisPos ? 'QRIS' : 'BSI';
+        } else if (text.includes('bsi') && text.includes('shopee')) {
+          const bsiPos = text.indexOf('bsi');
+          const shopPos = text.indexOf('shopee');
+          asalMethodKey = bsiPos < shopPos ? 'BSI' : 'Shopee';
+          tujuanMethodKey = bsiPos < shopPos ? 'Shopee' : 'BSI';
+        } else if (text.includes('shopee') && (text.includes('qris') || text.includes('kris'))) {
+          const shopPos = text.indexOf('shopee');
+          const qrisPos = text.indexOf('qris') !== -1 ? text.indexOf('qris') : text.indexOf('kris');
+          asalMethodKey = shopPos < qrisPos ? 'Shopee' : 'QRIS';
+          tujuanMethodKey = shopPos < qrisPos ? 'QRIS' : 'Shopee';
+        }
+      }
+
+      if (mutasiVal > 0 && asalMethodKey && tujuanMethodKey && asalMethodKey !== tujuanMethodKey) {
         const accAsal = ensureAccountExists(asalMethodKey);
         accAsal.totalOut += mutasiVal;
         accAsal.txCount += 1;

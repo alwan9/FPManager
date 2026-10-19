@@ -101,7 +101,12 @@ async function loadData() {
       const cached = JSON.parse(rawCache);
       if (cached && (cached.tools || cached.shortcuts || cached.references)) {
         toolsData = cached.tools || [];
-        shortcutsData = cached.shortcuts || [];
+        shortcutsData = (cached.shortcuts || []).map(s => {
+          if (s.icon && (s.icon.includes('logo.svg') || s.icon.includes('vectorizer.com/images/logo.svg'))) {
+            s.icon = 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
+          }
+          return s;
+        });
         referencesData = cached.references || [];
         renderTools();
         renderShortcuts();
@@ -126,7 +131,12 @@ async function loadData() {
     ]);
 
     toolsData = tools || [];
-    shortcutsData = shortcuts || [];
+    shortcutsData = (shortcuts || []).map(s => {
+      if (s.icon && (s.icon.includes('logo.svg') || s.icon.includes('vectorizer.com/images/logo.svg'))) {
+        s.icon = 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
+      }
+      return s;
+    });
     referencesData = references || [];
 
     renderTools();
@@ -523,7 +533,7 @@ function renderShortcuts(query = '') {
 
   filteredShortcuts.forEach(shortcut => {
     let iconUrl = (shortcut.icon && shortcut.icon.trim() !== '') ? shortcut.icon.trim() : 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
-    if (iconUrl.startsWith('fa-') || (!iconUrl.startsWith('http') && !iconUrl.startsWith('data:'))) {
+    if (iconUrl.includes('logo.svg') || iconUrl.startsWith('fa-') || (!iconUrl.startsWith('http') && !iconUrl.startsWith('data:'))) {
       iconUrl = 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png';
     }
     const linkUrl = shortcut.url || shortcut.uRL || shortcut.Url || '#';
@@ -535,7 +545,7 @@ function renderShortcuts(query = '') {
     el.innerHTML = `
       <a href="${sanitizeUrl(linkUrl)}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full text-center group-hover:text-indigo-600 transition-colors">
         <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center text-xl md:mb-2 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors overflow-hidden">
-          <img src="${sanitizeUrl(iconUrl)}" alt="${escapeHtml(shortcut.title)}" class="w-full h-full object-cover">
+          <img src="${sanitizeUrl(iconUrl)}" alt="${escapeHtml(shortcut.title)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png';">
         </div>
         <span class="font-normal text-zinc-900 dark:text-zinc-100 text-base truncate w-full px-1 group-hover:text-indigo-600 block mt-1">${escapeHtml(shortcut.title)}</span>
         <span class="hidden md:inline-flex px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1 items-center gap-1" title="${escapeHtml(shortcut.userId || 'USR-001')}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(shortcut.userId || 'USR-001')}</span></span>

@@ -1942,7 +1942,7 @@ async function lunasiProyek() {
             statusPembayaran: 'Lunas',
             metodeBayarDp: linkedDpTx.metodeBayarDp || dpMetodeAsli,
             metodeBayarPelunasan: chosenMetode,
-            metodePembayaran: chosenMetode,
+            metodePembayaran: dpVal > 0 ? (linkedDpTx.metodeBayarDp || dpMetodeAsli) : chosenMetode,
             catatanPelunasan: result.catatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
           });
 
@@ -2627,7 +2627,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
               statusPembayaran: 'Lunas',
               metodeBayarDp: linkedDpTx.metodeBayarDp || dpMetodeAsli,
               metodeBayarPelunasan: chosenMetode,
-              metodePembayaran: chosenMetode,
+              metodePembayaran: dpVal > 0 ? (linkedDpTx.metodeBayarDp || dpMetodeAsli) : chosenMetode,
               catatanPelunasan: addedCatatan || `Pelunasan via ${chosenMetode} tgl ${new Date().toLocaleDateString('id-ID')}`
             });
 

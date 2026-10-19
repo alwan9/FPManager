@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v200';
+const CACHE_NAME = 'fpmanager-v205';
 
 const urlsToCache = [
   './',
@@ -111,21 +111,45 @@ self.addEventListener('fetch', event => {
   // Stale-While-Revalidate strategy for static JS and CSS (Instant 0ms delivery + background update)
   if (url.endsWith('.js') || url.endsWith('.css') || event.request.destination === 'script' || event.request.destination === 'style') {
     event.respondWith(
-      caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
-        const fetchPromise = fetch(event.request).then(networkResponse => {
+      caches.match(event.request, { ignoreSearch: true }).then(async cachedResponse => {
+        if (cachedResponse) {
+          // Revalidate in background quietly if online
+          if (navigator.onLine) {
+            fetch(event.request).then(networkResponse => {
+              if (networkResponse && networkResponse.status === 200) {
+                const responseCopy = networkResponse.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                  cache.put(event.request, responseCopy);
+                });
+              }
+            }).catch(() => {});
+          }
+          return cachedResponse;
+        }
+
+        // Fallback: match relative path in cache
+        try {
+          const parsedUrl = new URL(url);
+          const relativeMatch = await caches.match('.' + parsedUrl.pathname, { ignoreSearch: true }) || await caches.match(parsedUrl.pathname, { ignoreSearch: true });
+          if (relativeMatch) return relativeMatch;
+        } catch (e) {}
+
+        // Network fallback
+        try {
+          const networkResponse = await fetch(event.request);
           if (networkResponse && networkResponse.status === 200) {
             const responseCopy = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseCopy);
-            });
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(event.request, responseCopy);
           }
           return networkResponse;
-        }).catch(err => {
-          console.debug('SW background revalidate skipped:', err);
-        });
-
-        // Return cached response instantly if present, otherwise await network
-        return cachedResponse || fetchPromise;
+        } catch (err) {
+          console.debug('SW static asset fetch skipped (offline/unreachable):', err);
+          return cachedResponse || new Response('', {
+            status: 200,
+            headers: { 'Content-Type': url.endsWith('.css') || event.request.destination === 'style' ? 'text/css' : 'application/javascript' }
+          });
+        }
       })
     );
     return;
