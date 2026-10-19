@@ -1165,7 +1165,7 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
 /* ======================================================= */
 #dynamic-island-container {
   position: fixed;
-  top: 9px !important;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999999;
@@ -1175,13 +1175,12 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   pointer-events: none;
   width: 100%;
   max-width: 440px;
-  padding: 0 !important;
+  padding: 0 12px;
   box-sizing: border-box;
 }
 
 #dynamic-island-container.standalone-island {
-  top: 9px !important;
-  padding: 0 !important;
+  top: 12px !important;
 }
 
 /* iOS PWA Safe Area Inset Support for black-translucent status bar */
