@@ -10,73 +10,87 @@ Aplikasi FPManager adalah **Serverless Progressive Web App (PWA)** dengan fronte
 
 ```
 FPManager/
-├── 📄 *.html             # Halaman utama aplikasi (Wajib di Root)
-├── 📄 sw.js              # Service Worker PWA (Wajib di Root)
-├── 📄 manifest.json      # Konfigurasi PWA Web App Manifest
-├── 📄 kode.gs            # Backend Google Apps Script (Endpoint API)
-├── 📂 assets/            # Aset statis grafis, video, & media
-│   ├── 📂 img/           # Logo, ikon PWA, tanda tangan, QRIS
-│   ├── 📂 watermark/     # Aset watermark cetak & PDF
-│   └── 📂 maintenance-assets/ # Video animasi mode maintenance
-├── 📂 css/               # Berkas lembar gaya (Tailwind, Style kustom, Tema Gelap)
-├── 📂 js/                # Berkas logika kontroler JavaScript vanilla modular
-├── 📂 docs/              # Dokumentasi arsitektur, panduan desain, & sistem
-└── 📂 notes/             # Catatan pengembang, roadmap, & aturan prompt
+├── 📄 index.html             # Dashboard utama (Entry point aplikasi di Root)
+├── 📄 login.html             # Halaman autentikasi login (Root)
+├── 📄 sw.js                  # Service Worker PWA (Root scope '/')
+├── 📄 manifest.json          # Konfigurasi PWA Web App Manifest
+├── 📄 kode.gs                # Backend Google Apps Script (Endpoint API)
+├── 📂 pages/                 # Seluruh modul halaman aplikasi
+│   ├── 📄 proyek.html        # Manajemen data projek
+│   ├── 📄 tambah-proyek.html # Form input / edit projek
+│   ├── 📄 keuangan.html      # Buku kas & mutasi keuangan
+│   ├── 📄 laporan.html       # Laporan & analitik keuangan
+│   ├── 📄 history-invoice.html # Riwayat invoice & nota
+│   ├── 📄 invoice.html       # Generator nota & invoice PDF
+│   ├── 📄 admin-tasks.html   # Checklist aktivitas admin
+│   ├── 📄 tools.html         # Tools & AI Generator
+│   ├── 📄 user-management.html # Manajemen pengguna & role
+│   ├── 📄 pengaturan.html    # Pengaturan sistem & database
+│   ├── 📄 profil.html        # Profil pengguna
+│   └── 📄 maintenance.html   # Halaman pemeliharaan
+├── 📂 js/                    # Logika JavaScript Modular
+│   ├── 📂 core/              # Modul inti (config, api, auth, pwa, theme, toast, i18n)
+│   ├── 📂 modules/           # Kontroler per halaman modul
+│   └── 📂 utils/             # Utilitas integrasi (excel, calendar)
+├── 📂 css/                   # Lembar gaya (style.css, darkmode.css, tailwind.min.css)
+├── 📂 assets/                # Aset statis grafis, video, & media
+├── 📂 docs/                  # Dokumentasi arsitektur & panduan sistem
+└── 📂 notes/                 # Catatan pengembang, roadmap, & aturan prompt
 ```
 
 ---
 
-## 📌 Alasan Halaman HTML & Service Worker Wajib Berada di Root
+## 📌 Alasan Arsitektur Root + Subfolder `pages/`
 
 1. **Service Worker Root Scope (`/`)**:
-   - `sw.js` diletakkan di root agar memiliki *scope* kontrol penuh atas seluruh URL halaman aplikasi (`/index.html`, `/proyek.html`, dll.). Jika dipindahkan ke dalam subfolder, Service Worker secara default tidak dapat mencegat (*intercept*) cache halaman di atas foldernya.
-2. **Keamanan Routing & URL Permanen**:
-   - Menjaga URL tetap bersih dan konsisten tanpa perlu konfigurasi web server rewrite yang kompleks (`window.location.href = 'proyek.html'`).
+   - `sw.js` tetap diletakkan di root agar memiliki *scope* kontrol penuh atas seluruh URL halaman aplikasi (`/index.html`, `/pages/proyek.html`, dll.).
+2. **Kerapian & Kemudahan Pemeliharaan**:
+   - Direktori root kini sangat bersih, bebas dari tumpukan belasan file HTML. Seluruh halaman modul operasional tertata rapi di folder `pages/`.
 3. **Penyimpanan Cache & PWA Offline**:
-   - Path relatif `./` pada Service Worker dan Manifest PWA bekerja secara konsisten di localhost maupun hosting statis (GitHub Pages, Vercel, Netlify, Apache).
+   - Seluruh modul halaman di `pages/` dan script di `js/core/`, `js/modules/`, serta `js/utils/` terdaftar di cache Service Worker (`urlsToCache`), menjaga kemampuan offline 100%.
 
 ---
 
 ## 🗂️ Rincian Direktori & Tugas Berkas
 
-### 1. Halaman Antarmuka Root (`*.html`)
+### 1. Halaman Antarmuka (`index.html`, `login.html`, & `pages/*.html`)
 Setiap file HTML mewakili satu modul operasional dengan kontroler JS pasangannya:
 
 | Berkas HTML | Kontroler JS | Fungsi & Modul Utama |
 |---|---|---|
-| `index.html` | `js/dashboard.js` | Ringkasan eksekutif, metrik performa, dan grafik analitik |
-| `proyek.html` | `js/proyek.js` | Tabel data master projek, filter status, pencarian, & DataTables |
-| `tambah-proyek.html` | `js/tambah.js` | Formulir entri projek baru dan edit projek |
-| `keuangan.html` | `js/keuangan.js` | Buku kas pemasukan/pengeluaran & mutasi saldo |
-| `laporan.html` | `js/laporan.js` | Analitik komprehensif, filter periode, & laporan tahunan |
-| `history-invoice.html` | `js/history-invoice.js` | Arsip pencatatan invoice & status pembayaran klien |
-| `invoice.html` | `js/invoice.js` | Generator nota / invoice dan cetak PDF profesional |
-| `admin-tasks.html` | `js/admin-tasks.js` | Checklist harian staf, delegasi tugas, & reset berkala |
-| `tools.html` | `js/tools.js` | Utilitas generator prompt, AI assistant Gemini, & pintasan |
-| `user-management.html` | `js/user-management.js` | Pengelolaan hak akses 3-Role (Super Admin Only) |
-| `pengaturan.html` | `js/pengaturan.js` | Manajemen database lokal, API Sheets, & backup |
-| `profil.html` | `js/profil.js` | Edit profil pengguna, ganti password, & avatar |
-| `login.html` | `js/auth.js` | Autentikasi sesi login (Sesi aman 3 hari) |
-| `maintenance.html` | - | Halaman pemeliharaan sistem saat server offline |
+| `index.html` (Root) | `js/modules/dashboard.js` | Ringkasan eksekutif, metrik performa, dan grafik analitik |
+| `login.html` (Root) | `js/core/auth.js` | Autentikasi sesi login (Sesi aman 3 hari) |
+| `pages/proyek.html` | `js/modules/proyek.js` | Tabel data master projek, filter status, pencarian, & DataTables |
+| `pages/tambah-proyek.html` | `js/modules/tambah.js` | Formulir entri projek baru dan edit projek |
+| `pages/keuangan.html` | `js/modules/keuangan.js` | Buku kas pemasukan/pengeluaran & mutasi saldo |
+| `pages/laporan.html` | `js/modules/laporan.js` | Analitik komprehensif, filter periode, & laporan tahunan |
+| `pages/history-invoice.html` | `js/modules/history-invoice.js` | Arsip pencatatan invoice & status pembayaran klien |
+| `pages/invoice.html` | `js/modules/invoice.js` | Generator nota / invoice dan cetak PDF profesional |
+| `pages/admin-tasks.html` | `js/modules/admin-tasks.js` | Checklist harian staf, delegasi tugas, & reset berkala |
+| `pages/tools.html` | `js/modules/tools.js` | Utilitas generator prompt, AI assistant Gemini, & pintasan |
+| `pages/user-management.html` | `js/modules/user-management.js` | Pengelolaan hak akses 3-Role (Super Admin Only) |
+| `pages/pengaturan.html` | `js/modules/pengaturan.js` | Manajemen database lokal, API Sheets, & backup |
+| `pages/profil.html` | `js/modules/profil.js` | Edit profil pengguna, ganti password, & avatar |
+| `pages/maintenance.html` | - | Halaman pemeliharaan sistem saat server offline |
 
 ---
 
 ### 2. Direktori `js/` (Logika & Modul JavaScript)
 Dikelompokkan menjadi 3 kategori fungsi:
 
-- **Modul Fondasi & Utilitas Global**:
+- **`js/core/` (Modul Fondasi & Utilitas Global)**:
   - `config.js`: Variabel konfigurasi terpusat, endpoint Google Apps Script, & helper modal.
   - `api.js`: Lapisan komunikasi jaringan fetch API, antrean sinkronisasi offline.
-  - `auth.js`: Manajemen sesi autentikasi, enkripsi token, kontrol hak akses 3-Role.
+  - `auth.js`: Manajemen sesi autentikasi, enkripsi token, kontrol hak akses 3-Role, bottom navigation.
   - `theme.js`: Switcher tema terang / gelap (Light / Dark Mode).
   - `toast.js`: Notifikasi pesan mengambang (*toast*) dengan timer progress bar.
   - `pwa.js`: Penanganan instalasi PWA dan deteksi liveness service worker.
   - `i18n.js`: Lokalisasi bahasa (Indonesia & English).
 
-- **Modul Kontroler Halaman**:
+- **`js/modules/` (Modul Kontroler Halaman)**:
   - `dashboard.js`, `proyek.js`, `tambah.js`, `keuangan.js`, `laporan.js`, `history-invoice.js`, `invoice.js`, `admin-tasks.js`, `tools.js`, `user-management.js`, `pengaturan.js`, `profil.js`.
 
-- **Modul Ekspor & Integrasi Pihak Ketiga**:
+- **`js/utils/` (Modul Ekspor & Integrasi Pihak Ketiga)**:
   - `excel.js`: Generator dan parser berkas Excel (.xlsx).
   - `calendar.js`: Generator jadwal Google Calendar & berkas iCal (.ics).
 

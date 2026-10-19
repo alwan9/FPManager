@@ -51,22 +51,22 @@
     <meta property="og:site_name" content="FPManager">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
-    <link rel="apple-touch-icon" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="apple-touch-icon" href="../assets/img/favicon.png">
     <!-- Google Fonts Preconnect & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 
     <!-- Tailwind -->
-    <link href="css/tailwind.min.css" rel="stylesheet">
+    <link href="../css/tailwind.min.css" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <!-- Global Style -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/darkmode.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/darkmode.css">
 
     <style>
         #invoiceArea {
@@ -452,7 +452,7 @@
         }
     </style>
 
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="../manifest.json">
 
 
 <body class="bg-zinc-100">
@@ -621,7 +621,7 @@
 
                     <div class="text-right flex flex-col items-end">
 
-                        <img id="previewLogo" src="assets/watermark/wm_warna.png" alt="FPManager Logo"
+                        <img id="previewLogo" src="../assets/watermark/wm_warna.png" alt="FPManager Logo"
                             class="h-8 md:h-10 w-auto mb-1 md:mb-2 object-contain">
 
                         <p class="text-zinc-500 text-[10px] md:text-sm">
@@ -879,7 +879,7 @@
                                 Hormat Kami,
                             </p>
                             <div class="h-16 my-2 flex items-center justify-center">
-                                <img id="previewSignImage" src="assets/img/ttd.png" alt="Tanda Tangan"
+                                <img id="previewSignImage" src="../assets/img/ttd.png" alt="Tanda Tangan"
                                     class="h-16 w-auto object-contain">
                             </div>
                             <div id="previewSignLine" class="border-b border-zinc-400 w-full mb-2"></div>
@@ -949,17 +949,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 
     <!-- Global JS -->
-    <script src="js/toast.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
+    <script src="../js/core/toast.js"></script>
+    <script src="../js/core/config.js"></script>
+    <script src="../js/core/i18n.js"></script>
+    <script src="../js/core/auth.js"></script>
+    <script src="../js/core/api.js"></script>
 
     <!-- Invoice JS -->
-    <script src="js/invoice.js"></script>
+    <script src="../js/modules/invoice.js"></script>
 
-    <script src="js/pwa.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="../js/core/pwa.js"></script>
+    <script src="../js/core/theme.js"></script>
 
 
 </html>

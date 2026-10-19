@@ -138,20 +138,20 @@ function applyDashboardRoleCustomizations() {
     // 3. Card 2: Link to In Progress Projects
     if (statCardPendapatan) {
       statCardPendapatan.classList.add('cursor-pointer');
-      statCardPendapatan.setAttribute('onclick', "window.location.href='proyek.html?status=Sedang%20Dikerjakan'");
+      statCardPendapatan.setAttribute('onclick', "window.location.href='pages/proyek.html?status=Sedang%20Dikerjakan'");
       statCardPendapatan.setAttribute('title', isEn ? 'Click to view In Progress projects' : 'Klik untuk melihat projek yang sedang dikerjakan');
     }
 
     // 4. Card 3: Link to Revision Projects
     if (statCardPengeluaran) {
-      statCardPengeluaran.setAttribute('href', 'proyek.html?status=Revisi');
+      statCardPengeluaran.setAttribute('href', 'pages/proyek.html?status=Revisi');
       statCardPengeluaran.setAttribute('title', isEn ? 'Click to view projects In Revision' : 'Klik untuk melihat projek dalam status revisi');
     }
 
     // 5. Card 4: Link to Completed Projects
     if (statCardKeuntungan) {
       statCardKeuntungan.classList.add('cursor-pointer', 'hover:border-emerald-300', 'dark:hover:border-emerald-700', 'hover:shadow-md');
-      statCardKeuntungan.setAttribute('onclick', "window.location.href='proyek.html?status=Selesai'");
+      statCardKeuntungan.setAttribute('onclick', "window.location.href='pages/proyek.html?status=Selesai'");
       statCardKeuntungan.setAttribute('title', isEn ? 'Click to view Completed projects' : 'Klik untuk melihat projek selesai');
     }
 
@@ -1055,9 +1055,9 @@ function initDeadlineCalendar(revisiProjects) {
         cell.appendChild(dotContainer);
       }
 
-      // Clicking any day redirects to proyek.html with status=Revisi parameter
+      // Clicking any day redirects to pages/proyek.html with status=Revisi parameter
       cell.addEventListener('click', () => {
-        window.location.href = 'proyek.html?status=Revisi';
+        window.location.href = 'pages/proyek.html?status=Revisi';
       });
 
       daysGrid.appendChild(cell);
@@ -1178,7 +1178,7 @@ window.escapeHtml = escapeHtml;
 function showIncomeBreakdownModal() {
   const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
   if (isDesainer) {
-    window.location.href = 'proyek.html?status=Sedang%20Dikerjakan';
+    window.location.href = 'pages/proyek.html?status=Sedang%20Dikerjakan';
     return;
   }
 

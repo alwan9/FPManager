@@ -1,4 +1,4 @@
-restruktur  folder agar lebih rapi dan mudah dipahami dan untuk target url/routenya bisa di sesuaikan 
+[SELESAI] restruktur folder agar lebih rapi dan mudah dipahami dan untuk target url/routenya bisa di sesuaikan 
 
 
 

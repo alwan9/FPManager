@@ -38,18 +38,18 @@
   <meta name="apple-mobile-web-app-title" content="FPManager">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
   <!-- Google Fonts Preconnect & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 
   <!-- Tailwind CSS -->
-  <link href="css/tailwind.min.css" rel="stylesheet">
+  <link href="../css/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/darkmode.css">
 
 </head>
 
@@ -60,17 +60,17 @@
     <!-- Desktop Sidebar Navigation -->
     <aside class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
       <div class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
-        <a href="index.html" class="flex items-center space-x-3 logo-full">
+        <a href="../index.html" class="flex items-center space-x-3 logo-full">
           <img src="./assets/img/logo.webp" class="w-36" alt="FPManager Logo">
         </a>
-        <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
+        <a href="../index.html" class="logo-mini flex items-center justify-center" title="FPManager">
           <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
         </a>
       </div>
 
       <!-- Navigation Links (Desktop) -->
       <nav id="navMenu" class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
-        <a href="index.html"
+        <a href="../index.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-home">Dashboard</span>
@@ -160,7 +160,7 @@
       class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-5 flex items-center justify-around"
       style="padding-top: 20px !important; padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;">
       <!-- 1. Home -->
-      <a href="index.html"
+      <a href="../index.html"
         class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
         <i class="fa-solid fa-chart-line text-base"></i>
         <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
@@ -210,7 +210,7 @@
             <i class="fa-solid fa-bars text-lg"></i>
           </button>
           <!-- Mobile Logo (Shown only on mobile) -->
-          <a href="index.html" class="md:hidden flex items-center">
+          <a href="../index.html" class="md:hidden flex items-center">
             <img src="./assets/img/logo.webp" class="h-7 w-auto" alt="FPManager">
           </a>
           <!-- Desktop Page Icon & Title (Hidden on mobile) -->
@@ -1366,7 +1366,7 @@
                 <div class="flex items-center space-x-2 overflow-hidden">
                   <div
                     class="w-9 h-9 rounded-lg bg-zinc-200 dark:bg-zinc-700/60 p-1 flex items-center justify-center shrink-0 border border-zinc-300 dark:border-zinc-600">
-                    <img id="wmActiveThumb" src="assets/watermark/wm_white.png" alt="Watermark Preview"
+                    <img id="wmActiveThumb" src="../assets/watermark/wm_white.png" alt="Watermark Preview"
                       class="max-w-full max-h-full object-contain">
                   </div>
                   <div class="truncate">
@@ -2410,17 +2410,17 @@
   </div>
 
   <!-- Load Global Scripts -->
-  <script src="js/toast.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/pwa.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/api.js"></script>
+  <script src="../js/core/toast.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/core/i18n.js"></script>
+  <script src="../js/core/auth.js"></script>
+  <script src="../js/core/pwa.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/api.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
-  <script src="js/excel.js"></script>
-  <script src="js/tools.js"></script>
+  <script src="../js/utils/excel.js"></script>
+  <script src="../js/modules/tools.js"></script>
 
   <script>
     // Populate footer current year

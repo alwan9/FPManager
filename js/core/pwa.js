@@ -12,7 +12,8 @@ if ('serviceWorker' in navigator) {
   });
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
+    const swPath = (window.location.pathname || '').includes('/pages/') ? '../sw.js' : './sw.js';
+    navigator.serviceWorker.register(swPath)
       .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
 

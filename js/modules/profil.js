@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadProfileData() {
   const user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
   if (!user) {
-    window.location.href = 'login.html';
+    window.location.href = '../login.html';
     return;
   }
 

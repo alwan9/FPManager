@@ -154,7 +154,8 @@ const SessionManager = {
       });
     }
 
-    window.location.href = `login.html?reason=${reason}`;
+    const isInPages = (window.location.pathname || "").includes('/pages/');
+    window.location.href = isInPages ? `../login.html?reason=${reason}` : `login.html?reason=${reason}`;
   }
 };
 
@@ -414,9 +415,10 @@ const Auth = {
   checkLogin: () => {
     const token = Auth.getToken();
     const isLoginPage = window.location.pathname.endsWith("login.html") || window.location.pathname.endsWith("login");
+    const isInPages = (window.location.pathname || "").includes("/pages/");
 
     if (!token && !isLoginPage) {
-      window.location.href = "login.html";
+      window.location.href = isInPages ? "../login.html" : "login.html";
       return;
     }
     if (token && isLoginPage) {
@@ -448,7 +450,8 @@ const Auth = {
     if (!Auth.canAccessPage(file)) {
       console.warn(`[Auth Guard] Akses ke ${file} ditolak untuk role: ${Auth.getRole()}`);
       sessionStorage.setItem("toast_denied", "Anda tidak memiliki izin untuk mengakses halaman tersebut.");
-      window.location.href = "index.html";
+      const isInPages = (window.location.pathname || "").includes("/pages/");
+      window.location.href = isInPages ? "../index.html" : "index.html";
     }
   },
 
@@ -473,29 +476,33 @@ const Auth = {
     const activeClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-indigo-400 font-bold";
     const inactiveClass = "flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium";
 
+    const isInPages = (window.location.pathname || "").includes("/pages/");
+    const rootPath = isInPages ? "../" : "./";
+    const pagesPath = isInPages ? "./" : "pages/";
+
     if (Auth.isDesigner()) {
       // Designer: Home, Projek, Tools, Profil
       bottomNav.innerHTML = `
         <!-- 1. Dashboard -->
-        <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
+        <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
         </a>
 
         <!-- 2. Project -->
-        <a href="proyek.html" class="${isProyek ? activeClass : inactiveClass}">
+        <a href="${pagesPath}proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tools -->
-        <a href="tools.html" class="${isTools ? activeClass : inactiveClass}">
+        <a href="${pagesPath}tools.html" class="${isTools ? activeClass : inactiveClass}">
           <i class="fa-solid fa-toolbox text-base"></i>
           <span class="text-[10px] mt-0.5">Tools</span>
         </a>
 
         <!-- 4. Profile -->
-        <a href="profil.html" class="${isProfil ? activeClass : inactiveClass}">
+        <a href="${pagesPath}profil.html" class="${isProfil ? activeClass : inactiveClass}">
           <i class="fa-solid fa-user text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
         </a>
@@ -504,19 +511,19 @@ const Auth = {
       // Super Admin & Service: Home, Projek, Tambah, Keuangan, Profil
       bottomNav.innerHTML = `
         <!-- 1. Dashboard -->
-        <a href="index.html" class="${isHome ? activeClass : inactiveClass}">
+        <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
         </a>
 
         <!-- 2. Project -->
-        <a href="proyek.html" class="${isProyek ? activeClass : inactiveClass}">
+        <a href="${pagesPath}proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tambah (Center Prominent Action) -->
-        <a href="tambah-proyek.html"
+        <a href="${pagesPath}tambah-proyek.html"
           class="flex flex-col items-center justify-center -mt-5 flex-1 group focus:outline-none" title="Tambah Projek">
           <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 ${isTambah ? 'ring-2 ring-indigo-400' : ''} group-hover:scale-105 active:scale-95 transition-all">
             <i class="fa-solid fa-plus text-base"></i>
@@ -534,7 +541,7 @@ const Auth = {
         </button>
 
         <!-- 5. Profile -->
-        <a href="profil.html" class="${isProfil ? activeClass : inactiveClass}">
+        <a href="${pagesPath}profil.html" class="${isProfil ? activeClass : inactiveClass}">
           <i class="fa-solid fa-user text-base"></i>
           <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
         </a>
@@ -574,15 +581,15 @@ const Auth = {
           </button>
         </div>
         <div class="flex flex-col space-y-1">
-          <a href="keuangan.html" onclick="Auth.handlePopoverLinkClick(event, 'keuangan.html')" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
+          <a href="${pagesPath}keuangan.html" class="popover-link ${isKeuangan ? 'active-sub' : ''}">
             <i class="fa-solid fa-coins text-sm text-indigo-400 w-5"></i>
             <span data-i18n="nav-keuangan">Keuangan</span>
           </a>
-          <a href="history-invoice.html" onclick="Auth.handlePopoverLinkClick(event, 'history-invoice.html')" class="popover-link ${isHistory ? 'active-sub' : ''}">
+          <a href="${pagesPath}history-invoice.html" class="popover-link ${isHistory ? 'active-sub' : ''}">
             <i class="fa-solid fa-receipt text-sm text-indigo-400 w-5"></i>
             <span data-i18n="nav-history-invoice">History Invoice</span>
           </a>
-          <a href="laporan.html" onclick="Auth.handlePopoverLinkClick(event, 'laporan.html')" class="popover-link ${isLaporan ? 'active-sub' : ''}">
+          <a href="${pagesPath}laporan.html" class="popover-link ${isLaporan ? 'active-sub' : ''}">
             <i class="fa-solid fa-file-invoice-dollar text-sm text-indigo-400 w-5"></i>
             <span data-i18n="nav-laporan">Laporan</span>
           </a>

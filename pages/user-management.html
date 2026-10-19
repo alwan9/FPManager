@@ -36,21 +36,21 @@
   <meta name="apple-mobile-web-app-title" content="FPManager">
 
   <!-- Favicon -->
-  <link class="favicon" rel="icon" type="image/png" href="assets/img/favicon.png">
-  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <link class="favicon" rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="../assets/img/favicon.png">
   <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="../manifest.json">
   <!-- Google Fonts Preconnect & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 
   <!-- Tailwind CSS -->
-  <link href="css/tailwind.min.css" rel="stylesheet">
+  <link href="../css/tailwind.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/darkmode.css">
 </head>
 
 <body class="bg-zinc-50 text-zinc-800">
@@ -62,10 +62,10 @@
       class="hidden md:flex md:w-64 bg-zinc-900 text-zinc-100 flex-col shadow-xl z-50 transition-all duration-300">
       <div
         class="flex p-4 items-center justify-center border-b border-zinc-800 bg-zinc-900 z-10 logo-container">
-        <a href="index.html" class="flex items-center space-x-3 logo-full">
+        <a href="../index.html" class="flex items-center space-x-3 logo-full">
           <img src="./assets/img/logo.webp" class="w-36" alt="FPManager Logo">
         </a>
-        <a href="index.html" class="logo-mini flex items-center justify-center" title="FPManager">
+        <a href="../index.html" class="logo-mini flex items-center justify-center" title="FPManager">
           <img src="./assets/img/favicon.png" class="w-8 h-8 object-contain" alt="Favicon">
         </a>
       </div>
@@ -73,7 +73,7 @@
       <!-- Navigation Links (Desktop) -->
       <nav id="navMenu"
         class="flex flex-col space-y-1 p-4 bg-zinc-900 w-full overflow-y-auto flex-1">
-        <a href="index.html"
+        <a href="../index.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-home">Dashboard</span>
@@ -172,7 +172,7 @@
             <i class="fa-solid fa-bars text-lg"></i>
           </button>
           <!-- Mobile Logo -->
-          <a href="index.html" class="md:hidden flex items-center">
+          <a href="../index.html" class="md:hidden flex items-center">
             <img src="./assets/img/logo.webp" class="h-7 w-auto" alt="FPManager">
           </a>
           <!-- Desktop Page Icon & Title -->
@@ -465,14 +465,14 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/toast.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/user-management.js"></script>
-  <script src="js/pwa.js"></script>
-  <script src="js/theme.js"></script>
+  <script src="../js/core/toast.js"></script>
+  <script src="../js/core/config.js"></script>
+  <script src="../js/core/i18n.js"></script>
+  <script src="../js/core/auth.js"></script>
+  <script src="../js/core/api.js"></script>
+  <script src="../js/modules/user-management.js"></script>
+  <script src="../js/core/pwa.js"></script>
+  <script src="../js/core/theme.js"></script>
 </body>
 
 </html>

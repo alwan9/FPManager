@@ -120,7 +120,8 @@ if (typeof window.copyTextToClipboard === 'undefined') {
 const handleUnauthorized = (result) => {
   if (result.message === "Error: Unauthorized") {
     sessionStorage.removeItem("token");
-    window.location.href = "login.html";
+    const isInPages = (window.location.pathname || '').includes('/pages/');
+    window.location.href = isInPages ? "../login.html" : "login.html";
     return true;
   }
   return false;
