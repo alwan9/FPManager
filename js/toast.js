@@ -72,6 +72,8 @@ const Toast = (() => {
         const isIOS = /iPhone|iPad|iPod/.test(ua) || 
                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+        if (!isIOS) return false;
+
         const screenW = (window.screen ? window.screen.width : window.innerWidth) || 0;
         const screenH = (window.screen ? window.screen.height : window.innerHeight) || 0;
         const minDim = Math.min(screenW, screenH);
@@ -89,7 +91,17 @@ const Toast = (() => {
             (minDim === 440 && maxDim === 956)
         );
 
-        return isIOS && isDynamicIslandSize;
+        // Also check via safe-area-inset-top (Dynamic Island models have >= 50px top inset in PWA standalone)
+        let hasDynamicIslandInset = false;
+        try {
+            const testEl = document.createElement('div');
+            testEl.style.cssText = 'position:fixed;top:0;left:0;height:env(safe-area-inset-top, 0px);visibility:hidden;pointer-events:none;';
+            document.body.appendChild(testEl);
+            hasDynamicIslandInset = (testEl.offsetHeight >= 50);
+            if (testEl.parentNode) testEl.parentNode.removeChild(testEl);
+        } catch (e) {}
+
+        return isDynamicIslandSize || hasDynamicIslandInset;
     }
 
     // Check user preference or automatically enable Dynamic Island on iPhone 15+ and mobile
