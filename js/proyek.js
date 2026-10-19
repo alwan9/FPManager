@@ -2406,14 +2406,37 @@ function formatRupiah(number) {
   }).format(isNaN(num) ? 0 : num);
 }
 
+// Global lock to prevent updating multiple projects simultaneously, especially during pelunasan modal
+let isAnyProyekStatusUpdating = false;
+
 // Update status of project inline from table select
 async function updateProyekStatus(id, newStatus, selectEl) {
+  if (isAnyProyekStatusUpdating) {
+    showToast({
+      title: "Harap Tunggu",
+      message: "Proses perubahan status / pelunasan sedang berlangsung. Selesaikan terlebih dahulu.",
+      type: "warning"
+    });
+    if (selectEl) {
+      const list = window.allProyekList || [];
+      const prj = list.find(p => p.iDProyek === id);
+      if (prj) {
+        selectEl.value = prj.status || 'Menunggu';
+        const stStyle = getStatusColorStyles(selectEl.value);
+        selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ' + stStyle.bgClass;
+      }
+    }
+    return;
+  }
+
   if (selectEl) {
     if (selectEl.dataset.isUpdating === 'true') return;
     selectEl.dataset.isUpdating = 'true';
     selectEl.disabled = true;
     selectEl.classList.add('opacity-60', 'pointer-events-none');
   }
+
+  isAnyProyekStatusUpdating = true;
 
   try {
     // Find original project object
@@ -2452,26 +2475,48 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     let settledPelunasan = pelunasanCurrent;
     let newSisa = sisa;
 
-    // JIKA STATUS DIGANTI JADI SELESAI
+    // 1. JIKA STATUS DIGANTI JADI SELESAI
     if (newStatus.toLowerCase() === 'selesai') {
-      const result = await promptMetodePelunasanModal({
-        proyekId: id,
-        namaPelanggan: proyek.namaPelanggan,
-        namaProyek: proyek.namaProyek,
-        nominal: nominalVal,
-        dp: dpVal,
-        sisa: sisa,
-        currentMetode: chosenMetode
+      // Kunci semua dropdown status di tabel agar tidak ada status projek lain yang bisa diubah saat popup pelunasan aktif
+      const allStatusSelects = document.querySelectorAll('select[onchange*="updateProyekStatus"]');
+      allStatusSelects.forEach(s => {
+        s.disabled = true;
+        s.classList.add('opacity-60', 'pointer-events-none');
       });
 
+      let result = null;
+      try {
+        result = await promptMetodePelunasanModal({
+          proyekId: id,
+          namaPelanggan: proyek.namaPelanggan,
+          namaProyek: proyek.namaProyek,
+          nominal: nominalVal,
+          dp: dpVal,
+          sisa: sisa,
+          currentMetode: chosenMetode
+        });
+      } catch (err) {
+        result = { confirmed: false };
+      }
+
       if (!result || !result.confirmed) {
-        // User batalkan popup: Kembalikan dropdown ke status semula
+        // User membatalkan popup atau belum menyelesaikan pelunasan:
+        // Kembalikan dropdown ke status semula dan buka kunci dropdown
         if (selectEl) {
           selectEl.value = oldStatus;
           const stStyle = getStatusColorStyles(oldStatus);
           selectEl.className = 'inline-block px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 border ' + stStyle.bgClass;
           selectEl.style.backgroundImage = `url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22${stStyle.arrowColor}%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')`;
         }
+        allStatusSelects.forEach(s => {
+          s.disabled = false;
+          s.classList.remove('opacity-60', 'pointer-events-none');
+        });
+        showToast({
+          title: "Dibatalkan",
+          message: `Pelunasan belum selesai. Status projek tetap '${oldStatus}'.`,
+          type: "info"
+        });
         return;
       }
 
@@ -2483,6 +2528,14 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       }
     }
 
+    // 2. JIKA DIKEMBALIKAN KE STATUS LAIN DARI SELESAI (MISAL DIKERJAKAN, REVISI, MENUNGGU)
+    const isRevertingFromSelesai = (oldStatus.toLowerCase() === 'selesai' || Number(proyek.pelunasan) > 0) && newStatus.toLowerCase() !== 'selesai';
+    if (isRevertingFromSelesai) {
+      settledPelunasan = 0; // Pelunasan dibatalkan / dihapus
+      newSisa = Math.max(0, nominalVal - dpVal); // Kembalikan sisa ke nominal - dp
+      chosenMetode = proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee';
+    }
+
     showToast({
       title: "Memperbarui",
       message: "Sedang memperbarui status projek...",
@@ -2490,7 +2543,14 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     });
 
     let newCatatan = proyek.catatan || '';
-    if (addedCatatan) {
+    if (isRevertingFromSelesai) {
+      // Bersihkan catatan pelunasan jika dikembalikan dari selesai
+      newCatatan = newCatatan
+        .replace(/\s*-\s*Pembayaran LUNAS/gi, '')
+        .replace(/Pembayaran LUNAS/gi, '')
+        .replace(/\s*\[Pelunasan\]:[^\n]*/gi, '')
+        .trim();
+    } else if (addedCatatan) {
       newCatatan = newCatatan ? `${newCatatan} - ${addedCatatan}` : addedCatatan;
     } else if (newStatus.toLowerCase() === 'selesai' && !newCatatan.toLowerCase().includes('lunas') && sisa > 0) {
       newCatatan = newCatatan ? `${newCatatan} - Pembayaran LUNAS` : 'Pembayaran LUNAS';
@@ -2516,7 +2576,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
       assignDesigner: assignedDesignerId,
       metodePembayaran: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
       metodeBayarDp: proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee',
-      metodeBayarPelunasan: chosenMetode,
+      metodeBayarPelunasan: isRevertingFromSelesai ? '' : chosenMetode,
       sumber: proyek.sumber || 'WhatsApp',
       catatan: newCatatan,
       gdriveLink: proyek.gdriveLink || ''
@@ -2524,7 +2584,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
 
     const res = await API.updateProyek(id, payload);
     if (res.success) {
-      // Sync Keuangan if status is Selesai
+      // 3. Sync Keuangan
       if (newStatus.toLowerCase() === 'selesai') {
         try {
           const keuanganList = await API.getKeuangan();
@@ -2572,11 +2632,61 @@ async function updateProyekStatus(id, newStatus, selectEl) {
         } catch (syncErr) {
           console.warn("Gagal menyinkronkan data keuangan on updateProyekStatus:", syncErr);
         }
+      } else if (isRevertingFromSelesai) {
+        // BATALKAN / HAPUS PELUNASAN DI BUKU KEUANGAN
+        try {
+          const keuanganList = await API.getKeuangan();
+          const prjId = proyek.iDProyek;
+          const dpMetodeAsli = proyek.metodeBayarDp || proyek.metodePembayaran || 'Shopee';
+
+          const linkedTxs = (keuanganList || []).filter(k => {
+            if (!k) return false;
+            const kPrj = String(k.idProyek || '').trim();
+            const ket = String(k.keterangan || '').trim();
+            return kPrj === prjId || ket.includes(prjId);
+          });
+
+          for (const tx of linkedTxs) {
+            const ketLower = String(tx.keterangan || '').toLowerCase();
+            // Jika ini entri transaksi pelunasan terpisah (bukan DP), hapus permanen
+            if (ketLower.includes('pelunasan') && !ketLower.includes('dp')) {
+              await API.deleteKeuangan(tx.id);
+            } else if (dpVal <= 0 && ketLower.includes('pembayaran lunas')) {
+              // Jika proyek tanpa DP sama sekali, hapus entri pemasukan lunas
+              await API.deleteKeuangan(tx.id);
+            } else {
+              // Kembalikan transaksi utama/DP ke status belum lunas (hanya DP yang masuk)
+              await API.updateKeuangan(tx.id, {
+                dp: dpVal,
+                pelunasan: 0,
+                sisa: newSisa,
+                totalProyek: nominalVal,
+                nominal: dpVal > 0 ? dpVal : 0,
+                statusPembayaran: dpVal > 0 ? 'DP' : 'Belum',
+                metodeBayarDp: tx.metodeBayarDp || dpMetodeAsli,
+                metodeBayarPelunasan: '',
+                metodePembayaran: tx.metodeBayarDp || dpMetodeAsli,
+                catatanPelunasan: '',
+                keterangan: dpVal > 0
+                  ? `Pembayaran DP - ${proyek.namaPelanggan} (${prjId})`
+                  : `Tagihan Projek - ${proyek.namaPelanggan} (${prjId})`
+              });
+            }
+          }
+
+          if (typeof APICache !== 'undefined' && APICache.clear) {
+            APICache.clear();
+          }
+        } catch (revErr) {
+          console.warn("Gagal menghapus/membatalkan pelunasan di keuangan:", revErr);
+        }
       }
 
       showToast({
         title: "Berhasil",
-        message: "Status projek berhasil diperbarui.",
+        message: isRevertingFromSelesai
+          ? `Status dikembalikan ke '${newStatus}'. Pelunasan dibatalkan & dihapus dari buku keuangan.`
+          : "Status projek berhasil diperbarui.",
         type: "success"
       });
       loadProyekData(); // Reload table and counter metrics
@@ -2597,6 +2707,12 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     });
     loadProyekData();
   } finally {
+    isAnyProyekStatusUpdating = false;
+    const allStatusSelects = document.querySelectorAll('select[onchange*="updateProyekStatus"]');
+    allStatusSelects.forEach(s => {
+      s.disabled = false;
+      s.classList.remove('opacity-60', 'pointer-events-none');
+    });
     if (selectEl) {
       delete selectEl.dataset.isUpdating;
       selectEl.disabled = false;

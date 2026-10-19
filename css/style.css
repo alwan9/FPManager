@@ -1338,9 +1338,28 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
     background: #3f3f46 !important;
   }
 
+  /* Table container card standard across all pages on mobile (mirrors proyek.html: p-2 = 0.5rem) */
+  .table-card-mobile,
+  #sectionTableIncome,
+  #sectionTableExpense,
+  #sectionTableMutasi {
+    padding: 0.5rem !important; /* 8px = p-2 */
+    border-radius: 0.75rem !important; /* rounded-xl */
+  }
+
+  .table-card-mobile .overflow-x-auto,
+  #sectionTableIncome .overflow-x-auto,
+  #sectionTableExpense .overflow-x-auto,
+  #sectionTableMutasi .overflow-x-auto {
+    padding: 0 !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
   /* 3. SEMUA TABEL di Layar HP (Universal Table Sizing & Margin) */
   table,
   table.dataTable,
+  .overflow-x-auto table,
   #proyekTable,
   #keuanganTable,
   #historyInvoiceTable,
@@ -1367,17 +1386,26 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
     min-width: 600px !important;
   }
 
-  /* 4. Padding & Margin Khusus SEMUA Header Tabel (th) di Layar HP */
+  /* 4. Padding & Margin Khusus SEMUA Header Tabel (th) di Layar HP - Mengacu ke Tabel Projek */
   table thead th,
   table.dataTable thead th,
   table th,
+  table thead th[class*="p-"],
+  table thead th[class*="px-"],
+  table thead th[class*="py-"],
+  table th[class*="p-"],
+  table th[class*="px-"],
+  table th[class*="py-"],
+  .overflow-x-auto table thead th,
+  .overflow-x-auto table th,
   #proyekTable thead th,
   #proyekTable.dataTable thead th,
   #keuanganTable thead th,
   #historyInvoiceTable thead th,
   #itemsTable thead th,
-  #userTable thead th {
-    padding: 0.3rem 0.35rem !important; /* Ramping & hemat ruang */
+  #userTable thead th,
+  #adminTasksTable thead th {
+    padding: 0.3rem 0.35rem !important; /* Ramping & hemat ruang seperti Tabel Projek */
     font-size: 0.625rem !important;    /* 10px */
     line-height: 1.2 !important;
     white-space: nowrap !important;
@@ -1385,20 +1413,52 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
     font-weight: 700 !important;
   }
 
-  /* 5. Padding & Margin Khusus SEMUA Sel Tabel (td) di Layar HP */
+  /* 5. Padding & Margin Khusus SEMUA Sel Tabel (td) di Layar HP - Mengacu ke Tabel Projek */
   table tbody td,
   table.dataTable tbody td,
   table td,
+  table tbody td[class*="p-"],
+  table tbody td[class*="px-"],
+  table tbody td[class*="py-"],
+  table td[class*="p-"],
+  table td[class*="px-"],
+  table td[class*="py-"],
+  .overflow-x-auto table tbody td,
+  .overflow-x-auto table td,
   #proyekTable tbody td,
   #proyekTable.dataTable tbody td,
   #keuanganTable tbody td,
   #historyInvoiceTable tbody td,
   #itemsTable tbody td,
-  #userTable tbody td {
-    padding: 0.325rem 0.35rem !important; /* Ramping, rapi, dan mudah dilihat */
+  #userTable tbody td,
+  #taskTableBody td,
+  #userTableBody td,
+  #incomeTableBody td,
+  #expenseTableBody td,
+  #mutasiTableBody td,
+  #historyInvoiceTableBody td,
+  #refTableBody td {
+    padding: 0.325rem 0.35rem !important; /* Ramping, rapi, dan mudah dilihat seperti Tabel Projek */
     font-size: 0.6875rem !important;     /* 11px */
     line-height: 1.25 !important;
     vertical-align: middle !important;
+  }
+
+  /* Kolom Nomor & Checkbox agar pas dan presisi di layar HP */
+  table th.col-number,
+  table td.col-number,
+  table th:first-child,
+  table td:first-child,
+  table th.w-10,
+  table th.w-12,
+  table td.w-10,
+  table td.w-12,
+  #thSelectAll,
+  table th:has(input[type="checkbox"]),
+  table td:has(input[type="checkbox"]) {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    text-align: center !important;
   }
 
   /* 6. Konten di Dalam Sel Tabel */
@@ -1417,7 +1477,12 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   table .status-badge,
   table .rounded-full.text-xs,
   table .rounded-full.px-2,
-  table .rounded-full.px-2\.5 {
+  table .rounded-full.px-2\.5,
+  table .rounded.text-\[10px\],
+  table .rounded-md.text-xs,
+  table [class*="rounded"].text-xs,
+  table [class*="rounded"].text-\[10px\],
+  table [class*="rounded"].text-\[11px\] {
     padding: 0.1rem 0.325rem !important;
     margin: 0 !important;
     font-size: 0.58rem !important; /* ~9.5px */
@@ -1433,7 +1498,9 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   table select,
   table select.status-select,
   table.dataTable select,
-  #proyekTable select {
+  #proyekTable select,
+  #taskTableBody select,
+  #userTableBody select {
     font-size: 0.625rem !important; /* 10px */
     padding: 0.15rem 1.15rem 0.15rem 0.325rem !important;
     margin: 0 !important;
@@ -1451,6 +1518,8 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   table td button.p-1,
   table td button.p-1\.5,
   table td button.p-2,
+  table td a[class*="px-"],
+  table td button[class*="px-"],
   #proyekTable button {
     padding: 0.2rem 0.325rem !important;
     margin: 0.05rem !important;
@@ -1468,7 +1537,8 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   table td .flex.items-center.gap-2,
   table td .flex.items-center.gap-3,
   table td .flex.items-center.space-x-1,
-  table td .flex.items-center.space-x-2 {
+  table td .flex.items-center.space-x-2,
+  table td .flex {
     gap: 0.2rem !important;
   }
 

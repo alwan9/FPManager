@@ -942,6 +942,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
+      const effectivePelunasan = (isEditMode && statusInput.value === 'Selesai') ? (Number(currentPelunasan) || 0) : 0;
+      const calculatedSisa = Math.max(0, Math.round(nominal - dp - effectivePelunasan));
+
       const payload = {
         namaProyek: namaProyekInput.value,
         pelanggan: pelangganInput.value,
@@ -952,8 +955,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         hargaSatuan: price,
         nominal: nominal,
         dp: dp,
-        pelunasan: isEditMode ? (Number(currentPelunasan) || 0) : 0,
-        sisa: sisa,
+        pelunasan: effectivePelunasan,
+        sisa: calculatedSisa,
         deadline: deadlineInput.value,
         status: statusInput.value,
         sumber: sumberInput ? (sumberInput.value || 'WhatsApp') : 'WhatsApp',
@@ -978,7 +981,22 @@ document.addEventListener('DOMContentLoaded', async () => {
               const decodedTargetId = decodeURIComponent(rawTargetId).trim();
               const clientName = String(payload.pelanggan || '').trim().toLowerCase();
 
-              // Cari transaksi keuangan yang terhubung dengan projek ini
+              // Hapus mutasi pelunasan tambahan jika status bukan Selesai
+              const isLunas = statusInput.value === 'Selesai' && calculatedSisa <= 0 && nominal > 0;
+              if (!isLunas) {
+                const extraPelunasanTxs = (keuanganList || []).filter(k => {
+                  if (!k) return false;
+                  const kIdPrj = String(k.idProyek || '').trim();
+                  const ket = String(k.keterangan || '').trim().toLowerCase();
+                  const isMatch = (kIdPrj && (kIdPrj === rawTargetId || kIdPrj === decodedTargetId)) || ket.includes(rawTargetId.toLowerCase()) || ket.includes(decodedTargetId.toLowerCase());
+                  return isMatch && ket.includes('pelunasan') && !ket.includes('dp');
+                });
+                for (const extraTx of extraPelunasanTxs) {
+                  await API.deleteKeuangan(extraTx.id);
+                }
+              }
+
+              // Cari transaksi keuangan utama yang terhubung dengan projek ini
               const linkedTx = (keuanganList || []).find(k => {
                 if (!k) return false;
                 const kIdPrj = String(k.idProyek || '').trim();
@@ -992,9 +1010,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
               });
 
-              const isLunas = sisa <= 0 && nominal > 0;
               const statusBayar = isLunas ? 'Lunas' : (dp > 0 ? 'DP' : 'Belum');
-              const realCash = isLunas ? (currentPelunasan > 0 && dp < nominal ? currentPelunasan : nominal) : dp;
+              const realCash = isLunas ? (effectivePelunasan > 0 && dp < nominal ? effectivePelunasan : nominal) : (dp > 0 ? dp : 0);
               const updatedDesc = isLunas
                 ? `Pembayaran Lunas - ${payload.pelanggan} (${proyekId})`
                 : (statusBayar === 'DP'
@@ -1005,26 +1022,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await API.updateKeuangan(linkedTx.id, {
                   nominal: realCash,
                   dp: dp,
-                  pelunasan: Number(currentPelunasan) || 0,
-                  sisa: sisa,
+                  pelunasan: effectivePelunasan,
+                  sisa: calculatedSisa,
                   totalProyek: nominal,
                   statusPembayaran: statusBayar,
                   metodePembayaran: payload.metodePembayaran,
+                  metodeBayarPelunasan: isLunas ? (linkedTx.metodeBayarPelunasan || payload.metodePembayaran) : '',
+                  catatanPelunasan: isLunas ? linkedTx.catatanPelunasan : '',
                   keterangan: updatedDesc,
                   jenis: 'Pemasukan'
                 });
-              } else {
+              } else if (dp > 0 || isLunas) {
                 const newTx = {
                   tanggal: new Date().toISOString().split('T')[0],
                   jenis: 'Pemasukan',
                   keterangan: updatedDesc,
                   nominal: realCash,
                   dp: dp,
-                  pelunasan: Number(currentPelunasan) || 0,
-                  sisa: sisa,
+                  pelunasan: effectivePelunasan,
+                  sisa: calculatedSisa,
                   totalProyek: nominal,
                   statusPembayaran: statusBayar,
                   metodePembayaran: payload.metodePembayaran,
+                  metodeBayarPelunasan: isLunas ? payload.metodePembayaran : '',
+                  catatanPelunasan: '',
                   idProyek: proyekId
                 };
                 await API.addKeuangan(newTx);

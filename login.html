@@ -250,7 +250,7 @@
             data-aos-delay="2450">
             <label
               class="inline-flex items-center space-x-2.5 cursor-pointer text-zinc-600 dark:text-zinc-300 font-medium select-none">
-              <input type="checkbox" id="rememberMe"
+              <input type="checkbox" id="rememberMe" checked
                 class="form-checkbox h-4 w-4 text-indigo-600 rounded border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 focus:ring-indigo-500 focus:ring-offset-0 transition-colors">
               <span>Ingat Saya (Sesi Persisten)</span>
             </label>
@@ -370,7 +370,7 @@
     // Check query params for session expiration alert
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('reason') === 'session_expired' && errorAlert && errorMessage) {
-      errorMessage.textContent = "Sesi login Anda telah berakhir (7 hari). Demi keamanan, silakan masuk kembali.";
+      errorMessage.textContent = "Sesi login Anda telah berakhir (3 hari). Demi keamanan, silakan masuk kembali.";
       errorAlert.classList.remove('hidden');
       errorAlert.classList.remove('bg-rose-50', 'border-rose-200', 'text-rose-700', 'dark:bg-rose-950/40', 'dark:border-rose-800/80', 'dark:text-rose-300');
       errorAlert.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800', 'dark:bg-amber-950/40', 'dark:border-amber-800/80', 'dark:text-amber-300');

@@ -1,6 +1,6 @@
 const SessionManager = {
   DAILY_CLEANUP_INTERVAL_MS: 24 * 60 * 60 * 1000, // 1 Day (86,400,000 ms)
-  SESSION_MAX_AGE_MS: 7 * 24 * 60 * 60 * 1000,     // 7 Days (604,800,000 ms)
+  SESSION_MAX_AGE_MS: 3 * 24 * 60 * 60 * 1000,     // 3 Days (259,200,000 ms)
 
   // Auth & critical keys whitelist (MUST NEVER be deleted during daily cleanup)
   AUTH_KEYS: ['token', 'user', 'currentUser', 'fp_auth_token', 'fp_auth_user', 'auth_login_time'],
@@ -25,6 +25,9 @@ const SessionManager = {
   getLoginTime: () => {
     const raw = sessionStorage.getItem('auth_login_time') || localStorage.getItem('auth_login_time');
     if (raw && !isNaN(Number(raw))) {
+      if (!sessionStorage.getItem('auth_login_time')) {
+        sessionStorage.setItem('auth_login_time', raw);
+      }
       return Number(raw);
     }
     const token = Auth.getToken();
@@ -37,7 +40,7 @@ const SessionManager = {
     return null;
   },
 
-  // Lifecycle check: auto logout on 7 days, daily cleanup on 1 day
+  // Lifecycle check: auto logout on 3 days, daily cleanup on 1 day
   checkLifecycle: () => {
     const token = Auth.getToken();
     if (!token) return { status: 'unauthenticated' };
@@ -45,9 +48,9 @@ const SessionManager = {
     const now = Date.now();
     const loginTime = SessionManager.getLoginTime();
 
-    // 1. Check 7-Day Auto-Logout
+    // 1. Check 3-Day Auto-Logout
     if (loginTime && (now - loginTime >= SessionManager.SESSION_MAX_AGE_MS)) {
-      console.warn('[SessionManager] Sesi login telah mencapai batas 7 hari. Melakukan auto-logout.');
+      console.warn('[SessionManager] Sesi login telah mencapai batas 3 hari. Melakukan auto-logout.');
       SessionManager.triggerAutoLogout('session_expired');
       return { status: 'expired', elapsedDays: (now - loginTime) / (24 * 60 * 60 * 1000) };
     }
@@ -64,7 +67,7 @@ const SessionManager = {
       status: 'active',
       sessionAgeDays: loginTime ? ((now - loginTime) / (24 * 60 * 60 * 1000)).toFixed(2) : 0,
       nextDailyCleanupInHours: Math.max(0, ((SessionManager.DAILY_CLEANUP_INTERVAL_MS - (now - (lastCleanup || now))) / (60 * 60 * 1000))).toFixed(1),
-      nextAutoLogoutInDays: loginTime ? Math.max(0, ((SessionManager.SESSION_MAX_AGE_MS - (now - loginTime)) / (24 * 60 * 60 * 1000))).toFixed(2) : 7
+      nextAutoLogoutInDays: loginTime ? Math.max(0, ((SessionManager.SESSION_MAX_AGE_MS - (now - loginTime)) / (24 * 60 * 60 * 1000))).toFixed(2) : 3
     };
   },
 
@@ -105,7 +108,7 @@ const SessionManager = {
     }
   },
 
-  // Auto Logout after 7 days or manual logout
+  // Auto Logout after 3 days or manual logout
   triggerAutoLogout: async (reason = 'session_expired') => {
     try {
       if (typeof CONFIG !== 'undefined' && CONFIG.API_URL) {
@@ -148,7 +151,7 @@ const SessionManager = {
 window.SessionManager = SessionManager;
 
 const Auth = {
-  login: async (username, password, rememberMe = false) => {
+  login: async (username, password, rememberMe = true) => {
     try {
       const body = new URLSearchParams();
       body.append("action", "login");
@@ -164,6 +167,7 @@ const Auth = {
       if (result.success) {
         const token = result.token || ("token-" + Date.now());
         sessionStorage.setItem("token", token);
+        localStorage.setItem("token", token);
         if (result.user) {
           // Normalize role
           const rawRole = String(result.user.role || "").toLowerCase().trim();
@@ -175,10 +179,7 @@ const Auth = {
             result.user.role = "service";
           }
           sessionStorage.setItem("user", JSON.stringify(result.user));
-        }
-        if (rememberMe) {
-          localStorage.setItem("token", token);
-          if (result.user) localStorage.setItem("user", JSON.stringify(result.user));
+          localStorage.setItem("user", JSON.stringify(result.user));
         }
         SessionManager.recordLogin();
       }
@@ -196,6 +197,9 @@ const Auth = {
     try {
       const uStr = sessionStorage.getItem("user") || localStorage.getItem("user");
       if (!uStr) return null;
+      if (!sessionStorage.getItem("user")) {
+        sessionStorage.setItem("user", uStr);
+      }
       const u = JSON.parse(uStr);
       if (u) {
         if (!u.role && u.username === "wansmin") u.role = "super_admin";
@@ -226,7 +230,11 @@ const Auth = {
   },
 
   getToken: () => {
-    return sessionStorage.getItem("token") || localStorage.getItem("token") || "";
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token") || "";
+    if (token && !sessionStorage.getItem("token")) {
+      sessionStorage.setItem("token", token);
+    }
+    return token;
   },
 
   getRole: () => {
