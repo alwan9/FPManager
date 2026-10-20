@@ -1158,15 +1158,21 @@ const Auth = {
     try {
       if (!Auth.isLoggedIn() || typeof API === 'undefined' || !API.getNotifikasi) return;
       const res = await API.getNotifikasi(false);
-      if (!res || !res.success || !Array.isArray(res.data)) return;
-      const currentUserId = (Auth.getUser()?.id || '').trim();
-      const isSuper = Auth.isSuperAdmin();
+      const cu = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
+        ? API.getCurrentUser()
+        : Auth.getUser();
+      const userIdentifiers = [
+        cu?.id,
+        cu?.userId,
+        cu?.id_user,
+        cu?.username
+      ].filter(Boolean).map(v => String(v).trim().toLowerCase());
+
       const unreadCount = res.data.filter(n => {
         const isUnread = n.status === false || n.status === 'FALSE' || n.status === 0 || n.status === '0';
         if (!isUnread) return false;
-        if (isSuper) return true;
-        const targetUser = (n.id_user || '').trim();
-        return !targetUser || targetUser.toUpperCase() === 'ALL' || targetUser === currentUserId;
+        const targetUser = String(n.id_user || n.userId || n.Id_user || n.user_id || '').trim().toLowerCase();
+        return !targetUser || targetUser === 'all' || targetUser === 'semua' || userIdentifiers.includes(targetUser);
       }).length;
 
       document.querySelectorAll('.notif-topbar-badge').forEach(badge => {

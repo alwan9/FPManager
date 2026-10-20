@@ -188,18 +188,73 @@
     };
   }
 
+  // Ambil semua identitas yang mungkin merujuk ke user yang sedang login saat ini
+  function getCurrentUserIdentifiers() {
+    const cu = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
+      ? API.getCurrentUser()
+      : ((typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null);
+
+    if (!cu) return ['usr-001'];
+
+    const ids = [
+      cu.id,
+      cu.userId,
+      cu.id_user,
+      cu.Id_user,
+      cu.username
+    ].filter(Boolean).map(v => String(v).trim().toLowerCase());
+
+    if (Array.isArray(window.allUsersList) && cu.username) {
+      const matched = window.allUsersList.find(u =>
+        String(u.username || '').toLowerCase() === String(cu.username).toLowerCase()
+      );
+      if (matched) {
+        const extraId = matched.id || matched.userId || matched.id_user;
+        if (extraId) ids.push(String(extraId).trim().toLowerCase());
+      }
+    }
+
+    return [...new Set(ids)];
+  }
+
+  // Cek apakah notifikasi sesuai dengan id_user pengguna saat ini (atau broadcast ke semua tim)
+  function isNotificationForCurrentUser(item) {
+    if (!item) return false;
+    const userIds = getCurrentUserIdentifiers();
+    if (userIds.length === 0) return true;
+
+    const rawTarget = String(
+      item.id_user ||
+      item.userId ||
+      item.Id_user ||
+      item.user_id ||
+      item.idUser ||
+      ''
+    ).trim().toLowerCase();
+
+    // Broadcast ke seluruh tim atau tidak ditentukan
+    if (!rawTarget || rawTarget === 'all' || rawTarget === 'semua') {
+      return true;
+    }
+
+    return userIds.includes(rawTarget);
+  }
+
+  // Ambil hanya daftar notifikasi yang sesuai dengan id_user pengguna yang sedang aktif
+  function getUserNotifications() {
+    return allNotifikasi.filter(isNotificationForCurrentUser);
+  }
+
   // Render Kartu Notifikasi
   function renderNotifikasi() {
     const container = document.getElementById('notifikasiListContainer');
     if (!container) return;
 
-    const currUser = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
-      ? API.getCurrentUser()
-      : { id: 'USR-001', role: 'super_admin' };
-    const isSuperAdmin = currUser && (currUser.role === 'super_admin' || currUser.role === 'admin');
+    // Filter ketat data notifikasi yang sesuai dengan id_user pengguna aktif
+    const userNotifs = getUserNotifications();
 
-    // Filter data
-    let filtered = allNotifikasi.filter(item => {
+    // Filter data berdasarkan status, tipe, dan kata kunci pencarian
+    let filtered = userNotifs.filter(item => {
       // 1. Status Filter (All, Unread: FALSE, Read: TRUE)
       const isRead = item.status === 'TRUE' || item.isRead === true;
       if (activeStatusFilter === 'unread' && isRead) return false;
@@ -211,33 +266,18 @@
       if (activeTypeFilter === 'gagal' && (t !== 'gagal' && t !== 'error')) return false;
       if (activeTypeFilter === 'info' && (t !== 'info' && t !== 'system')) return false;
 
-      // 3. User Filter (jika Super Admin memilih user tertentu)
-      if (isSuperAdmin && activeUserFilter !== 'all') {
-        const itemUserId = String(item.id_user || item.userId || '').trim();
-        if (itemUserId !== activeUserFilter && itemUserId !== 'ALL') return false;
-      }
-
-      // Ambil data relasi user untuk filter & search
-      const targetUserId = String(item.id_user || item.userId || 'ALL').trim();
-      const relUser = userCacheMap[targetUserId] || {
-        name: item.userName || '',
-        role: item.userRole || ''
-      };
-
-      // 4. Search Query (Mencocokkan judul, deskripsi bersih, nama anggota, dan role)
+      // 3. Search Query (Mencocokkan judul dan deskripsi)
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase().trim();
         const j = String(item.judul || '').toLowerCase();
         const d = String(item.ket || item.des || '').toLowerCase();
-        const uName = String(relUser.name || '').toLowerCase();
-        const uRole = String(relUser.role || '').toLowerCase();
-        if (!j.includes(q) && !d.includes(q) && !uName.includes(q) && !uRole.includes(q)) return false;
+        if (!j.includes(q) && !d.includes(q)) return false;
       }
 
       return true;
     });
 
-    // Update Counter Badges di UI
+    // Update Counter Badges di UI (hanya menghitung data milik user ini)
     updateCounterBadges();
 
     // Render Kosong jika tidak ada data
@@ -249,10 +289,10 @@
           </div>
           <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-base">Tidak Ada Notifikasi</h4>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
-            ${searchQuery ? 'Tidak ada notifikasi yang cocok dengan kata kunci pencarian Anda.' : 'Semua notifikasi dan riwayat aktivitas sistem telah bersih.'}
+            ${searchQuery ? 'Tidak ada notifikasi yang cocok dengan kata kunci pencarian Anda.' : 'Semua notifikasi dan riwayat aktivitas Anda telah bersih.'}
           </p>
-          ${(activeStatusFilter !== 'all' || activeTypeFilter !== 'all' || searchQuery || activeUserFilter !== 'all') ? `
-            <button onclick="window.NotifikasiModule.resetFilters()" class="mt-4 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-xs font-semibold rounded-xl border border-indigo-200 dark:border-indigo-800 transition">
+          ${(activeStatusFilter !== 'all' || activeTypeFilter !== 'all' || searchQuery) ? `
+            <button onclick="window.NotifikasiModule.resetFilters()" class="mt-4 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-xs font-semibold rounded-xl border border-indigo-200 dark:border-indigo-800 transition cursor-pointer">
               Reset Semua Filter
             </button>
           ` : ''}
@@ -269,120 +309,75 @@
       const typeStyle = getTypeBadgeStyles(item.tipe);
       const relativeTime = formatRelativeTime(item.tanggal || item.createdAt);
       
-      // Ambil data relasi pengguna langsung (bukan ID mentah)
-      const targetUserId = String(item.id_user || item.userId || 'ALL').trim();
-      const isAllTeam = !targetUserId || targetUserId.toUpperCase() === 'ALL';
-
-      let relUser = userCacheMap[targetUserId] || null;
-      if (!relUser && (item.userName || item.userRole)) {
-        relUser = {
-          name: item.userName || targetUserId,
-          role: formatRoleLabel(item.userRole),
-          avatar: item.userAvatar || ''
-        };
-      }
-
-      // Bangun tampilan relasi pengguna yang elegan (Avatar + Nama Asli + Role, NO ID)
-      let userRelationHtml = '';
-      if (isAllTeam) {
-        userRelationHtml = `
-          <span class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shadow-2xs" title="Penerima: Seluruh Tim Projek">
-            <i class="fa-solid fa-users text-[9px] sm:text-[10px]"></i>
-            <span>Semua Tim</span>
-          </span>
-        `;
-      } else {
-        const relName = relUser?.name || 'Pengguna FPManager';
-        const relRole = relUser?.role || 'Anggota Tim';
-        const relAvatar = relUser?.avatar || '';
-        const initial = (relName || 'U').charAt(0).toUpperCase();
-        const roleStyle = getRoleBadgeStyle(relRole);
-
-        const avatarMarkup = relAvatar
-          ? `<img src="${escapeHtml(relAvatar)}" alt="${escapeHtml(relName)}" class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover shrink-0 ring-1 ring-zinc-300 dark:ring-zinc-600" onerror="this.outerHTML='<span class=\\'w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[8px] sm:text-[9px] flex items-center justify-center shrink-0\\'>${initial}</span>'">`
-          : `<span class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[8px] sm:text-[9px] flex items-center justify-center shrink-0">${initial}</span>`;
-
-        userRelationHtml = `
-          <div class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-zinc-100/90 dark:bg-zinc-700/70 text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-600/60 shadow-2xs" title="Penerima: ${escapeHtml(relName)} (${escapeHtml(relRole)})">
-            ${avatarMarkup}
-            <span class="font-semibold text-zinc-800 dark:text-zinc-100 max-w-[95px] sm:max-w-[160px] truncate">${escapeHtml(relName)}</span>
-            <span class="text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.2 rounded-full font-semibold border ${roleStyle}">
-              ${escapeHtml(relRole)}
-            </span>
-          </div>
-        `;
-      }
-
       // Bersihkan teks judul dan deskripsi dari ID mentah jika ada
       const cleanTitle = cleanRelationText(item.judul || 'Notifikasi');
       const cleanDes = cleanRelationText(item.ket || item.des || '');
 
       html += `
-        <div class="p-3.5 sm:p-4 rounded-2xl transition-all border ${
-          isRead
-            ? 'bg-white dark:bg-zinc-800/70 border-zinc-200/70 dark:border-zinc-700/70 opacity-90'
-            : 'bg-indigo-50/30 dark:bg-zinc-800 border-indigo-200 dark:border-indigo-900/60 shadow-xs ring-1 ring-indigo-500/10'
-        } flex items-start gap-3 sm:gap-4 group">
-          <!-- Icon Badge -->
-          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${typeStyle.iconBg} flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-            <i class="${typeStyle.icon} text-xs sm:text-sm"></i>
+        <div class="notif-swipe-item relative overflow-hidden rounded-2xl group shadow-2xs" data-id="${item.id}">
+          <!-- Mobile Swipe-to-Delete Action (Tampil di HP saat di-swipe ke samping kiri) -->
+          <div class="absolute inset-y-0 right-0 w-[84px] bg-rose-600 hover:bg-rose-700 text-white flex flex-col items-center justify-center rounded-r-2xl cursor-pointer md:hidden shadow-inner transition-colors z-0"
+            onclick="event.stopPropagation(); window.NotifikasiModule.deleteItem('${item.id}')"
+            title="Hapus Notifikasi">
+            <i class="fa-solid fa-trash-can text-base mb-1"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider">Hapus</span>
           </div>
 
-          <!-- Main Content -->
-          <div class="flex-1 min-w-0">
-            <!-- Top Line: Title & Badges -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-1">
-              <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <!-- Front Card (Klik untuk membuka detail & otomatis tandai dibaca) -->
+          <div class="notif-card-front relative z-10 p-3.5 sm:p-4 rounded-2xl transition-transform duration-200 ease-out border ${
+            isRead
+              ? 'bg-white dark:bg-zinc-800/80 border-zinc-200/70 dark:border-zinc-700/70 opacity-90'
+              : 'bg-indigo-50/40 dark:bg-zinc-800 border-indigo-200 dark:border-indigo-900/60 shadow-xs ring-1 ring-indigo-500/10'
+          } hover:border-zinc-300 dark:hover:border-zinc-600 flex items-start gap-3 sm:gap-4 cursor-pointer select-none"
+            onclick="window.NotifikasiModule.openDetail('${item.id}')">
+
+            <!-- Icon Badge -->
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${typeStyle.iconBg} flex items-center justify-center shrink-0 shadow-2xs mt-0.5 pointer-events-none">
+              <i class="${typeStyle.icon} text-xs sm:text-sm"></i>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 min-w-0 pointer-events-none">
+              <!-- Top Line: Title & Badges (Keterangan Baru dihapus sesuai instruksi) -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-1">
                 <h4 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-50 break-words line-clamp-1 sm:truncate">
                   ${escapeHtml(cleanTitle)}
                 </h4>
-                ${!isRead ? `
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-indigo-500 text-white shrink-0 animate-pulse">
-                    Baru
+
+                <!-- Tags / Meta (Tipe Status) -->
+                <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] shrink-0">
+                  <span class="px-1.5 sm:px-2 py-0.5 rounded-md font-semibold border ${typeStyle.bgLight}">
+                    ${typeStyle.label}
                   </span>
-                ` : ''}
+                </div>
               </div>
 
-              <!-- Tags / Meta (Relasi Pengguna Langsung & Tipe Status, TANPA ID) -->
-              <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] flex-wrap">
-                <span class="px-1.5 sm:px-2 py-0.5 rounded-md font-semibold border ${typeStyle.bgLight}">
-                  ${typeStyle.label}
+              <!-- Description -->
+              <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed line-clamp-2 break-words mt-0.5">
+                ${escapeHtml(cleanDes)}
+              </p>
+
+              <!-- Bottom Line: Timestamp only (Tombol tandai dibaca & tombol hapus bawah dihapus) -->
+              <div class="mt-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-700/50 flex items-center justify-between gap-2 text-xs">
+                <span class="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1 shrink-0">
+                  <i class="fa-regular fa-clock text-[10px]"></i>
+                  <span>${relativeTime}</span>
                 </span>
-                ${userRelationHtml}
+                <span class="text-[10px] sm:text-[11px] text-indigo-500 dark:text-indigo-400 font-medium flex items-center gap-1 sm:hidden">
+                  <span>Lihat Detail</span>
+                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                </span>
               </div>
             </div>
 
-            <!-- Description (Human-readable tanpa ID) -->
-            <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed break-words mt-0.5">
-              ${escapeHtml(cleanDes)}
-            </p>
-
-            <!-- Bottom Line: Timestamp & Action Buttons -->
-            <div class="mt-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-700/50 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span class="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1 shrink-0">
-                <i class="fa-regular fa-clock text-[10px]"></i>
-                <span>${relativeTime}</span>
-              </span>
-
-              <div class="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
-                <button onclick="window.NotifikasiModule.toggleStatus('${item.id}', ${isRead})"
-                  class="px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition cursor-pointer flex items-center gap-1 ${
-                    isRead
-                      ? 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-200'
-                      : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs'
-                  }"
-                  title="${isRead ? 'Tandai sebagai belum dibaca' : 'Tandai sebagai sudah dibaca'}">
-                  <i class="fa-solid ${isRead ? 'fa-envelope' : 'fa-check'} text-[10px]"></i>
-                  <span>${isRead ? 'Belum Dibaca' : 'Tandai Dibaca'}</span>
-                </button>
-
-                <button onclick="window.NotifikasiModule.deleteItem('${item.id}')"
-                  class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:text-rose-400 transition cursor-pointer flex items-center gap-1"
-                  title="Hapus notifikasi ini">
-                  <i class="fa-solid fa-trash-can text-[10px]"></i>
-                  <span class="hidden sm:inline">Hapus</span>
-                </button>
-              </div>
+            <!-- Laptop/Desktop Delete Button: Di Sisi Kanan (hidden md:flex) -->
+            <div class="hidden md:flex items-center justify-center shrink-0 self-center pl-2">
+              <button type="button"
+                onclick="event.stopPropagation(); window.NotifikasiModule.deleteItem('${item.id}')"
+                class="w-8 h-8 rounded-xl text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:text-zinc-500 dark:hover:text-rose-400 transition-colors flex items-center justify-center cursor-pointer"
+                title="Hapus notifikasi">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -391,14 +386,16 @@
 
     html += '</div>';
     container.innerHTML = html;
+    initSwipeGestures();
   }
 
-  // Update Counters & Stats Cards
+  // Update Counters & Stats Cards (hanya untuk data yang sesuai id_user pengguna)
   function updateCounterBadges() {
-    const total = allNotifikasi.length;
-    const unread = allNotifikasi.filter(n => n.status !== 'TRUE' && n.isRead !== true).length;
-    const success = allNotifikasi.filter(n => String(n.tipe).toLowerCase() === 'sukses').length;
-    const failed = allNotifikasi.filter(n => ['gagal', 'error'].includes(String(n.tipe).toLowerCase())).length;
+    const userNotifs = getUserNotifications();
+    const total = userNotifs.length;
+    const unread = userNotifs.filter(n => n.status !== 'TRUE' && n.isRead !== true).length;
+    const success = userNotifs.filter(n => String(n.tipe).toLowerCase() === 'sukses').length;
+    const failed = userNotifs.filter(n => ['gagal', 'error'].includes(String(n.tipe).toLowerCase())).length;
 
     const elTotal = document.getElementById('statTotalNotif');
     const elUnread = document.getElementById('statUnreadNotif');
@@ -448,7 +445,16 @@
 
       const res = await API.getNotifikasi({ userId: currUser.id });
       if (res && res.success && Array.isArray(res.data)) {
-        allNotifikasi = res.data;
+        // Deduplikasi agar notifikasi tidak tampil ganda/double
+        const seen = new Set();
+        allNotifikasi = res.data.filter(item => {
+          const idKey = String(item.id || item.idNotifikasi || '').trim();
+          const contentKey = `${item.judul || ''}|${item.ket || item.des || ''}|${item.tanggal || ''}`.trim().toLowerCase();
+          const uniqueKey = idKey || contentKey;
+          if (uniqueKey && seen.has(uniqueKey)) return false;
+          if (uniqueKey) seen.add(uniqueKey);
+          return true;
+        });
 
         // Jika respons dari backend menyertakan data relasi userName/userRole, simpan ke cache
         allNotifikasi.forEach(item => {
@@ -499,9 +505,12 @@
     }
   }
 
-  // Tandai Semua Dibaca
+  // Tandai Semua Dibaca (hanya notifikasi milik user aktif)
   async function markAllAsRead() {
-    allNotifikasi.forEach(n => {
+    const userNotifs = getUserNotifications();
+    if (userNotifs.length === 0) return;
+
+    userNotifs.forEach(n => {
       n.status = 'TRUE';
       n.isRead = true;
     });
@@ -517,8 +526,234 @@
     }
   }
 
-  // Hapus satu notifikasi
+  // Gesture Swipe-to-delete di HP / perangkat layar sentuh
+  function initSwipeGestures() {
+    const items = document.querySelectorAll('.notif-swipe-item');
+    items.forEach(wrapper => {
+      const front = wrapper.querySelector('.notif-card-front');
+      if (!front || front._hasSwipeInit) return;
+      front._hasSwipeInit = true;
+
+      let startX = 0;
+      let startY = 0;
+      let currentX = 0;
+      let isSwiping = false;
+      let isHorizontal = null;
+
+      front.addEventListener('touchstart', (e) => {
+        // Tutup item lain yang sedang terbuka
+        document.querySelectorAll('.notif-card-front').forEach(other => {
+          if (other !== front && other._isOpen) {
+            other.style.transition = 'transform 0.2s ease-out';
+            other.style.transform = 'translateX(0px)';
+            other._isOpen = false;
+          }
+        });
+
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        currentX = startX;
+        isHorizontal = null;
+        isSwiping = false;
+        front.style.transition = 'none';
+      }, { passive: true });
+
+      front.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        currentX = touch.clientX;
+        const deltaX = currentX - startX;
+        const deltaY = touch.clientY - startY;
+
+        if (isHorizontal === null) {
+          if (Math.abs(deltaX) > 7 || Math.abs(deltaY) > 7) {
+            isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+          }
+        }
+
+        if (isHorizontal) {
+          const baseOffset = front._isOpen ? -84 : 0;
+          let newX = baseOffset + deltaX;
+          if (newX > 0) newX = 0;
+          if (newX < -150) newX = -150;
+
+          front.style.transform = `translateX(${newX}px)`;
+          if (Math.abs(deltaX) > 8) {
+            isSwiping = true;
+          }
+        }
+      }, { passive: true });
+
+      front.addEventListener('touchend', () => {
+        const deltaX = currentX - startX;
+
+        if (isSwiping && isHorizontal) {
+          front.style.transition = 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+          if (deltaX < -150) {
+            // Full swipe left -> Otomatis hapus notifikasi
+            front.style.transform = 'translateX(-100%)';
+            const itemId = wrapper.getAttribute('data-id');
+            setTimeout(() => {
+              if (itemId) deleteItem(itemId);
+            }, 180);
+          } else if (deltaX < -40 || (front._isOpen && deltaX < 20)) {
+            // Swipe ke kiri -> Tampilkan tombol hapus merah di HP
+            front.style.transform = 'translateX(-84px)';
+            front._isOpen = true;
+          } else {
+            // Batalkan swipe
+            front.style.transform = 'translateX(0px)';
+            front._isOpen = false;
+          }
+          front._justSwiped = true;
+          setTimeout(() => { front._justSwiped = false; }, 320);
+        } else if (front._isOpen) {
+          front.style.transition = 'transform 0.22s ease-out';
+          front.style.transform = 'translateX(0px)';
+          front._isOpen = false;
+        }
+        isSwiping = false;
+      }, { passive: true });
+    });
+  }
+
+  // Buka detail pesan notifikasi & otomatis tandai sebagai sudah dibaca
+  function openDetail(id) {
+    const wrapper = document.querySelector(`.notif-swipe-item[data-id="${id}"]`);
+    const front = wrapper ? wrapper.querySelector('.notif-card-front') : null;
+
+    if (front && front._justSwiped) {
+      return;
+    }
+    if (front && front._isOpen) {
+      front.style.transition = 'transform 0.2s ease-out';
+      front.style.transform = 'translateX(0px)';
+      front._isOpen = false;
+      return;
+    }
+
+    const item = allNotifikasi.find(n => String(n.id) === String(id));
+    if (!item) return;
+
+    // 1. Otomatis tandai dibaca jika statusnya belum dibaca
+    const isRead = item.status === 'TRUE' || item.isRead === true;
+    if (!isRead) {
+      item.status = 'TRUE';
+      item.isRead = true;
+      updateCounterBadges();
+
+      if (front) {
+        front.classList.remove('bg-indigo-50/40', 'border-indigo-200', 'dark:border-indigo-900/60', 'ring-1', 'ring-indigo-500/10');
+        front.classList.add('bg-white', 'dark:bg-zinc-800/80', 'border-zinc-200/70', 'dark:border-zinc-700/70', 'opacity-90');
+      }
+
+      if (typeof API !== 'undefined' && API.updateNotifikasiStatus) {
+        API.updateNotifikasiStatus(id, true).catch(err => console.warn(err));
+      }
+    }
+
+    // 2. Tampilkan dialog detail pesan notifikasi
+    showDetailModal(item);
+  }
+
+  // Tampilkan Modal Detail Notifikasi
+  function showDetailModal(item) {
+    const modal = document.getElementById('notifikasiDetailModal');
+    const content = document.getElementById('notifikasiDetailModalContent');
+    if (!modal) return;
+
+    const typeStyle = getTypeBadgeStyles(item.tipe);
+    const cleanTitle = cleanRelationText(item.judul || 'Notifikasi');
+    const cleanDes = cleanRelationText(item.ket || item.des || 'Tidak ada detail pesan.');
+    const relativeTime = formatRelativeTime(item.tanggal || item.createdAt);
+
+    let fullDateStr = '-';
+    if (item.tanggal || item.createdAt) {
+      try {
+        const d = new Date(item.tanggal || item.createdAt);
+        if (!isNaN(d.getTime())) {
+          fullDateStr = d.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) + ' WIB';
+        } else {
+          fullDateStr = String(item.tanggal || item.createdAt);
+        }
+      } catch (e) {
+        fullDateStr = String(item.tanggal || item.createdAt);
+      }
+    }
+
+    const elTitle = document.getElementById('modalNotifTitle');
+    const elDate = document.getElementById('modalNotifDate');
+    const elRelTime = document.getElementById('modalNotifRelativeTime');
+    const elDesc = document.getElementById('modalNotifDesc');
+    const elIconWrapper = document.getElementById('modalNotifIconWrapper');
+    const elIcon = document.getElementById('modalNotifIcon');
+    const elTypeBadge = document.getElementById('modalNotifTypeBadge');
+
+    if (elTitle) elTitle.textContent = cleanTitle;
+    if (elDate) elDate.textContent = fullDateStr;
+    if (elRelTime) elRelTime.textContent = relativeTime;
+    if (elDesc) elDesc.textContent = cleanDes;
+
+    if (elIconWrapper) {
+      elIconWrapper.className = `w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${typeStyle.iconBg} flex items-center justify-center shrink-0`;
+    }
+    if (elIcon) {
+      elIcon.className = `${typeStyle.icon} text-sm`;
+    }
+    if (elTypeBadge) {
+      elTypeBadge.className = `inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md border mt-0.5 ${typeStyle.bgLight}`;
+      elTypeBadge.textContent = typeStyle.label;
+    }
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      if (content) {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+      }
+    }, 10);
+  }
+
+  // Tutup Modal Detail
+  function closeDetailModal() {
+    const modal = document.getElementById('notifikasiDetailModal');
+    const content = document.getElementById('notifikasiDetailModalContent');
+    if (!modal || modal.classList.contains('hidden')) return;
+
+    if (content) {
+      content.classList.remove('scale-100', 'opacity-100');
+      content.classList.add('scale-95', 'opacity-0');
+    }
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 180);
+  }
+
+  // Hapus satu notifikasi (dari tombol desktop sisi kanan atau swipe HP)
   async function deleteItem(id) {
+    closeDetailModal();
+
+    const wrapper = document.querySelector(`.notif-swipe-item[data-id="${id}"]`);
+    if (wrapper) {
+      wrapper.style.transition = 'all 0.22s ease-out';
+      wrapper.style.opacity = '0';
+      wrapper.style.transform = 'translateX(-100%)';
+      wrapper.style.maxHeight = '0px';
+      wrapper.style.marginTop = '0px';
+      wrapper.style.marginBottom = '0px';
+      wrapper.style.paddingTop = '0px';
+      wrapper.style.paddingBottom = '0px';
+      await new Promise(r => setTimeout(r, 200));
+    }
+
     allNotifikasi = allNotifikasi.filter(n => String(n.id) !== String(id));
     renderNotifikasi();
 
@@ -532,9 +767,10 @@
     }
   }
 
-  // Bersihkan riwayat yang sudah dibaca
+  // Bersihkan riwayat yang sudah dibaca (hanya notifikasi milik user aktif)
   async function clearReadHistory() {
-    const readCount = allNotifikasi.filter(n => n.status === 'TRUE' || n.isRead === true).length;
+    const userNotifs = getUserNotifications();
+    const readCount = userNotifs.filter(n => n.status === 'TRUE' || n.isRead === true).length;
     if (readCount === 0) {
       if (typeof Toast !== 'undefined') {
         Toast.info('Info', 'Tidak ada riwayat notifikasi yang sudah dibaca.');
@@ -542,7 +778,12 @@
       return;
     }
 
-    allNotifikasi = allNotifikasi.filter(n => n.status !== 'TRUE' && n.isRead !== true);
+    allNotifikasi = allNotifikasi.filter(n => {
+      if (isNotificationForCurrentUser(n) && (n.status === 'TRUE' || n.isRead === true)) {
+        return false;
+      }
+      return true;
+    });
     renderNotifikasi();
 
     try {
@@ -596,24 +837,15 @@
     const typeSelect = document.getElementById('filterTypeSelect');
     if (typeSelect) typeSelect.value = 'all';
 
-    const userSelect = document.getElementById('filterUserSelect');
-    if (userSelect) userSelect.value = 'all';
-
     setStatusFilter('all');
   }
 
-  // Populate list user untuk filter admin (Menampilkan Nama & Role, TANPA ID)
+  // Populate list user untuk filter jika elemen tersedia (backward-compatibility safe)
   async function populateUserFilter() {
     const userSelect = document.getElementById('filterUserSelect');
     if (!userSelect) return;
 
     await ensureUsersData();
-
-    const currUser = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
-      ? API.getCurrentUser()
-      : { id: 'USR-001', role: 'super_admin' };
-    const isSuperAdmin = currUser && (currUser.role === 'super_admin' || currUser.role === 'admin');
-
     const userKeys = Object.keys(userCacheMap);
     if (userKeys.length > 0) {
       userSelect.innerHTML = '<option value="all">Semua Anggota Tim</option>';
@@ -621,13 +853,9 @@
         const u = userCacheMap[uId];
         const opt = document.createElement('option');
         opt.value = uId;
-        // Tampilkan Nama Asli dan Role saja, jangan tampilkan ID (misal: "Andi Pratama • Desainer")
         opt.textContent = `${u.name} • ${u.role}`;
         userSelect.appendChild(opt);
       });
-      if (isSuperAdmin) {
-        document.getElementById('filterUserContainer')?.classList.remove('hidden');
-      }
     }
   }
 
@@ -636,6 +864,22 @@
     await ensureUsersData();
     await loadNotifikasi();
     await populateUserFilter();
+
+    // Event listener untuk menutup modal detail ketika klik di backdrop atau tekan Escape
+    const modal = document.getElementById('notifikasiDetailModal');
+    if (modal && !modal._hasInitCloseListeners) {
+      modal._hasInitCloseListeners = true;
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeDetailModal();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeDetailModal();
+        }
+      });
+    }
 
     // Auto refresh setiap 30 detik
     if (refreshTimer) clearInterval(refreshTimer);
@@ -648,6 +892,8 @@
   window.NotifikasiModule = {
     init,
     loadNotifikasi,
+    openDetail,
+    closeDetailModal,
     toggleStatus,
     markAllAsRead,
     deleteItem,

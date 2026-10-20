@@ -145,7 +145,7 @@ const APICache = {
 // IndexedDB Helper for Offline Storage & Sync Queue
 const FPManagerDB = {
   dbName: 'FPManagerDB',
-  dbVersion: 2,
+  dbVersion: 3,
   db: null,
 
   async init() {
@@ -518,6 +518,30 @@ const API = {
         await FPManagerDB.saveOne('proyek', localProyek);
         await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData: { ...proyekData, deadline: cleanDeadline } });
 
+        try {
+          const offlineNotifId = 'NTF-OFF-' + Date.now();
+          const targetUserId = currUser ? currUser.id : "USR-001";
+          const notifDes = `Projek "${proyekData.namaProyek || 'Baru'}" untuk klien ${proyekData.pelanggan || 'klien'} berhasil disimpan lokal (offline).`;
+          const offlineNotif = {
+            id: offlineNotifId,
+            idNotifikasi: offlineNotifId,
+            judul: "Projek Baru Ditambahkan",
+            ket: notifDes,
+            des: notifDes,
+            status: "FALSE",
+            isRead: false,
+            id_user: targetUserId,
+            userId: targetUserId,
+            tipe: "sukses",
+            tanggal: new Date().toLocaleString('id-ID'),
+            createdAt: new Date().toISOString()
+          };
+          await FPManagerDB.saveOne('notifikasi', offlineNotif);
+          const localLogs = JSON.parse(localStorage.getItem('fpm_crud_history') || '[]');
+          localLogs.unshift(offlineNotif);
+          localStorage.setItem('fpm_crud_history', JSON.stringify(localLogs.slice(0, 100)));
+        } catch(e) {}
+
         return {
           success: true,
           isOffline: true,
@@ -564,6 +588,13 @@ const API = {
             lastUpdated: Date.now()
           };
           await FPManagerDB.saveOne('proyek', addedProyek);
+
+          // Bersihkan cache notifikasi lokal agar sinkron 1-data bersih dari sheet Notifications
+          try {
+            localStorage.removeItem('fpm_notifikasi_cache');
+          } catch (notifErr) {
+            console.warn("[API] Gagal membersihkan cache notifikasi:", notifErr);
+          }
         }
         return result;
       } catch (error) {

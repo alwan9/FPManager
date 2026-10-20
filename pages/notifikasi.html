@@ -246,14 +246,14 @@
               Pusat Notifikasi & Riwayat Aktivitas
             </h1>
             <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
-              Pusat notifikasi penugasan projek, log aktivitas CRUD, dan riwayat sistem berdasarkan penerima dan tim projek.
+              Pusat notifikasi penugasan projek, log aktivitas CRUD, dan riwayat sistem Anda.
             </p>
           </div>
         </div>
 
         <!-- Filter & Search Toolbar (Responsive Desktop & HP) -->
         <div
-          class="p-3 sm:p-4 rounded-2xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs space-y-3">
+          class="p-3 hidden lg:block sm:p-4 rounded-2xl bg-white dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
             <!-- Status Pills (All, Unread, Read) -->
             <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 sm:flex-wrap">
@@ -298,25 +298,19 @@
           </div>
 
           <!-- Secondary Toolbar: Search & User Relation Filter -->
-          <div class="pt-2.5 border-t border-zinc-100 dark:border-zinc-700/60 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
+          <div
+            class="pt-2.5 border-t border-zinc-100 dark:border-zinc-700/60 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
             <!-- Search Bar -->
             <div class="relative flex-1 min-w-0">
-              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
-              <input type="text" id="searchNotifInput" placeholder="Cari notifikasi, aktivitas, atau nama anggota..."
+              <i
+                class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+              <input type="text" id="searchNotifInput" placeholder="Cari notifikasi atau aktivitas..."
                 oninput="window.NotifikasiModule.setSearch(this.value)"
                 class="w-full pl-8 pr-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition">
             </div>
 
-            <!-- Filter Dropdowns Container -->
+            <!-- Filter Dropdown Container -->
             <div class="flex items-center gap-2 shrink-0">
-              <!-- Filter by User Relation (Super Admin only, populated with real names & roles) -->
-              <div id="filterUserContainer" class="hidden flex-1 sm:flex-initial min-w-0 sm:min-w-[170px]">
-                <select id="filterUserSelect" onchange="window.NotifikasiModule.setUserFilter(this.value)"
-                  class="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition cursor-pointer">
-                  <option value="all">Semua Anggota Tim</option>
-                </select>
-              </div>
-
               <!-- Filter by Type -->
               <div class="flex-1 sm:flex-initial min-w-0 sm:min-w-[125px]">
                 <select id="filterTypeSelect" onchange="window.NotifikasiModule.setTypeFilter(this.value)"
@@ -352,6 +346,71 @@
         &copy; 2026 Freelance Projek Manager. Created by Alwan.
       </footer>
     </main>
+  </div>
+
+  <!-- Modal Detail Notifikasi Popup -->
+  <div id="notifikasiDetailModal"
+    class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs">
+    <div
+      class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all flex flex-col"
+      id="notifikasiDetailModalContent">
+      <!-- Modal Header -->
+      <div
+        class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+        <div class="flex items-center space-x-3 min-w-0">
+          <div id="modalNotifIconWrapper"
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0">
+            <i id="modalNotifIcon" class="text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-white truncate">Detail Notifikasi</h3>
+            <span id="modalNotifTypeBadge"
+              class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-md border mt-0.5"></span>
+          </div>
+        </div>
+        <button type="button" onclick="window.NotifikasiModule.closeDetailModal()"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition cursor-pointer"
+          title="Tutup">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto max-h-[75vh]">
+        <!-- Title -->
+        <div>
+          <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">Judul</span>
+          <h4 id="modalNotifTitle" class="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 leading-snug">
+          </h4>
+        </div>
+
+        <!-- Timestamp -->
+        <div
+          class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 pb-3 border-b border-zinc-100 dark:border-zinc-700/60">
+          <i class="fa-regular fa-clock text-zinc-400"></i>
+          <span id="modalNotifDate"></span>
+          <span class="text-zinc-300 dark:text-zinc-600">•</span>
+          <span id="modalNotifRelativeTime" class="font-medium text-zinc-600 dark:text-zinc-300"></span>
+        </div>
+
+        <!-- Message Body -->
+        <div>
+          <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">Isi Pesan</span>
+          <div id="modalNotifDesc"
+            class="p-3.5 sm:p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/70 dark:border-zinc-700/70 text-xs sm:text-sm text-zinc-700 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap break-words">
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div
+        class="p-3.5 sm:p-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/30 flex justify-end">
+        <button type="button" onclick="window.NotifikasiModule.closeDetailModal()"
+          class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-xl text-xs font-semibold transition cursor-pointer">
+          Tutup
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
