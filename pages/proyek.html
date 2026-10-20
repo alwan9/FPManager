@@ -324,118 +324,130 @@
         </div>
 
         <!-- Filter Status Stats Cards Grid -->
-        <div id="statusFilterGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
+        <div id="statusFilterGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           <button onclick="filterStatus('all')"
-            class="status-filter-btn p-3.5 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-2xl shadow-sm flex flex-col justify-between text-left transition-all active:ring-2 active:ring-indigo-200 ring-offset-1">
+            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
             <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider"
+              <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider"
                 data-i18n="proj-badge-all">Semua</span>
-              <i class="fa-solid fa-layer-group text-zinc-400 dark:text-zinc-500 text-xs"></i>
+              <span class="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-700/50 flex items-center justify-center text-zinc-400 group-hover:text-indigo-500 transition-colors">
+                <i class="fa-solid fa-layer-group text-[10px]"></i>
+              </span>
             </div>
-            <span id="count-all" class="text-xl sm:text-2xl font-bold text-zinc-800 dark:text-white mt-2">
-              <div class="h-6 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+            <span id="count-all" class="text-lg sm:text-xl font-extrabold text-zinc-900 dark:text-white mt-1.5 font-mono">
+              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
 
           <button onclick="filterStatus('Menunggu')"
-            class="status-filter-btn p-3.5 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-blue-500 dark:hover:border-blue-500 rounded-2xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-blue-500 dark:hover:border-blue-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
             <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider"
+              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider"
                 data-i18n="proj-badge-wait">Pending</span>
-              <i class="fa-solid fa-clock text-blue-500 text-xs"></i>
+              <span class="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-500">
+                <i class="fa-solid fa-clock text-[10px]"></i>
+              </span>
             </div>
-            <span id="count-menunggu" class="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-              <div class="h-6 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+            <span id="count-menunggu" class="text-lg sm:text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-1.5 font-mono">
+              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
 
           <button onclick="filterStatus('Sedang Dikerjakan')"
-            class="status-filter-btn p-3.5 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-amber-500 dark:hover:border-amber-500 rounded-2xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-amber-500 dark:hover:border-amber-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
             <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider"
+              <span class="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider"
                 data-i18n="proj-badge-progress">Dikerjakan</span>
-              <i class="fa-solid fa-spinner text-amber-500 text-xs"></i>
+              <span class="w-6 h-6 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-500">
+                <i class="fa-solid fa-spinner text-[10px]"></i>
+              </span>
             </div>
-            <span id="count-dikerjakan" class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2">
-              <div class="h-6 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+            <span id="count-dikerjakan" class="text-lg sm:text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-1.5 font-mono">
+              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
 
           <button onclick="filterStatus('Revisi')"
-            class="status-filter-btn p-3.5 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-red-500 dark:hover:border-red-500 rounded-2xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-red-500 dark:hover:border-red-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
             <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-red-600 dark:text-red-400 font-semibold uppercase tracking-wider"
+              <span class="text-[11px] text-red-600 dark:text-red-400 font-bold uppercase tracking-wider"
                 data-i18n="proj-badge-revision">Revisi</span>
-              <i class="fa-solid fa-rotate-left text-red-500 text-xs"></i>
+              <span class="w-6 h-6 rounded-lg bg-red-50 dark:bg-red-950/50 flex items-center justify-center text-red-500">
+                <i class="fa-solid fa-rotate-left text-[10px]"></i>
+              </span>
             </div>
-            <span id="count-revisi" class="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mt-2">
-              <div class="h-6 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+            <span id="count-revisi" class="text-lg sm:text-xl font-extrabold text-red-600 dark:text-red-400 mt-1.5 font-mono">
+              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
 
           <button onclick="filterStatus('Selesai')"
-            class="status-filter-btn p-3.5 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-2xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-emerald-500 dark:hover:border-emerald-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
             <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider"
+              <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider"
                 data-i18n="proj-badge-done">Selesai</span>
-              <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
+              <span class="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-500">
+                <i class="fa-solid fa-circle-check text-[10px]"></i>
+              </span>
             </div>
-            <span id="count-selesai" class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-              <div class="h-6 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+            <span id="count-selesai" class="text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1.5 font-mono">
+              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
 
           <button onclick="filterStatus('Belum Pembayaran')" id="btnFilterBelumBayar"
-            class="status-filter-btn p-3.5 sm:p-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-rose-500 dark:hover:border-rose-500 rounded-2xl shadow-sm flex flex-col justify-between text-left transition-all">
+            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-rose-500 dark:hover:border-rose-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
             <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-rose-600 dark:text-rose-400 font-semibold uppercase tracking-wider"
+              <span class="text-[11px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider"
                 data-i18n="proj-badge-unpaid">Belum Bayar</span>
-              <i class="fa-solid fa-receipt text-rose-500 text-xs"></i>
+              <span class="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-rose-500">
+                <i class="fa-solid fa-receipt text-[10px]"></i>
+              </span>
             </div>
             <span id="count-belumpembayaran"
-              class="text-xl sm:text-2xl font-bold text-rose-600 dark:text-rose-400 mt-2">
-              <div class="h-6 w-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+              class="text-lg sm:text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-1.5 font-mono">
+              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
         </div>
 
-        <!-- Action Buttons (Filter Sumber, Hapus Terpilih, Export Excel, Tambah Projek Baru) -->
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Action Toolbar (Filter Sumber, Hapus Terpilih, Export Excel, Tambah Projek Baru) -->
+        <div class="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 pt-1">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 hidden sm:inline-block">Sumber:</span>
-            <select id="filterSumber" onchange="filterBySumber(this.value)"
-              class="px-3.5 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="all">Semua Sumber</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="Fiverr">Fiverr</option>
-              <option value="Shopee">Shopee</option>
-            </select>
+            <div class="relative">
+              <i class="fa-solid fa-filter text-xs text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <select id="filterSumber" onchange="filterBySumber(this.value)"
+                class="pl-8 pr-7 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs sm:text-sm font-semibold rounded-xl shadow-2xs focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-colors">
+                <option value="all">Semua Sumber</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Fiverr">Fiverr</option>
+                <option value="Shopee">Shopee</option>
+              </select>
+            </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2.5">
+          <div class="flex flex-wrap items-center gap-2">
             <button id="btnBulkDelete" onclick="bulkDeleteProyek()" disabled
-              class="inline-flex items-center px-4 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow transition-all hidden text-xs sm:text-sm">
-              <i class="fa-solid fa-trash-can mr-2"></i>
+              class="inline-flex items-center px-3.5 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-xs transition-all hidden text-xs sm:text-sm">
+              <i class="fa-solid fa-trash-can mr-2 text-xs"></i>
               <span><span data-i18n="proj-btn-delete">Hapus Terpilih</span> (<span id="selectedCount">0</span>)</span>
             </button>
 
             <button id="btnBulkCreateInvoice" onclick="openBulkInvoiceModal()" disabled
-              class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow transition-all hidden text-xs sm:text-sm">
-              <i class="fa-solid fa-file-invoice mr-2"></i>
+              class="inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-xs transition-all hidden text-xs sm:text-sm">
+              <i class="fa-solid fa-file-invoice mr-2 text-xs"></i>
               <span><span data-i18n="proj-btn-invoice">Create Invoice</span> (<span
                   id="selectedInvoiceCount">0</span>)</span>
             </button>
 
-
-
             <!-- Excel Actions Dropdown Group -->
             <div class="relative inline-block text-left" id="excelDropdownGroup">
               <button id="excelDropdownBtn" type="button" onclick="toggleExcelDropdown(event)"
-                class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow text-xs sm:text-sm transition-all focus:outline-none"
+                class="inline-flex items-center px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-xs text-xs sm:text-sm transition-all focus:outline-none cursor-pointer"
                 title="Menu Kelola File Excel">
-                <i class="fa-solid fa-file-excel mr-2 text-sm"></i>
+                <i class="fa-solid fa-file-excel mr-2 text-xs"></i>
                 <span>Menu Excel</span>
-                <i class="fa-solid fa-chevron-down ml-1.5 text-xs opacity-80"></i>
+                <i class="fa-solid fa-chevron-down ml-1.5 text-[10px] opacity-80"></i>
               </button>
 
               <div id="excelDropdownMenu"
@@ -464,8 +476,8 @@
             </div>
 
             <a href="tambah-proyek.html"
-              class="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg text-xs sm:text-sm transition-all">
-              <i class="fa-solid fa-plus mr-2"></i>
+              class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm hover:shadow text-xs sm:text-sm transition-all">
+              <i class="fa-solid fa-plus mr-1.5 text-xs"></i>
               <span data-i18n="proj-btn-new">Tambah Projek Baru</span>
             </a>
           </div>
@@ -667,7 +679,7 @@
 
       <!-- Modal Header -->
       <div
-        class="px-6 py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
+        class="px-5 py-3.5 sm:px-6 sm:py-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
           <div
             class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
@@ -691,7 +703,7 @@
 
       <!-- Segmented Tab Navigation -->
       <div
-        class="px-6 pt-3 pb-2 bg-zinc-50/70 dark:bg-zinc-900/60 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0">
+        class="px-5 pt-2.5 pb-2 sm:px-6 sm:pt-3 bg-zinc-50/70 dark:bg-zinc-900/60 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0">
         <div class="flex p-1 space-x-1 bg-zinc-200/60 dark:bg-zinc-800/70 rounded-xl max-w-xs sm:max-w-sm">
           <button type="button" id="tabBtnInfo" onclick="switchDetailModalTab('info')"
             class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs">
@@ -707,20 +719,35 @@
       </div>
 
       <!-- Modal Body (Scrollable) -->
-      <div class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+      <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
 
         <!-- ================= TAB 1: INFO & FINANCIAL ================= -->
-        <div id="detailTabInfo" class="space-y-4">
-          <!-- Top Hero Card: Client & Status Banner -->
+        <div id="detailTabInfo" class="space-y-3.5">
+          <!-- 1. Hero Card: Nama Projek, Pelanggan, Status & Badges -->
           <div
-            class="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/40 via-zinc-50/40 to-white dark:from-zinc-800/40 dark:via-zinc-800/20 dark:to-zinc-900 border border-zinc-200/70 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="space-y-1 min-w-0">
-              <span class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block"
-                data-i18n="dt-client">Pelanggan</span>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span id="modalPelanggan" class="font-bold text-lg text-zinc-900 dark:text-zinc-50 tracking-tight">Nama
-                  Pelanggan</span>
-                <span class="text-zinc-300 dark:text-zinc-700">•</span>
+            class="p-4 rounded-xl bg-gradient-to-br from-indigo-50/50 via-zinc-50/30 to-white dark:from-zinc-800/50 dark:via-zinc-800/20 dark:to-zinc-900 border border-zinc-200/80 dark:border-zinc-800 space-y-2.5">
+            <!-- Project Title & Status Row -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block mb-0.5" data-i18n="dt-work">Nama Projek / Pekerjaan</span>
+                <h3 id="modalNamaProyek" class="font-bold text-base sm:text-lg text-zinc-900 dark:text-zinc-50 tracking-tight leading-snug break-words">
+                  Nama Brosur
+                </h3>
+              </div>
+              <div class="shrink-0 self-start sm:self-center">
+                <span id="modalStatus" class="inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-2xs">Status</span>
+              </div>
+            </div>
+
+            <!-- Client Info & Tags Sub-row -->
+            <div class="pt-2 border-t border-zinc-200/60 dark:border-zinc-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <!-- Client Name & Contact -->
+              <div class="flex items-center gap-2 flex-wrap min-w-0">
+                <div class="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 font-semibold">
+                  <i class="fa-regular fa-user text-zinc-400 text-xs"></i>
+                  <span id="modalPelanggan" class="text-zinc-900 dark:text-white font-bold">Nama Pelanggan</span>
+                </div>
+                <span class="text-zinc-300 dark:text-zinc-700 hidden sm:inline">•</span>
                 <span id="modalWa" onclick="copyTextToClipboard(this.textContent.replace('+', ''), 'Nomor WA')"
                   class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800/70 cursor-pointer transition-colors"
                   title="Klik untuk salin Nomor WA">
@@ -728,108 +755,98 @@
                   <span>62812345</span>
                 </span>
               </div>
-            </div>
-            <!-- Badges: Status, Sumber, Assign Designer, User ID -->
-            <div class="flex items-center gap-2 flex-wrap sm:justify-end">
-              <span id="modalStatus" class="inline-block px-3 py-1 text-xs font-semibold rounded-full">Status</span>
-              <span id="modalSumber"
-                class="inline-block px-2.5 py-1 text-xs font-semibold rounded-lg bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800">WhatsApp</span>
-              <span id="modalAssign"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
-                title="Designer yang Ditugaskan">
-                <i class="fa-solid fa-user-pen text-[10px] text-purple-500"></i>
-                <span id="modalAssignText">Belum di-assign</span>
-              </span>
-              <span id="modalUserId"
-                class="px-2 py-1 font-mono font-bold text-xs rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 inline-block">USR-001</span>
+
+              <!-- Badges: Sumber, Assign Designer, User ID -->
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span id="modalSumber"
+                  class="inline-block px-2.5 py-0.5 text-[11px] font-semibold rounded-lg bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300 border border-green-200 dark:border-green-800">WhatsApp</span>
+                <span id="modalAssign"
+                  class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold rounded-lg bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
+                  title="Designer yang Ditugaskan">
+                  <i class="fa-solid fa-user-pen text-[10px] text-purple-500"></i>
+                  <span id="modalAssignText">Belum di-assign</span>
+                </span>
+                <span id="modalUserId"
+                  class="px-2 py-0.5 font-mono font-bold text-[11px] rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 inline-block">USR-001</span>
+              </div>
             </div>
           </div>
 
-          <!-- Pekerjaan & Deadline -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- 2. Two-Column Specification & Schedule Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Box 1: Spesifikasi Produk -->
             <div
-              class="sm:col-span-2 p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-800/80 shadow-2xs space-y-3">
-              <div>
-                <span class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block"
-                  data-i18n="dt-work">Nama Pekerjaan</span>
-                <span id="modalNamaProyek"
-                  class="font-semibold text-zinc-900 dark:text-zinc-100 text-sm sm:text-base mt-0.5 block">Nama
-                  Brosur</span>
+              class="p-3.5 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-800/80 shadow-2xs flex flex-col justify-between space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1.5" data-i18n="dt-product">
+                  <i class="fa-solid fa-cube text-indigo-500 text-xs"></i>
+                  <span>Spesifikasi Produk</span>
+                </span>
               </div>
-              <div
-                class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/60 text-xs">
-                <div>
-                  <span class="text-zinc-400 block text-[11px]" data-i18n="dt-product">Produk</span>
-                  <span id="modalProduk" class="font-semibold text-zinc-800 dark:text-zinc-200">Brosur</span>
-                </div>
-                <div>
-                  <span class="text-zinc-400 block text-[11px]" data-i18n="dt-qty">Jumlah</span>
-                  <span id="modalJumlah" class="font-semibold text-zinc-800 dark:text-zinc-200">500</span>
-                </div>
-                <div>
-                  <span class="text-zinc-400 block text-[11px]" data-i18n="dt-unit">Satuan</span>
-                  <span id="modalSatuan" class="font-semibold text-zinc-800 dark:text-zinc-200">pcs</span>
-                </div>
-                <div id="modalHargaSatuanContainer">
-                  <span class="text-zinc-400 block text-[11px]">Harga Satuan</span>
-                  <span id="modalHargaSatuan" class="font-semibold text-zinc-800 dark:text-zinc-200">Rp0</span>
-                </div>
+              <div class="flex items-baseline justify-between gap-2">
+                <span id="modalProduk" class="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100 truncate">Brosur</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400 shrink-0">
+                  <span id="modalJumlah" class="font-bold text-zinc-800 dark:text-zinc-200">500</span>
+                  <span id="modalSatuan" class="font-semibold text-zinc-600 dark:text-zinc-300 ml-0.5">pcs</span>
+                </span>
+              </div>
+              <div id="modalHargaSatuanContainer"
+                class="pt-2 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between text-xs">
+                <span class="text-zinc-400 text-[11px]">Harga Satuan</span>
+                <span id="modalHargaSatuan" class="font-semibold text-zinc-800 dark:text-zinc-200">Rp0</span>
               </div>
             </div>
 
-            <!-- Deadline & Metode Pembayaran -->
+            <!-- Box 2: Tenggat Waktu & Metode -->
             <div
-              class="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-800/80 shadow-2xs flex flex-col justify-between">
-              <div>
-                <span
-                  class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block flex items-center gap-1.5"
-                  data-i18n="dt-deadline">
-                  <i class="fa-regular fa-clock text-indigo-500"></i>
+              class="p-3.5 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-800/80 shadow-2xs flex flex-col justify-between space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-1.5" data-i18n="dt-deadline">
+                  <i class="fa-regular fa-clock text-indigo-500 text-xs"></i>
                   <span>Tenggat Waktu</span>
                 </span>
-                <div class="mt-1.5">
-                  <span id="modalDeadline"
-                    class="font-semibold text-sm text-zinc-800 dark:text-zinc-100 block">Tanggal</span>
-                </div>
+              </div>
+              <div id="modalDeadline" class="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
+                Tanggal
               </div>
               <div id="modalMetodeContainer"
-                class="mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between text-[11px]">
-                <span class="text-zinc-400" data-i18n="dt-payment-method">Metode</span>
+                class="pt-2 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between text-xs">
+                <span class="text-zinc-400 text-[11px]" data-i18n="dt-payment-method">Metode Pembayaran</span>
                 <span id="modalMetode" class="font-bold text-zinc-800 dark:text-zinc-200">Shopee</span>
               </div>
             </div>
           </div>
 
-          <!-- Finansial Card -->
+          <!-- 3. Finansial Summary Card -->
           <div id="detailFinancialCard"
-            class="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/80 space-y-3">
+            class="p-3.5 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800/80 space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                <i class="fa-solid fa-coins text-amber-500"></i>
+                <i class="fa-solid fa-coins text-amber-500 text-xs"></i>
                 <span>Rincian Pembayaran</span>
               </span>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
               <div
-                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
-                <span class="text-[11px] text-zinc-400 block" data-i18n="dt-total">Total Biaya</span>
+                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/90 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
+                <span class="text-[10px] uppercase font-semibold text-zinc-400 block" data-i18n="dt-total">Total Biaya</span>
                 <span id="modalNominal"
-                  class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mt-0.5 block">Rp0</span>
+                  class="font-bold text-zinc-900 dark:text-zinc-100 text-sm mt-0.5 block truncate">Rp0</span>
               </div>
               <div
-                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
-                <span class="text-[11px] text-zinc-400 block" data-i18n="dt-dp">Uang Muka (DP)</span>
-                <span id="modalDp" class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mt-0.5 block">Rp0</span>
+                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/90 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
+                <span class="text-[10px] uppercase font-semibold text-zinc-400 block" data-i18n="dt-dp">Uang Muka (DP)</span>
+                <span id="modalDp" class="font-bold text-zinc-800 dark:text-zinc-200 text-sm mt-0.5 block truncate">Rp0</span>
               </div>
               <div
-                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
-                <span class="text-[11px] text-zinc-400 block" data-i18n="dt-settlement">Pelunasan</span>
+                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/90 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
+                <span class="text-[10px] uppercase font-semibold text-zinc-400 block" data-i18n="dt-settlement">Pelunasan</span>
                 <span id="modalPelunasan"
-                  class="font-bold text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 block">Rp0</span>
+                  class="font-bold text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 block truncate">Rp0</span>
               </div>
               <div
-                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
-                <span class="text-[11px] text-zinc-400 block" data-i18n="dt-debt">Sisa Tagihan</span>
+                class="p-2.5 rounded-lg bg-white dark:bg-zinc-800/90 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
+                <span class="text-[10px] uppercase font-semibold text-zinc-400 block" data-i18n="dt-debt">Sisa Tagihan</span>
                 <div class="relative inline-block mt-0.5 w-full">
                   <select id="modalSisaSelect" onchange="handleSisaChange(this)"
                     class="appearance-none bg-transparent font-bold text-rose-600 text-sm focus:outline-none cursor-pointer pr-4 w-full truncate">
@@ -843,22 +860,26 @@
             </div>
           </div>
 
-          <!-- Catatan & Google Drive Container -->
-          <div class="space-y-2 text-xs">
+          <!-- 4. Catatan & Google Drive Container -->
+          <div class="space-y-3 text-xs">
+            <!-- Catatan -->
             <div>
               <span
-                class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block mb-1"
-                data-i18n="dt-notes">Catatan / Keterangan</span>
+                class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block mb-1 flex items-center gap-1.5"
+                data-i18n="dt-notes">
+                <i class="fa-regular fa-comment-dots text-zinc-400"></i>
+                <span>Catatan / Keterangan</span>
+              </span>
               <p id="modalCatatan"
-                class="bg-white dark:bg-zinc-800/60 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 italic">
+                class="bg-white dark:bg-zinc-800/60 p-3 rounded-xl border border-zinc-200/70 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-300 italic text-xs leading-relaxed">
                 Tidak ada catatan.</p>
             </div>
 
             <!-- Google Drive Section: Aktif / Nonaktifkan / Gabung Drive Klien -->
-            <div id="modalGDriveContainer" class="p-3.5 bg-zinc-50/60 dark:bg-zinc-800/60 rounded-xl border border-zinc-200 dark:border-zinc-700/80 space-y-2.5 text-xs">
+            <div id="modalGDriveContainer" class="p-3 bg-zinc-50/70 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 space-y-2 text-xs">
               <!-- Header Status -->
               <div class="flex items-center justify-between">
-                <span class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
                   <i class="fa-brands fa-google-drive text-emerald-600 dark:text-emerald-400 text-sm"></i>
                   <span>Google Drive Folder</span>
                 </span>
@@ -870,29 +891,29 @@
                 <a id="modalGDriveLink" target="_blank" rel="noopener noreferrer" href="#"
                   class="flex items-center justify-between p-2.5 bg-indigo-50/80 hover:bg-indigo-100/80 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl font-semibold transition text-xs border border-indigo-200/60 dark:border-indigo-800/50">
                   <span class="flex items-center gap-2 truncate">
-                    <i class="fa-solid fa-folder-open text-base text-indigo-600 dark:text-indigo-400 shrink-0"></i>
+                    <i class="fa-solid fa-folder-open text-sm text-indigo-600 dark:text-indigo-400 shrink-0"></i>
                     <span class="truncate" data-i18n="dt-btn-gdrive">Buka Folder Google Drive Proyek</span>
                   </span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-xs text-indigo-400 shrink-0"></i>
                 </a>
 
-                <div class="flex flex-wrap items-center gap-2 pt-0.5" id="modalGDriveActions">
+                <div class="flex flex-wrap items-center gap-1.5 pt-0.5" id="modalGDriveActions">
                   <button type="button" onclick="disableProjectDrive()" id="btnDisableProjectDrive"
-                    class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-lg text-[11px] font-semibold border border-rose-200/60 dark:border-rose-900/40 transition flex items-center gap-1.5 cursor-pointer"
+                    class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-lg text-[11px] font-semibold border border-rose-200/60 dark:border-rose-900/40 transition flex items-center gap-1.5 cursor-pointer"
                     title="Nonaktifkan dan lepaskan folder Google Drive dari projek ini">
-                    <i class="fa-solid fa-link-slash text-xs"></i>
-                    <span>Nonaktifkan Drive</span>
+                    <i class="fa-solid fa-link-slash text-[11px]"></i>
+                    <span>Nonaktifkan</span>
                   </button>
                   <button type="button" onclick="openMergeDriveDialog()" id="btnMergeProjectDrive"
-                    class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-lg text-[11px] font-semibold border border-amber-200/60 dark:border-amber-900/40 transition flex items-center gap-1.5 cursor-pointer"
+                    class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-lg text-[11px] font-semibold border border-amber-200/60 dark:border-amber-900/40 transition flex items-center gap-1.5 cursor-pointer"
                     title="Gabungkan dengan folder Google Drive projek klien yang sama">
-                    <i class="fa-solid fa-object-group text-xs"></i>
+                    <i class="fa-solid fa-object-group text-[11px]"></i>
                     <span>Gabung Drive Klien</span>
                   </button>
                   <button type="button" onclick="toggleEditDriveInput()" id="btnEditProjectDrive"
-                    class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700/60 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 cursor-pointer"
+                    class="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700/60 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 cursor-pointer"
                     title="Ubah URL Link Google Drive secara manual">
-                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                    <i class="fa-solid fa-pen-to-square text-[11px]"></i>
                     <span>Ubah Link</span>
                   </button>
                 </div>
@@ -965,7 +986,7 @@
         </div>
 
         <!-- ================= TAB 2: AI & WHATSAPP ASSISTANT ================= -->
-        <div id="detailTabAI" class="hidden space-y-4">
+        <div id="detailTabAI" class="hidden space-y-3.5">
           <!-- Intro Card -->
           <div
             class="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 flex items-center justify-between gap-3 text-xs">
@@ -1065,7 +1086,7 @@
 
       <!-- Modal Footer -->
       <div
-        class="px-6 py-3.5 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:justify-between items-center gap-2.5 shrink-0">
+        class="px-5 py-3 sm:px-6 sm:py-3.5 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:justify-between items-center gap-2.5 shrink-0">
         <!-- WA action button -->
         <a id="modalWaBtn" target="_blank" rel="noopener noreferrer" href="#"
           class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs text-center shadow-xs flex items-center justify-center gap-2 transition-colors">

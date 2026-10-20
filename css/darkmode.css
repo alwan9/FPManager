@@ -578,6 +578,7 @@ html.dark [id$="Modal"] .bg-zinc-50 {
 html.dark #detailModal,
 html.dark #detailModal span,
 html.dark #detailModal p,
+html.dark #detailModal h3,
 html.dark #detailModal h4,
 html.dark #detailModal label {
   color: #f4f4f5;
