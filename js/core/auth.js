@@ -247,6 +247,10 @@ const Auth = {
     return token;
   },
 
+  isLoggedIn: () => {
+    return !!Auth.getToken();
+  },
+
   getRole: () => {
     const u = Auth.getUser();
     return (u && u.role) ? String(u.role).toLowerCase().trim() : "service";
