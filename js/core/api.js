@@ -145,7 +145,7 @@ const APICache = {
 // IndexedDB Helper for Offline Storage & Sync Queue
 const FPManagerDB = {
   dbName: 'FPManagerDB',
-  dbVersion: 1,
+  dbVersion: 2,
   db: null,
 
   async init() {
@@ -175,6 +175,9 @@ const FPManagerDB = {
         }
         if (!db.objectStoreNames.contains('offline_queue')) {
           db.createObjectStore('offline_queue', { keyPath: 'queueId', autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains('notifikasi')) {
+          db.createObjectStore('notifikasi', { keyPath: 'id' });
         }
       };
     });
@@ -2080,6 +2083,168 @@ const API = {
       return await res.json();
     } catch (err) {
       return { success: false, message: err.message };
+    }
+  },
+
+  // =================================================================
+  // NOTIFIKASI & RIWAYAT AKTIVITAS
+  // =================================================================
+
+  // Ambil daftar notifikasi untuk user yang sedang login
+  getNotifikasi: async (params = {}) => {
+    try {
+      const currUser = API.getCurrentUser() || {};
+      const targetUserId = params.userId || currUser.id || '';
+      const url = API.getAuthUrl("getNotifikasi", { userId: targetUserId, targetUserId: params.targetUserId || '' });
+      const res = await fetch(url);
+      const result = await res.json();
+      if (result && result.success && Array.isArray(result.data)) {
+        try {
+          await FPManagerDB.saveAll('notifikasi', result.data);
+        } catch (dbErr) {
+          localStorage.setItem('fpm_notifikasi_cache', JSON.stringify(result.data));
+        }
+        return result;
+      }
+      return result;
+    } catch (err) {
+      console.warn("[API] getNotifikasi offline fallback:", err);
+      try {
+        const localData = await FPManagerDB.getAll('notifikasi');
+        if (localData && localData.length > 0) {
+          return { success: true, data: localData, unreadCount: localData.filter(n => n.status !== 'TRUE').length, isOffline: true };
+        }
+      } catch (e) {}
+      const cached = JSON.parse(localStorage.getItem('fpm_notifikasi_cache') || '[]');
+      return { success: true, data: cached, unreadCount: cached.filter(n => n.status !== 'TRUE').length, isOffline: true };
+    }
+  },
+
+  // Tambah notifikasi baru
+  addNotifikasi: async (notifData) => {
+    try {
+      const currUser = API.getCurrentUser() || {};
+      const payload = {
+        judul: notifData.judul || "Notifikasi",
+        des: notifData.des || "",
+        status: notifData.status || "FALSE",
+        id_user: notifData.id_user || notifData.userId || currUser.id || "ALL",
+        tipe: notifData.tipe || "info",
+        tanggal: notifData.tanggal || new Date().toLocaleString('id-ID')
+      };
+
+      const body = new URLSearchParams();
+      API.appendAuthBody(body, "addNotifikasi");
+      body.append("data", JSON.stringify(payload));
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await res.json();
+    } catch (err) {
+      console.error("[API] Gagal addNotifikasi:", err);
+      return { success: false, message: err.message };
+    }
+  },
+
+  // Ubah status dibaca (TRUE/FALSE)
+  updateNotifikasiStatus: async (id, status) => {
+    try {
+      const body = new URLSearchParams();
+      API.appendAuthBody(body, "updateNotifikasiStatus");
+      body.append("id", id);
+      body.append("data", JSON.stringify({ id, status: status ? "TRUE" : "FALSE" }));
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await res.json();
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // Tandai semua notifikasi telah dibaca
+  markAllNotifikasiRead: async () => {
+    try {
+      const body = new URLSearchParams();
+      API.appendAuthBody(body, "markAllNotifikasiRead");
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await res.json();
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // Hapus satu notifikasi
+  deleteNotifikasi: async (id) => {
+    try {
+      const body = new URLSearchParams();
+      API.appendAuthBody(body, "deleteNotifikasi");
+      body.append("id", id);
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await res.json();
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // Bersihkan riwayat notifikasi yang sudah dibaca
+  clearNotifikasi: async () => {
+    try {
+      const body = new URLSearchParams();
+      API.appendAuthBody(body, "clearNotifikasi");
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        body
+      });
+      return await res.json();
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  },
+
+  // Helper pencatat log notifikasi otomatis untuk CRUD
+  logCrudNotification: async (judul, des, isSuccess = true, targetUserId = null, tipe = null) => {
+    try {
+      const currUser = API.getCurrentUser() || {};
+      const determinedType = tipe || (isSuccess ? "sukses" : "gagal");
+      const userReceiver = targetUserId || currUser.id || "ALL";
+
+      // Simpan ke local log history
+      const localLogs = JSON.parse(localStorage.getItem('fpm_crud_history') || '[]');
+      const newEntry = {
+        id: 'LOG-' + Date.now(),
+        judul,
+        des,
+        isSuccess,
+        status: "FALSE",
+        id_user: userReceiver,
+        tipe: determinedType,
+        tanggal: new Date().toLocaleString('id-ID'),
+        timestamp: Date.now()
+      };
+      localLogs.unshift(newEntry);
+      if (localLogs.length > 100) localLogs.pop();
+      localStorage.setItem('fpm_crud_history', JSON.stringify(localLogs));
+
+      // Kirim ke backend jika online
+      API.addNotifikasi({
+        judul,
+        des,
+        status: "FALSE",
+        id_user: userReceiver,
+        tipe: determinedType,
+        tanggal: new Date().toISOString()
+      }).catch(() => {});
+    } catch (e) {
+      console.warn("[API] logCrudNotification error:", e);
     }
   },
 

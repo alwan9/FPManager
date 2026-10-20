@@ -23,6 +23,7 @@ FPManager/
 │   ├── 📄 history-invoice.html # Riwayat invoice & nota
 │   ├── 📄 invoice.html       # Generator nota & invoice PDF
 │   ├── 📄 admin-tasks.html   # Checklist aktivitas admin
+│   ├── 📄 notifikasi.html    # Pusat notifikasi & riwayat aktivitas CRUD
 │   ├── 📄 tools.html         # Tools & AI Generator
 │   ├── 📄 user-management.html # Manajemen pengguna & role
 │   ├── 📄 pengaturan.html    # Pengaturan sistem & database
@@ -67,6 +68,7 @@ Setiap file HTML mewakili satu modul operasional dengan kontroler JS pasangannya
 | `pages/history-invoice.html` | `js/modules/history-invoice.js` | Arsip pencatatan invoice & status pembayaran klien |
 | `pages/invoice.html` | `js/modules/invoice.js` | Generator nota / invoice dan cetak PDF profesional |
 | `pages/admin-tasks.html` | `js/modules/admin-tasks.js` | Checklist harian staf, delegasi tugas, & reset berkala |
+| `pages/notifikasi.html` | `js/modules/notifikasi.js` | Pusat notifikasi, feed log CRUD, & filter id_user |
 | `pages/tools.html` | `js/modules/tools.js` | Utilitas generator prompt, AI assistant Gemini, & pintasan |
 | `pages/user-management.html` | `js/modules/user-management.js` | Pengelolaan hak akses 3-Role (Super Admin Only) |
 | `pages/pengaturan.html` | `js/modules/pengaturan.js` | Manajemen database lokal, API Sheets, & backup |
@@ -88,7 +90,7 @@ Dikelompokkan menjadi 3 kategori fungsi:
   - `i18n.js`: Lokalisasi bahasa (Indonesia & English).
 
 - **`js/modules/` (Modul Kontroler Halaman)**:
-  - `dashboard.js`, `proyek.js`, `tambah.js`, `keuangan.js`, `laporan.js`, `history-invoice.js`, `invoice.js`, `admin-tasks.js`, `tools.js`, `user-management.js`, `pengaturan.js`, `profil.js`.
+  - `dashboard.js`, `proyek.js`, `tambah.js`, `keuangan.js`, `laporan.js`, `history-invoice.js`, `invoice.js`, `admin-tasks.js`, `notifikasi.js`, `tools.js`, `user-management.js`, `pengaturan.js`, `profil.js`.
 
 - **`js/utils/` (Modul Ekspor & Integrasi Pihak Ketiga)**:
   - `excel.js`: Generator dan parser berkas Excel (.xlsx).

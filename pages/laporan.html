@@ -197,6 +197,14 @@
           <i class="fa-solid fa-clipboard-check text-base w-5"></i>
           <span class="text-sm font-medium" data-i18n="nav-admin-tasks">Aktivitas Admin</span>
         </a>
+        <a href="notifikasi.html"
+          class="sidebar-link flex flex-row items-center justify-between px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-bell text-base w-5"></i>
+            <span class="text-sm font-medium" data-i18n="nav-notifikasi">Notifikasi</span>
+          </div>
+          <span class="notif-unread-badge hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white shadow-xs">0</span>
+        </a>
         <a href="tools.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-toolbox text-base w-5"></i>
@@ -296,6 +304,12 @@
           <button id="pwaInstallBtnMobile"
             class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
             title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button>
+          <a href="notifikasi.html"
+            class="relative p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center cursor-pointer"
+            title="Pusat Notifikasi">
+            <i class="fa-solid fa-bell text-base"></i>
+            <span class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
+          </a>
           <button id="darkModeToggle" type="button"
             class="p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer"
             title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
@@ -337,6 +351,14 @@
                 class="flex md:hidden items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                 <i class="fa-solid fa-clipboard-check w-4 text-zinc-500"></i>
                 <span>Aktivitas Admin</span>
+              </a>
+              <a href="notifikasi.html"
+                class="flex items-center justify-between px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <div class="flex items-center space-x-2.5">
+                  <i class="fa-solid fa-bell w-4 text-zinc-500"></i>
+                  <span data-i18n="nav-notifikasi">Notifikasi</span>
+                </div>
+                <span class="notif-unread-badge hidden px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white">0</span>
               </a>
               <a href="tools.html"
                 class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">

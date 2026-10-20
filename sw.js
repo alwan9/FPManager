@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v206';
+const CACHE_NAME = 'fpmanager-v207';
 
 const urlsToCache = [
   './',
@@ -14,6 +14,7 @@ const urlsToCache = [
   './pages/history-invoice.html',
   './pages/tools.html',
   './pages/admin-tasks.html',
+  './pages/notifikasi.html',
   './pages/user-management.html',
   './pages/maintenance.html',
   './manifest.json',
@@ -38,6 +39,7 @@ const urlsToCache = [
   './js/modules/history-invoice.js',
   './js/modules/tools.js',
   './js/modules/admin-tasks.js',
+  './js/modules/notifikasi.js',
   './js/modules/user-management.js',
   './js/utils/excel.js',
   './js/utils/calendar.js',
@@ -122,7 +124,7 @@ self.addEventListener('fetch', event => {
                   cache.put(event.request, responseCopy);
                 });
               }
-            }).catch(() => {});
+            }).catch(() => { });
           }
           return cachedResponse;
         }
@@ -132,7 +134,7 @@ self.addEventListener('fetch', event => {
           const parsedUrl = new URL(url);
           const relativeMatch = await caches.match('.' + parsedUrl.pathname, { ignoreSearch: true }) || await caches.match(parsedUrl.pathname, { ignoreSearch: true });
           if (relativeMatch) return relativeMatch;
-        } catch (e) {}
+        } catch (e) { }
 
         // Network fallback
         try {

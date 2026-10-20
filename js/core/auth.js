@@ -909,6 +909,11 @@ const Auth = {
         }
       }
 
+      // Notifikasi (Tersedia untuk semua role)
+      if (href.includes("notifikasi.html")) {
+        el.classList.remove("hidden");
+      }
+
       // Pengaturan (Tersedia untuk semua role)
       if (href.includes("pengaturan.html")) {
         el.classList.remove("hidden");
@@ -940,7 +945,7 @@ const Auth = {
         if (!isSuper) el.classList.add("hidden");
         else el.classList.remove("hidden");
       }
-      if (href.includes("pengaturan.html")) {
+      if (href.includes("notifikasi.html") || href.includes("pengaturan.html")) {
         el.classList.remove("hidden");
       }
     });
@@ -1149,6 +1154,41 @@ const Auth = {
     Auth.applyButtonPermissions();
   },
 
+  updateNotificationBadges: async () => {
+    try {
+      if (!Auth.isLoggedIn() || typeof API === 'undefined' || !API.getNotifikasi) return;
+      const res = await API.getNotifikasi(false);
+      if (!res || !res.success || !Array.isArray(res.data)) return;
+      const currentUserId = (Auth.getUser()?.id || '').trim();
+      const isSuper = Auth.isSuperAdmin();
+      const unreadCount = res.data.filter(n => {
+        const isUnread = n.status === false || n.status === 'FALSE' || n.status === 0 || n.status === '0';
+        if (!isUnread) return false;
+        if (isSuper) return true;
+        const targetUser = (n.id_user || '').trim();
+        return !targetUser || targetUser.toUpperCase() === 'ALL' || targetUser === currentUserId;
+      }).length;
+
+      document.querySelectorAll('.notif-topbar-badge').forEach(badge => {
+        if (unreadCount > 0) {
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      });
+      document.querySelectorAll('.notif-unread-badge').forEach(badge => {
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      });
+    } catch (e) {
+      // silent
+    }
+  },
+
   logout: async () => {
     await SessionManager.triggerAutoLogout('manual_logout');
   }
@@ -1181,4 +1221,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   Auth.checkLogin();
   Auth.initMobileBottomNavScrollToTop();
+
+  // Initial and periodic notification badge sync
+  if (Auth.isLoggedIn()) {
+    setTimeout(() => {
+      if (typeof Auth.updateNotificationBadges === 'function') {
+        Auth.updateNotificationBadges();
+      }
+    }, 1200);
+
+    setInterval(() => {
+      if (typeof Auth.updateNotificationBadges === 'function') {
+        Auth.updateNotificationBadges();
+      }
+    }, 60000);
+  }
 });
