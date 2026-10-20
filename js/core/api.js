@@ -2210,6 +2210,18 @@ const API = {
     }
   },
 
+  // Inisialisasi tabel Notifikasi baru di Google Spreadsheet
+  setupNotifikasiSheet: async () => {
+    try {
+      const url = API.getAuthUrl("setupNotifikasiSheet");
+      const res = await fetch(url);
+      return await res.json();
+    } catch (err) {
+      console.error("[API] setupNotifikasiSheet error:", err);
+      return { success: false, message: err.message };
+    }
+  },
+
   // Helper pencatat log notifikasi otomatis untuk CRUD
   logCrudNotification: async (judul, des, isSuccess = true, targetUserId = null, tipe = null) => {
     try {

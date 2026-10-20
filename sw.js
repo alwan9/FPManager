@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v208';
+const CACHE_NAME = 'fpmanager-v209';
 
 const urlsToCache = [
   './',

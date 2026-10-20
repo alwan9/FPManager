@@ -228,7 +228,7 @@
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase().trim();
         const j = String(item.judul || '').toLowerCase();
-        const d = String(item.des || '').toLowerCase();
+        const d = String(item.ket || item.des || '').toLowerCase();
         const uName = String(relUser.name || '').toLowerCase();
         const uRole = String(relUser.role || '').toLowerCase();
         if (!j.includes(q) && !d.includes(q) && !uName.includes(q) && !uRole.includes(q)) return false;
@@ -315,7 +315,7 @@
 
       // Bersihkan teks judul dan deskripsi dari ID mentah jika ada
       const cleanTitle = cleanRelationText(item.judul || 'Notifikasi');
-      const cleanDes = cleanRelationText(item.des || '');
+      const cleanDes = cleanRelationText(item.ket || item.des || '');
 
       html += `
         <div class="p-3.5 sm:p-4 rounded-xl transition-all border ${
@@ -656,7 +656,12 @@
     setTypeFilter,
     setUserFilter,
     setSearch,
-    resetFilters
+    resetFilters,
+    setupNotifikasiSheet: async () => {
+      if (typeof API !== 'undefined' && API.setupNotifikasiSheet) {
+        return await API.setupNotifikasiSheet();
+      }
+    }
   };
 
   // Run on ready
