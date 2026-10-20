@@ -1,7 +1,7 @@
 /**
  * FREELANCE PROJEK MANAGER (FPManager)
  * Modul Pusat Notifikasi & Riwayat Aktivitas CRUD
- * Mengelola notifikasi, log berhasil/gagal, filter id_user, dan status baca (TRUE/FALSE)
+ * Mengelola notifikasi, log berhasil/gagal, filter relasi pengguna (Nama & Role), dan status baca
  */
 
 (function () {
@@ -13,6 +13,110 @@
   let searchQuery = '';
   let activeUserFilter = 'all';
   let refreshTimer = null;
+
+  // Cache data relasi user: id -> { id, name, role, avatar }
+  const userCacheMap = {
+    'USR-001': { id: 'USR-001', name: 'Super Admin Wans', role: 'Super Admin', avatar: '' }
+  };
+
+  // Helper Escape HTML
+  function escapeHtml(str) {
+    if (typeof window.escapeHtml === 'function') return window.escapeHtml(str);
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Normalisasi & Format Label Role Pengguna
+  function formatRoleLabel(role) {
+    const r = String(role || '').toLowerCase().trim();
+    if (r.includes('super_admin') || r.includes('superadmin') || r === 'wansmin' || r.includes('admin')) {
+      return 'Super Admin';
+    }
+    if (r.includes('desain') || r.includes('designer')) {
+      return 'Desainer';
+    }
+    if (r.includes('service') || r.includes('teknisi')) {
+      return 'Service / Teknisi';
+    }
+    return role ? (role.charAt(0).toUpperCase() + role.slice(1)) : 'Anggota Tim';
+  }
+
+  // Helper Style Badge Role
+  function getRoleBadgeStyle(role) {
+    const r = String(role || '').toLowerCase().trim();
+    if (r.includes('super admin') || r.includes('admin')) {
+      return 'bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 border-purple-200 dark:border-purple-800/60';
+    }
+    if (r.includes('desainer') || r.includes('designer')) {
+      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800/60';
+    }
+    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60';
+  }
+
+  // Sanitasi teks: bersihkan ID mentah (seperti PRJ-xxx, USR-xxx) dari deskripsi notifikasi
+  function cleanRelationText(text) {
+    if (!text) return '';
+    return String(text)
+      // Hapus ID di dalam kurung, contoh: (PRJ-2026-001), (PRJ-001), (USR-001), (TRX-xxx)
+      .replace(/\s*\((PRJ|USR|TRX|INV|TASK)[^)]*\)/gi, '')
+      // Ganti transaksi TRX mentah menjadi transaksi keuangan
+      .replace(/transaksi\s+TRX-[A-Za-z0-9_-]+/gi, 'transaksi keuangan')
+      .replace(/\bTRX-[A-Za-z0-9_-]+/gi, 'transaksi keuangan')
+      // Hapus kode ID yang tercecer
+      .replace(/\b(PRJ|USR|INV|TASK)-[A-Za-z0-9_-]+/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  // Muat dan Sinkronkan Cache Relasi Pengguna
+  async function ensureUsersData() {
+    try {
+      let users = window.allUsersList;
+      if (!users || !Array.isArray(users) || users.length === 0) {
+        if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
+          const res = await API.getUsers();
+          if (res && res.success && Array.isArray(res.data)) {
+            users = res.data;
+            window.allUsersList = users;
+          }
+        }
+      }
+
+      if (Array.isArray(users)) {
+        users.forEach(u => {
+          const uId = String(u.id || u.userId || u.id_user || '').trim();
+          if (uId) {
+            userCacheMap[uId] = {
+              id: uId,
+              name: u.name || u.nama || u.username || 'Pengguna',
+              role: formatRoleLabel(u.role),
+              avatar: u.avatar || u.urlProfile || u.url_profile || ''
+            };
+          }
+        });
+      }
+
+      // Ambil juga data user yang sedang login saat ini
+      if (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function') {
+        const cu = API.getCurrentUser();
+        if (cu && cu.id) {
+          userCacheMap[cu.id] = {
+            id: cu.id,
+            name: cu.name || cu.username || 'Pengguna',
+            role: formatRoleLabel(cu.role),
+            avatar: cu.avatar || ''
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('[NotifikasiModule] Gagal memuat data relasi user:', err);
+    }
+  }
 
   // Format Waktu Relatif / Human-readable
   function formatRelativeTime(dateStr) {
@@ -113,13 +217,21 @@
         if (itemUserId !== activeUserFilter && itemUserId !== 'ALL') return false;
       }
 
-      // 4. Search Query
+      // Ambil data relasi user untuk filter & search
+      const targetUserId = String(item.id_user || item.userId || 'ALL').trim();
+      const relUser = userCacheMap[targetUserId] || {
+        name: item.userName || '',
+        role: item.userRole || ''
+      };
+
+      // 4. Search Query (Mencocokkan judul, deskripsi bersih, nama anggota, dan role)
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase().trim();
         const j = String(item.judul || '').toLowerCase();
         const d = String(item.des || '').toLowerCase();
-        const u = String(item.id_user || '').toLowerCase();
-        if (!j.includes(q) && !d.includes(q) && !u.includes(q)) return false;
+        const uName = String(relUser.name || '').toLowerCase();
+        const uRole = String(relUser.role || '').toLowerCase();
+        if (!j.includes(q) && !d.includes(q) && !uName.includes(q) && !uRole.includes(q)) return false;
       }
 
       return true;
@@ -139,7 +251,7 @@
           <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
             ${searchQuery ? 'Tidak ada notifikasi yang cocok dengan kata kunci pencarian Anda.' : 'Semua notifikasi dan riwayat aktivitas sistem telah bersih.'}
           </p>
-          ${(activeStatusFilter !== 'all' || activeTypeFilter !== 'all' || searchQuery) ? `
+          ${(activeStatusFilter !== 'all' || activeTypeFilter !== 'all' || searchQuery || activeUserFilter !== 'all') ? `
             <button onclick="window.NotifikasiModule.resetFilters()" class="mt-4 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-xs font-semibold rounded-xl border border-indigo-200 dark:border-indigo-800 transition">
               Reset Semua Filter
             </button>
@@ -156,7 +268,54 @@
       const isRead = item.status === 'TRUE' || item.isRead === true;
       const typeStyle = getTypeBadgeStyles(item.tipe);
       const relativeTime = formatRelativeTime(item.tanggal || item.createdAt);
-      const userTag = item.id_user || item.userId || 'ALL';
+      
+      // Ambil data relasi pengguna langsung (bukan ID mentah)
+      const targetUserId = String(item.id_user || item.userId || 'ALL').trim();
+      const isAllTeam = !targetUserId || targetUserId.toUpperCase() === 'ALL';
+
+      let relUser = userCacheMap[targetUserId] || null;
+      if (!relUser && (item.userName || item.userRole)) {
+        relUser = {
+          name: item.userName || targetUserId,
+          role: formatRoleLabel(item.userRole),
+          avatar: item.userAvatar || ''
+        };
+      }
+
+      // Bangun tampilan relasi pengguna yang elegan (Avatar + Nama Asli + Role, NO ID)
+      let userRelationHtml = '';
+      if (isAllTeam) {
+        userRelationHtml = `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shadow-2xs" title="Penerima: Seluruh Tim Projek">
+            <i class="fa-solid fa-users text-[10px]"></i>
+            <span>Semua Tim</span>
+          </span>
+        `;
+      } else {
+        const relName = relUser?.name || 'Pengguna FPManager';
+        const relRole = relUser?.role || 'Anggota Tim';
+        const relAvatar = relUser?.avatar || '';
+        const initial = (relName || 'U').charAt(0).toUpperCase();
+        const roleStyle = getRoleBadgeStyle(relRole);
+
+        const avatarMarkup = relAvatar
+          ? `<img src="${escapeHtml(relAvatar)}" alt="${escapeHtml(relName)}" class="w-4 h-4 rounded-full object-cover shrink-0 ring-1 ring-zinc-300 dark:ring-zinc-600" onerror="this.outerHTML='<span class=\\'w-4 h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[9px] flex items-center justify-center shrink-0\\'>${initial}</span>'">`
+          : `<span class="w-4 h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[9px] flex items-center justify-center shrink-0">${initial}</span>`;
+
+        userRelationHtml = `
+          <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100/90 dark:bg-zinc-700/70 text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-600/60 shadow-2xs" title="Penerima: ${escapeHtml(relName)} (${escapeHtml(relRole)})">
+            ${avatarMarkup}
+            <span class="font-semibold text-zinc-800 dark:text-zinc-100 max-w-[120px] sm:max-w-[180px] truncate">${escapeHtml(relName)}</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded-full font-semibold border ${roleStyle}">
+              ${escapeHtml(relRole)}
+            </span>
+          </div>
+        `;
+      }
+
+      // Bersihkan teks judul dan deskripsi dari ID mentah jika ada
+      const cleanTitle = cleanRelationText(item.judul || 'Notifikasi');
+      const cleanDes = cleanRelationText(item.des || '');
 
       html += `
         <div class="p-3.5 sm:p-4 rounded-xl transition-all border ${
@@ -175,7 +334,7 @@
             <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1">
               <div class="flex items-center gap-2 min-w-0">
                 <h4 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-50 truncate">
-                  ${window.escapeHtml(item.judul || 'Notifikasi')}
+                  ${escapeHtml(cleanTitle)}
                 </h4>
                 ${!isRead ? `
                   <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white shrink-0 animate-pulse">
@@ -184,20 +343,18 @@
                 ` : ''}
               </div>
 
-              <!-- Tags / Meta -->
-              <div class="flex items-center gap-1.5 shrink-0 text-[11px]">
+              <!-- Tags / Meta (Relasi Pengguna Langsung & Tipe Status, TANPA ID) -->
+              <div class="flex items-center gap-1.5 shrink-0 text-[11px] flex-wrap justify-end">
                 <span class="px-2 py-0.5 rounded-md font-semibold border ${typeStyle.bgLight}">
                   ${typeStyle.label}
                 </span>
-                <span class="px-2 py-0.5 rounded-md font-mono font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-700/70 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-600/60" title="Penerima Notifikasi">
-                  <i class="fa-solid fa-user-tag text-[9px] mr-1 opacity-70"></i>${window.escapeHtml(userTag)}
-                </span>
+                ${userRelationHtml}
               </div>
             </div>
 
-            <!-- Description -->
+            <!-- Description (Human-readable tanpa ID) -->
             <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed break-words">
-              ${window.escapeHtml(item.des || '')}
+              ${escapeHtml(cleanDes)}
             </p>
 
             <!-- Bottom Line: Timestamp & Action Buttons -->
@@ -282,6 +439,9 @@
     }
 
     try {
+      // Pastikan relasi user sudah dimuat
+      await ensureUsersData();
+
       const currUser = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
         ? API.getCurrentUser()
         : { id: 'USR-001', role: 'super_admin' };
@@ -289,6 +449,19 @@
       const res = await API.getNotifikasi({ userId: currUser.id });
       if (res && res.success && Array.isArray(res.data)) {
         allNotifikasi = res.data;
+
+        // Jika respons dari backend menyertakan data relasi userName/userRole, simpan ke cache
+        allNotifikasi.forEach(item => {
+          const uId = String(item.id_user || item.userId || '').trim();
+          if (uId && uId !== 'ALL' && item.userName && !userCacheMap[uId]) {
+            userCacheMap[uId] = {
+              id: uId,
+              name: item.userName,
+              role: formatRoleLabel(item.userRole),
+              avatar: item.userAvatar || ''
+            };
+          }
+        });
       } else {
         // Fallback local storage CRUD history jika backend kosong
         const localLogs = JSON.parse(localStorage.getItem('fpm_crud_history') || '[]');
@@ -429,32 +602,40 @@
     setStatusFilter('all');
   }
 
-  // Populate list user untuk filter admin
+  // Populate list user untuk filter admin (Menampilkan Nama & Role, TANPA ID)
   async function populateUserFilter() {
     const userSelect = document.getElementById('filterUserSelect');
     if (!userSelect) return;
 
-    try {
-      const users = window.allUsersList || (typeof API !== 'undefined' && typeof API.getUsers === 'function' ? (await API.getUsers()).data : []);
-      if (Array.isArray(users) && users.length > 0) {
-        userSelect.innerHTML = '<option value="all">Semua User (Global)</option>';
-        users.forEach(u => {
-          const uId = u.id || u.userId || u.id_user;
-          const uName = u.name || u.nama || u.username || uId;
-          const opt = document.createElement('option');
-          opt.value = uId;
-          opt.textContent = `${uName} (${uId})`;
-          userSelect.appendChild(opt);
-        });
+    await ensureUsersData();
+
+    const currUser = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
+      ? API.getCurrentUser()
+      : { id: 'USR-001', role: 'super_admin' };
+    const isSuperAdmin = currUser && (currUser.role === 'super_admin' || currUser.role === 'admin');
+
+    const userKeys = Object.keys(userCacheMap);
+    if (userKeys.length > 0) {
+      userSelect.innerHTML = '<option value="all">Semua Anggota Tim</option>';
+      userKeys.forEach(uId => {
+        const u = userCacheMap[uId];
+        const opt = document.createElement('option');
+        opt.value = uId;
+        // Tampilkan Nama Asli dan Role saja, jangan tampilkan ID (misal: "Andi Pratama • Desainer")
+        opt.textContent = `${u.name} • ${u.role}`;
+        userSelect.appendChild(opt);
+      });
+      if (isSuperAdmin) {
         document.getElementById('filterUserContainer')?.classList.remove('hidden');
       }
-    } catch (e) {}
+    }
   }
 
   // Inisialisasi Halaman
-  function init() {
-    loadNotifikasi();
-    populateUserFilter();
+  async function init() {
+    await ensureUsersData();
+    await loadNotifikasi();
+    await populateUserFilter();
 
     // Auto refresh setiap 30 detik
     if (refreshTimer) clearInterval(refreshTimer);
