@@ -321,6 +321,7 @@ async function loadDashboardData() {
     applyDashboardRoleCustomizations();
 
     const allProjects = Array.isArray(rawProjects) ? rawProjects : [];
+    window.dashboardProjects = allProjects;
 
     // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth) for Admin
     if (canReadFinancials) {
@@ -422,11 +423,12 @@ async function loadDashboardData() {
             diffDays = Math.round((dlDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
           }
           const st = String(p.status || '').toLowerCase();
-          if (diffDays >= 0 && diffDays <= 3 && !st.includes('selesai') && !st.includes('batal')) {
+          if (diffDays >= 0 && diffDays <= 3 && !isProjectStatusFinished(p.status)) {
             designerDeadlineAlerts.push({
               iDProyek: p.iDProyek,
               namaProyek: p.namaProyek,
               namaPelanggan: p.namaPelanggan,
+              status: p.status,
               deadline: cleanDl,
               diffDays: diffDays
             });
@@ -446,7 +448,10 @@ async function loadDashboardData() {
     if (dashboardData.stats) {
       renderSummaryStats(dashboardData.stats);
     }
-    // 2. Tampilkan Alert Deadline Terdekat
+    // 2. Tampilkan Alert Deadline Terdekat (hiraukan/hilangkan jika sudah selesai)
+    if (Array.isArray(dashboardData.deadlineAlerts)) {
+      dashboardData.deadlineAlerts = dashboardData.deadlineAlerts.filter(alert => !isProjectStatusFinished(alert));
+    }
     renderDeadlineAlerts(dashboardData.deadlineAlerts);
     // 3. Tampilkan Proyek Terbaru (Top 5)
     renderRecentProjects(dashboardData.recentProjects);
@@ -593,17 +598,94 @@ function renderSummaryStats(stats) {
   }
 }
 
-// Identify and render alerts for projects with deadline <= 3 days
+// Helper to determine if a project status is finished/completed/cancelled (hiraukan alert deadline)
+function isProjectStatusFinished(statusOrAlert) {
+  if (!statusOrAlert) return false;
+
+  let st = '';
+  let alertObj = null;
+
+  if (typeof statusOrAlert === 'string') {
+    st = statusOrAlert.trim().toLowerCase();
+  } else if (typeof statusOrAlert === 'object') {
+    alertObj = statusOrAlert;
+    const direct = alertObj.status || alertObj.statusProyek || alertObj.projectStatus;
+    if (direct) {
+      st = String(direct).trim().toLowerCase();
+    }
+  }
+
+  // Check common completion & cancellation keywords (e.g. selesai, selesei, completed, done, etc.)
+  if (st) {
+    if (
+      st.includes('selesai') ||
+      st.includes('selesei') ||
+      st.includes('complete') ||
+      st.includes('done') ||
+      st.includes('finish') ||
+      st.includes('tuntas') ||
+      st.includes('batal') ||
+      st.includes('cancel')
+    ) {
+      return true;
+    }
+  }
+
+  // If object without direct status or still not matched, cross-reference with available projects
+  if (alertObj) {
+    const alertId = String(alertObj.iDProyek || alertObj.idProjek || alertObj.id || '').trim();
+    const alertName = String(alertObj.namaProyek || alertObj.nama || '').trim().toLowerCase();
+
+    const projects = (Array.isArray(window.dashboardProjects) && window.dashboardProjects.length > 0)
+      ? window.dashboardProjects
+      : ((typeof APICache !== 'undefined' && Array.isArray(APICache.proyek) && APICache.proyek.length > 0)
+        ? APICache.proyek
+        : (Array.isArray(window.lastRecentProjects) ? window.lastRecentProjects : []));
+
+    if (projects.length > 0) {
+      const matched = projects.find(p => {
+        if (!p) return false;
+        const pId = String(p.iDProyek || p.idProjek || p.id || '').trim();
+        if (alertId && pId && alertId === pId) return true;
+        if (alertName && String(p.namaProyek || p.nama || '').trim().toLowerCase() === alertName) return true;
+        return false;
+      });
+
+      if (matched && matched.status) {
+        const mSt = String(matched.status).trim().toLowerCase();
+        return (
+          mSt.includes('selesai') ||
+          mSt.includes('selesei') ||
+          mSt.includes('complete') ||
+          mSt.includes('done') ||
+          mSt.includes('finish') ||
+          mSt.includes('tuntas') ||
+          mSt.includes('batal') ||
+          mSt.includes('cancel')
+        );
+      }
+    }
+  }
+
+  return false;
+}
+
+// Identify and render alerts for projects with deadline <= 3 days (hiraukan/hilangkan jika sudah selesai)
 function renderDeadlineAlerts(deadlineAlerts) {
   const container = document.getElementById('deadlineAlertContainer');
   const list = document.getElementById('deadlineList');
+  if (!container || !list) return;
   list.innerHTML = '';
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (!deadlineAlerts || deadlineAlerts.length === 0) {
+
+  // Filter out any deadline alerts whose status is finished/selesai/selesei
+  const activeAlerts = (Array.isArray(deadlineAlerts) ? deadlineAlerts : []).filter(alert => !isProjectStatusFinished(alert));
+
+  if (activeAlerts.length === 0) {
     container.classList.add('hidden');
     return;
   }
-  deadlineAlerts.forEach(alert => {
+  activeAlerts.forEach(alert => {
     let dayText = '';
     const diffDays = alert.diffDays;
     if (diffDays === 0) dayText = isEn ? 'TODAY!' : 'HARI INI!';

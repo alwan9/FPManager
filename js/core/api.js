@@ -1078,11 +1078,13 @@ const API = {
           diffDays = Math.round((dlDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         }
         const st = String(p.status || '').toLowerCase();
-        if (diffDays >= 0 && diffDays <= 3 && !st.includes('selesai') && !st.includes('batal')) {
+        const isSelesai = st.includes('selesai') || st.includes('selesei') || st.includes('complete') || st.includes('done') || st.includes('finish') || st.includes('tuntas') || st.includes('batal') || st.includes('cancel');
+        if (diffDays >= 0 && diffDays <= 3 && !isSelesai) {
           deadlineAlerts.push({
             iDProyek: p.iDProyek,
             namaProyek: p.namaProyek,
             namaPelanggan: p.namaPelanggan,
+            status: p.status,
             deadline: cleanDl,
             diffDays: diffDays
           });

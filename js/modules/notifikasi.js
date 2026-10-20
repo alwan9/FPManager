@@ -286,8 +286,8 @@
       let userRelationHtml = '';
       if (isAllTeam) {
         userRelationHtml = `
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shadow-2xs" title="Penerima: Seluruh Tim Projek">
-            <i class="fa-solid fa-users text-[10px]"></i>
+          <span class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shadow-2xs" title="Penerima: Seluruh Tim Projek">
+            <i class="fa-solid fa-users text-[9px] sm:text-[10px]"></i>
             <span>Semua Tim</span>
           </span>
         `;
@@ -299,14 +299,14 @@
         const roleStyle = getRoleBadgeStyle(relRole);
 
         const avatarMarkup = relAvatar
-          ? `<img src="${escapeHtml(relAvatar)}" alt="${escapeHtml(relName)}" class="w-4 h-4 rounded-full object-cover shrink-0 ring-1 ring-zinc-300 dark:ring-zinc-600" onerror="this.outerHTML='<span class=\\'w-4 h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[9px] flex items-center justify-center shrink-0\\'>${initial}</span>'">`
-          : `<span class="w-4 h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[9px] flex items-center justify-center shrink-0">${initial}</span>`;
+          ? `<img src="${escapeHtml(relAvatar)}" alt="${escapeHtml(relName)}" class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover shrink-0 ring-1 ring-zinc-300 dark:ring-zinc-600" onerror="this.outerHTML='<span class=\\'w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[8px] sm:text-[9px] flex items-center justify-center shrink-0\\'>${initial}</span>'">`
+          : `<span class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 font-bold text-[8px] sm:text-[9px] flex items-center justify-center shrink-0">${initial}</span>`;
 
         userRelationHtml = `
-          <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-zinc-100/90 dark:bg-zinc-700/70 text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-600/60 shadow-2xs" title="Penerima: ${escapeHtml(relName)} (${escapeHtml(relRole)})">
+          <div class="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium bg-zinc-100/90 dark:bg-zinc-700/70 text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-600/60 shadow-2xs" title="Penerima: ${escapeHtml(relName)} (${escapeHtml(relRole)})">
             ${avatarMarkup}
-            <span class="font-semibold text-zinc-800 dark:text-zinc-100 max-w-[120px] sm:max-w-[180px] truncate">${escapeHtml(relName)}</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded-full font-semibold border ${roleStyle}">
+            <span class="font-semibold text-zinc-800 dark:text-zinc-100 max-w-[95px] sm:max-w-[160px] truncate">${escapeHtml(relName)}</span>
+            <span class="text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.2 rounded-full font-semibold border ${roleStyle}">
               ${escapeHtml(relRole)}
             </span>
           </div>
@@ -318,34 +318,34 @@
       const cleanDes = cleanRelationText(item.ket || item.des || '');
 
       html += `
-        <div class="p-3.5 sm:p-4 rounded-xl transition-all border ${
+        <div class="p-3.5 sm:p-4 rounded-2xl transition-all border ${
           isRead
             ? 'bg-white dark:bg-zinc-800/70 border-zinc-200/70 dark:border-zinc-700/70 opacity-90'
             : 'bg-indigo-50/30 dark:bg-zinc-800 border-indigo-200 dark:border-indigo-900/60 shadow-xs ring-1 ring-indigo-500/10'
         } flex items-start gap-3 sm:gap-4 group">
           <!-- Icon Badge -->
           <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${typeStyle.iconBg} flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-            <i class="${typeStyle.icon} text-sm sm:text-base"></i>
+            <i class="${typeStyle.icon} text-xs sm:text-sm"></i>
           </div>
 
           <!-- Main Content -->
           <div class="flex-1 min-w-0">
             <!-- Top Line: Title & Badges -->
-            <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1">
-              <div class="flex items-center gap-2 min-w-0">
-                <h4 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-50 truncate">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-1">
+              <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <h4 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-50 break-words line-clamp-1 sm:truncate">
                   ${escapeHtml(cleanTitle)}
                 </h4>
                 ${!isRead ? `
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white shrink-0 animate-pulse">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-indigo-500 text-white shrink-0 animate-pulse">
                     Baru
                   </span>
                 ` : ''}
               </div>
 
               <!-- Tags / Meta (Relasi Pengguna Langsung & Tipe Status, TANPA ID) -->
-              <div class="flex items-center gap-1.5 shrink-0 text-[11px] flex-wrap justify-end">
-                <span class="px-2 py-0.5 rounded-md font-semibold border ${typeStyle.bgLight}">
+              <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] flex-wrap">
+                <span class="px-1.5 sm:px-2 py-0.5 rounded-md font-semibold border ${typeStyle.bgLight}">
                   ${typeStyle.label}
                 </span>
                 ${userRelationHtml}
@@ -353,31 +353,31 @@
             </div>
 
             <!-- Description (Human-readable tanpa ID) -->
-            <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed break-words">
+            <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed break-words mt-0.5">
               ${escapeHtml(cleanDes)}
             </p>
 
             <!-- Bottom Line: Timestamp & Action Buttons -->
             <div class="mt-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-700/50 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span class="text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1">
+              <span class="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1 shrink-0">
                 <i class="fa-regular fa-clock text-[10px]"></i>
                 <span>${relativeTime}</span>
               </span>
 
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
                 <button onclick="window.NotifikasiModule.toggleStatus('${item.id}', ${isRead})"
-                  class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer flex items-center gap-1 ${
+                  class="px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-semibold transition cursor-pointer flex items-center gap-1 ${
                     isRead
                       ? 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-200'
                       : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs'
                   }"
                   title="${isRead ? 'Tandai sebagai belum dibaca' : 'Tandai sebagai sudah dibaca'}">
                   <i class="fa-solid ${isRead ? 'fa-envelope' : 'fa-check'} text-[10px]"></i>
-                  <span>${isRead ? 'Tandai Belum Dibaca' : 'Tandai Dibaca'}</span>
+                  <span>${isRead ? 'Belum Dibaca' : 'Tandai Dibaca'}</span>
                 </button>
 
                 <button onclick="window.NotifikasiModule.deleteItem('${item.id}')"
-                  class="p-1 sm:px-2 sm:py-1 rounded-lg text-[11px] font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:text-rose-400 transition cursor-pointer flex items-center gap-1"
+                  class="px-2 sm:px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:text-rose-400 transition cursor-pointer flex items-center gap-1"
                   title="Hapus notifikasi ini">
                   <i class="fa-solid fa-trash-can text-[10px]"></i>
                   <span class="hidden sm:inline">Hapus</span>
@@ -561,9 +561,9 @@
     document.querySelectorAll('.btn-status-filter').forEach(btn => {
       const type = btn.getAttribute('data-status');
       if (type === filter) {
-        btn.className = 'btn-status-filter px-3 py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white shadow-2xs transition-all cursor-pointer flex items-center gap-1.5';
+        btn.className = 'btn-status-filter px-3 py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 text-white shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0';
       } else {
-        btn.className = 'btn-status-filter px-3 py-1.5 text-xs font-medium rounded-xl bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-all cursor-pointer flex items-center gap-1.5';
+        btn.className = 'btn-status-filter px-3 py-1.5 text-xs font-medium rounded-xl bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-all cursor-pointer flex items-center gap-1.5 shrink-0';
       }
     });
     renderNotifikasi();

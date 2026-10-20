@@ -1,6 +1,6 @@
 // Neutralize console.log across all pages
 if (typeof console !== 'undefined' && typeof console.log === 'function') {
-  console.log = function () {};
+  console.log = function () { };
 }
 
 const CONFIG = {
@@ -1531,12 +1531,12 @@ async function clearWebCacheAndHistory(keepLogin = true) {
     // 8. Visual feedback & notification
     if (typeof showToast === 'function') {
       showToast({
-        title: 'Cache & Riwayat Web Dibersihkan (Ctrl+1)',
+        title: 'Cache Dibersihkan (Ctrl+1)',
         message: 'Cache browser dan riwayat berhasil dibersihkan tanpa menghapus cookie/sesi login Anda. Memuat ulang...',
         type: 'success'
       });
     } else if (typeof Toast !== 'undefined' && typeof Toast.success === 'function') {
-      Toast.success('Cache & Riwayat Web Dibersihkan (Ctrl+1)', 'Cookie login Anda tetap aman. Memuat ulang...');
+      Toast.success('Cache Dibersihkan (Ctrl+1)', 'Cookie login Anda tetap aman. Memuat ulang...');
     }
 
     // 9. Reload page to apply fresh state
