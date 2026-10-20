@@ -1820,7 +1820,8 @@ window.switchDetailModalTab = switchDetailModalTab;
 
 // Close Modal
 function closeModal() {
-  document.getElementById('detailModal').classList.add('hidden');
+  const dm = document.getElementById('detailModal');
+  if (dm) dm.classList.add('hidden');
 }
 
 // Handler Dropdown Sisa
@@ -2367,7 +2368,16 @@ async function generateAI(jenis) {
 
 function copyAIText() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const text = document.getElementById("hasilAI").value;
+  const el = document.getElementById("hasilAI");
+  const text = el ? (el.value || "") : "";
+  if (!text) {
+    showToast({
+      title: isEn ? "Warning" : "Peringatan",
+      message: isEn ? "No AI text to copy." : "Tidak ada teks AI untuk disalin.",
+      type: "warning"
+    });
+    return;
+  }
   navigator.clipboard.writeText(text);
   showToast({
     title: "AI",
@@ -2395,7 +2405,8 @@ function sendAIWhatsapp() {
     return;
   }
 
-  const text = document.getElementById("hasilAI").value;
+  const el = document.getElementById("hasilAI");
+  const text = el ? (el.value || "") : "";
   if (!text.trim()) {
     showToast({
       title: isEn ? "Warning" : "Peringatan",
@@ -2423,15 +2434,15 @@ function formatRupiah(number) {
   }).format(isNaN(num) ? 0 : num);
 }
 
-// Global lock to prevent updating multiple projects simultaneously, especially during pelunasan modal
-let isAnyProyekStatusUpdating = false;
+// Per-record lock Set to prevent concurrent updates on the same project without blocking other projects
+const activeProyekStatusUpdates = new Set();
 
 // Update status of project inline from table select
 async function updateProyekStatus(id, newStatus, selectEl) {
-  if (isAnyProyekStatusUpdating) {
+  if (activeProyekStatusUpdates.has(id)) {
     showToast({
       title: "Harap Tunggu",
-      message: "Proses perubahan status / pelunasan sedang berlangsung. Selesaikan terlebih dahulu.",
+      message: "Proses perubahan status untuk projek ini sedang berlangsung.",
       type: "warning"
     });
     if (selectEl) {
@@ -2453,7 +2464,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     selectEl.classList.add('opacity-60', 'pointer-events-none');
   }
 
-  isAnyProyekStatusUpdating = true;
+  activeProyekStatusUpdates.add(id);
 
   try {
     // Find original project object
@@ -2742,12 +2753,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     });
     loadProyekData();
   } finally {
-    isAnyProyekStatusUpdating = false;
-    const allStatusSelects = document.querySelectorAll('select[onchange*="updateProyekStatus"]');
-    allStatusSelects.forEach(s => {
-      s.disabled = false;
-      s.classList.remove('opacity-60', 'pointer-events-none');
-    });
+    activeProyekStatusUpdates.delete(id);
     if (selectEl) {
       delete selectEl.dataset.isUpdating;
       selectEl.disabled = false;
@@ -2826,6 +2832,34 @@ async function updateProyekAssign(id, newDesignerId, selectEl) {
         message: newDesignerId ? `Projek berhasil di-assign ke ${dName}.` : "Assignment projek berhasil direset.",
         type: "success"
       });
+
+      if (newDesignerId && designerObj) {
+        const rawWA = String(designerObj.no_wa || designerObj.wa || designerObj.nomorWA || '').trim();
+        let cleanWA = rawWA.replace(/\D/g, '');
+        if (cleanWA.startsWith('0')) cleanWA = '62' + cleanWA.slice(1);
+        else if (cleanWA && !cleanWA.startsWith('62')) cleanWA = '62' + cleanWA;
+
+        if (cleanWA) {
+          const deadlineText = proyek.deadline ? String(proyek.deadline).split('T')[0] : '-';
+          const msg = encodeURIComponent(
+            `Halo *${dName}*,\n` +
+            `Anda baru saja di-assign untuk mengerjakan projek baru di *FPManager*:\n\n` +
+            `📋 *Projek*: ${proyek.namaProyek}\n` +
+            `👤 *Klien*: ${proyek.namaPelanggan || proyek.pelanggan || '-'}\n` +
+            `📦 *Produk*: ${proyek.produk || '-'} (${proyek.jumlah || 1} ${proyek.satuan || 'pcs'})\n` +
+            `📅 *Deadline*: ${deadlineText}\n\n` +
+            `Silakan buka aplikasi FPManager di HP/perangkat Anda untuk melihat detail pengerjaan. Semangat! 🚀`
+          );
+          const waUrl = `https://wa.me/${cleanWA}?text=${msg}`;
+
+          setTimeout(() => {
+            if (confirm(`Projek berhasil di-assign ke ${dName}.\n\nApakah Anda ingin mengirimkan detail penugasan via WhatsApp langsung ke ${dName}?`)) {
+              window.open(waUrl, '_blank');
+            }
+          }, 400);
+        }
+      }
+
       loadProyekData();
     } else {
       showToast({

@@ -329,6 +329,26 @@ const API = {
     body.append("role", currUser.role || "");
     body.append("userId", currUser.id || "");
   },
+
+  // In-flight per-record mutation guards to prevent duplicate concurrent network requests
+  _inFlightMutations: new Map(),
+
+  // Helper to deduplicate concurrent mutating requests on the same entity/action
+  runGuardedMutation: async (lockKey, asyncFn) => {
+    if (API._inFlightMutations.has(lockKey)) {
+      console.warn(`[API Guard] Duplicate in-flight request prevented for key: "${lockKey}"`);
+      return API._inFlightMutations.get(lockKey);
+    }
+    const mutationPromise = (async () => {
+      try {
+        return await asyncFn();
+      } finally {
+        API._inFlightMutations.delete(lockKey);
+      }
+    })();
+    API._inFlightMutations.set(lockKey, mutationPromise);
+    return mutationPromise;
+  },
   
   // Ambil semua data proyek (mendukung pagination dan pencarian)
   getProyek: async (params = {}) => {
@@ -424,12 +444,20 @@ const API = {
           FPManagerDB.saveAll('proyek', result.data);
         }
       }
+
+      if (Array.isArray(result.data) && typeof window.checkNewAssignments === 'function') {
+        window.checkNewAssignments(result.data);
+      }
+
       return result.data;
     } catch (error) {
       console.error("FETCH ERROR :", error);
       try {
         const local = await FPManagerDB.getAll('proyek');
         if (local && local.length > 0) {
+          if (typeof window.checkNewAssignments === 'function') {
+            window.checkNewAssignments(local);
+          }
           return local;
         }
       } catch (dbErr) {}
@@ -439,74 +467,107 @@ const API = {
 
   // Tambah Proyek Baru
   addProyek: async (proyekData) => {
-    APICache.clear();
-    const currUser = API.getCurrentUser();
+    const dedupeKey = `addProyek:${proyekData.pelanggan || ''}:${proyekData.produk || ''}:${proyekData.nominal || ''}`;
+    return API.runGuardedMutation(dedupeKey, async () => {
+      APICache.clear();
+      const currUser = API.getCurrentUser();
 
-    const getTodayLocalDateStr = () => {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    };
-
-    const cleanDeadline = window.parseSafeDateString(proyekData.deadline);
-
-    // Check if offline
-    if (!navigator.onLine) {
-      const offlineId = "OFFLINE-PRJ-" + Date.now();
-      const localProyek = {
-        iDProyek: offlineId,
-        tanggal: getTodayLocalDateStr(),
-        namaProyek: proyekData.namaProyek || "",
-        namaPelanggan: proyekData.pelanggan || "",
-        nomorWA: proyekData.wa || "",
-        produk: proyekData.produk || "",
-        jumlah: Number(proyekData.jumlah) || 1,
-        satuan: proyekData.satuan || "pcs",
-        hargaSatuan: Number(proyekData.hargaSatuan) || 0,
-        nominalProyek: Number(proyekData.nominal) || 0,
-        dP: Number(proyekData.dp) || 0,
-        pelunasan: Number(proyekData.pelunasan) || 0,
-        sisaPembayaran: Number(proyekData.sisa) || 0,
-        deadline: cleanDeadline,
-        status: proyekData.status || "Menunggu",
-        catatan: proyekData.catatan || "",
-        gdriveLink: proyekData.gdriveLink || "",
-        sumber: proyekData.sumber || "WhatsApp",
-        metodePembayaran: proyekData.metodePembayaran || "QRIS",
-        designerId: proyekData.designerId || proyekData.assignDesigner || "",
-        assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
-        userId: currUser ? currUser.id : "USR-001",
-        lastUpdated: Date.now(),
-        isOfflineCreated: true
+      const getTodayLocalDateStr = () => {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
       };
 
-      await FPManagerDB.saveOne('proyek', localProyek);
-      await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData: { ...proyekData, deadline: cleanDeadline } });
+      const cleanDeadline = window.parseSafeDateString(proyekData.deadline);
 
-      return {
-        success: true,
-        isOffline: true,
-        message: "Projek disimpan secara lokal karena koneksi luring.",
-        idProyek: offlineId
-      };
-    }
+      // Check if offline
+      if (!navigator.onLine) {
+        const offlineId = "OFFLINE-PRJ-" + Date.now();
+        const localProyek = {
+          iDProyek: offlineId,
+          tanggal: getTodayLocalDateStr(),
+          namaProyek: proyekData.namaProyek || "",
+          namaPelanggan: proyekData.pelanggan || "",
+          nomorWA: proyekData.wa || "",
+          produk: proyekData.produk || "",
+          jumlah: Number(proyekData.jumlah) || 1,
+          satuan: proyekData.satuan || "pcs",
+          hargaSatuan: Number(proyekData.hargaSatuan) || 0,
+          nominalProyek: Number(proyekData.nominal) || 0,
+          dP: Number(proyekData.dp) || 0,
+          pelunasan: Number(proyekData.pelunasan) || 0,
+          sisaPembayaran: Number(proyekData.sisa) || 0,
+          deadline: cleanDeadline,
+          status: proyekData.status || "Menunggu",
+          catatan: proyekData.catatan || "",
+          gdriveLink: proyekData.gdriveLink || "",
+          sumber: proyekData.sumber || "WhatsApp",
+          metodePembayaran: proyekData.metodePembayaran || "QRIS",
+          designerId: proyekData.designerId || proyekData.assignDesigner || "",
+          assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
+          userId: currUser ? currUser.id : "USR-001",
+          lastUpdated: Date.now(),
+          isOfflineCreated: true
+        };
 
-    APICache.clear();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addProyek");
-      const payloadToSend = { ...proyekData, deadline: cleanDeadline ? ("'" + cleanDeadline) : "" };
-      body.append("data", JSON.stringify(payloadToSend));
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      const result = await response.json();
-      if (result.success) {
-        const addedProyek = {
-          iDProyek: result.idProyek,
+        await FPManagerDB.saveOne('proyek', localProyek);
+        await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData: { ...proyekData, deadline: cleanDeadline } });
+
+        return {
+          success: true,
+          isOffline: true,
+          message: "Projek disimpan secara lokal karena koneksi luring.",
+          idProyek: offlineId
+        };
+      }
+
+      APICache.clear();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addProyek");
+        const payloadToSend = { ...proyekData, deadline: cleanDeadline ? ("'" + cleanDeadline) : "" };
+        body.append("data", JSON.stringify(payloadToSend));
+        const response = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        const result = await response.json();
+        if (result.success) {
+          const addedProyek = {
+            iDProyek: result.idProyek,
+            tanggal: getTodayLocalDateStr(),
+            namaProyek: proyekData.namaProyek,
+            namaPelanggan: proyekData.pelanggan,
+            nomorWA: proyekData.wa,
+            produk: proyekData.produk,
+            jumlah: proyekData.jumlah,
+            satuan: proyekData.satuan,
+            hargaSatuan: proyekData.hargaSatuan,
+            nominalProyek: proyekData.nominal,
+            dP: proyekData.dp,
+            pelunasan: Number(proyekData.pelunasan) || 0,
+            sisaPembayaran: proyekData.sisa,
+            deadline: cleanDeadline,
+            status: proyekData.status,
+            catatan: proyekData.catatan || "",
+            gdriveLink: (result && result.gdriveLink !== undefined) ? result.gdriveLink : (proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : ""),
+            sumber: proyekData.sumber || "WhatsApp",
+            metodePembayaran: proyekData.metodePembayaran || "QRIS",
+            designerId: proyekData.designerId || proyekData.assignDesigner || "",
+            assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
+            userId: currUser ? currUser.id : "USR-001",
+            lastUpdated: Date.now()
+          };
+          await FPManagerDB.saveOne('proyek', addedProyek);
+        }
+        return result;
+      } catch (error) {
+        console.error(error);
+        const offlineId = "OFFLINE-PRJ-" + Date.now();
+        const localProyek = {
+          iDProyek: offlineId,
           tanggal: getTodayLocalDateStr(),
           namaProyek: proyekData.namaProyek,
           namaPelanggan: proyekData.pelanggan,
@@ -521,148 +582,55 @@ const API = {
           sisaPembayaran: proyekData.sisa,
           deadline: cleanDeadline,
           status: proyekData.status,
-          catatan: proyekData.catatan || "",
-          gdriveLink: (result && result.gdriveLink !== undefined) ? result.gdriveLink : (proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : ""),
+          catatan: proyekData.catatan,
+          gdriveLink: proyekData.gdriveLink,
           sumber: proyekData.sumber || "WhatsApp",
           metodePembayaran: proyekData.metodePembayaran || "QRIS",
           designerId: proyekData.designerId || proyekData.assignDesigner || "",
           assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
           userId: currUser ? currUser.id : "USR-001",
-          lastUpdated: Date.now()
+          lastUpdated: Date.now(),
+          isOfflineCreated: true
         };
-        await FPManagerDB.saveOne('proyek', addedProyek);
+        await FPManagerDB.saveOne('proyek', localProyek);
+        await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData });
+        return {
+          success: true,
+          isOffline: true,
+          message: "Terjadi gangguan jaringan. Projek disimpan offline.",
+          idProyek: offlineId
+        };
       }
-      return result;
-    } catch (error) {
-      console.error(error);
-      const offlineId = "OFFLINE-PRJ-" + Date.now();
-      const localProyek = {
-        iDProyek: offlineId,
-        tanggal: getTodayLocalDateStr(),
-        namaProyek: proyekData.namaProyek,
-        namaPelanggan: proyekData.pelanggan,
-        nomorWA: proyekData.wa,
-        produk: proyekData.produk,
-        jumlah: proyekData.jumlah,
-        satuan: proyekData.satuan,
-        hargaSatuan: proyekData.hargaSatuan,
-        nominalProyek: proyekData.nominal,
-        dP: proyekData.dp,
-        pelunasan: Number(proyekData.pelunasan) || 0,
-        sisaPembayaran: proyekData.sisa,
-        deadline: cleanDeadline,
-        status: proyekData.status,
-        catatan: proyekData.catatan,
-        gdriveLink: proyekData.gdriveLink,
-        sumber: proyekData.sumber || "WhatsApp",
-        metodePembayaran: proyekData.metodePembayaran || "QRIS",
-        designerId: proyekData.designerId || proyekData.assignDesigner || "",
-        assignDesigner: proyekData.designerId || proyekData.assignDesigner || "",
-        userId: currUser ? currUser.id : "USR-001",
-        lastUpdated: Date.now(),
-        isOfflineCreated: true
-      };
-      await FPManagerDB.saveOne('proyek', localProyek);
-      await FPManagerDB.addToQueue('addProyek', { offlineId, proyekData });
-      return {
-        success: true,
-        isOffline: true,
-        message: "Terjadi gangguan jaringan. Projek disimpan offline.",
-        idProyek: offlineId
-      };
-    }
+    });
   },
 
   // Edit Proyek
   updateProyek: async (id, proyekData) => {
-    APICache.clear();
-    const currUser = API.getCurrentUser();
-    const isTempId = String(id).startsWith("OFFLINE-PRJ-");
-    const cleanDeadline = proyekData.deadline !== undefined ? window.parseSafeDateString(proyekData.deadline) : undefined;
+    return API.runGuardedMutation(`updateProyek:${id}`, async () => {
+      APICache.clear();
+      const currUser = API.getCurrentUser();
+      const isTempId = String(id).startsWith("OFFLINE-PRJ-");
+      const cleanDeadline = proyekData.deadline !== undefined ? window.parseSafeDateString(proyekData.deadline) : undefined;
 
-    if (!navigator.onLine || isTempId) {
-      const allLocal = await FPManagerDB.getAll('proyek');
-      const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
-
-      const localUpdated = {
-        ...(oldLocal || {}),
-        iDProyek: id,
-        namaProyek: proyekData.namaProyek !== undefined ? proyekData.namaProyek : (oldLocal ? oldLocal.namaProyek : ""),
-        namaPelanggan: proyekData.pelanggan !== undefined ? proyekData.pelanggan : (oldLocal ? oldLocal.namaPelanggan : ""),
-        nomorWA: proyekData.wa !== undefined ? proyekData.wa : (oldLocal ? oldLocal.nomorWA : ""),
-        produk: proyekData.produk !== undefined ? proyekData.produk : (oldLocal ? oldLocal.produk : ""),
-        jumlah: proyekData.jumlah !== undefined ? Number(proyekData.jumlah) : (oldLocal ? oldLocal.jumlah : 1),
-        satuan: proyekData.satuan !== undefined ? proyekData.satuan : (oldLocal ? oldLocal.satuan : "pcs"),
-        hargaSatuan: proyekData.hargaSatuan !== undefined ? Number(proyekData.hargaSatuan) : (oldLocal ? oldLocal.hargaSatuan : 0),
-        nominalProyek: proyekData.nominal !== undefined ? Number(proyekData.nominal) : (oldLocal ? oldLocal.nominalProyek : 0),
-        dP: proyekData.dp !== undefined ? Number(proyekData.dp) : (oldLocal ? oldLocal.dP : 0),
-        pelunasan: proyekData.pelunasan !== undefined ? Number(proyekData.pelunasan) : (oldLocal ? Number(oldLocal.pelunasan || 0) : 0),
-        sisaPembayaran: proyekData.sisa !== undefined ? Number(proyekData.sisa) : (oldLocal ? oldLocal.sisaPembayaran : 0),
-        deadline: cleanDeadline !== undefined ? cleanDeadline : (oldLocal ? oldLocal.deadline : ""),
-        status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
-        catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
-        gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
-        sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
-        metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
-        designerId: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
-        assignDesigner: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
-        userId: currUser ? currUser.id : "USR-001",
-        lastUpdated: Date.now()
-      };
-
-      await FPManagerDB.saveOne('proyek', localUpdated);
-      await FPManagerDB.addToQueue('updateProyek', { id, proyekData: { ...proyekData, ...(cleanDeadline !== undefined ? { deadline: cleanDeadline } : {}) }, lastUpdated: localUpdated.lastUpdated });
-
-      return {
-        success: true,
-        isOffline: true,
-        message: "Perubahan projek disimpan secara lokal.",
-        idProyek: id
-      };
-    }
-
-    APICache.clear();
-    try {
-      const allLocal = await FPManagerDB.getAll('proyek');
-      const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
-      const clientLastUpdated = oldLocal ? (oldLocal.lastUpdated || 0) : 0;
-
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateProyek");
-      body.append("id", id);
-
-      const payload = { 
-        ...proyekData, 
-        ...(cleanDeadline !== undefined ? { deadline: cleanDeadline ? ("'" + cleanDeadline) : "" } : {}),
-        lastUpdated: clientLastUpdated 
-      };
-      body.append("data", JSON.stringify(payload));
-
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      const result = await response.json();
-      if (result.success) {
-        const newId = result.idProyek || id;
-        if (newId !== id) {
-          await FPManagerDB.removeOne('proyek', id);
-        }
+      if (!navigator.onLine || isTempId) {
+        const allLocal = await FPManagerDB.getAll('proyek');
+        const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
 
         const localUpdated = {
           ...(oldLocal || {}),
-          iDProyek: newId,
-          namaProyek: proyekData.namaProyek || (oldLocal ? oldLocal.namaProyek : ""),
-          namaPelanggan: proyekData.pelanggan || (oldLocal ? oldLocal.namaPelanggan : ""),
-          nomorWA: proyekData.wa || (oldLocal ? oldLocal.nomorWA : ""),
-          produk: proyekData.produk || (oldLocal ? oldLocal.produk : ""),
-          jumlah: proyekData.jumlah !== undefined ? proyekData.jumlah : (oldLocal ? oldLocal.jumlah : 1),
-          satuan: proyekData.satuan || (oldLocal ? oldLocal.satuan : "pcs"),
-          hargaSatuan: proyekData.hargaSatuan !== undefined ? proyekData.hargaSatuan : (oldLocal ? oldLocal.hargaSatuan : 0),
-          nominalProyek: proyekData.nominal !== undefined ? proyekData.nominal : (oldLocal ? oldLocal.nominalProyek : 0),
-          dP: proyekData.dp !== undefined ? proyekData.dp : (oldLocal ? oldLocal.dP : 0),
+          iDProyek: id,
+          namaProyek: proyekData.namaProyek !== undefined ? proyekData.namaProyek : (oldLocal ? oldLocal.namaProyek : ""),
+          namaPelanggan: proyekData.pelanggan !== undefined ? proyekData.pelanggan : (oldLocal ? oldLocal.namaPelanggan : ""),
+          nomorWA: proyekData.wa !== undefined ? proyekData.wa : (oldLocal ? oldLocal.nomorWA : ""),
+          produk: proyekData.produk !== undefined ? proyekData.produk : (oldLocal ? oldLocal.produk : ""),
+          jumlah: proyekData.jumlah !== undefined ? Number(proyekData.jumlah) : (oldLocal ? oldLocal.jumlah : 1),
+          satuan: proyekData.satuan !== undefined ? proyekData.satuan : (oldLocal ? oldLocal.satuan : "pcs"),
+          hargaSatuan: proyekData.hargaSatuan !== undefined ? Number(proyekData.hargaSatuan) : (oldLocal ? oldLocal.hargaSatuan : 0),
+          nominalProyek: proyekData.nominal !== undefined ? Number(proyekData.nominal) : (oldLocal ? oldLocal.nominalProyek : 0),
+          dP: proyekData.dp !== undefined ? Number(proyekData.dp) : (oldLocal ? oldLocal.dP : 0),
           pelunasan: proyekData.pelunasan !== undefined ? Number(proyekData.pelunasan) : (oldLocal ? Number(oldLocal.pelunasan || 0) : 0),
-          deadline: cleanDeadline !== undefined ? cleanDeadline : (proyekData.deadline !== undefined ? proyekData.deadline : (oldLocal ? oldLocal.deadline : "")),
+          sisaPembayaran: proyekData.sisa !== undefined ? Number(proyekData.sisa) : (oldLocal ? oldLocal.sisaPembayaran : 0),
+          deadline: cleanDeadline !== undefined ? cleanDeadline : (oldLocal ? oldLocal.deadline : ""),
           status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
           catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
           gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
@@ -670,82 +638,150 @@ const API = {
           metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
           designerId: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
           assignDesigner: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
+          userId: currUser ? currUser.id : "USR-001",
+          lastUpdated: Date.now()
+        };
+
+        await FPManagerDB.saveOne('proyek', localUpdated);
+        await FPManagerDB.addToQueue('updateProyek', { id, proyekData: { ...proyekData, ...(cleanDeadline !== undefined ? { deadline: cleanDeadline } : {}) }, lastUpdated: localUpdated.lastUpdated });
+
+        return {
+          success: true,
+          isOffline: true,
+          message: "Perubahan projek disimpan secara lokal.",
+          idProyek: id
+        };
+      }
+
+      APICache.clear();
+      try {
+        const allLocal = await FPManagerDB.getAll('proyek');
+        const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
+        const clientLastUpdated = oldLocal ? (oldLocal.lastUpdated || 0) : 0;
+
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateProyek");
+        body.append("id", id);
+
+        const payload = { 
+          ...proyekData, 
+          ...(cleanDeadline !== undefined ? { deadline: cleanDeadline ? ("'" + cleanDeadline) : "" } : {}),
+          lastUpdated: clientLastUpdated 
+        };
+        body.append("data", JSON.stringify(payload));
+
+        const response = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        const result = await response.json();
+        if (result.success) {
+          const newId = result.idProyek || id;
+          if (newId !== id) {
+            await FPManagerDB.removeOne('proyek', id);
+          }
+
+          const localUpdated = {
+            ...(oldLocal || {}),
+            iDProyek: newId,
+            namaProyek: proyekData.namaProyek || (oldLocal ? oldLocal.namaProyek : ""),
+            namaPelanggan: proyekData.pelanggan || (oldLocal ? oldLocal.namaPelanggan : ""),
+            nomorWA: proyekData.wa || (oldLocal ? oldLocal.nomorWA : ""),
+            produk: proyekData.produk || (oldLocal ? oldLocal.produk : ""),
+            jumlah: proyekData.jumlah !== undefined ? proyekData.jumlah : (oldLocal ? oldLocal.jumlah : 1),
+            satuan: proyekData.satuan || (oldLocal ? oldLocal.satuan : "pcs"),
+            hargaSatuan: proyekData.hargaSatuan !== undefined ? proyekData.hargaSatuan : (oldLocal ? oldLocal.hargaSatuan : 0),
+            nominalProyek: proyekData.nominal !== undefined ? proyekData.nominal : (oldLocal ? oldLocal.nominalProyek : 0),
+            dP: proyekData.dp !== undefined ? proyekData.dp : (oldLocal ? oldLocal.dP : 0),
+            pelunasan: proyekData.pelunasan !== undefined ? Number(proyekData.pelunasan) : (oldLocal ? Number(oldLocal.pelunasan || 0) : 0),
+            deadline: cleanDeadline !== undefined ? cleanDeadline : (proyekData.deadline !== undefined ? proyekData.deadline : (oldLocal ? oldLocal.deadline : "")),
+            status: proyekData.status !== undefined ? proyekData.status : (oldLocal ? oldLocal.status : "Menunggu"),
+            catatan: proyekData.catatan !== undefined ? proyekData.catatan : (oldLocal ? oldLocal.catatan : ""),
+            gdriveLink: proyekData.gdriveLink !== undefined ? proyekData.gdriveLink : (oldLocal ? oldLocal.gdriveLink : ""),
+            sumber: proyekData.sumber !== undefined ? proyekData.sumber : (oldLocal ? (oldLocal.sumber || "WhatsApp") : "WhatsApp"),
+            metodePembayaran: proyekData.metodePembayaran !== undefined ? proyekData.metodePembayaran : (oldLocal ? (oldLocal.metodePembayaran || "QRIS") : "QRIS"),
+            designerId: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
+            assignDesigner: proyekData.designerId !== undefined ? proyekData.designerId : (proyekData.assignDesigner !== undefined ? proyekData.assignDesigner : (oldLocal ? (oldLocal.designerId || "") : "")),
+            lastUpdated: Date.now()
+          };
+          await FPManagerDB.saveOne('proyek', localUpdated);
+        }
+        return result;
+      } catch (error) {
+        console.error(error);
+        const allLocal = await FPManagerDB.getAll('proyek');
+        const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
+        const localUpdated = {
+          ...(oldLocal || {}),
+          iDProyek: id,
           lastUpdated: Date.now()
         };
         await FPManagerDB.saveOne('proyek', localUpdated);
+        await FPManagerDB.addToQueue('updateProyek', { id, proyekData, lastUpdated: localUpdated.lastUpdated });
+        return {
+          success: true,
+          isOffline: true,
+          message: "Gangguan jaringan. Perubahan disimpan offline.",
+          idProyek: id
+        };
       }
-      return result;
-    } catch (error) {
-      console.error(error);
-      const allLocal = await FPManagerDB.getAll('proyek');
-      const oldLocal = allLocal.find(p => String(p.iDProyek) === String(id));
-      const localUpdated = {
-        ...(oldLocal || {}),
-        iDProyek: id,
-        lastUpdated: Date.now()
-      };
-      await FPManagerDB.saveOne('proyek', localUpdated);
-      await FPManagerDB.addToQueue('updateProyek', { id, proyekData, lastUpdated: localUpdated.lastUpdated });
-      return {
-        success: true,
-        isOffline: true,
-        message: "Gangguan jaringan. Perubahan disimpan offline.",
-        idProyek: id
-      };
-    }
+    });
   },
 
   // Hapus Proyek
   deleteProyek: async (id) => {
-    APICache.clear();
-    const currUser = API.getCurrentUser();
+    const lockKey = `deleteProyek:${Array.isArray(id) ? id.join(',') : id}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      APICache.clear();
+      const currUser = API.getCurrentUser();
 
-    if (!navigator.onLine) {
-      const idsToDelete = Array.isArray(id) ? id : [id];
-      for (const singleId of idsToDelete) {
-        await FPManagerDB.removeOne('proyek', singleId);
-        await FPManagerDB.addToQueue('deleteProyek', { id: singleId });
-      }
-      return {
-        success: true,
-        isOffline: true,
-        message: "Data dihapus secara lokal."
-      };
-    }
-
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteProyek");
-      body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      if (!response.ok) {
-        throw new Error("HTTP Error");
-      }
-      const result = await response.json();
-      if (handleUnauthorized(result)) return result;
-      if (result.success) {
+      if (!navigator.onLine) {
         const idsToDelete = Array.isArray(id) ? id : [id];
         for (const singleId of idsToDelete) {
           await FPManagerDB.removeOne('proyek', singleId);
+          await FPManagerDB.addToQueue('deleteProyek', { id: singleId });
         }
+        return {
+          success: true,
+          isOffline: true,
+          message: "Data dihapus secara lokal."
+        };
       }
-      return result;
-    } catch (error) {
-      console.error(error);
-      const idsToDelete = Array.isArray(id) ? id : [id];
-      for (const singleId of idsToDelete) {
-        await FPManagerDB.removeOne('proyek', singleId);
-        await FPManagerDB.addToQueue('deleteProyek', { id: singleId });
+
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteProyek");
+        body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
+        const response = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        if (!response.ok) {
+          throw new Error("HTTP Error");
+        }
+        const result = await response.json();
+        if (handleUnauthorized(result)) return result;
+        if (result.success) {
+          const idsToDelete = Array.isArray(id) ? id : [id];
+          for (const singleId of idsToDelete) {
+            await FPManagerDB.removeOne('proyek', singleId);
+          }
+        }
+        return result;
+      } catch (error) {
+        console.error(error);
+        const idsToDelete = Array.isArray(id) ? id : [id];
+        for (const singleId of idsToDelete) {
+          await FPManagerDB.removeOne('proyek', singleId);
+          await FPManagerDB.addToQueue('deleteProyek', { id: singleId });
+        }
+        return {
+          success: true,
+          isOffline: true,
+          message: "Gangguan jaringan. Penghapusan disimpan offline."
+        };
       }
-      return {
-        success: true,
-        isOffline: true,
-        message: "Gangguan jaringan. Penghapusan disimpan offline."
-      };
-    }
+    });
   },
 
   // Ambil semua data keuangan
@@ -837,79 +873,87 @@ const API = {
 
   // Tambah Transaksi Keuangan
   addKeuangan: async (transaksiData) => {
-    APICache.clear();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addKeuangan");
-      body.append("data", JSON.stringify(transaksiData));
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      const result = await response.json();
-      if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
-        await FPManagerDB.clearStore('keuangan');
+    const dedupeKey = `addKeuangan:${transaksiData.jenis || ''}:${transaksiData.kategori || ''}:${transaksiData.nominal || ''}:${transaksiData.idProyek || ''}`;
+    return API.runGuardedMutation(dedupeKey, async () => {
+      APICache.clear();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addKeuangan");
+        body.append("data", JSON.stringify(transaksiData));
+        const response = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        const result = await response.json();
+        if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
+          await FPManagerDB.clearStore('keuangan');
+        }
+        return result;
+      } catch (error) {
+        console.error(error);
+        return {
+          success: false,
+          message: "Terjadi kesalahan saat menghubungi server."
+        };
       }
-      return result;
-    } catch (error) {
-      console.error(error);
-      return {
-        success: false,
-        message: "Terjadi kesalahan saat menghubungi server."
-      };
-    }
+    });
   },
 
   // Update Transaksi Keuangan
   updateKeuangan: async (id, transaksiData) => {
-    APICache.clear();
-    try {
-      const payload = { id, ...transaksiData };
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateKeuangan");
-      body.append("id", id);
-      body.append("data", JSON.stringify(payload));
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      const result = await response.json();
-      if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
-        await FPManagerDB.clearStore('keuangan');
+    return API.runGuardedMutation(`updateKeuangan:${id}`, async () => {
+      APICache.clear();
+      try {
+        const payload = { id, ...transaksiData };
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateKeuangan");
+        body.append("id", id);
+        body.append("data", JSON.stringify(payload));
+        const response = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        const result = await response.json();
+        if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
+          await FPManagerDB.clearStore('keuangan');
+        }
+        return result;
+      } catch (error) {
+        console.error(error);
+        return {
+          success: false,
+          message: "Terjadi kesalahan saat menghubungi server."
+        };
       }
-      return result;
-    } catch (error) {
-      console.error(error);
-      return {
-        success: false,
-        message: "Terjadi kesalahan saat menghubungi server."
-      };
-    }
+    });
   },
 
   // Hapus Transaksi Keuangan
   deleteKeuangan: async (id) => {
-    APICache.clear();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteKeuangan");
-      body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
-      const response = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        body
-      });
-      const result = await response.json();
-      if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
-        await FPManagerDB.clearStore('keuangan');
+    const lockKey = `deleteKeuangan:${Array.isArray(id) ? id.join(',') : id}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      APICache.clear();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteKeuangan");
+        body.append("id", Array.isArray(id) ? JSON.stringify(id) : id);
+        const response = await fetch(CONFIG.API_URL, {
+          method: "POST",
+          body
+        });
+        const result = await response.json();
+        if (result && result.success && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.clearStore === 'function') {
+          await FPManagerDB.clearStore('keuangan');
+        }
+        return result;
+      } catch (error) {
+        console.error(error);
+        return {
+          success: false,
+          message: "Terjadi kesalahan saat menghubungi server."
+        };
       }
-      return result;
-    } catch (error) {
-      console.error(error);
-      return {
-        success: false,
-        message: "Terjadi kesalahan saat menghubungi server."
-      };
-    }
+    });
   },
 
   // Generate AI
@@ -1147,36 +1191,43 @@ const API = {
   },
 
   addTool: async (data) => {
-    const currUser = API.getCurrentUser();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addTool");
-      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    const lockKey = `addTool:${data.title || data.name || ''}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      const currUser = API.getCurrentUser();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addTool");
+        body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   updateTool: async (id, data) => {
-    const currUser = API.getCurrentUser();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateTool");
-      body.append("id", id);
-      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`updateTool:${id}`, async () => {
+      const currUser = API.getCurrentUser();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateTool");
+        body.append("id", id);
+        body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   deleteTool: async (id) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteTool");
-      body.append("id", id);
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`deleteTool:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteTool");
+        body.append("id", id);
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   // ===================================
@@ -1196,36 +1247,43 @@ const API = {
   },
 
   addReference: async (data) => {
-    const currUser = API.getCurrentUser();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addReference");
-      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    const lockKey = `addReference:${data.title || data.name || ''}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      const currUser = API.getCurrentUser();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addReference");
+        body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   updateReference: async (id, data) => {
-    const currUser = API.getCurrentUser();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateReference");
-      body.append("id", id);
-      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`updateReference:${id}`, async () => {
+      const currUser = API.getCurrentUser();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateReference");
+        body.append("id", id);
+        body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   deleteReference: async (id) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteReference");
-      body.append("id", id);
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`deleteReference:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteReference");
+        body.append("id", id);
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   // ===================================
@@ -1245,36 +1303,43 @@ const API = {
   },
 
   addShortcut: async (data) => {
-    const currUser = API.getCurrentUser();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addShortcut");
-      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    const lockKey = `addShortcut:${data.title || data.name || ''}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      const currUser = API.getCurrentUser();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addShortcut");
+        body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   updateShortcut: async (id, data) => {
-    const currUser = API.getCurrentUser();
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateShortcut");
-      body.append("id", id);
-      body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`updateShortcut:${id}`, async () => {
+      const currUser = API.getCurrentUser();
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateShortcut");
+        body.append("id", id);
+        body.append("data", JSON.stringify({ ...data, userId: currUser.id }));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   deleteShortcut: async (id) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteShortcut");
-      body.append("id", id);
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`deleteShortcut:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteShortcut");
+        body.append("id", id);
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   getCurrentUser: () => {
@@ -1321,34 +1386,41 @@ const API = {
   },
 
   addUser: async (userData) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addUser");
-      body.append("data", JSON.stringify(userData));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    const lockKey = `addUser:${userData.username || userData.email || ''}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addUser");
+        body.append("data", JSON.stringify(userData));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   updateUser: async (id, userData) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateUser");
-      body.append("id", id);
-      body.append("data", JSON.stringify(userData));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`updateUser:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateUser");
+        body.append("id", id);
+        body.append("data", JSON.stringify(userData));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   deleteUser: async (id) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteUser");
-      body.append("id", id);
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      return await res.json();
-    } catch (e) { return { success: false, message: e.message }; }
+    return API.runGuardedMutation(`deleteUser:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteUser");
+        body.append("id", id);
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        return await res.json();
+      } catch (e) { return { success: false, message: e.message }; }
+    });
   },
 
   // Upload file to Google Drive folder parent (stores link in cell instead of massive base64)
@@ -1552,93 +1624,100 @@ const API = {
   },
 
   addAdminTask: async (taskData) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "addAdminTask");
-      body.append("data", JSON.stringify(taskData));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      const result = await res.json();
-      if (result && result.success) {
-        // Also update local cache
-        const local = await API.getAdminTasks();
-        local.unshift(result.data || taskData);
-        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
-        return result;
+    const lockKey = `addAdminTask:${taskData.taskName || taskData.adminUser || ''}`;
+    return API.runGuardedMutation(lockKey, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "addAdminTask");
+        body.append("data", JSON.stringify(taskData));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        const result = await res.json();
+        if (result && result.success) {
+          // Also update local cache
+          const local = await API.getAdminTasks();
+          local.unshift(result.data || taskData);
+          localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+          return result;
+        }
+      } catch (e) {
+        console.warn("addAdminTask remote failed, using local save:", e);
       }
-    } catch (e) {
-      console.warn("addAdminTask remote failed, using local save:", e);
-    }
-    
-    // Local fallback creation
-    let local = [];
-    try {
-      local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
-    } catch(e) {}
-    const newId = "TSK-" + String(Date.now()).slice(-5);
-    const newTask = {
-      ...taskData,
-      id: newId,
-      createdAt: new Date().toISOString(),
-      lastResetDate: new Date().toISOString().split("T")[0]
-    };
-    local.unshift(newTask);
-    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
-    return { success: true, message: "Tugas admin berhasil ditambahkan.", data: newTask };
+      
+      // Local fallback creation
+      let local = [];
+      try {
+        local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
+      } catch(e) {}
+      const newId = "TSK-" + String(Date.now()).slice(-5);
+      const newTask = {
+        ...taskData,
+        id: newId,
+        createdAt: new Date().toISOString(),
+        lastResetDate: new Date().toISOString().split("T")[0]
+      };
+      local.unshift(newTask);
+      localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+      return { success: true, message: "Tugas admin berhasil ditambahkan.", data: newTask };
+    });
   },
 
   updateAdminTask: async (id, taskData) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "updateAdminTask");
-      body.append("id", id);
-      body.append("data", JSON.stringify(taskData));
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      const result = await res.json();
-      if (result && result.success) {
-        let local = await API.getAdminTasks();
-        local = local.map(t => (t.id === id ? { ...t, ...taskData } : t));
-        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
-        return result;
+    return API.runGuardedMutation(`updateAdminTask:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "updateAdminTask");
+        body.append("id", id);
+        body.append("data", JSON.stringify(taskData));
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        const result = await res.json();
+        if (result && result.success) {
+          let local = await API.getAdminTasks();
+          local = local.map(t => (t.id === id ? { ...t, ...taskData } : t));
+          localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+          return result;
+        }
+      } catch (e) {
+        console.warn("updateAdminTask remote failed, updating local:", e);
       }
-    } catch (e) {
-      console.warn("updateAdminTask remote failed, updating local:", e);
-    }
 
-    // Local fallback update
-    let local = [];
-    try {
-      local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
-    } catch(e) {}
-    local = local.map(t => (t.id === id ? { ...t, ...taskData } : t));
-    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
-    return { success: true, message: "Tugas admin berhasil diperbarui.", id };
+      // Local fallback update
+      let local = [];
+      try {
+        local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
+      } catch(e) {}
+      local = local.map(t => (t.id === id ? { ...t, ...taskData } : t));
+      localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+      return { success: true, message: "Tugas admin berhasil diperbarui.", id };
+    });
   },
 
   deleteAdminTask: async (id) => {
-    try {
-      const body = new URLSearchParams();
-      API.appendAuthBody(body, "deleteAdminTask");
-      body.append("id", id);
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      const result = await res.json();
-      if (result && result.success) {
-        let local = await API.getAdminTasks();
-        local = local.filter(t => t.id !== id);
-        localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
-        return result;
+    return API.runGuardedMutation(`deleteAdminTask:${id}`, async () => {
+      try {
+        const body = new URLSearchParams();
+        API.appendAuthBody(body, "deleteAdminTask");
+        body.append("id", id);
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        const result = await res.json();
+        if (result && result.success) {
+          let local = await API.getAdminTasks();
+          local = local.filter(t => t.id !== id);
+          localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+          return result;
+        }
+      } catch (e) {
+        console.warn("deleteAdminTask remote failed, deleting local:", e);
       }
-    } catch (e) {
-      console.warn("deleteAdminTask remote failed, deleting local:", e);
-    }
 
-    // Local fallback delete
-    let local = [];
-    try {
-      local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
-    } catch(e) {}
-    local = local.filter(t => t.id !== id);
-    localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
-    return { success: true, message: "Tugas admin berhasil dihapus." };
+      // Local fallback delete
+      let local = [];
+      try {
+        local = JSON.parse(localStorage.getItem("fpmanager_admin_tasks") || "[]");
+      } catch(e) {}
+      local = local.filter(t => t.id !== id);
+      localStorage.setItem("fpmanager_admin_tasks", JSON.stringify(local));
+      return { success: true, message: "Tugas admin berhasil dihapus." };
+    });
   },
 
   getAdminTaskSettings: async () => {
@@ -1761,155 +1840,159 @@ const API = {
   },
 
   saveInvoice: async (invoiceData) => {
-    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
-
-    const nowIso = new Date().toISOString();
     const invoiceId = invoiceData.invoice_id || invoiceData.iDInvoice || invoiceData.id || `INV-${Date.now()}`;
-    
-    const prepared = {
-      id: invoiceId,
-      invoice_id: invoiceId,
-      iDInvoice: invoiceId,
-      project_ids: Array.isArray(invoiceData.project_ids) ? invoiceData.project_ids : (invoiceData.project_id ? [invoiceData.project_id] : []),
-      project_id: invoiceData.project_id || (Array.isArray(invoiceData.project_ids) ? invoiceData.project_ids.join(', ') : ''),
-      customer_id: invoiceData.customer_id || '',
-      customer_name: invoiceData.customer_name || invoiceData.namaPelanggan || 'Pelanggan',
-      customer_phone: invoiceData.customer_phone || invoiceData.nomorWA || '',
-      tanggal: invoiceData.tanggal || invoiceData.invoice_date || nowIso.split('T')[0],
-      total: Number(invoiceData.total || 0),
-      dp: Number(invoiceData.dp || 0),
-      pelunasan: Number(invoiceData.pelunasan || 0),
-      sisa: Number(invoiceData.sisa || 0),
-      doc_type: invoiceData.doc_type || 'invoice',
-      invoice_theme: invoiceData.invoice_theme || 'light',
-      show_signature: invoiceData.show_signature !== undefined ? invoiceData.show_signature : true,
-      sign_title: invoiceData.sign_title || 'Hormat Kami,',
-      sign_name: invoiceData.sign_name || 'Premium Designz',
-      catatan: invoiceData.catatan || '',
-      items: Array.isArray(invoiceData.items) ? invoiceData.items : [],
-      tableHtml: invoiceData.tableHtml || '',
-      status: invoiceData.status || (Number(invoiceData.sisa || 0) <= 0 ? 'Lunas' : (Number(invoiceData.dp || 0) > 0 ? 'Sebagian' : 'Belum Bayar')),
-      created_by: invoiceData.created_by || userId,
-      created_at: invoiceData.created_at || nowIso,
-      updated_at: nowIso
-    };
+    return API.runGuardedMutation(`saveInvoice:${invoiceId}`, async () => {
+      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+      const currUser = API.getCurrentUser();
+      const role = currUser.role || "super_admin";
+      const userId = currUser.id || "USR-001";
 
-    // 1. Simpan ke database lokal
-    try {
-      let localInvoices = [];
-      const local = localStorage.getItem("fpmanager_invoices_db");
-      if (local) {
-        try { localInvoices = JSON.parse(local) || []; } catch(e) {}
-      }
+      const nowIso = new Date().toISOString();
       
-      const existingIdx = localInvoices.findIndex(inv => String(inv.invoice_id || inv.id) === String(invoiceId));
-      if (existingIdx >= 0) {
-        prepared.created_at = localInvoices[existingIdx].created_at || prepared.created_at;
-        localInvoices[existingIdx] = prepared;
-      } else {
-        localInvoices.unshift(prepared);
+      const prepared = {
+        id: invoiceId,
+        invoice_id: invoiceId,
+        iDInvoice: invoiceId,
+        project_ids: Array.isArray(invoiceData.project_ids) ? invoiceData.project_ids : (invoiceData.project_id ? [invoiceData.project_id] : []),
+        project_id: invoiceData.project_id || (Array.isArray(invoiceData.project_ids) ? invoiceData.project_ids.join(', ') : ''),
+        customer_id: invoiceData.customer_id || '',
+        customer_name: invoiceData.customer_name || invoiceData.namaPelanggan || 'Pelanggan',
+        customer_phone: invoiceData.customer_phone || invoiceData.nomorWA || '',
+        tanggal: invoiceData.tanggal || invoiceData.invoice_date || nowIso.split('T')[0],
+        total: Number(invoiceData.total || 0),
+        dp: Number(invoiceData.dp || 0),
+        pelunasan: Number(invoiceData.pelunasan || 0),
+        sisa: Number(invoiceData.sisa || 0),
+        doc_type: invoiceData.doc_type || 'invoice',
+        invoice_theme: invoiceData.invoice_theme || 'light',
+        show_signature: invoiceData.show_signature !== undefined ? invoiceData.show_signature : true,
+        sign_title: invoiceData.sign_title || 'Hormat Kami,',
+        sign_name: invoiceData.sign_name || 'Premium Designz',
+        catatan: invoiceData.catatan || '',
+        items: Array.isArray(invoiceData.items) ? invoiceData.items : [],
+        tableHtml: invoiceData.tableHtml || '',
+        status: invoiceData.status || (Number(invoiceData.sisa || 0) <= 0 ? 'Lunas' : (Number(invoiceData.dp || 0) > 0 ? 'Sebagian' : 'Belum Bayar')),
+        created_by: invoiceData.created_by || userId,
+        created_at: invoiceData.created_at || nowIso,
+        updated_at: nowIso
+      };
+
+      // 1. Simpan ke database lokal
+      try {
+        let localInvoices = [];
+        const local = localStorage.getItem("fpmanager_invoices_db");
+        if (local) {
+          try { localInvoices = JSON.parse(local) || []; } catch(e) {}
+        }
+        
+        const existingIdx = localInvoices.findIndex(inv => String(inv.invoice_id || inv.id) === String(invoiceId));
+        if (existingIdx >= 0) {
+          prepared.created_at = localInvoices[existingIdx].created_at || prepared.created_at;
+          localInvoices[existingIdx] = prepared;
+        } else {
+          localInvoices.unshift(prepared);
+        }
+        localStorage.setItem("fpmanager_invoices_db", JSON.stringify(localInvoices));
+
+        // Simpan juga ke cache invoice_edit_ID agar kompatibel 100% dengan alur view existing
+        localStorage.setItem('invoice_edit_' + invoiceId, JSON.stringify({
+          tableHtml: prepared.tableHtml,
+          totalHtml: prepared.total,
+          dpHtml: prepared.dp,
+          pelunasanHtml: prepared.pelunasan,
+          sisaHtml: prepared.sisa,
+          catatanHtml: prepared.catatan,
+          signTitle: prepared.sign_title,
+          signName: prepared.sign_name,
+          showSignature: prepared.show_signature,
+          docType: prepared.doc_type,
+          invoiceTheme: prepared.invoice_theme,
+          rawData: {
+            total: prepared.total,
+            dp: prepared.dp,
+            pelunasan: prepared.pelunasan,
+            sisa: prepared.sisa,
+            items: prepared.items
+          },
+          invoiceRecord: prepared
+        }));
+      } catch (e) {
+        console.error("Gagal menyimpan invoice ke lokal:", e);
       }
-      localStorage.setItem("fpmanager_invoices_db", JSON.stringify(localInvoices));
 
-      // Simpan juga ke cache invoice_edit_ID agar kompatibel 100% dengan alur view existing
-      localStorage.setItem('invoice_edit_' + invoiceId, JSON.stringify({
-        tableHtml: prepared.tableHtml,
-        totalHtml: prepared.total,
-        dpHtml: prepared.dp,
-        pelunasanHtml: prepared.pelunasan,
-        sisaHtml: prepared.sisa,
-        catatanHtml: prepared.catatan,
-        signTitle: prepared.sign_title,
-        signName: prepared.sign_name,
-        showSignature: prepared.show_signature,
-        docType: prepared.doc_type,
-        invoiceTheme: prepared.invoice_theme,
-        rawData: {
-          total: prepared.total,
-          dp: prepared.dp,
-          pelunasan: prepared.pelunasan,
-          sisa: prepared.sisa,
-          items: prepared.items
-        },
-        invoiceRecord: prepared
-      }));
-    } catch (e) {
-      console.error("Gagal menyimpan invoice ke lokal:", e);
-    }
+      // 2. Coba simpan ke backend GAS jika aktif
+      try {
+        const body = new URLSearchParams();
+        body.append("action", "saveInvoice");
+        body.append("token", API.getToken());
+        body.append("apiKey", CONFIG.API_KEY);
+        body.append("role", role);
+        body.append("userId", userId);
+        body.append("data", JSON.stringify(prepared));
 
-    // 2. Coba simpan ke backend GAS jika aktif
-    try {
-      const body = new URLSearchParams();
-      body.append("action", "saveInvoice");
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
-      body.append("data", JSON.stringify(prepared));
-
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      const json = await res.json();
-      if (json && json.success) {
-        return { success: true, message: json.message || "Invoice berhasil disimpan.", data: prepared };
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        const json = await res.json();
+        if (json && json.success) {
+          return { success: true, message: json.message || "Invoice berhasil disimpan.", data: prepared };
+        }
+      } catch (err) {
+        console.warn("Backend GAS saveInvoice offline/fallback ke lokal:", err);
       }
-    } catch (err) {
-      console.warn("Backend GAS saveInvoice offline/fallback ke lokal:", err);
-    }
 
-    return {
-      success: true,
-      message: isEn ? "Invoice successfully saved to database." : "Invoice berhasil disimpan ke sistem.",
-      data: prepared
-    };
+      return {
+        success: true,
+        message: isEn ? "Invoice successfully saved to database." : "Invoice berhasil disimpan ke sistem.",
+        data: prepared
+      };
+    });
   },
 
   deleteInvoice: async (id) => {
-    const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-    const currUser = API.getCurrentUser();
-    const role = currUser.role || "super_admin";
-    const userId = currUser.id || "USR-001";
     const cleanId = String(id).trim();
+    return API.runGuardedMutation(`deleteInvoice:${cleanId}`, async () => {
+      const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
+      const currUser = API.getCurrentUser();
+      const role = currUser.role || "super_admin";
+      const userId = currUser.id || "USR-001";
 
-    // 1. Hapus dari database lokal
-    try {
-      let localInvoices = [];
-      const local = localStorage.getItem("fpmanager_invoices_db");
-      if (local) {
-        try { localInvoices = JSON.parse(local) || []; } catch(e) {}
+      // 1. Hapus dari database lokal
+      try {
+        let localInvoices = [];
+        const local = localStorage.getItem("fpmanager_invoices_db");
+        if (local) {
+          try { localInvoices = JSON.parse(local) || []; } catch(e) {}
+        }
+        const filtered = localInvoices.filter(inv => String(inv.invoice_id || inv.id) !== cleanId);
+        localStorage.setItem("fpmanager_invoices_db", JSON.stringify(filtered));
+        localStorage.removeItem('invoice_edit_' + cleanId);
+      } catch (e) {
+        console.error("Gagal menghapus invoice dari lokal:", e);
       }
-      const filtered = localInvoices.filter(inv => String(inv.invoice_id || inv.id) !== cleanId);
-      localStorage.setItem("fpmanager_invoices_db", JSON.stringify(filtered));
-      localStorage.removeItem('invoice_edit_' + cleanId);
-    } catch (e) {
-      console.error("Gagal menghapus invoice dari lokal:", e);
-    }
 
-    // 2. Coba hapus di backend GAS
-    try {
-      const body = new URLSearchParams();
-      body.append("action", "deleteInvoice");
-      body.append("id", cleanId);
-      body.append("token", API.getToken());
-      body.append("apiKey", CONFIG.API_KEY);
-      body.append("role", role);
-      body.append("userId", userId);
+      // 2. Coba hapus di backend GAS
+      try {
+        const body = new URLSearchParams();
+        body.append("action", "deleteInvoice");
+        body.append("id", cleanId);
+        body.append("token", API.getToken());
+        body.append("apiKey", CONFIG.API_KEY);
+        body.append("role", role);
+        body.append("userId", userId);
 
-      const res = await fetch(CONFIG.API_URL, { method: "POST", body });
-      const json = await res.json();
-      if (json && json.success) {
-        return json;
+        const res = await fetch(CONFIG.API_URL, { method: "POST", body });
+        const json = await res.json();
+        if (json && json.success) {
+          return json;
+        }
+      } catch (err) {
+        console.warn("Backend GAS deleteInvoice offline:", err);
       }
-    } catch (err) {
-      console.warn("Backend GAS deleteInvoice offline:", err);
-    }
 
-    return {
-      success: true,
-      message: isEn ? "Invoice successfully deleted." : "Invoice berhasil dihapus."
-    };
+      return {
+        success: true,
+        message: isEn ? "Invoice successfully deleted." : "Invoice berhasil dihapus."
+      };
+    });
   },
 
   // -------------------------------------------------------------

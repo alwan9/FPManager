@@ -1264,7 +1264,10 @@ function editTransaksi(id) {
   document.querySelector('#transaksiForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+const activeDeleteKeuanganIds = new Set();
 async function deleteTransaksi(id) {
+  if (activeDeleteKeuanganIds.has(id)) return;
+
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
 
   const tx = currentKeuanganList.find(k => String(k.id) === String(id));
@@ -1281,12 +1284,12 @@ async function deleteTransaksi(id) {
   });
   if (!isConfirmed) return;
 
+  activeDeleteKeuanganIds.add(id);
   const loader = document.getElementById('globalLoader');
   if (loader) loader.classList.remove('hidden');
 
   try {
     const res = await API.deleteKeuangan(id);
-    if (loader) loader.classList.add('hidden');
 
     if (res && res.success) {
       if (typeof Toast !== 'undefined') {
@@ -1300,11 +1303,13 @@ async function deleteTransaksi(id) {
       }
     }
   } catch (error) {
-    if (loader) loader.classList.add('hidden');
     console.error('Delete transaction error:', error);
     if (typeof Toast !== 'undefined') {
       Toast.error(isEn ? "Error" : "Error", isEn ? "Failed to delete transaction." : "Terjadi kesalahan saat menghapus transaksi.");
     }
+  } finally {
+    activeDeleteKeuanganIds.delete(id);
+    if (loader) loader.classList.add('hidden');
   }
 }
 

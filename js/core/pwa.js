@@ -544,28 +544,207 @@ function showNotification(title, options) {
   }
 
   // Set vibrate if enabled
-  if (CONFIG.NOTIF_VIBRATE) {
+  if (typeof CONFIG !== 'undefined' && CONFIG.NOTIF_VIBRATE) {
     finalOptions.vibrate = [200, 100, 200];
   } else {
     finalOptions.vibrate = [];
   }
 
   // Set silent if enabled
-  if (CONFIG.NOTIF_SILENT) {
+  if (typeof CONFIG !== 'undefined' && CONFIG.NOTIF_SILENT) {
     finalOptions.silent = true;
   }
 
   if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
     navigator.serviceWorker.ready.then(registration => {
       registration.showNotification(title, finalOptions);
+    }).catch(() => {
+      try { new Notification(title, finalOptions); } catch (e) {}
     });
-  } else {
-    new Notification(title, finalOptions);
+  } else if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, finalOptions);
+    } catch (e) {}
   }
 }
+window.showNotification = showNotification;
 
-// Run check 5 seconds after load to not block UI rendering
+// Synthesizer Audio Chime untuk notifikasi penugasan baru (Web Audio API)
+function playAssignmentChime() {
+  if (typeof CONFIG !== 'undefined' && CONFIG.NOTIF_SILENT) return;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+    const freqs = [523.25, 659.25, 783.99]; // Nada C5, E5, G5
+    freqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+      gain.gain.setValueAtTime(0.18, now + idx * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + idx * 0.1);
+      osc.stop(now + idx * 0.1 + 0.35);
+    });
+  } catch (err) {}
+}
+window.playAssignmentChime = playAssignmentChime;
+
+// Deteksi & Notifikasi Penugasan (Assign) Baru untuk user yang sedang aktif di perangkat ini
+let isCheckingAssignments = false;
+async function checkNewAssignments(incomingProyekList = null) {
+  if (isCheckingAssignments) return;
+  isCheckingAssignments = true;
+
+  try {
+    const currUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function' ? Auth.getUser() : null) ||
+                     (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function' ? API.getCurrentUser() : null);
+    if (!currUser) return;
+
+    const rawId = String(currUser.id || currUser.userId || currUser.Id_user || '').trim().toLowerCase();
+    const rawUname = String(currUser.username || '').trim().toLowerCase();
+    const rawName = String(currUser.name || currUser.nama || '').trim().toLowerCase();
+    const userIdentifiers = [rawId, rawUname, rawName].filter(Boolean);
+    if (userIdentifiers.length === 0) return;
+
+    let proyekList = incomingProyekList;
+    if (!Array.isArray(proyekList) || proyekList.length === 0) {
+      if (typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.getAll === 'function') {
+        proyekList = await FPManagerDB.getAll('proyek');
+      }
+      if (!proyekList || proyekList.length === 0) {
+        if (Array.isArray(window.allProyekList) && window.allProyekList.length > 0) {
+          proyekList = window.allProyekList;
+        } else if (typeof API !== 'undefined' && typeof API.getProyek === 'function') {
+          proyekList = await API.getProyek();
+        }
+      }
+    }
+    if (!Array.isArray(proyekList) || proyekList.length === 0) return;
+
+    const storageKey = `fp_notified_assignments_${rawId || rawUname}`;
+    let notifiedMap = {};
+    const storedRaw = localStorage.getItem(storageKey);
+    const isFirstTime = storedRaw === null;
+    if (storedRaw) {
+      try {
+        notifiedMap = JSON.parse(storedRaw) || {};
+      } catch (e) {
+        notifiedMap = {};
+      }
+    }
+
+    // Filter projek yang relevan untuk user ini
+    const assignedProjects = proyekList.filter(p => {
+      if (!p) return false;
+      const st = String(p.status || '').toLowerCase().trim();
+      if (st === 'selesai' || st === 'dibatalkan' || st === 'batal') return false;
+
+      const desVal = String(
+        p.designerId ||
+        p.assignDesigner ||
+        p.idDesigner ||
+        p.assign ||
+        p.id_designer ||
+        p.Id_designer ||
+        ''
+      ).trim().toLowerCase();
+
+      if (desVal && desVal !== '-- belum di-assign --' && desVal !== 'belum di-assign' && desVal !== 'unassigned') {
+        return userIdentifiers.includes(desVal);
+      }
+      return false;
+    });
+
+    // Jika pengguna baru pertama kali login di perangkat ini, tandai projek-projek terdahulu agar tidak spam
+    if (isFirstTime) {
+      assignedProjects.forEach(p => {
+        const pid = String(p.iDProyek || p.id || p.namaProyek || '').trim();
+        const desVal = String(p.designerId || p.assignDesigner || '').trim();
+        if (pid) notifiedMap[pid] = desVal;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(notifiedMap));
+      return;
+    }
+
+    let hasNewNotification = false;
+    const isInPages = (window.location.pathname || '').includes('/pages/');
+    const projectDetailPrefix = isInPages ? '' : 'pages/';
+
+    for (const p of assignedProjects) {
+      const pid = String(p.iDProyek || p.id || p.namaProyek || '').trim();
+      if (!pid) continue;
+
+      const currentAssignVal = String(p.designerId || p.assignDesigner || '').trim();
+
+      // Jika projek belum pernah ternotifikasi atau baru saja di-assign ulang ke user ini
+      if (!notifiedMap[pid] || notifiedMap[pid] !== currentAssignVal) {
+        hasNewNotification = true;
+        notifiedMap[pid] = currentAssignVal;
+
+        const namaKlien = p.namaPelanggan || p.pelanggan || 'Klien';
+        const namaPrj = p.namaProyek || 'Projek Desain';
+        const deadlineStr = p.deadline ? (String(p.deadline).replace(/^'+/, '').split('T')[0]) : 'Segera';
+        const targetUrl = `${projectDetailPrefix}proyek.html?id=${encodeURIComponent(pid)}`;
+
+        const title = `🎨 Tugas Baru: ${namaPrj}`;
+        const body = `Halo ${currUser.name || currUser.username}! Anda baru saja ditugaskan pada projek "${namaPrj}" (${namaKlien}). Deadline: ${deadlineStr}.`;
+
+        // 1. Notifikasi Sistem HP / Browser via Web Notification / PWA Service Worker
+        if ('Notification' in window && Notification.permission === 'granted') {
+          showNotification(title, {
+            body: body,
+            tag: `assign-${pid}`,
+            data: {
+              url: targetUrl,
+              proyekId: pid
+            }
+          });
+        }
+
+        // 2. Alert Toast di dalam aplikasi (jika user sedang aktif di layar aplikasi)
+        if (typeof showToast === 'function') {
+          showToast({
+            title: "Tugas Baru Ditugaskan!",
+            message: `Anda ditugaskan pada projek "${namaPrj}" (${namaKlien}).`,
+            type: "info"
+          });
+        }
+      }
+    }
+
+    if (hasNewNotification) {
+      playAssignmentChime();
+      localStorage.setItem(storageKey, JSON.stringify(notifiedMap));
+      refreshAppBadge();
+    }
+  } catch (err) {
+    console.warn("Gagal memeriksa assignment baru:", err);
+  } finally {
+    isCheckingAssignments = false;
+  }
+}
+window.checkNewAssignments = checkNewAssignments;
+
+// Jalankan pengecekan deadline & assignment setelah halaman termuat
 setTimeout(checkDeadlines, 5000);
-// Run check periodically (every 30 minutes)
-setInterval(checkDeadlines, 30 * 60 * 1000);
+setTimeout(checkNewAssignments, 2500);
+
+// Pengecekan berkala (interval)
+setInterval(checkDeadlines, 30 * 60 * 1000);  // Setiap 30 menit untuk deadline H-1
+setInterval(checkNewAssignments, 30 * 1000);   // Setiap 30 detik untuk mendeteksi penugasan baru
+
+// Trigger seketika saat user membuka kembali tab / aplikasi FPManager di HP/Laptop
+window.addEventListener('focus', () => {
+  if (typeof checkNewAssignments === 'function') checkNewAssignments();
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && typeof checkNewAssignments === 'function') {
+    checkNewAssignments();
+  }
+});
 

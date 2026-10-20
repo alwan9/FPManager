@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fpmanager-v205';
+const CACHE_NAME = 'fpmanager-v206';
 
 const urlsToCache = [
   './',
@@ -237,18 +237,25 @@ self.addEventListener('sync', event => {
 // Handle notification click to open/focus the app
 self.addEventListener('notificationclick', event => {
   event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url)
+    ? event.notification.data.url
+    : './pages/proyek.html';
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(clientList => {
         // Try to focus existing window/tab
         for (const client of clientList) {
           if ('focus' in client) {
+            if ('navigate' in client && targetUrl) {
+              client.navigate(targetUrl);
+            }
             return client.focus();
           }
         }
         // If no window is open, open a new one
         if (clients.openWindow) {
-          return clients.openWindow('./index.html');
+          return clients.openWindow(targetUrl);
         }
       })
   );

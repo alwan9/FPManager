@@ -377,15 +377,20 @@ async function deleteTool(id) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');
 
-    const res = await API.deleteTool(id);
+    try {
+      const res = await API.deleteTool(id);
 
-    if (loader) loader.classList.add('hidden');
-
-    if (res && res.success) {
-      if (typeof Toast !== 'undefined') Toast.success('Dihapus', res.message);
-      loadData();
-    } else {
-      if (typeof Toast !== 'undefined') Toast.error('Gagal', res ? res.message : 'Gagal menghapus');
+      if (res && res.success) {
+        if (typeof Toast !== 'undefined') Toast.success('Dihapus', res.message);
+        loadData();
+      } else {
+        if (typeof Toast !== 'undefined') Toast.error('Gagal', res ? res.message : 'Gagal menghapus');
+      }
+    } catch (err) {
+      console.error(err);
+      if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan sistem');
+    } finally {
+      if (loader) loader.classList.add('hidden');
     }
   }
 }
@@ -804,15 +809,20 @@ async function deleteShortcut(id) {
     const loader = document.getElementById('globalLoader');
     if (loader) loader.classList.remove('hidden');
 
-    const res = await API.deleteShortcut(id);
+    try {
+      const res = await API.deleteShortcut(id);
 
-    if (loader) loader.classList.add('hidden');
-
-    if (res && res.success) {
-      if (typeof Toast !== 'undefined') Toast.success('Dihapus', res.message);
-      loadData();
-    } else {
-      if (typeof Toast !== 'undefined') Toast.error('Gagal', res ? res.message : 'Gagal menghapus');
+      if (res && res.success) {
+        if (typeof Toast !== 'undefined') Toast.success('Dihapus', res.message);
+        loadData();
+      } else {
+        if (typeof Toast !== 'undefined') Toast.error('Gagal', res ? res.message : 'Gagal menghapus');
+      }
+    } catch (err) {
+      console.error(err);
+      if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan sistem');
+    } finally {
+      if (loader) loader.classList.add('hidden');
     }
   }
 }

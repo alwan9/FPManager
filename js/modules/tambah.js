@@ -920,7 +920,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const price = parseFloat(hargaSatuanInput.value) || 0;
       const dp = parseFloat(dpInput.value) || 0;
       const nominal = Math.round(qty * price);
-      const sisa = Math.max(0, Math.round(nominal - dp - (isEditMode ? (Number(currentPelunasan) || 0) : 0)));
 
       if (!isEditMode) {
         const inputDate = parseLocalDate(deadlineInput.value);
@@ -941,6 +940,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           return;
         }
       }
+
+      const isStatusSelesai = statusInput && statusInput.value === 'Selesai';
+      const effectivePelunasan = isStatusSelesai
+        ? Math.max(0, Math.round(nominal - dp))
+        : (isEditMode && previousStatusValue !== 'Selesai' && Number(currentPelunasan) > 0
+            ? Math.min(Number(currentPelunasan), Math.max(0, Math.round(nominal - dp)))
+            : 0);
+      const calculatedSisa = isStatusSelesai
+        ? 0
+        : Math.max(0, Math.round(nominal - dp - effectivePelunasan));
 
       const chosenMetode = metodePembayaranInput ? (metodePembayaranInput.value || 'QRIS') : 'QRIS';
       const payload = {
