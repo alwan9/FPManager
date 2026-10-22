@@ -118,36 +118,87 @@
     }
   }
 
-  // Format Waktu Relatif / Human-readable
+  // Parse tanggal string/number/Date secara aman
+  function parseSafeDate(dateStr) {
+    if (!dateStr) return null;
+    if (dateStr instanceof Date) return isNaN(dateStr.getTime()) ? null : dateStr;
+    if (typeof dateStr === 'number') {
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const str = String(dateStr).trim();
+    let d = new Date(str);
+    if (!isNaN(d.getTime())) return d;
+
+    // Coba parsing YYYY-MM-DD HH:mm:ss
+    const matchIsoLike = str.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[T\s](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+    if (matchIsoLike) {
+      d = new Date(
+        parseInt(matchIsoLike[1], 10),
+        parseInt(matchIsoLike[2], 10) - 1,
+        parseInt(matchIsoLike[3], 10),
+        matchIsoLike[4] ? parseInt(matchIsoLike[4], 10) : 0,
+        matchIsoLike[5] ? parseInt(matchIsoLike[5], 10) : 0,
+        matchIsoLike[6] ? parseInt(matchIsoLike[6], 10) : 0
+      );
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    // Coba parsing DD/MM/YYYY HH:mm:ss
+    const matchIdLike = str.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})(?:[T\s](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+    if (matchIdLike) {
+      d = new Date(
+        parseInt(matchIdLike[3], 10),
+        parseInt(matchIdLike[2], 10) - 1,
+        parseInt(matchIdLike[1], 10),
+        matchIdLike[4] ? parseInt(matchIdLike[4], 10) : 0,
+        matchIdLike[5] ? parseInt(matchIdLike[5], 10) : 0,
+        matchIdLike[6] ? parseInt(matchIdLike[6], 10) : 0
+      );
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    return null;
+  }
+
+  // Format Tanggal & Waktu Notifikasi:
+  // - Hari ini: hanya menampilkan jam dikirim (HH:mm)
+  // - Sudah ganti hari: gunakan hari, tanggal dan bulan (misal: Kamis, 22 Okt)
   function formatRelativeTime(dateStr) {
     if (!dateStr) return '-';
     try {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) {
+      const date = parseSafeDate(dateStr);
+      if (!date) {
         return String(dateStr);
       }
 
       const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffSec = Math.floor(diffMs / 1000);
-      const diffMin = Math.floor(diffSec / 60);
-      const diffHour = Math.floor(diffMin / 60);
-      const diffDays = Math.floor(diffHour / 24);
+      const isToday = (
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate()
+      );
 
-      if (diffSec < 60) return 'Baru saja';
-      if (diffMin < 60) return `${diffMin} menit yang lalu`;
-      if (diffHour < 24) return `${diffHour} jam yang lalu`;
-      if (diffDays === 1) return 'Kemarin';
-      if (diffDays < 7) return `${diffDays} hari yang lalu`;
-
-      const day = String(date.getDate()).padStart(2, '0');
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-      const month = monthNames[date.getMonth()];
-      const year = date.getFullYear();
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
 
-      return `${day} ${month} ${year}, ${hours}:${minutes}`;
+      // 1. Jika masih hari ini: hanya jam dikirim (HH:mm)
+      if (isToday) {
+        return `${hours}:${minutes}`;
+      }
+
+      // 2. Jika sudah ganti hari: gunakan hari, tanggal dan bulan
+      const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+      const dayName = dayNames[date.getDay()];
+      const dayDate = date.getDate();
+      const monthName = monthNames[date.getMonth()];
+
+      if (date.getFullYear() !== now.getFullYear()) {
+        return `${dayName}, ${dayDate} ${monthName} ${date.getFullYear()}`;
+      }
+      return `${dayName}, ${dayDate} ${monthName}`;
     } catch (e) {
       return String(dateStr);
     }
@@ -657,8 +708,8 @@
     let fullDateStr = '-';
     if (item.tanggal || item.createdAt) {
       try {
-        const d = new Date(item.tanggal || item.createdAt);
-        if (!isNaN(d.getTime())) {
+        const d = parseSafeDate(item.tanggal || item.createdAt);
+        if (d) {
           fullDateStr = d.toLocaleDateString('id-ID', {
             weekday: 'long',
             day: 'numeric',
