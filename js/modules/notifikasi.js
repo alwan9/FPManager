@@ -843,8 +843,174 @@
     }
   }
 
+  // =================================================================
+  // FITUR KHUSUS SUPER ADMIN: BUAT & SIARKAN NOTIFIKASI KE SEMUA USER
+  // =================================================================
+
+  // Verifikasi Hak Akses Khusus Super Admin untuk Membuat Notifikasi Siaran
+  function checkSuperAdminAccess() {
+    const isSuper = (typeof Auth !== 'undefined' && typeof Auth.isSuperAdmin === 'function')
+      ? Auth.isSuperAdmin()
+      : false;
+    const btn = document.getElementById('btnOpenCreateNotifModal');
+    if (btn) {
+      if (isSuper) {
+        btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
+      }
+    }
+    return isSuper;
+  }
+
+  // Buka Modal Buat Notifikasi (Khusus Super Admin)
+  function openCreateModal() {
+    if (!checkSuperAdminAccess()) {
+      if (typeof Toast !== 'undefined' && Toast.error) {
+        Toast.error('Akses ditolak: Hanya Super Admin yang diizinkan membuat notifikasi siaran.');
+      } else {
+        alert('Akses ditolak: Hanya Super Admin yang diizinkan membuat notifikasi siaran.');
+      }
+      return;
+    }
+
+    const modal = document.getElementById('createNotifikasiModal');
+    const form = document.getElementById('createNotifikasiForm');
+    const judulInput = document.getElementById('createNotifJudul');
+    const ketInput = document.getElementById('createNotifKeterangan');
+    const tipeInput = document.getElementById('createNotifTipe');
+
+    if (form) form.reset();
+    if (tipeInput) tipeInput.value = 'info';
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        if (judulInput) judulInput.focus();
+      }, 50);
+    }
+  }
+
+  // Tutup Modal Buat Notifikasi
+  function closeCreateModal() {
+    const modal = document.getElementById('createNotifikasiModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  // Submit Buat Notifikasi Siaran ke Semua Pengguna
+  async function submitCreateNotification(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    if (!checkSuperAdminAccess()) {
+      if (typeof Toast !== 'undefined' && Toast.error) {
+        Toast.error('Hanya Super Admin yang diizinkan membuat notifikasi.');
+      }
+      return;
+    }
+
+    const judulInput = document.getElementById('createNotifJudul');
+    const ketInput = document.getElementById('createNotifKeterangan');
+    const tipeInput = document.getElementById('createNotifTipe');
+    const btnSubmit = document.getElementById('btnSubmitCreateNotif');
+    const iconSubmit = document.getElementById('iconSubmitCreateNotif');
+    const textSubmit = document.getElementById('textSubmitCreateNotif');
+
+    const judul = (judulInput ? judulInput.value : '').trim();
+    const keterangan = (ketInput ? ketInput.value : '').trim();
+    const tipe = (tipeInput ? tipeInput.value : 'info').trim().toLowerCase();
+
+    if (!judul) {
+      if (typeof Toast !== 'undefined' && Toast.warning) {
+        Toast.warning('Mohon isi Judul notifikasi');
+      } else {
+        alert('Mohon isi Judul notifikasi');
+      }
+      if (judulInput) judulInput.focus();
+      return;
+    }
+
+    if (!keterangan) {
+      if (typeof Toast !== 'undefined' && Toast.warning) {
+        Toast.warning('Mohon isi Keterangan notifikasi');
+      } else {
+        alert('Mohon isi Keterangan notifikasi');
+      }
+      if (ketInput) ketInput.focus();
+      return;
+    }
+
+    // Set Loading State
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+    if (iconSubmit) {
+      iconSubmit.className = 'fa-solid fa-circle-notch fa-spin text-xs';
+    }
+    if (textSubmit) {
+      textSubmit.textContent = 'Menyiarkan...';
+    }
+
+    try {
+      if (typeof API === 'undefined' || typeof API.addNotifikasi !== 'function') {
+        throw new Error('Modul API.addNotifikasi tidak tersedia');
+      }
+
+      const res = await API.addNotifikasi({
+        judul: judul,
+        des: keterangan,
+        ket: keterangan,
+        keterangan: keterangan,
+        tipe: tipe,
+        id_user: 'ALL',
+        userId: 'ALL',
+        isManualBroadcast: true,
+        status: 'FALSE'
+      });
+
+      if (res && res.success) {
+        if (typeof Toast !== 'undefined' && Toast.success) {
+          Toast.success('Notifikasi berhasil disiarkan ke semua pengguna!');
+        } else {
+          alert('Notifikasi berhasil disiarkan ke semua pengguna!');
+        }
+
+        closeCreateModal();
+
+        // Refresh daftar notifikasi secara realtime
+        await loadNotifikasi(true);
+      } else {
+        const errMsg = (res && res.message) ? res.message : 'Gagal membuat notifikasi';
+        if (typeof Toast !== 'undefined' && Toast.error) {
+          Toast.error(errMsg);
+        } else {
+          alert(errMsg);
+        }
+      }
+    } catch (err) {
+      console.error('[Notifikasi] Error submitCreateNotification:', err);
+      if (typeof Toast !== 'undefined' && Toast.error) {
+        Toast.error('Terjadi kesalahan koneksi: ' + err.message);
+      } else {
+        alert('Terjadi kesalahan: ' + err.message);
+      }
+    } finally {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.classList.remove('opacity-75', 'cursor-not-allowed');
+      }
+      if (iconSubmit) {
+        iconSubmit.className = 'fa-solid fa-paper-plane text-xs';
+      }
+      if (textSubmit) {
+        textSubmit.textContent = 'Kirim Notifikasi';
+      }
+    }
+  }
+
   // Inisialisasi Halaman
   async function init() {
+    checkSuperAdminAccess();
     await ensureUsersData();
     await loadNotifikasi();
     await populateUserFilter();
@@ -865,6 +1031,22 @@
       });
     }
 
+    // Event listener untuk modal Buat Notifikasi (backdrop & Escape)
+    const createModal = document.getElementById('createNotifikasiModal');
+    if (createModal && !createModal._hasInitCloseListeners) {
+      createModal._hasInitCloseListeners = true;
+      createModal.addEventListener('click', (e) => {
+        if (e.target === createModal) {
+          closeCreateModal();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !createModal.classList.contains('hidden')) {
+          closeCreateModal();
+        }
+      });
+    }
+
     // Auto refresh setiap 30 detik
     if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = setInterval(() => {
@@ -878,6 +1060,10 @@
     loadNotifikasi,
     openDetail,
     closeDetailModal,
+    checkSuperAdminAccess,
+    openCreateModal,
+    closeCreateModal,
+    submitCreateNotification,
     toggleStatus,
     markAllAsRead,
     deleteItem,

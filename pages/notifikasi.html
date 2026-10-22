@@ -249,6 +249,14 @@
               Pusat notifikasi penugasan projek, log aktivitas CRUD, dan riwayat sistem Anda.
             </p>
           </div>
+          <!-- Super Admin Only: Broadcast Notifikasi Action -->
+          <div class="flex items-center gap-2">
+            <button id="btnOpenCreateNotifModal" onclick="window.NotifikasiModule.openCreateModal()" type="button"
+              class="hidden inline-flex items-center justify-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-sm transition-all gap-1.5 cursor-pointer shrink-0">
+              <i class="fa-solid fa-bullhorn text-xs"></i>
+              <span>Buat Notifikasi</span>
+            </button>
+          </div>
         </div>
 
         <!-- Filter & Search Toolbar (Responsive Desktop & HP) -->
@@ -405,6 +413,94 @@
           Tutup
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Buat Notifikasi (Khusus Super Admin Broadcast ke Semua User) -->
+  <div id="createNotifikasiModal"
+    class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs">
+    <div
+      class="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden transform transition-all flex flex-col"
+      id="createNotifikasiModalContent">
+      <!-- Modal Header -->
+      <div
+        class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50">
+        <div class="flex items-center space-x-3 min-w-0">
+          <div
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-800/50">
+            <i class="fa-solid fa-bullhorn text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-white truncate">Buat Notifikasi</h3>
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">Super Admin</span>
+            </div>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">Siarkan notifikasi baru ke seluruh pengguna</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.NotifikasiModule.closeCreateModal()"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition cursor-pointer"
+          title="Tutup">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Form Body -->
+      <form id="createNotifikasiForm" onsubmit="window.NotifikasiModule.submitCreateNotification(event)" class="p-4 sm:p-6 space-y-4">
+        <!-- Banner Target Siaran -->
+        <div class="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-start gap-2.5 text-xs text-indigo-900 dark:text-indigo-300">
+          <i class="fa-solid fa-users text-indigo-600 dark:text-indigo-400 mt-0.5 text-sm shrink-0"></i>
+          <div>
+            <span class="font-semibold">Target Siaran:</span> Notifikasi ini akan otomatis ditampilkan kepada <strong>semua user</strong> dan langsung tersimpan ke sheet <strong>Notifications</strong>.
+          </div>
+        </div>
+
+        <!-- Kolom Judul -->
+        <div>
+          <label for="createNotifJudul" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Judul <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="createNotifJudul" required maxlength="120"
+            placeholder="Contoh: Pengumuman Pemeliharaan Sistem atau Jadwal Baru"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition">
+        </div>
+
+        <!-- Kolom Tipe Notifikasi -->
+        <div>
+          <label for="createNotifTipe" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Tipe Notifikasi
+          </label>
+          <select id="createNotifTipe"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition cursor-pointer">
+            <option value="info">Info Sistem (Biru)</option>
+            <option value="sukses">Berhasil / Pengumuman (Hijau)</option>
+            <option value="gagal">Penting / Peringatan (Merah)</option>
+          </select>
+        </div>
+
+        <!-- Kolom Keterangan -->
+        <div>
+          <label for="createNotifKeterangan" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Keterangan <span class="text-rose-500">*</span>
+          </label>
+          <textarea id="createNotifKeterangan" required rows="4" maxlength="1000"
+            placeholder="Tuliskan isi keterangan lengkap notifikasi di sini..."
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition leading-relaxed"></textarea>
+        </div>
+
+        <!-- Modal Actions Footer -->
+        <div class="pt-3 border-t border-zinc-100 dark:border-zinc-700/60 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="window.NotifikasiModule.closeCreateModal()"
+            class="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-xl text-xs font-semibold transition cursor-pointer">
+            Batal
+          </button>
+          <button type="submit" id="btnSubmitCreateNotif"
+            class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs font-semibold shadow-sm transition cursor-pointer">
+            <i id="iconSubmitCreateNotif" class="fa-solid fa-paper-plane text-xs"></i>
+            <span id="textSubmitCreateNotif">Kirim Notifikasi</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

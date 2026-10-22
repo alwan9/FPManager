@@ -2157,13 +2157,19 @@ const API = {
   addNotifikasi: async (notifData) => {
     try {
       const currUser = API.getCurrentUser() || {};
+      const ketText = notifData.ket || notifData.des || notifData.keterangan || notifData.deskripsi || "";
+      const targetUser = notifData.id_user || notifData.userId || (notifData.isManualBroadcast ? "ALL" : (currUser.id || "ALL"));
       const payload = {
-        judul: notifData.judul || "Notifikasi",
-        des: notifData.des || "",
+        judul: notifData.judul || notifData.title || "Notifikasi",
+        des: ketText,
+        ket: ketText,
+        keterangan: ketText,
         status: notifData.status || "FALSE",
-        id_user: notifData.id_user || notifData.userId || currUser.id || "ALL",
-        tipe: notifData.tipe || "info",
-        tanggal: notifData.tanggal || new Date().toLocaleString('id-ID')
+        id_user: targetUser,
+        userId: targetUser,
+        tipe: notifData.tipe || notifData.type || "info",
+        tanggal: notifData.tanggal || new Date().toLocaleString('id-ID'),
+        isManualBroadcast: notifData.isManualBroadcast !== undefined ? notifData.isManualBroadcast : (targetUser === "ALL")
       };
 
       const body = new URLSearchParams();

@@ -38,7 +38,7 @@ if ('serviceWorker' in navigator) {
           }
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   });
 
   // Check for SW updates whenever user switches back to the app window
@@ -47,7 +47,7 @@ if ('serviceWorker' in navigator) {
       registration.update().catch(err => {
         console.debug('ServiceWorker update check skipped (offline or server unreachable):', err);
       });
-    }).catch(() => {});
+    }).catch(() => { });
   });
 }
 
@@ -146,7 +146,7 @@ function createNotificationPrompt() {
   prompt.className = 'fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
 
   prompt.innerHTML = `
-    <div style="z-index: 99999;" class="flex items-start space-x-3">
+    <div style="z-index: 99999999999999999999;" class="flex items-start space-x-3">
       <div class="pwa-prompt-icon-container w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] max-w-[2.5rem] max-h-[2.5rem] aspect-square rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0">
         <i class="fa-solid fa-bell text-lg"></i>
       </div>
@@ -371,9 +371,9 @@ window.addEventListener('load', () => {
 function updateAppBadge(count) {
   if ('setAppBadge' in navigator) {
     if (count > 0) {
-      navigator.setAppBadge(count).catch(() => {});
+      navigator.setAppBadge(count).catch(() => { });
     } else {
-      navigator.clearAppBadge().catch(() => {});
+      navigator.clearAppBadge().catch(() => { });
     }
   }
 }
@@ -473,51 +473,51 @@ async function checkDeadlines() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-        proyekList.forEach(proyek => {
-          const statusLower = (proyek.status || '').toLowerCase();
-          if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
-            return;
-          }
+      proyekList.forEach(proyek => {
+        const statusLower = (proyek.status || '').toLowerCase();
+        if (statusLower === 'selesai' || statusLower === 'belum pembayaran' || statusLower === 'dibatalkan') {
+          return;
+        }
 
-          if (!proyek.deadline) return;
-          const deadlineDate = new Date(proyek.deadline);
-          deadlineDate.setHours(0, 0, 0, 0);
+        if (!proyek.deadline) return;
+        const deadlineDate = new Date(proyek.deadline);
+        deadlineDate.setHours(0, 0, 0, 0);
 
-          const diffTime = deadlineDate - today;
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = deadlineDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-          if (diffDays === 1) { // H-1
-            // Check if we already notified within the last 5 hours to prevent spam
-            const notifKey = `notified_time_${proyek.iDProyek || proyek.id || proyek.namaProyek}`;
-            const lastNotified = localStorage.getItem(notifKey);
-            const now = Date.now();
-            const intervalTime = CONFIG.REMINDER_INTERVAL;
+        if (diffDays === 1) { // H-1
+          // Check if we already notified within the last 5 hours to prevent spam
+          const notifKey = `notified_time_${proyek.iDProyek || proyek.id || proyek.namaProyek}`;
+          const lastNotified = localStorage.getItem(notifKey);
+          const now = Date.now();
+          const intervalTime = CONFIG.REMINDER_INTERVAL;
 
-            if (!lastNotified || (now - parseInt(lastNotified)) >= intervalTime) {
-              let title = 'Deadline H-1: ' + proyek.namaProyek;
-              let body = `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`;
+          if (!lastNotified || (now - parseInt(lastNotified)) >= intervalTime) {
+            let title = 'Deadline H-1: ' + proyek.namaProyek;
+            let body = `Projek untuk klien ${proyek.namaPelanggan} harus selesai besok!`;
 
-              const notifStyle = CONFIG.NOTIF_STYLE || 'casual';
-              if (notifStyle === 'singkat') {
-                title = 'Deadline H-1: ' + proyek.namaProyek;
-                body = 'Sisa 1 hari lagi!';
-              } else if (notifStyle === 'formal') {
-                title = 'Pemberitahuan Tenggat Waktu: ' + proyek.namaProyek;
-                body = `Mengingatkan bahwa proyek atas nama ${proyek.namaPelanggan} memiliki batas waktu penyelesaian besok.`;
-              }
-
-              showNotification(title, {
-                body: body,
-                icon: './assets/img/icon-192.png'
-              });
-              localStorage.setItem(notifKey, now.toString());
+            const notifStyle = CONFIG.NOTIF_STYLE || 'casual';
+            if (notifStyle === 'singkat') {
+              title = 'Deadline H-1: ' + proyek.namaProyek;
+              body = 'Sisa 1 hari lagi!';
+            } else if (notifStyle === 'formal') {
+              title = 'Pemberitahuan Tenggat Waktu: ' + proyek.namaProyek;
+              body = `Mengingatkan bahwa proyek atas nama ${proyek.namaPelanggan} memiliki batas waktu penyelesaian besok.`;
             }
+
+            showNotification(title, {
+              body: body,
+              icon: './assets/img/icon-192.png'
+            });
+            localStorage.setItem(notifKey, now.toString());
           }
-        });
-      } catch (err) {
-        console.error('Gagal mengecek deadline', err);
-      }
+        }
+      });
+    } catch (err) {
+      console.error('Gagal mengecek deadline', err);
     }
+  }
 }
 
 function showNotification(title, options) {
@@ -559,12 +559,12 @@ function showNotification(title, options) {
     navigator.serviceWorker.ready.then(registration => {
       registration.showNotification(title, finalOptions);
     }).catch(() => {
-      try { new Notification(title, finalOptions); } catch (e) {}
+      try { new Notification(title, finalOptions); } catch (e) { }
     });
   } else if ('Notification' in window && Notification.permission === 'granted') {
     try {
       new Notification(title, finalOptions);
-    } catch (e) {}
+    } catch (e) { }
   }
 }
 window.showNotification = showNotification;
@@ -590,7 +590,7 @@ function playAssignmentChime() {
       osc.start(now + idx * 0.1);
       osc.stop(now + idx * 0.1 + 0.35);
     });
-  } catch (err) {}
+  } catch (err) { }
 }
 window.playAssignmentChime = playAssignmentChime;
 
@@ -602,7 +602,7 @@ async function checkNewAssignments(incomingProyekList = null) {
 
   try {
     const currUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function' ? Auth.getUser() : null) ||
-                     (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function' ? API.getCurrentUser() : null);
+      (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function' ? API.getCurrentUser() : null);
     if (!currUser) return;
 
     const rawId = String(currUser.id || currUser.userId || currUser.Id_user || '').trim().toLowerCase();
