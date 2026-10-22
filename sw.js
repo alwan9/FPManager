@@ -236,6 +236,30 @@ self.addEventListener('sync', event => {
   }
 });
 
+// Handle Push Notifications from Server directly to phone
+self.addEventListener('push', event => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: 'Pemberitahuan Super Admin', body: event.data.text() };
+    }
+  }
+  const title = data.title || 'Pemberitahuan Super Admin';
+  const options = {
+    body: data.body || 'Anda menerima pesan notifikasi baru.',
+    icon: './assets/img/icon-192.png',
+    badge: './assets/img/favicon.png',
+    vibrate: [250, 100, 250],
+    renotify: true,
+    data: {
+      url: data.url || './pages/notifikasi.html'
+    }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
 // Handle notification click to open/focus the app
 self.addEventListener('notificationclick', event => {
   event.notification.close();

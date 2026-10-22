@@ -550,32 +550,52 @@ async function checkDeadlines() {
 }
 
 function showNotification(title, options) {
-  const isInPages = (window.location.pathname || '').includes('/pages/');
-  const prefix = isInPages ? '../' : './';
+  if (!('Notification' in window)) {
+    console.warn('Perangkat/Browser ini tidak mendukung Notification API');
+    return;
+  }
+
+  // Jika izin belum ditentukan (default), minta izin agar notifikasi HP dapat diterima
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        showNotification(title, options);
+      }
+    });
+    return;
+  }
+
+  if (Notification.permission !== 'granted') {
+    return;
+  }
+
+  // Gunakan URL absolut yang stabil agar icon & badge tampil sempurna di Service Worker HP (Android/iOS)
+  const rootUrl = window.location.href.split('/pages/')[0].replace(/\/+$/, '') + '/';
+  let defaultIcon = './assets/img/icon-192.png';
+  let defaultBadge = './assets/img/favicon.png';
+  try {
+    defaultIcon = new URL('assets/img/icon-192.png', rootUrl).href;
+    defaultBadge = new URL('assets/img/favicon.png', rootUrl).href;
+  } catch (e) { }
 
   const finalOptions = {
-    badge: prefix + 'assets/img/favicon.png',
-    icon: prefix + 'assets/img/icon-192.png',
+    badge: defaultBadge,
+    icon: defaultIcon,
+    vibrate: [250, 100, 250],
+    renotify: true,
+    requireInteraction: false,
     ...options
   };
 
-  if (isInPages) {
-    if (typeof finalOptions.icon === 'string' && finalOptions.icon.startsWith('./assets/')) {
-      finalOptions.icon = '../' + finalOptions.icon.slice(2);
-    } else if (typeof finalOptions.icon === 'string' && finalOptions.icon.startsWith('assets/')) {
-      finalOptions.icon = '../' + finalOptions.icon;
-    }
-    if (typeof finalOptions.badge === 'string' && finalOptions.badge.startsWith('./assets/')) {
-      finalOptions.badge = '../' + finalOptions.badge.slice(2);
-    } else if (typeof finalOptions.badge === 'string' && finalOptions.badge.startsWith('assets/')) {
-      finalOptions.badge = '../' + finalOptions.badge;
-    }
+  // Pastikan URL tujuan di data.url valid
+  if (finalOptions.data && finalOptions.data.url) {
+    try {
+      finalOptions.data.url = new URL(finalOptions.data.url, rootUrl).href;
+    } catch (e) { }
   }
 
   // Set vibrate if enabled
-  if (typeof CONFIG !== 'undefined' && CONFIG.NOTIF_VIBRATE) {
-    finalOptions.vibrate = [200, 100, 200];
-  } else {
+  if (typeof CONFIG !== 'undefined' && CONFIG.NOTIF_VIBRATE === false) {
     finalOptions.vibrate = [];
   }
 
@@ -584,13 +604,17 @@ function showNotification(title, options) {
     finalOptions.silent = true;
   }
 
-  if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+  // Prioritaskan Service Worker Registration agar muncul di notification tray HP secara native
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(registration => {
-      registration.showNotification(title, finalOptions);
+      if (registration && typeof registration.showNotification === 'function') {
+        return registration.showNotification(title, finalOptions);
+      }
+      return new Notification(title, finalOptions);
     }).catch(() => {
       try { new Notification(title, finalOptions); } catch (e) { }
     });
-  } else if ('Notification' in window && Notification.permission === 'granted') {
+  } else {
     try {
       new Notification(title, finalOptions);
     } catch (e) { }
@@ -723,26 +747,15 @@ async function checkNewAssignments(incomingProyekList = null) {
         const title = `🎨 Tugas Baru: ${namaPrj}`;
         const body = `Halo ${currUser.name || currUser.username}! Anda baru saja ditugaskan pada projek "${namaPrj}" (${namaKlien}). Deadline: ${deadlineStr}.`;
 
-        // 1. Notifikasi Sistem HP / Browser via Web Notification / PWA Service Worker
-        if ('Notification' in window && Notification.permission === 'granted') {
-          showNotification(title, {
-            body: body,
-            tag: `assign-${pid}`,
-            data: {
-              url: targetUrl,
-              proyekId: pid
-            }
-          });
-        }
-
-        // 2. Alert Toast di dalam aplikasi (jika user sedang aktif di layar aplikasi)
-        if (typeof showToast === 'function') {
-          showToast({
-            title: "Tugas Baru Ditugaskan!",
-            message: `Anda ditugaskan pada projek "${namaPrj}" (${namaKlien}).`,
-            type: "info"
-          });
-        }
+        // 1. Notifikasi Sistem HP / Browser via Web Notification / PWA Service Worker (langsung ke notif HP)
+        showNotification(title, {
+          body: body,
+          tag: `assign-${pid}`,
+          data: {
+            url: targetUrl,
+            proyekId: pid
+          }
+        });
       }
     }
 
@@ -759,21 +772,130 @@ async function checkNewAssignments(incomingProyekList = null) {
 }
 window.checkNewAssignments = checkNewAssignments;
 
-// Jalankan pengecekan deadline & assignment setelah halaman termuat
+// ==========================================================================
+// Deteksi & Notifikasi Otomatis dari Super Admin Langsung ke Notifikasi HP
+// ==========================================================================
+let isCheckingSuperAdminNotifs = false;
+async function checkSuperAdminNotifications(cachedNotifList = null) {
+  if (isCheckingSuperAdminNotifs) return;
+  isCheckingSuperAdminNotifs = true;
+
+  try {
+    const currUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function' ? Auth.getUser() : null) ||
+      (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function' ? API.getCurrentUser() : null);
+    if (!currUser) return;
+
+    const rawId = String(currUser.id || currUser.userId || currUser.Id_user || '').trim().toLowerCase();
+    const rawUname = String(currUser.username || '').trim().toLowerCase();
+    const rawName = String(currUser.name || currUser.nama || '').trim().toLowerCase();
+    const userIdentifiers = [rawId, rawUname, rawName].filter(Boolean);
+    if (userIdentifiers.length === 0) return;
+
+    let notifList = cachedNotifList;
+    if (!Array.isArray(notifList) || notifList.length === 0) {
+      if (typeof API !== 'undefined' && typeof API.getNotifikasi === 'function') {
+        const res = await API.getNotifikasi(false);
+        if (res && res.success && Array.isArray(res.data)) {
+          notifList = res.data;
+        }
+      }
+    }
+    if (!Array.isArray(notifList) || notifList.length === 0) return;
+
+    const storageKey = `fp_notified_superadmin_notifs_${rawId || rawUname}`;
+    let notifiedMap = {};
+    const storedRaw = localStorage.getItem(storageKey);
+    const isFirstTime = storedRaw === null;
+    if (storedRaw) {
+      try {
+        notifiedMap = JSON.parse(storedRaw) || {};
+      } catch (e) {
+        notifiedMap = {};
+      }
+    }
+
+    // Filter notifikasi yang ditujukan untuk user ini atau siaran broadcast Super Admin ke seluruh tim
+    const relevantNotifs = notifList.filter(n => {
+      if (!n) return false;
+      const isUnread = n.status === false || n.status === 'FALSE' || n.status === 0 || n.status === '0';
+      if (!isUnread) return false;
+
+      const target = String(n.id_user || n.userId || n.Id_user || n.user_id || '').trim().toLowerCase();
+      return !target || target === 'all' || target === 'semua' || userIdentifiers.includes(target);
+    });
+
+    // Jika pengguna baru pertama kali membuka aplikasi di perangkat ini, seed agar tidak spam notif lampau
+    if (isFirstTime) {
+      relevantNotifs.forEach(n => {
+        const nid = String(n.id || n.ID || (n.judul + '_' + (n.tanggal || n.createdAt))).trim();
+        if (nid) notifiedMap[nid] = true;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(notifiedMap));
+      return;
+    }
+
+    let hasNewNotif = false;
+    const isInPages = (window.location.pathname || '').includes('/pages/');
+    const notifPageUrl = (isInPages ? '' : 'pages/') + 'notifikasi.html';
+
+    for (const notif of relevantNotifs) {
+      const nid = String(notif.id || notif.ID || (notif.judul + '_' + (notif.tanggal || notif.createdAt))).trim();
+      if (!nid) continue;
+
+      if (!notifiedMap[nid]) {
+        notifiedMap[nid] = true;
+        hasNewNotif = true;
+
+        const cleanTitle = notif.judul || 'Pemberitahuan Super Admin';
+        const cleanBody = notif.des || notif.ket || notif.keterangan || 'Anda menerima pesan notifikasi baru dari Super Admin.';
+
+        // MUNCULKAN LANGSUNG KE NOTIFIKASI HP (bukan dalam bentuk toast di web/aplikasi)
+        showNotification(cleanTitle, {
+          body: cleanBody,
+          tag: `superadmin-${nid}`,
+          renotify: true,
+          data: {
+            url: notifPageUrl,
+            notifId: nid
+          }
+        });
+      }
+    }
+
+    if (hasNewNotif) {
+      playAssignmentChime();
+      localStorage.setItem(storageKey, JSON.stringify(notifiedMap));
+      if (typeof Auth !== 'undefined' && typeof Auth.updateNotificationBadges === 'function') {
+        Auth.updateNotificationBadges();
+      }
+    }
+  } catch (err) {
+    console.warn("Gagal memeriksa notifikasi super admin:", err);
+  } finally {
+    isCheckingSuperAdminNotifs = false;
+  }
+}
+window.checkSuperAdminNotifications = checkSuperAdminNotifications;
+
+// Jalankan pengecekan deadline, assignment, & notifikasi super admin setelah halaman termuat
 setTimeout(checkDeadlines, 5000);
 setTimeout(checkNewAssignments, 2500);
+setTimeout(checkSuperAdminNotifications, 2000);
 
 // Pengecekan berkala (interval)
-setInterval(checkDeadlines, 30 * 60 * 1000);  // Setiap 30 menit untuk deadline H-1
-setInterval(checkNewAssignments, 30 * 1000);   // Setiap 30 detik untuk mendeteksi penugasan baru
+setInterval(checkDeadlines, 30 * 60 * 1000);          // Setiap 30 menit untuk deadline H-1
+setInterval(checkNewAssignments, 30 * 1000);           // Setiap 30 detik untuk mendeteksi penugasan baru
+setInterval(checkSuperAdminNotifications, 20 * 1000);  // Setiap 20 detik untuk mendeteksi notifikasi Super Admin
 
 // Trigger seketika saat user membuka kembali tab / aplikasi FPManager di HP/Laptop
 window.addEventListener('focus', () => {
   if (typeof checkNewAssignments === 'function') checkNewAssignments();
+  if (typeof checkSuperAdminNotifications === 'function') checkSuperAdminNotifications();
 });
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && typeof checkNewAssignments === 'function') {
-    checkNewAssignments();
+  if (!document.hidden) {
+    if (typeof checkNewAssignments === 'function') checkNewAssignments();
+    if (typeof checkSuperAdminNotifications === 'function') checkSuperAdminNotifications();
   }
 });
 

@@ -244,11 +244,6 @@
             <i class="fa-solid fa-bell text-base"></i>
             <span class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
           </a>
-          <button id="darkModeToggle" type="button"
-            class="p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer"
-            title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
-            <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
-          </button>
           <span id="headerUserRoleBadge"
             class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
             SUPER ADMIN
@@ -337,6 +332,43 @@
 
           <!-- Left Column -->
           <div class="space-y-4 sm:space-y-6">
+
+            <!-- Card: Mode Tampilan / Tema (Dark Mode) -->
+            <div
+              class="bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                <i class="fa-solid fa-circle-half-stroke text-indigo-600 dark:text-indigo-400 text-lg"></i>
+                <span data-i18n="settings-card-theme">Mode Tampilan / Tema</span>
+              </h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400" data-i18n="settings-card-theme-desc">
+                Sesuaikan tema visual antarmuka sistem antara Mode Gelap (Dark) dan Mode Terang (Light).
+              </p>
+
+              <div
+                class="p-3.5 sm:p-4 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 flex items-center justify-between gap-3">
+                <div class="flex items-center space-x-3 min-w-0">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
+                    <i class="fa-solid fa-palette text-base"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <span id="themeStatusLabel" class="font-semibold text-sm text-zinc-800 dark:text-zinc-100 block truncate">
+                      Mode Tampilan
+                    </span>
+                    <span id="themeStatusSub" class="text-xs text-zinc-500 dark:text-zinc-400 block truncate">
+                      Klik tombol untuk beralih mode tampilan
+                    </span>
+                  </div>
+                </div>
+
+                <button id="darkModeToggle" type="button" data-has-label="true"
+                  class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center gap-2 shadow-sm transition-all focus:outline-none cursor-pointer shrink-0"
+                  title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
+                  <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
+                  <span>Ganti Mode</span>
+                </button>
+              </div>
+            </div>
 
             <!-- Card 1: Language Settings -->
             <div

@@ -22,12 +22,34 @@ function syncDarkModeToggleUI(isDark) {
     btn.setAttribute('aria-label', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
     
     // Set clean single dynamic icon with smooth micro-animation
-    if (isDark) {
-      btn.innerHTML = '<i id="darkModeIcon" class="fa-solid fa-sun text-base md:text-lg text-amber-400 transition-transform duration-300 hover:rotate-45"></i>';
+    if (btn.dataset.hasLabel === "true") {
+      const labelText = isDark ? (isEn ? 'Mode Terang' : 'Mode Terang') : (isEn ? 'Mode Gelap' : 'Mode Gelap');
+      if (isDark) {
+        btn.innerHTML = `<i id="darkModeIcon" class="fa-solid fa-sun text-amber-400 transition-transform duration-300 hover:rotate-45"></i><span>${labelText}</span>`;
+      } else {
+        btn.innerHTML = `<i id="darkModeIcon" class="fa-solid fa-moon text-zinc-600 hover:text-indigo-600 transition-transform duration-300 hover:-rotate-12"></i><span>${labelText}</span>`;
+      }
     } else {
-      btn.innerHTML = '<i id="darkModeIcon" class="fa-solid fa-moon text-base md:text-lg text-zinc-600 hover:text-indigo-600 transition-transform duration-300 hover:-rotate-12"></i>';
+      if (isDark) {
+        btn.innerHTML = '<i id="darkModeIcon" class="fa-solid fa-sun text-base md:text-lg text-amber-400 transition-transform duration-300 hover:rotate-45"></i>';
+      } else {
+        btn.innerHTML = '<i id="darkModeIcon" class="fa-solid fa-moon text-base md:text-lg text-zinc-600 hover:text-indigo-600 transition-transform duration-300 hover:-rotate-12"></i>';
+      }
     }
   });
+
+  const themeStatusLabel = document.getElementById('themeStatusLabel');
+  if (themeStatusLabel) {
+    themeStatusLabel.textContent = isDark 
+      ? (isEn ? 'Mode Gelap (Dark Mode)' : 'Mode Gelap (Dark Mode)') 
+      : (isEn ? 'Mode Terang (Light Mode)' : 'Mode Terang (Light Mode)');
+  }
+  const themeStatusSub = document.getElementById('themeStatusSub');
+  if (themeStatusSub) {
+    themeStatusSub.textContent = isDark
+      ? (isEn ? 'Tampilan gelap aktif, nyaman di mata' : 'Tampilan gelap aktif, nyaman di mata')
+      : (isEn ? 'Tampilan terang aktif, jernih & bersih' : 'Tampilan terang aktif, jernih & bersih');
+  }
 
   // Synchronize Chart.js defaults if present
   if (window.Chart) {

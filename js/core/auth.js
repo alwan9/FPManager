@@ -1162,6 +1162,9 @@ const Auth = {
     try {
       if (!Auth.isLoggedIn() || typeof API === 'undefined' || !API.getNotifikasi) return;
       const res = await API.getNotifikasi(false);
+      if (res && res.success && Array.isArray(res.data) && typeof window.checkSuperAdminNotifications === 'function') {
+        window.checkSuperAdminNotifications(res.data);
+      }
       const cu = (typeof API !== 'undefined' && typeof API.getCurrentUser === 'function')
         ? API.getCurrentUser()
         : Auth.getUser();
@@ -1179,18 +1182,23 @@ const Auth = {
         return !targetUser || targetUser === 'all' || targetUser === 'semua' || userIdentifiers.includes(targetUser);
       }).length;
 
+      const badgeText = unreadCount > 99 ? '99+' : String(unreadCount);
+
       document.querySelectorAll('.notif-topbar-badge').forEach(badge => {
         if (unreadCount > 0) {
+          badge.textContent = badgeText;
           badge.classList.remove('hidden');
         } else {
+          badge.textContent = '';
           badge.classList.add('hidden');
         }
       });
-      document.querySelectorAll('.notif-unread-badge').forEach(badge => {
+      document.querySelectorAll('.notif-unread-badge, #headerNotifBadge').forEach(badge => {
         if (unreadCount > 0) {
-          badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          badge.textContent = badgeText;
           badge.classList.remove('hidden');
         } else {
+          badge.textContent = '0';
           badge.classList.add('hidden');
         }
       });
@@ -1244,6 +1252,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof Auth.updateNotificationBadges === 'function') {
         Auth.updateNotificationBadges();
       }
-    }, 60000);
+    }, 30000); // 30 detik untuk sinkronisasi notifikasi realtime
   }
 });

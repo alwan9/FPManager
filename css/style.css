@@ -291,9 +291,8 @@ aside {
   box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05), 0 8px 8px -6px rgba(0, 0, 0, 0.05);
 }
 
-/* Dashboard Stat Cards: 4 Badge Icons must never overlap or cover value/data */
+/* Dashboard Stat Cards: Layout & Responsiveness */
 #statCardTotal,
-#statCardPendapatan,
 #statCardPengeluaran,
 #statCardKeuntungan {
   display: flex !important;
@@ -305,7 +304,6 @@ aside {
 }
 
 #statCardTotal > div:first-child,
-#statCardPendapatan > div:first-child,
 #statCardPengeluaran > div:first-child,
 #statCardKeuntungan > div:first-child {
   display: flex !important;
@@ -316,7 +314,6 @@ aside {
 }
 
 #statTotalProyek,
-#statPendapatan,
 #statPengeluaran,
 #statKeuntungan {
   display: block !important;
@@ -329,7 +326,6 @@ aside {
 }
 
 #statCard1Icon,
-#statCard2Icon,
 #statCard3Icon,
 #statCard4Icon {
   flex-shrink: 0 !important;
@@ -339,37 +335,64 @@ aside {
   position: static !important;
 }
 
+/* Dashboard Welcome Banner Primary Highlight Card */
+#statCardPendapatan.welcome-highlight-card {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  color: #ffffff !important;
+}
+
+#statCardPendapatan.welcome-highlight-card #statPendapatan {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+
 @media (max-width: 639px) {
   #statCardTotal,
-  #statCardPendapatan,
   #statCardPengeluaran,
   #statCardKeuntungan {
-    padding: 0.75rem 0.85rem !important;
-    min-height: 94px !important;
+    padding: 0.6rem 0.65rem !important;
+    min-height: 84px !important;
   }
 
   #statTotalProyek,
-  #statPendapatan,
   #statPengeluaran,
   #statKeuntungan {
-    font-size: 1.05rem !important;
-    line-height: 1.25 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
     letter-spacing: -0.01em !important;
   }
 
   #statCard1Icon,
-  #statCard2Icon,
   #statCard3Icon,
   #statCard4Icon {
-    padding: 0.35rem 0.45rem !important;
+    padding: 0.3rem 0.4rem !important;
     border-radius: 0.5rem !important;
   }
 
   #statCard1Icon i,
-  #statCard2Icon i,
   #statCard3Icon i,
   #statCard4Icon i {
-    font-size: 0.825rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  #statCardPendapatan.welcome-highlight-card {
+    padding: 0.95rem 1rem !important;
+    min-height: auto !important;
+  }
+
+  #statCardPendapatan.welcome-highlight-card #statPendapatan {
+    font-size: 1.35rem !important;
   }
 }
 
@@ -2443,6 +2466,42 @@ html:not(.dark) .ptr-content {
 .ptr-icon {
   display: inline-block;
   transition: transform 0.15s ease;
+}
+
+/* ==========================================================================
+   Topbar Notification Bell Badge (Unread Counter Pill)
+   ========================================================================== */
+.notif-topbar-badge {
+  position: absolute !important;
+  top: 1px !important;
+  right: 1px !important;
+  min-width: 17px !important;
+  height: 17px !important;
+  padding: 0 4px !important;
+  border-radius: 9999px !important;
+  background-color: #f43f5e !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+  font-family: inherit !important;
+  letter-spacing: -0.02em !important;
+  animation: none !important;
+}
+
+html.dark .notif-topbar-badge {
+  border-color: #27272a !important;
+}
+
+.notif-topbar-badge.hidden {
+  display: none !important;
 }
 
 

@@ -392,12 +392,14 @@
     if (elFailed) elFailed.textContent = failed;
 
     // Update Header Badge jika ada
-    const headerBadges = document.querySelectorAll('.notif-unread-badge, #headerNotifBadge');
+    const badgeText = unread > 99 ? '99+' : String(unread);
+    const headerBadges = document.querySelectorAll('.notif-unread-badge, #headerNotifBadge, .notif-topbar-badge');
     headerBadges.forEach(b => {
       if (unread > 0) {
-        b.textContent = unread > 99 ? '99+' : unread;
+        b.textContent = badgeText;
         b.classList.remove('hidden');
       } else {
+        b.textContent = b.classList.contains('notif-topbar-badge') ? '' : '0';
         b.classList.add('hidden');
       }
     });
@@ -979,6 +981,12 @@
 
         // Refresh daftar notifikasi secara realtime
         await loadNotifikasi(true);
+        if (typeof window.checkSuperAdminNotifications === 'function') {
+          window.checkSuperAdminNotifications();
+        }
+        if (typeof Auth !== 'undefined' && typeof Auth.updateNotificationBadges === 'function') {
+          Auth.updateNotificationBadges();
+        }
       } else {
         const errMsg = (res && res.message) ? res.message : 'Gagal membuat notifikasi';
         if (typeof Toast !== 'undefined' && Toast.error) {

@@ -102,6 +102,7 @@ function applyDashboardRoleCustomizations() {
   const recentProjectsCard = document.getElementById('recentProjectsCard');
   const incomeDetailBadge = document.getElementById('incomeDetailBadge');
   const statCardPendapatan = document.getElementById('statCardPendapatan');
+  const statCardTotal = document.getElementById('statCardTotal');
   const statCardPengeluaran = document.getElementById('statCardPengeluaran');
   const statCardKeuntungan = document.getElementById('statCardKeuntungan');
   const toggleHideNominalBtn = document.getElementById('toggleHideNominalBtn');
@@ -110,6 +111,7 @@ function applyDashboardRoleCustomizations() {
   const bannerAddProjectBtn = document.getElementById('bannerAddProjectBtn');
   const dashWelcomeTitle = document.getElementById('dashWelcomeTitle');
   const dashWelcomeDesc = document.getElementById('dashWelcomeDesc');
+  const highlightCardSubtext = document.getElementById('highlightCardSubtext');
   const chartHeaderIcon = document.getElementById('chartHeaderIcon');
   const chartHeaderTitle = document.getElementById('chartHeaderTitle');
   const chartHeaderLink = document.getElementById('chartHeaderLink');
@@ -135,20 +137,30 @@ function applyDashboardRoleCustomizations() {
       dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
     }
 
-    // 3. Card 2: Link to In Progress Projects
+    // 3. Highlight Card in Welcome Banner: Total Projects
     if (statCardPendapatan) {
       statCardPendapatan.classList.add('cursor-pointer');
-      statCardPendapatan.setAttribute('onclick', "window.location.href='pages/proyek.html?status=Sedang%20Dikerjakan'");
-      statCardPendapatan.setAttribute('title', isEn ? 'Click to view In Progress projects' : 'Klik untuk melihat projek yang sedang dikerjakan');
+      statCardPendapatan.setAttribute('onclick', "window.location.href='pages/proyek.html'");
+      statCardPendapatan.setAttribute('title', isEn ? 'Click to view all your projects' : 'Klik untuk melihat semua projek Anda');
+    }
+    if (highlightCardSubtext) {
+      highlightCardSubtext.textContent = isEn ? 'View all projects' : 'Lihat semua projek';
     }
 
-    // 4. Card 3: Link to Revision Projects
+    // 4. Card 1 Below: In Progress Projects
+    if (statCardTotal) {
+      statCardTotal.classList.add('cursor-pointer');
+      statCardTotal.setAttribute('onclick', "window.location.href='pages/proyek.html?status=Sedang%20Dikerjakan'");
+      statCardTotal.setAttribute('title', isEn ? 'Click to view In Progress projects' : 'Klik untuk melihat projek yang sedang dikerjakan');
+    }
+
+    // 5. Card 2 Below: In Revision Projects
     if (statCardPengeluaran) {
       statCardPengeluaran.setAttribute('href', 'pages/proyek.html?status=Revisi');
       statCardPengeluaran.setAttribute('title', isEn ? 'Click to view projects In Revision' : 'Klik untuk melihat projek dalam status revisi');
     }
 
-    // 5. Card 4: Link to Completed Projects
+    // 6. Card 3 Below: Completed Projects
     if (statCardKeuntungan) {
       statCardKeuntungan.classList.add('cursor-pointer', 'hover:border-emerald-300', 'dark:hover:border-emerald-700', 'hover:shadow-md');
       statCardKeuntungan.setAttribute('onclick', "window.location.href='pages/proyek.html?status=Selesai'");
@@ -156,19 +168,20 @@ function applyDashboardRoleCustomizations() {
     }
 
     // Designer Project Status Card Titles (Shortened on HP screens)
-    const title1 = document.getElementById('statCard1Title');
-    if (title1) {
-      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'Total Projects' : 'Total Projek'}</span><span class="inline md:hidden">${isEn ? 'Total' : 'Total'}</span>`;
-    }
     const title2 = document.getElementById('statCard2Title');
     if (title2) {
       title2.removeAttribute('data-i18n');
-      title2.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Progress' : 'Dikerjakan'}</span>`;
+      title2.textContent = isEn ? 'Total Projects' : 'Total Projek Anda';
+    }
+    const title1 = document.getElementById('statCard1Title');
+    if (title1) {
+      title1.removeAttribute('data-i18n');
+      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Dikerjakan' : 'Dikerjakan'}</span>`;
     }
     const title3 = document.getElementById('statCard3Title');
     if (title3) {
       title3.removeAttribute('data-i18n');
-      title3.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revision' : 'Revisi'}</span>`;
+      title3.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revisi' : 'Revisi'}</span>`;
     }
     const title4 = document.getElementById('statCard4Title');
     if (title4) {
@@ -176,7 +189,7 @@ function applyDashboardRoleCustomizations() {
       title4.textContent = isEn ? 'Completed' : 'Selesai';
     }
 
-    // 6. Chart Card Header for Designer (Workload / Status Distribution)
+    // Chart Card Header for Designer (Workload / Status Distribution)
     if (chartHeaderIcon) {
       chartHeaderIcon.className = 'fa-solid fa-chart-pie text-indigo-600 dark:text-indigo-400 mr-2';
     }
@@ -210,6 +223,14 @@ function applyDashboardRoleCustomizations() {
       statCardPendapatan.setAttribute('onclick', "showIncomeBreakdownModal()");
       statCardPendapatan.setAttribute('title', 'Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran');
     }
+    if (highlightCardSubtext) {
+      highlightCardSubtext.textContent = isEn ? 'Click for income breakdown' : 'Klik untuk rincian selengkapnya';
+    }
+    if (statCardTotal) {
+      statCardTotal.classList.add('cursor-pointer');
+      statCardTotal.setAttribute('onclick', "window.location.href='pages/proyek.html'");
+      statCardTotal.setAttribute('title', 'Buka daftar projek');
+    }
     if (statCardPengeluaran) {
       statCardPengeluaran.setAttribute('href', 'pages/keuangan.html');
       statCardPengeluaran.setAttribute('title', 'Buka modul Keuangan untuk melihat detail Pengeluaran');
@@ -218,6 +239,22 @@ function applyDashboardRoleCustomizations() {
       statCardKeuntungan.removeAttribute('onclick');
       statCardKeuntungan.removeAttribute('title');
       statCardKeuntungan.classList.remove('cursor-pointer');
+    }
+    const title2 = document.getElementById('statCard2Title');
+    if (title2) {
+      title2.textContent = isEn ? 'Total Income' : 'Total Pendapatan';
+    }
+    const title1 = document.getElementById('statCard1Title');
+    if (title1) {
+      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'Total Projects' : 'Total Projek'}</span><span class="inline md:hidden">${isEn ? 'Total Projek' : 'Total Projek'}</span>`;
+    }
+    const title3 = document.getElementById('statCard3Title');
+    if (title3) {
+      title3.textContent = isEn ? 'Expenses' : 'Pengeluaran';
+    }
+    const title4 = document.getElementById('statCard4Title');
+    if (title4) {
+      title4.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
     }
     if (chartHeaderIcon) {
       chartHeaderIcon.className = 'fa-solid fa-chart-simple text-indigo-600 dark:text-indigo-400 mr-2';
@@ -502,87 +539,129 @@ function renderSummaryStats(stats) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const projSuffix = isEn ? 'Projects' : 'Proyek';
 
-  const statTotalEl = document.getElementById('statTotalProyek');
-  if (statTotalEl) {
-    if (isDesainer) {
-      statTotalEl.innerHTML = `${totalProyek} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-    } else {
-      statTotalEl.textContent = `${totalProyek} ${projSuffix}`;
-    }
-  }
-
   if (canReadFinancials) {
-    // Show Financial Metrics for Admin & Financial roles
+    // Show Financial Metrics for Admin & Service roles
+    // 1. Primary Highlight Card in Welcome Banner: Total Pendapatan
     const title2 = document.getElementById('statCard2Title');
-    if (title2) title2.textContent = isEn ? 'Income' : 'Pendapatan';
+    if (title2) title2.textContent = isEn ? 'Total Income' : 'Total Pendapatan';
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
       val2.textContent = formatFinancialDisplay(totalPemasukan);
-      val2.className = 'text-base sm:text-lg md:text-2xl font-bold text-green-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
-    if (icon2) icon2.className = 'bg-green-50 text-green-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon2) {
+      const i2 = icon2.querySelector('i');
+      if (i2) i2.className = 'fa-solid fa-arrow-trend-up text-base sm:text-lg';
+    }
 
+    // 2. Card 1 in 3-card row: Total Projek
+    const title1 = document.getElementById('statCard1Title');
+    if (title1) {
+      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'Total Projects' : 'Total Projek'}</span><span class="inline md:hidden">${isEn ? 'Total Projek' : 'Total Projek'}</span>`;
+    }
+    const statTotalEl = document.getElementById('statTotalProyek');
+    if (statTotalEl) {
+      statTotalEl.textContent = `${totalProyek} ${projSuffix}`;
+    }
+    const icon1 = document.getElementById('statCard1Icon');
+    if (icon1) {
+      icon1.className = 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      const i1 = icon1.querySelector('i');
+      if (i1) i1.className = 'fa-solid fa-briefcase text-xs sm:text-sm md:text-base';
+    }
+
+    // 3. Card 2 in 3-card row: Pengeluaran
     const title3 = document.getElementById('statCard3Title');
     if (title3) title3.textContent = isEn ? 'Expenses' : 'Pengeluaran';
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
       val3.textContent = formatFinancialDisplay(totalPengeluaran);
-      val3.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate';
+      val3.className = 'text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight';
     }
     const icon3 = document.getElementById('statCard3Icon');
-    if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon3) {
+      icon3.className = 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      const i3 = icon3.querySelector('i');
+      if (i3) i3.className = 'fa-solid fa-arrow-trend-down text-xs sm:text-sm md:text-base';
+    }
 
+    // 4. Card 3 in 3-card row: Laba Bersih
     const title4 = document.getElementById('statCard4Title');
     if (title4) title4.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
       val4.textContent = formatFinancialDisplay(labaBersih);
       if (labaBersih < 0 && !isFinancialsHidden) {
-        val4.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate';
+        val4.className = 'text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight';
       } else {
-        val4.className = 'text-base sm:text-lg md:text-2xl font-bold text-indigo-600 mt-1 block truncate';
+        val4.className = 'text-sm sm:text-lg md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 block truncate leading-tight';
       }
     }
     const icon4 = document.getElementById('statCard4Icon');
-    if (icon4) icon4.className = 'bg-indigo-50 text-indigo-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon4) {
+      icon4.className = 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      const i4 = icon4.querySelector('i');
+      if (i4) i4.className = 'fa-solid fa-scale-balanced text-xs sm:text-sm md:text-base';
+    }
   } else {
     // Show Project Status Metrics for Desainer & Non-financial roles
     const inProgress = stats.dikerjakanCount !== undefined ? stats.dikerjakanCount : (stats.sedangDikerjakan || 0);
     const inRevision = stats.revisiCount !== undefined ? stats.revisiCount : (stats.revisi || 0);
     const completed = stats.selesaiCount !== undefined ? stats.selesaiCount : (stats.selesai || 0);
 
-    const title1 = document.getElementById('statCard1Title');
-    if (title1) {
-      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'Total Projects' : 'Total Projek'}</span><span class="inline md:hidden">${isEn ? 'Total' : 'Total'}</span>`;
-    }
-
+    // 1. Primary Highlight Card in Welcome Banner: Total Projek
     const title2 = document.getElementById('statCard2Title');
     if (title2) {
       title2.removeAttribute('data-i18n');
-      title2.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Progress' : 'Dikerjakan'}</span>`;
+      title2.textContent = isEn ? 'Total Projects' : 'Total Projek Anda';
     }
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
-      val2.innerHTML = `${inProgress} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-      val2.className = 'text-base sm:text-lg md:text-2xl font-bold text-amber-600 mt-1 block truncate';
+      val2.textContent = `${totalProyek} ${projSuffix}`;
     }
     const icon2 = document.getElementById('statCard2Icon');
-    if (icon2) icon2.className = 'bg-amber-50 text-amber-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon2) {
+      const i2 = icon2.querySelector('i');
+      if (i2) i2.className = 'fa-solid fa-briefcase text-base sm:text-lg';
+    }
 
+    // 2. Card 1 in 3-card row: Sedang Dikerjakan
+    const title1 = document.getElementById('statCard1Title');
+    if (title1) {
+      title1.removeAttribute('data-i18n');
+      title1.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Progress' : 'Sedang Dikerjakan'}</span><span class="inline md:hidden">${isEn ? 'Dikerjakan' : 'Dikerjakan'}</span>`;
+    }
+    const statTotalEl = document.getElementById('statTotalProyek');
+    if (statTotalEl) {
+      statTotalEl.innerHTML = `${inProgress} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
+      statTotalEl.className = 'text-sm sm:text-lg md:text-2xl font-bold text-amber-600 dark:text-amber-400 block truncate leading-tight';
+    }
+    const icon1 = document.getElementById('statCard1Icon');
+    if (icon1) {
+      icon1.className = 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      const i1 = icon1.querySelector('i');
+      if (i1) i1.className = 'fa-solid fa-clock text-xs sm:text-sm md:text-base';
+    }
+
+    // 3. Card 2 in 3-card row: Dalam Revisi
     const title3 = document.getElementById('statCard3Title');
     if (title3) {
       title3.removeAttribute('data-i18n');
-      title3.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revision' : 'Revisi'}</span>`;
+      title3.innerHTML = `<span class="hidden md:inline">${isEn ? 'In Revision' : 'Dalam Revisi'}</span><span class="inline md:hidden">${isEn ? 'Revisi' : 'Revisi'}</span>`;
     }
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
       val3.innerHTML = `${inRevision} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-      val3.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate';
+      val3.className = 'text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight';
     }
     const icon3 = document.getElementById('statCard3Icon');
-    if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon3) {
+      icon3.className = 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      const i3 = icon3.querySelector('i');
+      if (i3) i3.className = 'fa-solid fa-pen-ruler text-xs sm:text-sm md:text-base';
+    }
 
+    // 4. Card 3 in 3-card row: Selesai
     const title4 = document.getElementById('statCard4Title');
     if (title4) {
       title4.removeAttribute('data-i18n');
@@ -591,10 +670,14 @@ function renderSummaryStats(stats) {
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
       val4.innerHTML = `${completed} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-      val4.className = 'text-base sm:text-lg md:text-2xl font-bold text-emerald-600 mt-1 block truncate';
+      val4.className = 'text-sm sm:text-lg md:text-2xl font-bold text-emerald-600 dark:text-emerald-400 block truncate leading-tight';
     }
     const icon4 = document.getElementById('statCard4Icon');
-    if (icon4) icon4.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
+    if (icon4) {
+      icon4.className = 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      const i4 = icon4.querySelector('i');
+      if (i4) i4.className = 'fa-solid fa-circle-check text-xs sm:text-sm md:text-base';
+    }
   }
 }
 
