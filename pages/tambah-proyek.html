@@ -90,7 +90,7 @@
         <a href="../index.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
           <i class="fa-solid fa-chart-line text-base w-5"></i>
-          <span class="text-sm font-medium" data-i18n="nav-home">Dashboard</span>
+          <span class="text-sm font-medium" data-i18n="nav-dashboard">Dashboard</span>
         </a>
         <a href="proyek.html"
           class="sidebar-link flex flex-row items-center space-x-3 px-4 py-3 rounded-xl justify-start text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100">
@@ -173,13 +173,13 @@
 
     <!-- Mobile Bottom Navigation Bar (5 Core Menus) -->
     <nav id="mobileBottomNav"
-      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-5 flex items-center justify-around"
+      class="md:hidden fixed bottom-0 left-0 right-0 rounded-t-2xl z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-5 flex items-center justify-around"
       style="padding-top: 20px !important; padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;">
       <!-- 1. Home -->
       <a href="../index.html"
         class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
         <i class="fa-solid fa-chart-line text-base"></i>
-        <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
+        <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
       </a>
 
       <!-- 2. Projek -->
@@ -246,6 +246,11 @@
             <i class="fa-solid fa-bell text-base"></i>
             <span class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
           </a>
+          <button id="darkModeToggle" type="button"
+            class="hidden md:flex p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none items-center justify-center cursor-pointer"
+            title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
+            <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
+          </button>
           <span id="headerUserRoleBadge"
             class="hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
             ADMIN

@@ -1,7 +1,8 @@
 const TRANSLATIONS = {
   id: {
     // Sidebar Navigation
-    "nav-home": "Dashboard",
+    "nav-home": "Home",
+    "nav-dashboard": "Dashboard",
     "nav-proyek": "Projek",
     "nav-tambah": "Tambah",
     "nav-keuangan": "Keuangan",
@@ -276,7 +277,8 @@ const TRANSLATIONS = {
   },
   en: {
     // Sidebar Navigation
-    "nav-home": "Dashboard",
+    "nav-home": "Home",
+    "nav-dashboard": "Dashboard",
     "nav-proyek": "Projects",
     "nav-tambah": "Add New",
     "nav-keuangan": "Finance",

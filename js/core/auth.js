@@ -486,43 +486,43 @@ const Auth = {
     if (Auth.isDesigner()) {
       // Designer: Home, Projek, Tools, Profil
       bottomNav.innerHTML = `
-        <!-- 1. Dashboard -->
+        <!-- 1. Home -->
         <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
-          <span class="text-xs mt-2" data-i18n="nav-home">Dashboard</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
         </a>
 
         <!-- 2. Project -->
         <a href="${pagesPath}proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
-          <span class="text-xs mt-2" data-i18n="nav-proyek">Project</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tools -->
         <a href="${pagesPath}tools.html" class="${isTools ? activeClass : inactiveClass}">
           <i class="fa-solid fa-toolbox text-base"></i>
-          <span class="text-xs mt-2">Tools</span>
+          <span class="text-[10px] mt-0.5">Tools</span>
         </a>
 
         <!-- 4. Profile -->
         <a href="${pagesPath}profil.html" class="${isProfil ? activeClass : inactiveClass}">
           <i class="fa-solid fa-user text-base"></i>
-          <span class="text-xs mt-2" data-i18n="nav-profile">Profile</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
         </a>
       `;
     } else {
       // Super Admin & Service: Home, Projek, Tambah, Keuangan, Profil
       bottomNav.innerHTML = `
-        <!-- 1. Dashboard -->
+        <!-- 1. Home -->
         <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
-          <span class="text-xs mt-2" data-i18n="nav-home">Dashboard</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Home</span>
         </a>
 
         <!-- 2. Project -->
         <a href="${pagesPath}proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
-          <span class="text-xs mt-2" data-i18n="nav-proyek">Project</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tambah (Center Prominent Action) -->
@@ -531,14 +531,14 @@ const Auth = {
           <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 ${isTambah ? 'ring-2 ring-indigo-400' : ''} group-hover:scale-105 active:scale-95 transition-all">
             <i class="fa-solid fa-plus text-base"></i>
           </div>
-          <span class="text-xs font-bold ${isTambah ? 'text-indigo-400' : 'text-zinc-200'} mt-2" data-i18n="nav-tambah">Tambah</span>
+          <span class="text-[10px] font-bold ${isTambah ? 'text-indigo-400' : 'text-zinc-200'} mt-0.5" data-i18n="nav-tambah">Tambah</span>
         </a>
 
         <!-- 4. Keuangan Group (Collapsible / Action Menu) -->
         <button type="button" id="btnMobileKeuanganNav" onclick="Auth.handleMobileKeuanganClick(event)"
           class="${isKeuanganGroup ? activeClass : inactiveClass} focus:outline-none cursor-pointer">
           <i class="fa-solid fa-wallet text-base"></i>
-          <span class="text-xs mt-2 flex items-center gap-1" data-i18n="nav-keuangan-group">
+          <span class="text-[10px] mt-0.5 flex items-center gap-1" data-i18n="nav-keuangan-group">
             Keuangan <i id="mobileKeuanganArrowIcon" class="fa-solid fa-angle-up text-[11px] opacity-80 inline-block transition-transform duration-200"></i>
           </span>
         </button>
@@ -546,7 +546,7 @@ const Auth = {
         <!-- 5. Profile -->
         <a href="${pagesPath}profil.html" class="${isProfil ? activeClass : inactiveClass}">
           <i class="fa-solid fa-user text-base"></i>
-          <span class="text-xs mt-2" data-i18n="nav-profile">Profile</span>
+          <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
         </a>
       `;
     }
