@@ -346,11 +346,11 @@
       </header>
 
       <!-- Page Content -->
-      <section class="flex-grow p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-8">
+      <section class="flex-grow px-2 py-3 sm:px-4 sm:py-6 md:p-8 space-y-4 md:space-y-6">
 
         <!-- Welcome banner -->
         <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-6 text-white shadow-lg gap-4">
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 bg-gradient-to-r from-indigo-800 to-indigo-600 rounded-2xl p-4 sm:p-6 text-white shadow-lg gap-3 sm:gap-4">
           <div>
             <h3 id="dashWelcomeTitle"
               class="text-xl md:text-xl font-bold tracking-tight inline-flex items-center gap-1.5"><span
@@ -393,11 +393,11 @@
         </div>
 
         <!-- Summary Stats Card Layout -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 md:gap-6">
 
           <!-- Card Total Proyek -->
           <div id="statCardTotal" onclick="window.location.href='pages/proyek.html'"
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all min-h-[96px] sm:min-h-[110px]">
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all min-h-[96px] sm:min-h-[110px]">
             <div class="flex items-center justify-between gap-2 w-full">
               <span id="statCard1Title"
                 class="text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
@@ -416,7 +416,7 @@
 
           <!-- Card Pendapatan / Status 1 (Clickable: Rincian Metode Pembayaran / Sedang Dikerjakan) -->
           <div id="statCardPendapatan" onclick="showIncomeBreakdownModal()"
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between cursor-pointer group transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md min-h-[96px] sm:min-h-[110px]"
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between cursor-pointer group transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md min-h-[96px] sm:min-h-[110px]"
             title="Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran">
             <div class="flex items-center justify-between gap-2 w-full">
               <div class="flex items-center gap-1.5 min-w-0">
@@ -445,7 +445,7 @@
 
           <!-- Card Pengeluaran / Status 2 -->
           <a href="pages/keuangan.html" id="statCardPengeluaran"
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between group transition-all hover:border-rose-300 dark:hover:border-rose-700 hover:shadow-md cursor-pointer min-h-[96px] sm:min-h-[110px]"
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between group transition-all hover:border-rose-300 dark:hover:border-rose-700 hover:shadow-md cursor-pointer min-h-[96px] sm:min-h-[110px]"
             title="Buka modul Keuangan untuk melihat detail Pengeluaran">
             <div class="flex items-center justify-between gap-2 w-full">
               <span id="statCard3Title"
@@ -465,7 +465,7 @@
 
           <!-- Card Keuntungan / Status 3 -->
           <div id="statCardKeuntungan"
-            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between transition-all min-h-[96px] sm:min-h-[110px]">
+            class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 md:p-5 shadow-sm hover-card flex flex-col justify-between transition-all min-h-[96px] sm:min-h-[110px]">
             <div class="flex items-center justify-between gap-2 w-full">
               <span id="statCard4Title"
                 class="text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
@@ -485,11 +485,11 @@
         </div>
 
         <!-- Grid Chart and Recent activities -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
 
           <!-- Column Chart (Left - 6 cols) -->
           <div id="chartCard"
-            class="lg:col-span-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+            class="lg:col-span-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2.5 sm:p-5 md:p-6 shadow-sm flex flex-col justify-between">
             <div
               class="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-3.5 mb-3.5 shrink-0">
               <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-[1.3rem] flex items-center">
@@ -512,7 +512,7 @@
 
           <!-- Column Recent Projects (Right - 6 cols) -->
           <div id="recentProjectsCard"
-            class="lg:col-span-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+            class="lg:col-span-6 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2.5 sm:p-5 md:p-6 shadow-sm flex flex-col justify-between">
             <div
               class="flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800 pb-3.5 mb-3.5 shrink-0">
               <h4 class="font-bold text-zinc-800 dark:text-zinc-100 text-[1.3rem] flex items-center">
@@ -539,7 +539,7 @@
 
         <!-- Calendar Row (Full Width) -->
         <div
-          class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 md:p-6 shadow-sm flex flex-col overflow-hidden">
+          class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2.5 sm:p-5 md:p-6 shadow-sm flex flex-col overflow-hidden">
           <div class="overflow-x-auto w-full">
             <div class="min-w-[280px] sm:min-w-[300px] w-full">
               <div
