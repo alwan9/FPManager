@@ -308,7 +308,7 @@
       const isRead = item.status === 'TRUE' || item.isRead === true;
       const typeStyle = getTypeBadgeStyles(item.tipe);
       const relativeTime = formatRelativeTime(item.tanggal || item.createdAt);
-      
+
       // Bersihkan teks judul dan deskripsi dari ID mentah jika ada
       const cleanTitle = cleanRelationText(item.judul || 'Notifikasi');
       const cleanDes = cleanRelationText(item.ket || item.des || '');
@@ -324,11 +324,10 @@
           </div>
 
           <!-- Front Card (Klik untuk membuka detail & otomatis tandai dibaca) -->
-          <div class="notif-card-front relative z-10 p-3.5 sm:p-4 rounded-2xl transition-transform duration-200 ease-out border ${
-            isRead
-              ? 'bg-white dark:bg-zinc-800/80 border-zinc-200/70 dark:border-zinc-700/70 opacity-90'
-              : 'bg-indigo-50/40 dark:bg-zinc-800 border-indigo-200 dark:border-indigo-900/60 shadow-xs ring-1 ring-indigo-500/10'
-          } hover:border-zinc-300 dark:hover:border-zinc-600 flex items-start gap-3 sm:gap-4 cursor-pointer select-none"
+          <div class="notif-card-front relative z-10 p-3.5 sm:p-4 rounded-2xl transition-transform duration-200 ease-out border ${isRead
+          ? 'bg-white dark:bg-zinc-800/80 border-zinc-200/70 dark:border-zinc-700/70 opacity-90'
+          : 'bg-indigo-50/40 dark:bg-zinc-800 border-indigo-200 dark:border-indigo-900/60 shadow-xs ring-1 ring-indigo-500/10'
+        } hover:border-zinc-300 dark:hover:border-zinc-600 flex items-start gap-3 sm:gap-4 cursor-pointer select-none"
             onclick="window.NotifikasiModule.openDetail('${item.id}')">
 
             <!-- Icon Badge -->
@@ -344,12 +343,7 @@
                   ${escapeHtml(cleanTitle)}
                 </h4>
 
-                <!-- Tags / Meta (Tipe Status) -->
-                <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] shrink-0">
-                  <span class="px-1.5 sm:px-2 py-0.5 rounded-md font-semibold border ${typeStyle.bgLight}">
-                    ${typeStyle.label}
-                  </span>
-                </div>
+              
               </div>
 
               <!-- Description -->
@@ -363,10 +357,7 @@
                   <i class="fa-regular fa-clock text-[10px]"></i>
                   <span>${relativeTime}</span>
                 </span>
-                <span class="text-[10px] sm:text-[11px] text-indigo-500 dark:text-indigo-400 font-medium flex items-center gap-1 sm:hidden">
-                  <span>Lihat Detail</span>
-                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
-                </span>
+                
               </div>
             </div>
 

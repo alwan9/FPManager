@@ -2084,7 +2084,7 @@ const API = {
     return API._activeBackupPromise;
   },
 
-  // Daftarkan trigger Cloud 24/7 di Google Apps Script (06:00 & 21:00 WIB)
+  // Daftarkan trigger Cloud 24/7 di Google Apps Script (Pagi 06:00 WIB)
   setupAutoBackupTriggers: async () => {
     try {
       const body = new URLSearchParams();
@@ -2293,7 +2293,7 @@ const API = {
     }
   },
 
-  // Pengecekan cerdas Auto-Backup harian (Pagi 06:00 WIB)
+  // Pengecekan cerdas Auto-Backup harian (Hanya Pagi 06:00 WIB)
   checkAndRunAutoBackup: async () => {
     try {
       if (typeof CONFIG !== 'undefined' && CONFIG.AUTO_BACKUP_ENABLED === false) {
@@ -2308,16 +2308,47 @@ const API = {
 
       const now = new Date();
       const hour = now.getHours();
-      const todayStr = now.toISOString().split('T')[0];
-
+      
       // Auto backup harian dimulai tepat pada jam 06:00 WIB
       if (hour < 6) return;
       const slot = 'pagi';
+
+      // Format tanggal lokal (YYYY-MM-DD) berdasarkan timezone lokal perangkat/WIB
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
 
       const storageKey = `fpm_auto_backup_${slot}_date`;
       const lastDoneDate = localStorage.getItem(storageKey);
       if (lastDoneDate === todayStr) {
         return;
+      }
+
+      // 1. Cek riwayat server terlebih dahulu: Jika Cloud Trigger di server sudah berhasil backup hari ini, sinkronkan flag dan jangan upload lagi
+      if (typeof API.getBackupStatus === 'function') {
+        try {
+          const statusRes = await API.getBackupStatus();
+          if (statusRes && statusRes.success && statusRes.lastBackupTime) {
+            const serverDate = new Date(statusRes.lastBackupTime);
+            const sYear = serverDate.getFullYear();
+            const sMonth = String(serverDate.getMonth() + 1).padStart(2, '0');
+            const sDay = String(serverDate.getDate()).padStart(2, '0');
+            const serverDateStr = `${sYear}-${sMonth}-${sDay}`;
+
+            if (serverDateStr === todayStr) {
+              // Server sudah membackup hari ini (misal via Cloud Trigger 06:00 WIB)
+              localStorage.setItem(storageKey, todayStr);
+              localStorage.setItem('fpm_last_backup_time', statusRes.lastBackupTime);
+              if (statusRes.lastBackupReadable) {
+                localStorage.setItem('fpm_last_backup_readable', statusRes.lastBackupReadable);
+              }
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("[AutoBackup] Cek status backup server dilewati:", e);
+        }
       }
 
       const lockKey = `fpm_backup_running_${slot}`;
@@ -2345,7 +2376,7 @@ window.API = API;
 window.APICache = APICache;
 window.FPManagerDB = FPManagerDB;
 
-// Jalankan pengecekan cerdas Auto-Backup (Pagi & Malam) secara otomatis di background saat halaman web siap
+// Jalankan pengecekan cerdas Auto-Backup (Pagi 06:00 WIB) secara otomatis di background saat halaman web siap
 if (typeof document !== 'undefined') {
   const triggerAutoBackupWhenReady = () => {
     setTimeout(() => {
