@@ -352,12 +352,12 @@
               class="tool-banner-slide w-full flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 transition-all duration-500 ease-out transform translate-x-0 opacity-100 relative">
               <div class="pr-4">
                 <div class="flex items-center space-x-2">
-                  <h3 class="text-xl md:text-2xl font-bold tracking-tight flex items-center text-white">
+                  <h3 class="text-xl md:text-xl font-bold tracking-tight flex items-center text-white">
                     <span>Web Shortcuts</span>
                     <i class="fa-solid fa-globe ml-2 text-indigo-200 text-lg"></i>
                   </h3>
                 </div>
-                <p class="text-indigo-100 dark:text-indigo-200 text-xs sm:text-sm mt-1.5 font-normal">
+                <p class="text-indigo-100 dark:text-indigo-200 text-xs sm:text-base mt-1.5 font-normal">
                   Akses cepat ke website sering dipakai (Freepik, Canva, dll).
                 </p>
               </div>
@@ -418,12 +418,12 @@
               class="tool-banner-slide w-full flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 transition-all duration-500 ease-out transform translate-x-8 opacity-0 pointer-events-none absolute inset-0">
               <div class="pr-4">
                 <div class="flex items-center space-x-2">
-                  <h3 class="text-xl md:text-2xl font-bold tracking-tight flex items-center text-white">
+                  <h3 class="text-xl md:text-xl font-bold tracking-tight flex items-center text-white">
                     <span>Kumpulan Shortcut Prompt</span>
                     <i class="fa-solid fa-terminal ml-2 text-indigo-200 text-lg"></i>
                   </h3>
                 </div>
-                <p class="text-indigo-100 dark:text-indigo-200 text-xs sm:text-sm mt-1.5 font-normal">
+                <p class="text-indigo-100 dark:text-indigo-200 text-xs sm:text-base mt-1.5 font-normal">
                   Simpan dan gunakan prompt untuk keperluan proyek atau desain secara cepat.
                 </p>
               </div>
@@ -1588,7 +1588,7 @@
               <div class="relative flex items-center">
                 <input type="number" id="convPanjangInput" value="12" step="any" min="0" oninput="runSizeConverter()"
                   placeholder="Contoh: 12"
-                  class="w-full px-1 py-1 text-2xl font-black font-mono text-zinc-900 dark:text-white bg-transparent outline-none">
+                  class="w-full px-1 py-1 text-2xl font-bold font-mono text-zinc-900 dark:text-white bg-transparent outline-none">
               </div>
             </div>
 
@@ -1613,7 +1613,7 @@
               <div class="relative flex items-center">
                 <input type="number" id="convLebarInput" value="8" step="any" min="0" oninput="runSizeConverter()"
                   placeholder="Contoh: 8"
-                  class="w-full px-1 py-1 text-2xl font-black font-mono text-zinc-900 dark:text-white bg-transparent outline-none">
+                  class="w-full px-1 py-1 text-2xl font-bold font-mono text-zinc-900 dark:text-white bg-transparent outline-none">
               </div>
             </div>
           </div>
@@ -1672,7 +1672,7 @@
                 </div>
 
                 <div class="my-3">
-                  <div class="text-2xl md:text-3xl font-black font-mono text-zinc-900 dark:text-white tracking-tight"
+                  <div class="text-2xl md:text-3xl font-bold font-mono text-zinc-900 dark:text-white tracking-tight"
                     id="convResPx300Full">
                     1417 × 945 px
                   </div>
@@ -1722,7 +1722,7 @@
                 </div>
 
                 <div class="my-3">
-                  <div class="text-2xl md:text-3xl font-black font-mono text-zinc-900 dark:text-white tracking-tight"
+                  <div class="text-2xl md:text-3xl font-bold font-mono text-zinc-900 dark:text-white tracking-tight"
                     id="convResPx72Full">
                     340 × 227 px
                   </div>
@@ -1973,26 +1973,26 @@
           <div
             class="p-2.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block">Total Baris</span>
-            <span id="importShortcutCountTotal" class="text-lg font-extrabold text-zinc-800 dark:text-zinc-100">0</span>
+            <span id="importShortcutCountTotal" class="text-lg font-bold text-zinc-800 dark:text-zinc-100">0</span>
           </div>
           <div
             class="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Siap
               Diimport</span>
             <span id="importShortcutCountValid"
-              class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+              class="text-lg font-bold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
           <div
             class="p-2.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 block">Bermasalah / Error</span>
             <span id="importShortcutCountInvalid"
-              class="text-lg font-extrabold text-rose-600 dark:text-rose-400">0</span>
+              class="text-lg font-bold text-rose-600 dark:text-rose-400">0</span>
           </div>
           <div
             class="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 block">Potensi Duplikat</span>
             <span id="importShortcutCountDuplicate"
-              class="text-lg font-extrabold text-amber-600 dark:text-amber-400">0</span>
+              class="text-lg font-bold text-amber-600 dark:text-amber-400">0</span>
           </div>
         </div>
 
@@ -2200,25 +2200,25 @@
           <div
             class="p-2.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block">Total Baris</span>
-            <span id="importToolCountTotal" class="text-lg font-extrabold text-zinc-800 dark:text-zinc-100">0</span>
+            <span id="importToolCountTotal" class="text-lg font-bold text-zinc-800 dark:text-zinc-100">0</span>
           </div>
           <div
             class="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Siap
               Diimport</span>
             <span id="importToolCountValid"
-              class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+              class="text-lg font-bold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
           <div
             class="p-2.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 block">Bermasalah / Error</span>
-            <span id="importToolCountInvalid" class="text-lg font-extrabold text-rose-600 dark:text-rose-400">0</span>
+            <span id="importToolCountInvalid" class="text-lg font-bold text-rose-600 dark:text-rose-400">0</span>
           </div>
           <div
             class="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 block">Potensi Duplikat</span>
             <span id="importToolCountDuplicate"
-              class="text-lg font-extrabold text-amber-600 dark:text-amber-400">0</span>
+              class="text-lg font-bold text-amber-600 dark:text-amber-400">0</span>
           </div>
         </div>
 

@@ -330,9 +330,9 @@
         <!-- Header Actions -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
           <div>
-            <h3 class="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight" data-i18n="proj-title">Daftar
+            <h3 class="text-xl md:text-xl font-bold text-zinc-900 dark:text-white tracking-tight" data-i18n="proj-title">Daftar
               Projek</h3>
-            <p class="text-zinc-500 dark:text-zinc-400 text-sm" data-i18n="proj-desc">Kelola status, pembayaran, dan
+            <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-base mt-0.5 sm:mt-1" data-i18n="proj-desc">Kelola status, pembayaran, dan
               tenggat waktu projek secara langsung.</p>
           </div>
         </div>
@@ -348,7 +348,7 @@
                 <i class="fa-solid fa-layer-group text-[10px]"></i>
               </span>
             </div>
-            <span id="count-all" class="text-lg sm:text-xl font-extrabold text-zinc-900 dark:text-white mt-1.5 font-mono">
+            <span id="count-all" class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mt-1.5 font-mono">
               <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
@@ -362,7 +362,7 @@
                 <i class="fa-solid fa-clock text-[10px]"></i>
               </span>
             </div>
-            <span id="count-menunggu" class="text-lg sm:text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-1.5 font-mono">
+            <span id="count-menunggu" class="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 mt-1.5 font-mono">
               <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
@@ -376,7 +376,7 @@
                 <i class="fa-solid fa-spinner text-[10px]"></i>
               </span>
             </div>
-            <span id="count-dikerjakan" class="text-lg sm:text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-1.5 font-mono">
+            <span id="count-dikerjakan" class="text-lg sm:text-xl font-bold text-amber-600 dark:text-amber-400 mt-1.5 font-mono">
               <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
@@ -390,7 +390,7 @@
                 <i class="fa-solid fa-rotate-left text-[10px]"></i>
               </span>
             </div>
-            <span id="count-revisi" class="text-lg sm:text-xl font-extrabold text-red-600 dark:text-red-400 mt-1.5 font-mono">
+            <span id="count-revisi" class="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400 mt-1.5 font-mono">
               <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
@@ -404,7 +404,7 @@
                 <i class="fa-solid fa-circle-check text-[10px]"></i>
               </span>
             </div>
-            <span id="count-selesai" class="text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1.5 font-mono">
+            <span id="count-selesai" class="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1.5 font-mono">
               <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
@@ -419,7 +419,7 @@
               </span>
             </div>
             <span id="count-belumpembayaran"
-              class="text-lg sm:text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-1.5 font-mono">
+              class="text-lg sm:text-xl font-bold text-rose-600 dark:text-rose-400 mt-1.5 font-mono">
               <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
             </span>
           </button>
@@ -1334,22 +1334,22 @@
           <div
             class="p-2.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block">Total Baris</span>
-            <span id="importCountTotal" class="text-lg font-extrabold text-zinc-800 dark:text-zinc-100">0</span>
+            <span id="importCountTotal" class="text-lg font-bold text-zinc-800 dark:text-zinc-100">0</span>
           </div>
           <div
             class="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Siap Diimport</span>
-            <span id="importCountValid" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">0</span>
+            <span id="importCountValid" class="text-lg font-bold text-emerald-600 dark:text-emerald-400">0</span>
           </div>
           <div
             class="p-2.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 block">Bermasalah / Error</span>
-            <span id="importCountInvalid" class="text-lg font-extrabold text-rose-600 dark:text-rose-400">0</span>
+            <span id="importCountInvalid" class="text-lg font-bold text-rose-600 dark:text-rose-400">0</span>
           </div>
           <div
             class="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 rounded-xl text-center">
             <span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 block">Potensi Duplikat</span>
-            <span id="importCountDuplicate" class="text-lg font-extrabold text-amber-600 dark:text-amber-400">0</span>
+            <span id="importCountDuplicate" class="text-lg font-bold text-amber-600 dark:text-amber-400">0</span>
           </div>
         </div>
 

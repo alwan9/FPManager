@@ -337,28 +337,21 @@
 
             <!-- Main Content -->
             <div class="flex-1 min-w-0 pointer-events-none">
-              <!-- Top Line: Title & Badges (Keterangan Baru dihapus sesuai instruksi) -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-1">
-                <h4 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-50 break-words line-clamp-1 sm:truncate">
+              <!-- Top Line: Title (Kiri) & Date (Pojok Kanan Tiap Card) -->
+              <div class="flex items-start justify-between gap-2 mb-1">
+                <h4 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-50 break-words line-clamp-1 sm:truncate flex-1 min-w-0">
                   ${escapeHtml(cleanTitle)}
                 </h4>
-
-              
+                <span class="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1 shrink-0 whitespace-nowrap pt-0.5">
+                  <i class="fa-regular fa-clock text-[9px] sm:text-[10px]"></i>
+                  <span>${relativeTime}</span>
+                </span>
               </div>
 
               <!-- Description -->
               <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed line-clamp-2 break-words mt-0.5">
                 ${escapeHtml(cleanDes)}
               </p>
-
-              <!-- Bottom Line: Timestamp only (Tombol tandai dibaca & tombol hapus bawah dihapus) -->
-              <div class="mt-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-700/50 flex items-center justify-between gap-2 text-xs">
-                <span class="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1 shrink-0">
-                  <i class="fa-regular fa-clock text-[10px]"></i>
-                  <span>${relativeTime}</span>
-                </span>
-                
-              </div>
             </div>
 
             <!-- Laptop/Desktop Delete Button: Di Sisi Kanan (hidden md:flex) -->

@@ -518,7 +518,7 @@ function renderSummaryStats(stats) {
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
       val2.textContent = formatFinancialDisplay(totalPemasukan);
-      val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-green-600 mt-1 block truncate';
+      val2.className = 'text-base sm:text-lg md:text-2xl font-bold text-green-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
     if (icon2) icon2.className = 'bg-green-50 text-green-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
@@ -528,7 +528,7 @@ function renderSummaryStats(stats) {
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
       val3.textContent = formatFinancialDisplay(totalPengeluaran);
-      val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
+      val3.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate';
     }
     const icon3 = document.getElementById('statCard3Icon');
     if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
@@ -539,9 +539,9 @@ function renderSummaryStats(stats) {
     if (val4) {
       val4.textContent = formatFinancialDisplay(labaBersih);
       if (labaBersih < 0 && !isFinancialsHidden) {
-        val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
+        val4.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate';
       } else {
-        val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 mt-1 block truncate';
+        val4.className = 'text-base sm:text-lg md:text-2xl font-bold text-indigo-600 mt-1 block truncate';
       }
     }
     const icon4 = document.getElementById('statCard4Icon');
@@ -565,7 +565,7 @@ function renderSummaryStats(stats) {
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
       val2.innerHTML = `${inProgress} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-      val2.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-amber-600 mt-1 block truncate';
+      val2.className = 'text-base sm:text-lg md:text-2xl font-bold text-amber-600 mt-1 block truncate';
     }
     const icon2 = document.getElementById('statCard2Icon');
     if (icon2) icon2.className = 'bg-amber-50 text-amber-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
@@ -578,7 +578,7 @@ function renderSummaryStats(stats) {
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
       val3.innerHTML = `${inRevision} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-      val3.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 mt-1 block truncate';
+      val3.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 mt-1 block truncate';
     }
     const icon3 = document.getElementById('statCard3Icon');
     if (icon3) icon3.className = 'bg-rose-50 text-rose-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
@@ -591,7 +591,7 @@ function renderSummaryStats(stats) {
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
       val4.innerHTML = `${completed} <span class="hidden sm:inline">${projSuffix}</span><span class="inline sm:hidden">${isEn ? 'Proj' : 'Proj'}</span>`;
-      val4.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-emerald-600 mt-1 block truncate';
+      val4.className = 'text-base sm:text-lg md:text-2xl font-bold text-emerald-600 mt-1 block truncate';
     }
     const icon4 = document.getElementById('statCard4Icon');
     if (icon4) icon4.className = 'bg-emerald-50 text-emerald-600 p-2.5 md:p-3.5 rounded-xl shrink-0';
@@ -1341,7 +1341,7 @@ function showIncomeBreakdownModal() {
           <span class="text-xs font-semibold text-emerald-100 uppercase tracking-wider block">
             ${isEn ? 'Total Income' : 'Total Pendapatan'}
           </span>
-          <span class="text-xl sm:text-2xl font-extrabold block mt-0.5">${formatFinancialDisplay(totalIn)}</span>
+          <span class="text-xl sm:text-2xl font-bold block mt-0.5">${formatFinancialDisplay(totalIn)}</span>
         </div>
       </div>
 

@@ -1298,7 +1298,7 @@ function renderSizeCheatSheet() {
                       <button onclick="copySingleValue('${item.name}', 'Lebar', '${dim.widthVal}', '${dim.unitSuffix}')" 
                         class="group bg-zinc-50 dark:bg-zinc-900/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-zinc-200/70 dark:border-zinc-700/60 hover:border-indigo-400 dark:hover:border-indigo-500 px-2.5 py-1 rounded-lg cursor-pointer transition-all flex items-center space-x-1.5 text-xs focus:outline-none" 
                         title="Klik untuk menyalin angka Lebar (${dim.widthVal})">
-                        <span class="text-[10px] font-extrabold uppercase text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">L:</span>
+                        <span class="text-[10px] font-bold uppercase text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">L:</span>
                         <span class="font-mono font-bold text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${dim.widthStr}</span>
                         <i class="fa-regular fa-copy text-[10px] text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                       </button>
@@ -1307,7 +1307,7 @@ function renderSizeCheatSheet() {
                       <button onclick="copySingleValue('${item.name}', 'Tinggi', '${dim.heightVal}', '${dim.unitSuffix}')" 
                         class="group bg-zinc-50 dark:bg-zinc-900/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-zinc-200/70 dark:border-zinc-700/60 hover:border-indigo-400 dark:hover:border-indigo-500 px-2.5 py-1 rounded-lg cursor-pointer transition-all flex items-center space-x-1.5 text-xs focus:outline-none" 
                         title="Klik untuk menyalin angka Tinggi (${dim.heightVal})">
-                        <span class="text-[10px] font-extrabold uppercase text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">T:</span>
+                        <span class="text-[10px] font-bold uppercase text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">T:</span>
                         <span class="font-mono font-bold text-zinc-800 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${dim.heightStr}</span>
                         <i class="fa-regular fa-copy text-[10px] text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                       </button>

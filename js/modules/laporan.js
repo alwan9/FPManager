@@ -550,9 +550,9 @@ function renderOverviewCards(summary, filteredList) {
   if (balEl) {
     balEl.textContent = formatRupiah(saldo);
     if (saldo < 0) {
-      balEl.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1 block truncate';
+      balEl.className = 'text-base sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1 block truncate';
     } else {
-      balEl.className = 'text-base sm:text-lg md:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1 block truncate';
+      balEl.className = 'text-base sm:text-lg md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 block truncate';
     }
   }
 
