@@ -22,7 +22,7 @@
     })();
   </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Profil Pengguna - FPManager</title>
   <meta name="title" content="Profil Pengguna - FPManager">
   <meta name="description" content="Informasi akun pengguna, sesi browser, dan pengaturan foto profil FPManager.">
@@ -395,88 +395,75 @@
                     class="w-full px-4 py-2.5 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 rounded-xl border border-zinc-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
                 </div>
 
-                <div>
-                  <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-200 mb-1">Foto Profil /
-                    Avatar</label>
-                  <div class="flex items-center space-x-3">
-                    <input type="text" id="profAvatarUrl"
-                      placeholder="https://... atau klik Pilih Foto untuk mengunggah gambar"
-                      class="w-full px-4 py-2.5 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 rounded-xl border border-zinc-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-                    <button type="button" onclick="document.getElementById('avatarFileInput').click()"
-                      class="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1.5 cursor-pointer">
-                      <i class="fa-solid fa-upload"></i>
-                      <span>Pilih Foto</span>
-                    </button>
-                  </div>
 
-                </div>
-
-
-                <div class="pt-3 flex justify-end">
-                  <button type="submit"
-                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center space-x-2">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <span>Simpan Perubahan</span>
-                  </button>
-                </div>
-              </form>
             </div>
 
 
+            <div class="pt-3 flex justify-end">
+              <button type="submit"
+                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center space-x-2">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Perubahan</span>
+              </button>
+            </div>
+            </form>
           </div>
 
-          <!-- Right Column: Info Sesi -->
-          <div class="space-y-6">
 
-            <!-- Card 4: Sesi & Aksi Cepat -->
-            <div
-              class="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-4">
-              <div class="flex items-center space-x-3 border-b border-zinc-100 dark:border-zinc-700/60 pb-4">
-                <div class="p-2.5 bg-blue-50 dark:bg-blue-950/50 rounded-xl text-blue-600 dark:text-blue-400">
-                  <i class="fa-solid fa-laptop-code text-lg"></i>
-                </div>
-                <div>
-                  <h3 class="text-base font-bold text-zinc-900 dark:text-white">Sesi Login</h3>
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Informasi perangkat saat ini.</p>
-                </div>
+        </div>
+
+        <!-- Right Column: Info Sesi -->
+        <div class="space-y-6">
+
+          <!-- Card 4: Sesi & Aksi Cepat -->
+          <div
+            class="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-4">
+            <div class="flex items-center space-x-3 border-b border-zinc-100 dark:border-zinc-700/60 pb-4">
+              <div class="p-2.5 bg-blue-50 dark:bg-blue-950/50 rounded-xl text-blue-600 dark:text-blue-400">
+                <i class="fa-solid fa-laptop-code text-lg"></i>
               </div>
-
-              <div class="space-y-2.5 text-xs text-zinc-600 dark:text-zinc-300">
-                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-700/40">
-                  <span class="text-zinc-500">Perangkat / Browser:</span>
-                  <span id="sessionBrowser" class="font-medium text-zinc-800 dark:text-zinc-200">Browser</span>
-                </div>
-                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-700/40">
-                  <span class="text-zinc-500">Tipe Akses Token:</span>
-                  <span id="sessionTokenType" class="font-medium text-zinc-800 dark:text-zinc-200">Sesi Aktif</span>
-                </div>
-                <div class="flex justify-between items-center py-1.5">
-                  <span class="text-zinc-500">Zona Waktu:</span>
-                  <span class="font-medium text-zinc-800 dark:text-zinc-200">Asia/Jakarta (WIB)</span>
-                </div>
-              </div>
-
-              <div class="pt-2">
-                <button onclick="Auth.logout()"
-                  class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-semibold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 border border-red-200 dark:border-red-900/50">
-                  <i class="fa-solid fa-right-from-bracket"></i>
-                  <span>Logout Dari Sesi Ini</span>
-                </button>
+              <div>
+                <h3 class="text-base font-bold text-zinc-900 dark:text-white">Sesi Login</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Informasi perangkat saat ini.</p>
               </div>
             </div>
 
+            <div class="space-y-2.5 text-xs text-zinc-600 dark:text-zinc-300">
+              <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-700/40">
+                <span class="text-zinc-500">Perangkat / Browser:</span>
+                <span id="sessionBrowser" class="font-medium text-zinc-800 dark:text-zinc-200">Browser</span>
+              </div>
+              <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-700/40">
+                <span class="text-zinc-500">Tipe Akses Token:</span>
+                <span id="sessionTokenType" class="font-medium text-zinc-800 dark:text-zinc-200">Sesi Aktif</span>
+              </div>
+              <div class="flex justify-between items-center py-1.5">
+                <span class="text-zinc-500">Zona Waktu:</span>
+                <span class="font-medium text-zinc-800 dark:text-zinc-200">Asia/Jakarta (WIB)</span>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button onclick="Auth.logout()"
+                class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-semibold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 border border-red-200 dark:border-red-900/50">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout Dari Sesi Ini</span>
+              </button>
+            </div>
           </div>
 
         </div>
 
-      </section>
+  </div>
 
-      <!-- Footer -->
-      <footer
-        class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
-        &copy; 2026 Freelance Projek Manager. Created by Alwan.
-      </footer>
-    </main>
+  </section>
+
+  <!-- Footer -->
+  <footer
+    class="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-6 text-center text-xs text-zinc-500 dark:text-zinc-400 mt-auto">
+    &copy; 2026 Freelance Projek Manager. Created by Alwan.
+  </footer>
+  </main>
   </div>
 
   <!-- Modal Atur Posisi & Zoom Foto Profil -->

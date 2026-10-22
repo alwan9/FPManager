@@ -1058,3 +1058,43 @@ if (document.readyState === 'loading') {
   initPullToRefresh();
 }
 
+// ==========================================================================
+// 10. Prevent Mobile Viewport Zooming (Pinch-to-zoom & Double-tap zoom)
+// ==========================================================================
+function initStaticMobileViewport() {
+  // Prevent multi-touch pinch-to-zoom on iOS Safari
+  document.addEventListener('gesturestart', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#cropCanvasWrapper')) return;
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('gesturechange', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#cropCanvasWrapper')) return;
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('gestureend', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#cropCanvasWrapper')) return;
+    e.preventDefault();
+  }, { passive: false });
+
+  // Prevent fast double-tap zooming on mobile
+  let lastTouchEndTime = 0;
+  document.addEventListener('touchend', function (e) {
+    const now = Date.now();
+    if (now - lastTouchEndTime <= 300) {
+      if (!e.target.closest('input, textarea, select, button, a, #cropCanvasWrapper')) {
+        e.preventDefault();
+      }
+    }
+    lastTouchEndTime = now;
+  }, { passive: false });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initStaticMobileViewport);
+} else {
+  initStaticMobileViewport();
+}
+
+
