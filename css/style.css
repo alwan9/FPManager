@@ -2397,13 +2397,14 @@ html:not(.dark) #mobileKeuanganPopover .popover-link.active-sub {
 }
 
 /* ==========================================================================
-   Mobile Pull to Refresh (PTR) Indicator
+/* ==========================================================================
+   Mobile Pull to Refresh (PTR) Indicator (Instagram / FB Minimalist Circular Style)
    ========================================================================== */
 .ptr-indicator {
   position: fixed;
-  top: -80px;
+  top: -60px;
   left: 50%;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, 0) scale(0.6);
   z-index: 999999;
   pointer-events: none;
   opacity: 0;
@@ -2413,7 +2414,6 @@ html:not(.dark) #mobileKeuanganPopover .popover-link.active-sub {
 
 .ptr-indicator.ptr-pulling {
   transition: none !important;
-  opacity: 1 !important;
 }
 
 .ptr-indicator.ptr-refreshing {
@@ -2421,51 +2421,54 @@ html:not(.dark) #mobileKeuanganPopover .popover-link.active-sub {
   opacity: 1 !important;
 }
 
-.ptr-content {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 1rem 0.45rem 0.6rem;
-  background-color: rgba(24, 24, 27, 0.96);
-  color: #f4f4f5;
-  border: 1px solid #3f3f46;
-  border-radius: 9999px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-size: 0.75rem;
-  font-weight: 600;
-  user-select: none;
-}
-
-html:not(.dark) .ptr-content {
-  background-color: rgba(255, 255, 255, 0.96);
-  color: #18181b;
-  border: 1px solid #e4e4e7;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-}
-
-.ptr-spinner-box {
-  width: 1.5rem;
-  height: 1.5rem;
+.ptr-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  background-color: #4f46e5;
-  color: #ffffff;
-  font-size: 0.7rem;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
+  background-color: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ptr-content.ptr-ready .ptr-spinner-box {
-  background-color: #10b981;
+html.dark .ptr-circle {
+  background-color: #18181b;
+  color: #818cf8;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ptr-circle.ptr-ready {
+  color: #10b981;
+}
+
+html.dark .ptr-circle.ptr-ready {
+  color: #34d399;
 }
 
 .ptr-icon {
+  font-size: 1.1rem;
+  line-height: 1;
   display: inline-block;
-  transition: transform 0.15s ease;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.ptr-spinning {
+  animation: ptr-spin 0.75s linear infinite !important;
+}
+
+@keyframes ptr-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==========================================================================

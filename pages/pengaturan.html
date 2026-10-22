@@ -56,7 +56,8 @@
   <!-- Google Fonts Preconnect & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 
   <!-- Tailwind CSS -->
   <link href="../css/tailwind.min.css" rel="stylesheet">
@@ -242,7 +243,8 @@
             class="relative p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center cursor-pointer"
             title="Pusat Notifikasi">
             <i class="fa-solid fa-bell text-base"></i>
-            <span class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
+            <span
+              class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
           </a>
           <button id="darkModeToggle" type="button"
             class="hidden md:flex p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none items-center justify-center cursor-pointer"
@@ -293,7 +295,8 @@
                   <i class="fa-solid fa-bell w-4 text-zinc-500"></i>
                   <span data-i18n="nav-notifikasi">Notifikasi</span>
                 </div>
-                <span class="notif-unread-badge hidden px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white">0</span>
+                <span
+                  class="notif-unread-badge hidden px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white">0</span>
               </a>
               <a href="tools.html"
                 class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
@@ -325,10 +328,12 @@
       <section class="flex-grow px-2 py-3 sm:px-4 sm:py-6 md:p-8 space-y-4 md:space-y-6">
 
         <div>
-          <h3 class="text-xl md:text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight" data-i18n="settings-title">
+          <h3 class="text-xl md:text-xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight"
+            data-i18n="settings-title">
             Pengaturan
             Aplikasi</h3>
-          <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-base mt-0.5 sm:mt-1" data-i18n="settings-desc">Konfigurasi integrasi database
+          <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-base mt-0.5 sm:mt-1" data-i18n="settings-desc">
+            Konfigurasi integrasi database
             Google Sheets,
             WhatsApp template, dan setelan PWA.</p>
         </div>
@@ -340,39 +345,30 @@
 
             <!-- Card: Mode Tampilan / Tema (Dark Mode) -->
             <div
-              class="bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 space-y-4">
-              <h4 class="font-bold text-base text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                <i class="fa-solid fa-circle-half-stroke text-indigo-600 dark:text-indigo-400 text-lg"></i>
-                <span data-i18n="settings-card-theme">Mode Tampilan / Tema</span>
-              </h4>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400" data-i18n="settings-card-theme-desc">
-                Sesuaikan tema visual antarmuka sistem antara Mode Gelap (Dark) dan Mode Terang (Light).
-              </p>
-
-              <div
-                class="p-3.5 sm:p-4 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 flex items-center justify-between gap-3">
-                <div class="flex items-center space-x-3 min-w-0">
-                  <div
-                    class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
-                    <i class="fa-solid fa-palette text-base"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <span id="themeStatusLabel" class="font-semibold text-sm text-zinc-800 dark:text-zinc-100 block truncate">
-                      Mode Tampilan
-                    </span>
-                    <span id="themeStatusSub" class="text-xs text-zinc-500 dark:text-zinc-400 block truncate">
-                      Klik tombol untuk beralih mode tampilan
-                    </span>
-                  </div>
+              class="bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-5 flex items-center justify-between gap-3">
+              <div class="flex items-center space-x-3 min-w-0">
+                <div
+                  class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
+                  <i class="fa-solid fa-circle-half-stroke text-lg"></i>
                 </div>
-
-                <button id="darkModeToggle" type="button" data-has-label="true"
-                  class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 font-semibold text-xs flex items-center gap-2 shadow-sm transition-all focus:outline-none cursor-pointer shrink-0"
-                  title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
-                  <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
-                  <span>Ganti Mode</span>
-                </button>
+                <div class="min-w-0">
+                  <h4 id="themeStatusLabel"
+                    class="font-bold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 block truncate"
+                    data-i18n="settings-card-theme">
+                    Mode Tampilan
+                  </h4>
+                  <p id="themeStatusSub" class="text-xs text-zinc-500 dark:text-zinc-400 block truncate mt-0.5">
+                    Klik tombol untuk beralih mode tampilan
+                  </p>
+                </div>
               </div>
+
+              <button id="darkModeToggle" type="button" data-has-label="true"
+                class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-700/60 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-semibold text-xs flex items-center gap-2 shadow-2xs transition-all focus:outline-none cursor-pointer shrink-0"
+                title="Ubah Mode (Gelap / Terang)" aria-label="Toggle Dark Mode">
+                <i id="darkModeIcon" class="fa-solid fa-moon text-base"></i>
+                <span>Ganti Mode</span>
+              </button>
             </div>
 
             <!-- Card 1: Language Settings -->
@@ -387,9 +383,7 @@
                 aplikasi.</p>
 
               <div>
-                <label for="appLanguage"
-                  class="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-1.5"
-                  data-i18n="settings-lang-label">Bahasa / Language</label>
+
                 <select id="appLanguage"
                   class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
                   <option value="id">Bahasa Indonesia</option>
@@ -410,9 +404,7 @@
                 Anda menekan tombol "Hubungi WhatsApp" pada detail projek.</p>
 
               <div>
-                <label for="waTemplate"
-                  class="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider mb-1.5"
-                  data-i18n="settings-wa-label">Template Pesan</label>
+
                 <textarea id="waTemplate" rows="4"
                   class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
                   placeholder="Contoh: Halo kak, bagaimana perkembangan desainnya?"></textarea>
@@ -447,140 +439,10 @@
               </div>
             </div>
 
-            <!-- Card 5: Device Information -->
-            <div
-              class="bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 space-y-4">
-              <h4 class="font-bold text-base text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                <i class="fa-solid fa-laptop-code text-indigo-600"></i>
-                <span data-i18n="settings-card-device">Informasi Perangkat</span>
-              </h4>
-              <p class="text-xs text-zinc-500 dark:text-zinc-400" data-i18n="settings-card-device-desc">Detail perangkat
-                dan browser yang
-                saat ini Anda gunakan untuk mengakses sistem.</p>
-
-              <div
-                class="space-y-3 p-3.5 sm:p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 text-xs">
-                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800 gap-2">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
-                    data-i18n="settings-device-os">Sistem Operasi</span>
-                  <span id="deviceOS" class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">-</span>
-                </div>
-                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800 gap-2">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
-                    data-i18n="settings-device-browser">Browser</span>
-                  <span id="deviceBrowser" class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">-</span>
-                </div>
-                <div class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800 gap-2">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
-                    data-i18n="settings-device-ip">Koneksi / IP</span>
-                  <span id="deviceIP" class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">127.0.0.1
-                    (Localhost)</span>
-                </div>
-                <div class="flex justify-between items-center py-1.5 gap-2">
-                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
-                    data-i18n="settings-device-time">Waktu Login</span>
-                  <span id="deviceLoginTime" class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">-</span>
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <!-- Right Column -->
           <div class="space-y-4 sm:space-y-6">
-
-            <!-- Card: Cadangan Database & Google Drive (Khusus Super Admin) -->
-            <div id="superAdminBackupCard"
-              class="hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 space-y-4 sm:space-y-5 transition-all">
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0">
-                    <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-                  </div>
-                  <div>
-                    <h4 class="font-bold text-base text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
-                      <span data-i18n="settings-backup-title">Backup Database & Google Drive</span>
-                    </h4>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400" data-i18n="settings-backup-desc">Pencadangan
-                      otomatis data excel FPManager ke Google Drive & unduh spreadsheet instan.</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Folder Info Box -->
-              <div
-                class="p-3.5 bg-emerald-50/80 dark:bg-emerald-950/30 rounded-xl border border-emerald-200/80 dark:border-emerald-800/40 space-y-2.5">
-                <div class="flex items-center justify-between text-xs">
-                  <span class="text-emerald-900 dark:text-emerald-300 font-semibold flex items-center gap-1.5">
-                    <i class="fa-brands fa-google-drive text-emerald-600 dark:text-emerald-400 text-sm"></i>
-                    <span>Folder Cadangan Google Drive</span>
-                  </span>
-                </div>
-                <a href="https://drive.google.com/drive/folders/111c2EllGHzFpHctklke2N-Dwi0gd-Vrc?usp=sharing"
-                  target="_blank">
-                  <div
-                    class="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 font-mono bg-white dark:bg-zinc-900/90 p-2 rounded-lg border border-emerald-200/60 dark:border-emerald-900/40 shadow-xs min-w-0">
-                    <i class="fa-solid fa-folder-open text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                    <span class="truncate min-w-0">111c2EllGHzFpHctklke2N-Dwi0gd-Vrc</span>
-                  </div>
-                </a>
-              </div>
-
-              <!-- Auto Backup Schedule Status -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                    <i class="fa-solid fa-clock-rotate-left text-emerald-600 dark:text-emerald-400"></i>
-                    <span>Jadwal Auto Backup</span>
-                  </span>
-                  <span
-                    class="px-2 py-0.5 text-xs font-medium rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60">
-                    Aktif Otomatis
-                  </span>
-                </div>
-
-                <div
-                  class="p-3 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
-                  <div class="flex items-center space-x-3">
-                    <div
-                      class="w-8 h-8 rounded-lg bg-emerald-100/80 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                      <i class="fa-solid fa-sun text-sm"></i>
-                    </div>
-                    <div>
-                      <span class="block font-semibold text-zinc-800 dark:text-zinc-200 text-xs">Auto Backup
-                        Harian</span>
-                      <span class="block text-xs text-zinc-500 dark:text-zinc-400">Setiap hari pukul 06:00 WIB</span>
-                    </div>
-                  </div>
-                  <span
-                    class="px-2 py-0.5 text-xs font-medium rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 flex items-center gap-1">
-                    <i class="fa-solid fa-cloud text-xs"></i>
-                    <span>Cloud Server</span>
-                  </span>
-                </div>
-
-                <!-- Last Backup Info Status -->
-                <div
-                  class="flex items-center justify-between p-2.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 text-xs">
-                  <span class="text-zinc-500 dark:text-zinc-400 text-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-clock-rotate-left text-zinc-400 text-xs"></i>
-                    <span>Terakhir di-backup:</span>
-                  </span>
-                  <span id="lastBackupStatusTime"
-                    class="font-semibold text-emerald-700 dark:text-emerald-400 text-xs">Memuat riwayat...</span>
-                </div>
-              </div>
-
-              <!-- Main Action: Backup Now Button & Drive Link -->
-              <button type="button" id="btnBackupNow"
-                class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] text-sm focus:outline-none cursor-pointer">
-                <i class="fa-solid fa-cloud-arrow-up text-base"></i>
-                <span data-i18n="settings-btn-backup-now">Backup Now (Unduh & Upload)</span>
-              </button>
-
-
-            </div>
 
             <!-- Card 3: Notifikasi HP (PWA) -->
             <div
@@ -682,7 +544,8 @@
                   <select id="toastDuration"
                     class="w-full px-4 py-2.5 border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm bg-white dark:bg-zinc-800 dark:border-zinc-700 dark:text-white">
                     <option value="1500" data-i18n="settings-opt-1s">Cepat (1.5 Detik)</option>
-                    <option value="2500" selected data-i18n="settings-opt-fast">Standar Dynamic Island (2.5 Detik)</option>
+                    <option value="2500" selected data-i18n="settings-opt-fast">Standar Dynamic Island (2.5 Detik)
+                    </option>
                     <option value="4000" data-i18n="settings-opt-normal">Sedang (4 Detik)</option>
                     <option value="7000" data-i18n="settings-opt-slow">Lama (7 Detik)</option>
                   </select>
@@ -698,6 +561,112 @@
               </div>
             </div>
 
+          </div>
+
+          <!-- Bottom Cards: Informasi Perangkat & Backup Database (Paling Bawah) -->
+          <div class="col-span-1 lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+            <!-- Card: Informasi Perangkat -->
+            <div
+              class="bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 space-y-4">
+              <h4 class="font-bold text-base text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                <i class="fa-solid fa-laptop-code text-indigo-600"></i>
+                <span data-i18n="settings-card-device">Informasi Perangkat</span>
+              </h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400" data-i18n="settings-card-device-desc">Detail perangkat
+                dan browser yang
+                saat ini Anda gunakan untuk mengakses sistem.</p>
+
+              <div
+                class="space-y-3 p-3.5 sm:p-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-zinc-800 text-xs">
+                <div
+                  class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800 gap-2">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
+                    data-i18n="settings-device-os">Sistem Operasi</span>
+                  <span id="deviceOS"
+                    class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">-</span>
+                </div>
+                <div
+                  class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800 gap-2">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
+                    data-i18n="settings-device-browser">Browser</span>
+                  <span id="deviceBrowser"
+                    class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">-</span>
+                </div>
+                <div
+                  class="flex justify-between items-center py-1.5 border-b border-zinc-100 dark:border-zinc-800 gap-2">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
+                    data-i18n="settings-device-ip">Koneksi / IP</span>
+                  <span id="deviceIP"
+                    class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">127.0.0.1
+                    (Localhost)</span>
+                </div>
+                <div class="flex justify-between items-center py-1.5 gap-2">
+                  <span class="text-zinc-500 dark:text-zinc-400 font-medium text-xs shrink-0"
+                    data-i18n="settings-device-time">Waktu Login</span>
+                  <span id="deviceLoginTime"
+                    class="font-semibold text-zinc-800 dark:text-zinc-200 text-xs text-right truncate">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card: Cadangan Database & Google Drive (Khusus Super Admin) -->
+            <div id="superAdminBackupCard"
+              class="hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-700 p-4 sm:p-5 space-y-3.5 transition-all">
+              <!-- Header with Quick Drive Link -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center space-x-3 min-w-0">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0">
+                    <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="font-bold text-sm sm:text-base text-zinc-800 dark:text-zinc-100 truncate"
+                      data-i18n="settings-backup-title">
+                      Backup Database
+                    </h4>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5"
+                      data-i18n="settings-backup-desc">
+                      Pencadangan otomatis data ke Google Drive
+                    </p>
+                  </div>
+                </div>
+
+                <a href="https://drive.google.com/drive/folders/111c2EllGHzFpHctklke2N-Dwi0gd-Vrc?usp=sharing"
+                  target="_blank"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 text-xs font-semibold transition-colors shrink-0"
+                  title="Buka Folder Cadangan di Google Drive">
+                  <i class="fa-brands fa-google-drive text-sm"></i>
+                  <span>Drive</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70"></i>
+                </a>
+              </div>
+
+              <!-- Compact Status Info Row -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60 flex items-center justify-between">
+                  <span class="text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock text-emerald-600 dark:text-emerald-400"></i>
+                    <span>Jadwal Harian:</span>
+                  </span>
+                  <span class="font-semibold text-zinc-700 dark:text-zinc-300">06:00 WIB</span>
+                </div>
+                <div class="p-2.5 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/70 dark:border-zinc-700/60 flex items-center justify-between">
+                  <span class="text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-clock-rotate-left text-zinc-400"></i>
+                    <span>Terakhir:</span>
+                  </span>
+                  <span id="lastBackupStatusTime"
+                    class="font-semibold text-emerald-700 dark:text-emerald-400 text-xs truncate ml-2">Memuat...</span>
+                </div>
+              </div>
+
+              <!-- Main Action: Backup Now Button -->
+              <button type="button" id="btnBackupNow"
+                class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl shadow-sm hover:shadow flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] text-sm focus:outline-none cursor-pointer">
+                <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+                <span data-i18n="settings-btn-backup-now">Backup Now (Unduh & Upload)</span>
+              </button>
+            </div>
           </div>
 
           <!-- Bottom bar for Save -->

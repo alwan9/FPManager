@@ -824,14 +824,16 @@ async function checkSuperAdminNotifications(cachedNotifList = null) {
       return !target || target === 'all' || target === 'semua' || userIdentifiers.includes(target);
     });
 
-    // Jika pengguna baru pertama kali membuka aplikasi di perangkat ini, seed agar tidak spam notif lampau
+    // Jika pengguna baru pertama kali membuka aplikasi di perangkat ini, jangan telan notifikasi yang belum dibaca!
     if (isFirstTime) {
-      relevantNotifs.forEach(n => {
+      // Ambil hingga 2 pesan unread terbaru untuk dimunculkan langsung ke notifikasi HP
+      const recentUnread = relevantNotifs.slice(0, 2);
+      const olderNotifs = relevantNotifs.slice(2);
+      olderNotifs.forEach(n => {
         const nid = String(n.id || n.ID || (n.judul + '_' + (n.tanggal || n.createdAt))).trim();
         if (nid) notifiedMap[nid] = true;
       });
-      localStorage.setItem(storageKey, JSON.stringify(notifiedMap));
-      return;
+      // Jangan return, biarkan recentUnread diproses pada loop di bawah agar notifikasi HP berbunyi & tampil
     }
 
     let hasNewNotif = false;
@@ -913,11 +915,8 @@ function initPullToRefresh() {
     indicator.id = 'ptrIndicator';
     indicator.className = 'ptr-indicator';
     indicator.innerHTML = `
-      <div class="ptr-content" id="ptrContent">
-        <div class="ptr-spinner-box">
-          <i class="fa-solid fa-arrow-down ptr-icon" id="ptrIcon"></i>
-        </div>
-        <span class="ptr-text" id="ptrText">Tarik untuk segarkan</span>
+      <div class="ptr-circle" id="ptrContent">
+        <i class="fa-solid fa-arrows-rotate ptr-icon" id="ptrIcon"></i>
       </div>
     `;
     document.body.appendChild(indicator);
@@ -925,7 +924,6 @@ function initPullToRefresh() {
 
   const ptrContent = document.getElementById('ptrContent');
   const ptrIcon = document.getElementById('ptrIcon');
-  const ptrText = document.getElementById('ptrText');
 
   let startY = 0;
   let startX = 0;
@@ -951,12 +949,12 @@ function initPullToRefresh() {
     hasTriggeredHaptic = false;
     indicator.classList.remove('ptr-pulling', 'ptr-refreshing');
     if (ptrContent) ptrContent.classList.remove('ptr-ready');
-    indicator.style.transform = 'translate(-50%, 0)';
+    indicator.style.transform = 'translate(-50%, 0) scale(0.6)';
+    indicator.style.opacity = '0';
     if (ptrIcon) {
-      ptrIcon.className = 'fa-solid fa-arrow-down ptr-icon';
+      ptrIcon.className = 'fa-solid fa-arrows-rotate ptr-icon';
       ptrIcon.style.transform = 'rotate(0deg)';
     }
-    if (ptrText) ptrText.textContent = 'Tarik untuk segarkan';
   };
 
   window.addEventListener('touchstart', (e) => {
@@ -986,17 +984,19 @@ function initPullToRefresh() {
     if (deltaY > 0 && getScrollTop() <= 1) {
       pullDistance = Math.min(MAX_PULL, Math.pow(deltaY, 0.82));
 
-      if (pullDistance > 12) {
+      if (pullDistance > 10) {
         isPulling = true;
         indicator.classList.add('ptr-pulling');
-        indicator.style.transform = `translate(-50%, ${pullDistance}px)`;
+        
+        const progress = Math.min(1, pullDistance / PULL_THRESHOLD);
+        indicator.style.opacity = String(Math.min(1, pullDistance / 28));
+        indicator.style.transform = `translate(-50%, ${pullDistance}px) scale(${0.7 + progress * 0.3})`;
 
-        const rotation = Math.min(180, (pullDistance / PULL_THRESHOLD) * 180);
+        const rotation = (pullDistance / PULL_THRESHOLD) * 360;
         if (ptrIcon) ptrIcon.style.transform = `rotate(${rotation}deg)`;
 
         if (pullDistance >= PULL_THRESHOLD) {
           if (ptrContent) ptrContent.classList.add('ptr-ready');
-          if (ptrText) ptrText.textContent = 'Lepaskan untuk segarkan';
           if (!hasTriggeredHaptic) {
             hasTriggeredHaptic = true;
             if ('vibrate' in navigator) {
@@ -1005,7 +1005,6 @@ function initPullToRefresh() {
           }
         } else {
           if (ptrContent) ptrContent.classList.remove('ptr-ready');
-          if (ptrText) ptrText.textContent = 'Tarik untuk segarkan';
           hasTriggeredHaptic = false;
         }
 
@@ -1028,12 +1027,12 @@ function initPullToRefresh() {
       isRefreshing = true;
       indicator.classList.remove('ptr-pulling');
       indicator.classList.add('ptr-refreshing');
-      indicator.style.transform = 'translate(-50%, 70px)';
+      indicator.style.opacity = '1';
+      indicator.style.transform = 'translate(-50%, 65px) scale(1)';
       if (ptrIcon) {
-        ptrIcon.className = 'fa-solid fa-arrows-rotate fa-spin ptr-icon';
+        ptrIcon.className = 'fa-solid fa-arrows-rotate ptr-icon ptr-spinning';
         ptrIcon.style.transform = 'none';
       }
-      if (ptrText) ptrText.textContent = 'Memperbarui data...';
 
       if ('vibrate' in navigator) {
         try { navigator.vibrate(25); } catch (_) { }

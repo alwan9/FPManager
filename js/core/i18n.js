@@ -163,7 +163,7 @@ const TRANSLATIONS = {
     "proj-badge-all": "Semua",
     "proj-badge-wait": "Menunggu",
     "proj-badge-progress": "Dikerjakan",
-    "proj-badge-revision": "Revisi",
+    "proj-badge-revision": "Sedang di Revisi",
     "proj-badge-done": "Selesai",
     "proj-badge-unpaid": "Belum Bayar",
 

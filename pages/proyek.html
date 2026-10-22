@@ -337,92 +337,118 @@
           </div>
         </div>
 
-        <!-- Filter Status Stats Cards Grid -->
-        <div id="statusFilterGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
-          <button onclick="filterStatus('all')"
-            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider"
-                data-i18n="proj-badge-all">Semua</span>
-              <span class="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-700/50 flex items-center justify-center text-zinc-400 group-hover:text-indigo-500 transition-colors">
-                <i class="fa-solid fa-layer-group text-[10px]"></i>
-              </span>
-            </div>
-            <span id="count-all" class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mt-1.5 font-mono">
-              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
-            </span>
-          </button>
-
-          <button onclick="filterStatus('Menunggu')"
-            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-blue-500 dark:hover:border-blue-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider"
-                data-i18n="proj-badge-wait">Pending</span>
-              <span class="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-blue-500">
-                <i class="fa-solid fa-clock text-[10px]"></i>
-              </span>
-            </div>
-            <span id="count-menunggu" class="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 mt-1.5 font-mono">
-              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
-            </span>
-          </button>
-
-          <button onclick="filterStatus('Sedang Dikerjakan')"
-            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-amber-500 dark:hover:border-amber-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider"
-                data-i18n="proj-badge-progress">Dikerjakan</span>
-              <span class="w-6 h-6 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-500">
-                <i class="fa-solid fa-spinner text-[10px]"></i>
-              </span>
-            </div>
-            <span id="count-dikerjakan" class="text-lg sm:text-xl font-bold text-amber-600 dark:text-amber-400 mt-1.5 font-mono">
-              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
-            </span>
-          </button>
-
+        <!-- Filter Status Section -->
+        <div id="statusFilterGrid" class="space-y-2 sm:space-y-3">
+          <!-- 1. Primary Highlight Card: Sedang di Revisi (Bagian Atas di HP) -->
           <button onclick="filterStatus('Revisi')"
-            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-red-500 dark:hover:border-red-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-red-600 dark:text-red-400 font-bold uppercase tracking-wider"
-                data-i18n="proj-badge-revision">Revisi</span>
-              <span class="w-6 h-6 rounded-lg bg-red-50 dark:bg-red-950/50 flex items-center justify-center text-red-500">
-                <i class="fa-solid fa-rotate-left text-[10px]"></i>
-              </span>
+            class="status-filter-btn group w-full relative overflow-hidden bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 dark:from-red-950 dark:via-zinc-900 dark:to-zinc-900 text-white p-3.5 sm:p-4 rounded-2xl border border-red-500/40 dark:border-red-900/60 shadow-md hover:shadow-lg transition-all text-left cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/20 dark:bg-red-900/50 backdrop-blur-md flex items-center justify-center text-white shrink-0 shadow-inner">
+                <i class="fa-solid fa-rotate-left text-base sm:text-lg"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white"
+                    data-i18n="proj-badge-revision">Sedang di Revisi</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/20 dark:bg-red-800/60 text-white">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-300 animate-ping"></span>
+                    <span>Perlu Tindakan</span>
+                  </span>
+                </div>
+                <p class="text-[11px] sm:text-xs text-red-100 dark:text-zinc-400 mt-0.5 truncate">
+                  Projek revisi yang sedang menunggu pengerjaan ulang
+                </p>
+              </div>
             </div>
-            <span id="count-revisi" class="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400 mt-1.5 font-mono">
-              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
-            </span>
+
+            <div class="flex items-center gap-2.5 sm:gap-4 shrink-0 pl-2">
+              <span id="count-revisi" class="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">
+                <div class="h-7 w-8 bg-white/30 dark:bg-zinc-700 rounded animate-pulse"></div>
+              </span>
+              <div class="w-7 h-7 rounded-lg bg-white/15 dark:bg-white/10 flex items-center justify-center text-white/80 group-hover:text-white group-hover:translate-x-0.5 transition-all">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </div>
+            </div>
           </button>
 
-          <button onclick="filterStatus('Selesai')"
-            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-emerald-500 dark:hover:border-emerald-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider"
-                data-i18n="proj-badge-done">Selesai</span>
-              <span class="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-500">
-                <i class="fa-solid fa-circle-check text-[10px]"></i>
+          <!-- 2. Remaining Status Filters (Bagian Bawah di HP - 1 Baris Menyesuaikan) -->
+          <div class="flex items-stretch gap-1.5 sm:gap-3 w-full overflow-x-auto no-scrollbar sm:grid sm:grid-cols-5">
+            <!-- Semua (Total) -->
+            <button onclick="filterStatus('all')"
+              class="status-filter-btn flex-1 min-w-[62px] sm:min-w-0 p-2 sm:p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider truncate"
+                  data-i18n="proj-badge-all">Semua</span>
+                <span class="hidden sm:flex w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-zinc-100 dark:bg-zinc-700/50 items-center justify-center text-zinc-400 group-hover:text-indigo-500 transition-colors shrink-0">
+                  <i class="fa-solid fa-layer-group text-[9px] sm:text-[10px]"></i>
+                </span>
+              </div>
+              <span id="count-all" class="text-sm sm:text-xl font-bold text-zinc-900 dark:text-white mt-1 sm:mt-1.5 font-mono block">
+                <div class="h-4 sm:h-5 w-6 sm:w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
               </span>
-            </div>
-            <span id="count-selesai" class="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1.5 font-mono">
-              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
-            </span>
-          </button>
+            </button>
 
-          <button onclick="filterStatus('Belum Pembayaran')" id="btnFilterBelumBayar"
-            class="status-filter-btn p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-rose-500 dark:hover:border-rose-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-[11px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider"
-                data-i18n="proj-badge-unpaid">Belum Bayar</span>
-              <span class="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-rose-500">
-                <i class="fa-solid fa-receipt text-[10px]"></i>
+            <!-- Menunggu (Pending) -->
+            <button onclick="filterStatus('Menunggu')"
+              class="status-filter-btn flex-1 min-w-[62px] sm:min-w-0 p-2 sm:p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-blue-500 dark:hover:border-blue-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] sm:text-[11px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider truncate"
+                  data-i18n="proj-badge-wait">Pending</span>
+                <span class="hidden sm:flex w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-blue-50 dark:bg-blue-950/50 items-center justify-center text-blue-500 transition-colors shrink-0">
+                  <i class="fa-solid fa-clock text-[9px] sm:text-[10px]"></i>
+                </span>
+              </div>
+              <span id="count-menunggu" class="text-sm sm:text-xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-1.5 font-mono block">
+                <div class="h-4 sm:h-5 w-6 sm:w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
               </span>
-            </div>
-            <span id="count-belumpembayaran"
-              class="text-lg sm:text-xl font-bold text-rose-600 dark:text-rose-400 mt-1.5 font-mono">
-              <div class="h-5 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
-            </span>
-          </button>
+            </button>
+
+            <!-- Sedang Dikerjakan (Disembunyikan di HP, tampil di desktop) -->
+            <button onclick="filterStatus('Sedang Dikerjakan')"
+              class="status-filter-btn hidden sm:flex flex-1 min-w-[62px] sm:min-w-0 p-2 sm:p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-amber-500 dark:hover:border-amber-400 rounded-xl shadow-2xs flex-col justify-between text-left transition-all group cursor-pointer">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider truncate"
+                  data-i18n="proj-badge-progress">Dikerjakan</span>
+                <span class="hidden sm:flex w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-amber-50 dark:bg-amber-950/50 items-center justify-center text-amber-500 transition-colors shrink-0">
+                  <i class="fa-solid fa-spinner text-[9px] sm:text-[10px]"></i>
+                </span>
+              </div>
+              <span id="count-dikerjakan" class="text-sm sm:text-xl font-bold text-amber-600 dark:text-amber-400 mt-1 sm:mt-1.5 font-mono block">
+                <div class="h-4 sm:h-5 w-6 sm:w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+              </span>
+            </button>
+
+            <!-- Selesai -->
+            <button onclick="filterStatus('Selesai')"
+              class="status-filter-btn flex-1 min-w-[62px] sm:min-w-0 p-2 sm:p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-emerald-500 dark:hover:border-emerald-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider truncate"
+                  data-i18n="proj-badge-done">Selesai</span>
+                <span class="hidden sm:flex w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-emerald-50 dark:bg-emerald-950/50 items-center justify-center text-emerald-500 transition-colors shrink-0">
+                  <i class="fa-solid fa-circle-check text-[9px] sm:text-[10px]"></i>
+                </span>
+              </div>
+              <span id="count-selesai" class="text-sm sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 sm:mt-1.5 font-mono block">
+                <div class="h-4 sm:h-5 w-6 sm:w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+              </span>
+            </button>
+
+            <!-- Belum Pembayaran -->
+            <button onclick="filterStatus('Belum Pembayaran')" id="btnFilterBelumBayar"
+              class="status-filter-btn flex-1 min-w-[62px] sm:min-w-0 p-2 sm:p-3 bg-white dark:bg-zinc-800/90 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-rose-500 dark:hover:border-rose-400 rounded-xl shadow-2xs flex flex-col justify-between text-left transition-all group cursor-pointer">
+              <div class="flex items-center justify-between w-full">
+                <span class="text-[10px] sm:text-[11px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider truncate"
+                  data-i18n="proj-badge-unpaid">Belum Bayar</span>
+                <span class="hidden sm:flex w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-rose-50 dark:bg-rose-950/50 items-center justify-center text-rose-500 transition-colors shrink-0">
+                  <i class="fa-solid fa-receipt text-[9px] sm:text-[10px]"></i>
+                </span>
+              </div>
+              <span id="count-belumpembayaran"
+                class="text-sm sm:text-xl font-bold text-rose-600 dark:text-rose-400 mt-1 sm:mt-1.5 font-mono block">
+                <div class="h-4 sm:h-5 w-6 sm:w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+              </span>
+            </button>
+          </div>
         </div>
 
         <!-- Action Toolbar (Filter Sumber, Hapus Terpilih, Export Excel, Tambah Projek Baru) -->

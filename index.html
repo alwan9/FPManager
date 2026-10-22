@@ -352,42 +352,26 @@
         <div
           class="relative overflow-hidden bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-600 dark:from-zinc-900 dark:via-indigo-950 dark:to-zinc-900 rounded-2xl p-4 sm:p-6 text-white shadow-lg border border-indigo-700/40 dark:border-zinc-800">
           <!-- Subtle decorative background blur effect -->
-          <div class="absolute -right-8 -bottom-8 w-56 h-56 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -right-8 -bottom-8 w-56 h-56 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none">
+          </div>
 
-          <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
-            <!-- Left Column: Greetings & Quick Actions -->
-            <div class="flex-1 space-y-3">
-              <div>
-                <h3 id="dashWelcomeTitle"
-                  class="text-xl sm:text-2xl font-bold tracking-tight inline-flex items-center gap-1.5">
-                  <span data-i18n="dash-welcome">Selamat Datang Admin!</span>
-                  <i class="fa-solid fa-hand text-amber-300 ml-1 text-xl sm:text-2xl"></i>
-                </h3>
-                <p id="dashWelcomeDesc" class="text-indigo-100/90 dark:text-zinc-300 text-xs sm:text-sm mt-1 max-w-xl" data-i18n="dash-desc">
-                  <span class="hidden md:inline">Berikut adalah ringkasan performa dan laporan usaha FPManager hari ini.</span>
-                  <span class="inline md:hidden">Ringkasan performa usaha hari ini.</span>
-                </p>
-              </div>
-
-              <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap pt-0.5">
-                <!-- Privacy Toggle Button (Hide/Show Money) -->
-                <button id="toggleHideNominalBtn" type="button" onclick="toggleDashboardNominalPrivacy()"
-                  class="inline-flex items-center justify-center px-3 sm:px-3.5 py-2 bg-white/15 hover:bg-white/25 active:bg-white/30 text-white font-semibold rounded-xl text-xs sm:text-sm backdrop-blur-md border border-white/20 shadow-sm transition-all hover:scale-102 active:scale-98 cursor-pointer"
-                  title="Tampilkan / Sembunyikan Nominal">
-                  <i id="toggleHideNominalIcon" class="fa-solid fa-eye-slash mr-1.5 text-indigo-200"></i>
-                  <span id="toggleHideNominalText">Tampilkan Saldo</span>
-                </button>
-
-                <a id="bannerAddProjectBtn" href="pages/tambah-proyek.html"
-                  class="inline-flex items-center justify-center px-3.5 sm:px-4 py-2 bg-white text-indigo-700 font-semibold rounded-xl text-xs sm:text-sm shadow-md hover:bg-indigo-50 active:scale-98 transition-all">
-                  <i class="fa-solid fa-circle-plus mr-1.5 text-indigo-600"></i>
-                  <span data-i18n="dash-quick-add">
-                    <span class="hidden md:inline">Tambah Projek</span>
-                    <span class="inline md:hidden">Projek Baru</span>
-                  </span>
-                </a>
-              </div>
+          <!-- Left Column: Greetings & Quick Actions -->
+          <div class="flex-1 space-y-3">
+            <div>
+              <h3 id="dashWelcomeTitle"
+                class="text-xl sm:text-2xl font-bold tracking-tight inline-flex items-center gap-1.5">
+                <span data-i18n="dash-welcome">Selamat Datang Admin!</span>
+                <i class="fa-solid fa-hand text-amber-300 ml-1 text-xl sm:text-2xl"></i>
+              </h3>
+              <p id="dashWelcomeDesc" class="text-indigo-100/90 dark:text-zinc-300 text-xs sm:text-sm mt-1 max-w-xl"
+                data-i18n="dash-desc">
+                <span class="hidden md:inline">Berikut adalah ringkasan performa dan laporan usaha FPManager hari
+                  ini.</span>
+                <span class="inline md:hidden">Ringkasan performa usaha hari ini.</span>
+              </p>
             </div>
+
+
 
             <!-- Right Column: Primary Highlight Metric Card (Pendapatan for Admin / Total Projek for Designer) -->
             <div id="statCardPendapatan" onclick="showIncomeBreakdownModal()"
@@ -415,12 +399,15 @@
 
               <div class="w-full mt-2.5">
                 <span id="statPendapatan"
-                  class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight block truncate leading-tight">Rp ••••••••</span>
+                  class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight block truncate leading-tight">Rp
+                  ••••••••</span>
               </div>
 
-              <div class="flex items-center justify-between text-[11px] text-indigo-100/80 dark:text-zinc-400 mt-2 pt-2 border-t border-white/15 dark:border-white/10">
+              <div
+                class="flex items-center justify-between text-[11px] text-indigo-100/80 dark:text-zinc-400 mt-2 pt-2 border-t border-white/15 dark:border-white/10">
                 <span id="highlightCardSubtext">Klik untuk rincian selengkapnya</span>
-                <i class="fa-solid fa-chevron-right text-[10px] text-white/70 group-hover:translate-x-0.5 transition-transform"></i>
+                <i
+                  class="fa-solid fa-chevron-right text-[10px] text-white/70 group-hover:translate-x-0.5 transition-transform"></i>
               </div>
             </div>
           </div>
@@ -475,7 +462,8 @@
             </div>
             <div class="w-full mt-1.5 sm:mt-2">
               <span id="statPengeluaran"
-                class="text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight">Rp ••••••••</span>
+                class="text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight">Rp
+                ••••••••</span>
             </div>
           </a>
 
@@ -486,13 +474,15 @@
               <span id="statCard4Title"
                 class="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider block truncate"
                 data-i18n="dash-profit">Laba Bersih</span>
-              <div id="statCard4Icon" class="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0">
+              <div id="statCard4Icon"
+                class="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0">
                 <i class="fa-solid fa-scale-balanced text-xs sm:text-sm md:text-base"></i>
               </div>
             </div>
             <div class="w-full mt-1.5 sm:mt-2">
               <span id="statKeuntungan"
-                class="text-sm sm:text-lg md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 block truncate leading-tight">Rp ••••••••</span>
+                class="text-sm sm:text-lg md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 block truncate leading-tight">Rp
+                ••••••••</span>
             </div>
           </div>
 
