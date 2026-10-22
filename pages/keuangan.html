@@ -56,7 +56,8 @@
   <!-- Google Fonts Preconnect & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 
   <!-- Tailwind CSS -->
   <link href="../css/tailwind.min.css" rel="stylesheet">
@@ -173,20 +174,20 @@
 
   <!-- Mobile Bottom Navigation Bar (5 Core Menus) -->
   <nav id="mobileBottomNav"
-    class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-5 flex items-center justify-around"
+    class="md:hidden fixed bottom-0 left-0 right-0 rounded-t-[1.5rem] z-50 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800 text-zinc-400 shadow-[0_-8px_20px_rgba(0,0,0,0.35)] px-2 py-5 flex items-center justify-around"
     style="padding-top: 20px !important; padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;">
     <!-- 1. Home -->
     <a href="../index.html"
       class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
       <i class="fa-solid fa-chart-line text-base"></i>
-      <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
+      <span class="text-xs mt-2" data-i18n="nav-home">Dashboard</span>
     </a>
 
     <!-- 2. Projek -->
     <a href="proyek.html"
       class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
       <i class="fa-solid fa-list-check text-base"></i>
-      <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Projek</span>
+      <span class="text-xs mt-2" data-i18n="nav-proyek">Projek</span>
     </a>
 
     <!-- 3. Tambah (Center Prominent Action) -->
@@ -196,21 +197,21 @@
         class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 group-hover:scale-105 active:scale-95 transition-all">
         <i class="fa-solid fa-plus text-base"></i>
       </div>
-      <span class="text-[10px] font-bold text-zinc-200 mt-0.5" data-i18n="nav-tambah">Tambah</span>
+      <span class="text-xs font-bold text-zinc-200 mt-2" data-i18n="nav-tambah">Tambah</span>
     </a>
 
     <!-- 4. Laporan -->
     <a href="laporan.html"
       class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
       <i class="fa-solid fa-file-invoice-dollar text-base"></i>
-      <span class="text-[10px] mt-0.5" data-i18n="nav-laporan">Laporan</span>
+      <span class="text-xs mt-2" data-i18n="nav-laporan">Laporan</span>
     </a>
 
     <!-- 5. Tools -->
     <a href="tools.html"
       class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-colors flex-1 text-zinc-400 hover:text-zinc-100 font-medium">
       <i class="fa-solid fa-toolbox text-base"></i>
-      <span class="text-[10px] mt-0.5">Tools</span>
+      <span class="text-xs mt-2">Tools</span>
     </a>
   </nav>
 
@@ -237,14 +238,12 @@
         </div>
       </div>
       <div class="flex items-center space-x-4">
-        <button id="pwaInstallBtnMobile"
-          class="hidden md:hidden text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors"
-          title="Install Aplikasi"><i class="fa-solid fa-download text-lg"></i></button>
         <a href="notifikasi.html"
           class="relative p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all flex items-center justify-center cursor-pointer"
           title="Pusat Notifikasi">
           <i class="fa-solid fa-bell text-base"></i>
-          <span class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
+          <span
+            class="notif-topbar-badge hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 animate-pulse"></span>
         </a>
         <button id="darkModeToggle" type="button"
           class="p-2 rounded-xl text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all focus:outline-none flex items-center justify-center cursor-pointer"
@@ -295,7 +294,8 @@
                 <i class="fa-solid fa-bell w-4 text-zinc-500"></i>
                 <span data-i18n="nav-notifikasi">Notifikasi</span>
               </div>
-              <span class="notif-unread-badge hidden px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white">0</span>
+              <span
+                class="notif-unread-badge hidden px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500 text-white">0</span>
             </a>
             <a href="tools.html"
               class="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
@@ -329,9 +329,11 @@
       <!-- Welcome header -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
         <div>
-          <h3 class="text-xl md:text-xl font-bold text-zinc-900 dark:text-white tracking-tight" data-i18n="fin-title">Kas &
+          <h3 class="text-xl md:text-xl font-bold text-zinc-900 dark:text-white tracking-tight" data-i18n="fin-title">
+            Kas &
             Keuangan</h3>
-          <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-base mt-0.5 sm:mt-1" data-i18n="fin-desc">Catat pengeluaran operasional dan
+          <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-base mt-0.5 sm:mt-1" data-i18n="fin-desc">Catat
+            pengeluaran operasional dan
             pantau seluruh pendapatan secara real-time.</p>
         </div>
       </div>
@@ -409,14 +411,14 @@
               </span>
             </div>
             <button type="button" onclick="showPaymentAccountsModal()"
-              class="inline-flex items-center px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition">
-              <i class="fa-solid fa-credit-card mr-1.5 text-indigo-500"></i>
+              class="inline-flex items-center justify-center gap-1.5 h-8 px-3 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap">
+              <i class="fa-solid fa-credit-card w-4 text-center text-indigo-500 text-xs"></i>
               <span>Informasi Rekening</span>
             </button>
             <button type="button" onclick="showQrisModal()" id="btnShowQrisModal"
-              class="inline-flex items-center px-3 py-1.5 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition cursor-pointer"
+              class="inline-flex items-center justify-center gap-1.5 h-8 px-3 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap"
               title="Lihat Kode QRIS Pembayaran">
-              <i class="fa-solid fa-qrcode mr-1.5 text-emerald-500"></i>
+              <i class="fa-solid fa-qrcode w-4 text-center text-emerald-500 text-xs"></i>
               <span>QRIS</span>
             </button>
           </div>
@@ -664,14 +666,14 @@
                     class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
                     title="Upload File Excel untuk Menambah Transaksi">
                     <i class="fa-solid fa-file-arrow-up w-5 text-emerald-500 mr-2 text-center"></i>
-                    <span>Import Excel Keuangan</span>
+                    <span>Import Excel </span>
                   </button>
 
                   <button type="button" onclick="exportKeuanganToExcel(); closeKeuanganExcelDropdown();"
                     class="w-full flex items-center px-4 py-2 text-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-left"
                     title="Ekspor Data Transaksi ke Excel">
                     <i class="fa-solid fa-file-excel w-5 text-emerald-600 mr-2 text-center"></i>
-                    <span>Export Excel Keuangan</span>
+                    <span>Export Excel </span>
                   </button>
                 </div>
               </div>

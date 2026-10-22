@@ -489,25 +489,25 @@ const Auth = {
         <!-- 1. Dashboard -->
         <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
+          <span class="text-xs mt-2" data-i18n="nav-home">Dashboard</span>
         </a>
 
         <!-- 2. Project -->
         <a href="${pagesPath}proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
+          <span class="text-xs mt-2" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tools -->
         <a href="${pagesPath}tools.html" class="${isTools ? activeClass : inactiveClass}">
           <i class="fa-solid fa-toolbox text-base"></i>
-          <span class="text-[10px] mt-0.5">Tools</span>
+          <span class="text-xs mt-2">Tools</span>
         </a>
 
         <!-- 4. Profile -->
         <a href="${pagesPath}profil.html" class="${isProfil ? activeClass : inactiveClass}">
           <i class="fa-solid fa-user text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
+          <span class="text-xs mt-2" data-i18n="nav-profile">Profile</span>
         </a>
       `;
     } else {
@@ -516,13 +516,13 @@ const Auth = {
         <!-- 1. Dashboard -->
         <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
           <i class="fa-solid fa-chart-line text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-home">Dashboard</span>
+          <span class="text-xs mt-2" data-i18n="nav-home">Dashboard</span>
         </a>
 
         <!-- 2. Project -->
         <a href="${pagesPath}proyek.html" class="${isProyek ? activeClass : inactiveClass}">
           <i class="fa-solid fa-list-check text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-proyek">Project</span>
+          <span class="text-xs mt-2" data-i18n="nav-proyek">Project</span>
         </a>
 
         <!-- 3. Tambah (Center Prominent Action) -->
@@ -531,22 +531,22 @@ const Auth = {
           <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 border-4 border-zinc-900 ${isTambah ? 'ring-2 ring-indigo-400' : ''} group-hover:scale-105 active:scale-95 transition-all">
             <i class="fa-solid fa-plus text-base"></i>
           </div>
-          <span class="text-[10px] font-bold ${isTambah ? 'text-indigo-400' : 'text-zinc-200'} mt-0.5" data-i18n="nav-tambah">Tambah</span>
+          <span class="text-xs font-bold ${isTambah ? 'text-indigo-400' : 'text-zinc-200'} mt-2" data-i18n="nav-tambah">Tambah</span>
         </a>
 
         <!-- 4. Keuangan Group (Collapsible / Action Menu) -->
         <button type="button" id="btnMobileKeuanganNav" onclick="Auth.handleMobileKeuanganClick(event)"
           class="${isKeuanganGroup ? activeClass : inactiveClass} focus:outline-none cursor-pointer">
           <i class="fa-solid fa-wallet text-base"></i>
-          <span class="text-[10px] mt-0.5 flex items-center gap-0.5" data-i18n="nav-keuangan-group">
-            Keuangan <i class="fa-solid fa-chevron-up text-[8px] opacity-70"></i>
+          <span class="text-xs mt-2 flex items-center gap-1" data-i18n="nav-keuangan-group">
+            Keuangan <i id="mobileKeuanganArrowIcon" class="fa-solid fa-angle-up text-[11px] opacity-80 inline-block transition-transform duration-200"></i>
           </span>
         </button>
 
         <!-- 5. Profile -->
         <a href="${pagesPath}profil.html" class="${isProfil ? activeClass : inactiveClass}">
           <i class="fa-solid fa-user text-base"></i>
-          <span class="text-[10px] mt-0.5" data-i18n="nav-profile">Profile</span>
+          <span class="text-xs mt-2" data-i18n="nav-profile">Profile</span>
         </a>
       `;
     }
@@ -579,7 +579,7 @@ const Auth = {
             <i class="fa-solid fa-wallet text-indigo-500"></i>
             <span data-i18n="nav-keuangan-group">Keuangan</span>
           </span>
-          <button type="button" onclick="Auth.toggleMobileKeuanganMenu(false)" class="text-zinc-400 hover:text-white p-1 focus:outline-none" title="Tutup">
+          <button type="button" onclick="Auth.toggleMobileKeuanganMenu(false)" class="text-zinc-400 hover:text-white p-1 focus:outline-none cursor-pointer" title="Tutup">
             <i class="fa-solid fa-xmark text-xs"></i>
           </button>
         </div>
@@ -779,16 +779,16 @@ const Auth = {
       popover.classList.add("active");
       if (navBtn) {
         navBtn.setAttribute("aria-expanded", "true");
-        const icon = navBtn.querySelector(".fa-chevron-up, .fa-chevron-down");
-        if (icon) icon.className = "fa-solid fa-chevron-down text-[8px] opacity-70";
+        const icon = navBtn.querySelector("#mobileKeuanganArrowIcon") || navBtn.querySelector(".fa-chevron-up, .fa-chevron-down, .fa-angle-up, .fa-angle-down");
+        if (icon) icon.style.transform = "rotate(180deg)";
       }
     } else {
       backdrop.classList.remove("active");
       popover.classList.remove("active");
       if (navBtn) {
         navBtn.setAttribute("aria-expanded", "false");
-        const icon = navBtn.querySelector(".fa-chevron-up, .fa-chevron-down");
-        if (icon) icon.className = "fa-solid fa-chevron-up text-[8px] opacity-70";
+        const icon = navBtn.querySelector("#mobileKeuanganArrowIcon") || navBtn.querySelector(".fa-chevron-up, .fa-chevron-down, .fa-angle-up, .fa-angle-down");
+        if (icon) icon.style.transform = "rotate(0deg)";
       }
     }
   },

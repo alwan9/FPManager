@@ -62,12 +62,22 @@ window.addEventListener('beforeinstallprompt', (e) => {
   const installBtn = document.getElementById('pwaInstallBtn');
   const installBtnMobile = document.getElementById('pwaInstallBtnMobile');
 
-  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-  const isDashboard = currentPath === 'index.html';
+  const currentPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const isProfile = currentPath === 'profil.html' || currentPath === 'profil';
+
+  // Di tampilan HP (< 768px), tombol download/install HANYA ada di halaman profil
+  if (window.innerWidth < 768 && !isProfile) {
+    if (installBtnMobile) installBtnMobile.remove();
+  }
 
   const setupInstallBtn = (btn, isFlex) => {
     if (!btn) return;
     if (btn.id === 'pwaInstallBtn' && window.innerWidth < 768) {
+      return;
+    }
+    // Jika tampilan HP, tombol download aplikasi hanya boleh tampil di halaman profil
+    if (window.innerWidth < 768 && !isProfile) {
+      btn.classList.add('hidden');
       return;
     }
     btn.classList.remove('hidden');
@@ -94,6 +104,25 @@ window.addEventListener('beforeinstallprompt', (e) => {
   setupInstallBtn(installBtn, true);
   setupInstallBtn(installBtnMobile, false);
 });
+
+// Pastikan di HP tombol download mobile langsung dihapus jika bukan halaman profil
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const curPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    const isProfilePage = curPath === 'profil.html' || curPath === 'profil';
+    if (window.innerWidth < 768 && !isProfilePage) {
+      const mobBtn = document.getElementById('pwaInstallBtnMobile');
+      if (mobBtn) mobBtn.remove();
+    }
+  });
+} else {
+  const curPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const isProfilePage = curPath === 'profil.html' || curPath === 'profil';
+  if (window.innerWidth < 768 && !isProfilePage) {
+    const mobBtn = document.getElementById('pwaInstallBtnMobile');
+    if (mobBtn) mobBtn.remove();
+  }
+}
 
 // Detect successful PWA installation
 window.addEventListener('appinstalled', () => {
@@ -747,4 +776,164 @@ document.addEventListener('visibilitychange', () => {
     checkNewAssignments();
   }
 });
+
+// ==========================================================================
+// Mobile Pull-to-Refresh (PTR) Implementation (Semua Halaman)
+// ==========================================================================
+function initPullToRefresh() {
+  if (window._ptrInitialized) return;
+  window._ptrInitialized = true;
+
+  // Buat elemen visual indikator jika belum ada
+  let indicator = document.getElementById('ptrIndicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'ptrIndicator';
+    indicator.className = 'ptr-indicator';
+    indicator.innerHTML = `
+      <div class="ptr-content" id="ptrContent">
+        <div class="ptr-spinner-box">
+          <i class="fa-solid fa-arrow-down ptr-icon" id="ptrIcon"></i>
+        </div>
+        <span class="ptr-text" id="ptrText">Tarik untuk segarkan</span>
+      </div>
+    `;
+    document.body.appendChild(indicator);
+  }
+
+  const ptrContent = document.getElementById('ptrContent');
+  const ptrIcon = document.getElementById('ptrIcon');
+  const ptrText = document.getElementById('ptrText');
+
+  let startY = 0;
+  let startX = 0;
+  let isPulling = false;
+  let isRefreshing = false;
+  let pullDistance = 0;
+  let hasTriggeredHaptic = false;
+
+  const PULL_THRESHOLD = 75; // Jarak tarikan (px) untuk memicu refresh
+  const MAX_PULL = 110;      // Batas maksimum tarikan visual
+
+  const isModalOpen = () => {
+    return !!document.querySelector('.swal2-container, [id*="Modal"]:not(.hidden), [id*="modal"]:not(.hidden)');
+  };
+
+  const getScrollTop = () => {
+    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+  };
+
+  const resetIndicator = () => {
+    isPulling = false;
+    pullDistance = 0;
+    hasTriggeredHaptic = false;
+    indicator.classList.remove('ptr-pulling', 'ptr-refreshing');
+    if (ptrContent) ptrContent.classList.remove('ptr-ready');
+    indicator.style.transform = 'translate(-50%, 0)';
+    if (ptrIcon) {
+      ptrIcon.className = 'fa-solid fa-arrow-down ptr-icon';
+      ptrIcon.style.transform = 'rotate(0deg)';
+    }
+    if (ptrText) ptrText.textContent = 'Tarik untuk segarkan';
+  };
+
+  window.addEventListener('touchstart', (e) => {
+    if (isRefreshing || isModalOpen()) return;
+
+    if (getScrollTop() <= 1 && e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      isPulling = false;
+      pullDistance = 0;
+      hasTriggeredHaptic = false;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (e) => {
+    if (isRefreshing || isModalOpen() || e.touches.length !== 1) return;
+
+    const currentY = e.touches[0].clientY;
+    const currentX = e.touches[0].clientX;
+    const deltaY = currentY - startY;
+    const deltaX = currentX - startX;
+
+    // Jika gerakan horizontal lebih dominan, abaikan agar scroll samping tetap lancar
+    if (Math.abs(deltaX) > Math.abs(deltaY)) return;
+
+    // Pastikan user menarik ke bawah saat scroll berada di puncak teratas
+    if (deltaY > 0 && getScrollTop() <= 1) {
+      pullDistance = Math.min(MAX_PULL, Math.pow(deltaY, 0.82));
+
+      if (pullDistance > 12) {
+        isPulling = true;
+        indicator.classList.add('ptr-pulling');
+        indicator.style.transform = `translate(-50%, ${pullDistance}px)`;
+
+        const rotation = Math.min(180, (pullDistance / PULL_THRESHOLD) * 180);
+        if (ptrIcon) ptrIcon.style.transform = `rotate(${rotation}deg)`;
+
+        if (pullDistance >= PULL_THRESHOLD) {
+          if (ptrContent) ptrContent.classList.add('ptr-ready');
+          if (ptrText) ptrText.textContent = 'Lepaskan untuk segarkan';
+          if (!hasTriggeredHaptic) {
+            hasTriggeredHaptic = true;
+            if ('vibrate' in navigator) {
+              try { navigator.vibrate(15); } catch (_) { }
+            }
+          }
+        } else {
+          if (ptrContent) ptrContent.classList.remove('ptr-ready');
+          if (ptrText) ptrText.textContent = 'Tarik untuk segarkan';
+          hasTriggeredHaptic = false;
+        }
+
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    } else if (deltaY < 0 && isPulling) {
+      resetIndicator();
+    }
+  }, { passive: false });
+
+  window.addEventListener('touchend', () => {
+    if (isRefreshing || !isPulling) {
+      resetIndicator();
+      return;
+    }
+
+    if (pullDistance >= PULL_THRESHOLD) {
+      isRefreshing = true;
+      indicator.classList.remove('ptr-pulling');
+      indicator.classList.add('ptr-refreshing');
+      indicator.style.transform = 'translate(-50%, 70px)';
+      if (ptrIcon) {
+        ptrIcon.className = 'fa-solid fa-arrows-rotate fa-spin ptr-icon';
+        ptrIcon.style.transform = 'none';
+      }
+      if (ptrText) ptrText.textContent = 'Memperbarui data...';
+
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate(25); } catch (_) { }
+      }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 450);
+    } else {
+      resetIndicator();
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchcancel', () => {
+    resetIndicator();
+  }, { passive: true });
+}
+
+// Inisialisasi saat DOM selesai termuat
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPullToRefresh);
+} else {
+  initPullToRefresh();
+}
 
