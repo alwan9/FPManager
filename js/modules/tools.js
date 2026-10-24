@@ -77,6 +77,30 @@ document.addEventListener('DOMContentLoaded', () => {
   initToolBannerSlider();
 });
 
+// Helper to resolve user ID into user's display name
+function getUserDisplayName(userId) {
+  if (!userId) return 'Admin';
+  const uidStr = String(userId).trim().toLowerCase();
+  const users = window.allUsersList || [];
+  const found = users.find(u => {
+    const id = String(u.id || '').trim().toLowerCase();
+    const uId = String(u.userId || '').trim().toLowerCase();
+    const uname = String(u.username || '').trim().toLowerCase();
+    return id === uidStr || uId === uidStr || uname === uidStr;
+  });
+  if (found) {
+    return found.name || found.nama || found.username || userId;
+  }
+  const cur = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+  if (cur && (String(cur.id || '').toLowerCase() === uidStr || String(cur.userId || '').toLowerCase() === uidStr)) {
+    return cur.name || cur.nama || cur.username || 'User';
+  }
+  if (uidStr === 'usr-001' || uidStr === '1' || uidStr === 'admin' || uidStr === 'wansmin') {
+    return (cur && cur.name) ? cur.name : 'Super Admin';
+  }
+  return userId;
+}
+
 async function loadData() {
   if (typeof Auth !== 'undefined' && typeof Auth.canAccessTools === 'function' && !Auth.canAccessTools()) {
     const mainArea = document.querySelector('main section') || document.querySelector('main');
@@ -124,11 +148,16 @@ async function loadData() {
 
   // 2. BACKGROUND SERVER REVALIDATION
   try {
-    const [tools, shortcuts, references] = await Promise.all([
+    const [tools, shortcuts, references, users] = await Promise.all([
       API.getTools(),
       API.getShortcuts(),
-      API.getReferences()
+      API.getReferences(),
+      (typeof API.getUsers === 'function') ? API.getUsers().catch(() => []) : []
     ]);
+
+    if (Array.isArray(users) && users.length > 0) {
+      window.allUsersList = users;
+    }
 
     toolsData = tools || [];
     shortcutsData = (shortcuts || []).map(s => {
@@ -271,12 +300,13 @@ function renderTools(query = '') {
   filteredTools.forEach(tool => {
     const el = document.createElement('div');
     el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all flex flex-col md:flex-row gap-4 items-start md:items-center justify-between';
+    const creatorName = getUserDisplayName(tool.userId || 'USR-001');
 
     el.innerHTML = `
       <div class="flex-1 w-full min-w-0">
         <div class="hidden md:flex items-center justify-between flex-wrap gap-2 mb-1">
           <h4 class="font-normal text-zinc-900 dark:text-zinc-100 text-lg truncate">${escapeHtml(tool.title)}</h4>
-          <span class="px-2 py-0.5 text-xs font-mono font-normal rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1" title="${escapeHtml(tool.userId || 'USR-001')}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(tool.userId || 'USR-001')}</span></span>
+          <span class="px-2 py-0.5 text-xs font-medium rounded bg-amber-50 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1" title="Dibuat oleh: ${escapeHtml(creatorName)}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(creatorName)}</span></span>
         </div>
         <div class="bg-zinc-50 dark:bg-zinc-800/50 p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-base font-normal leading-relaxed whitespace-pre-wrap font-mono mt-0 md:mt-2">${escapeHtml(tool.prompt)}</div>
       </div>
@@ -547,13 +577,15 @@ function renderShortcuts(query = '') {
     el.setAttribute('data-id', shortcut.id);
     el.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2 sm:p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all flex flex-col items-center relative group w-full cursor-pointer';
 
+    const creatorName = getUserDisplayName(shortcut.userId || 'USR-001');
+
     el.innerHTML = `
       <a href="${sanitizeUrl(linkUrl)}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center w-full text-center group-hover:text-indigo-600 transition-colors">
         <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center text-xl md:mb-2 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors overflow-hidden">
           <img src="${sanitizeUrl(iconUrl)}" alt="${escapeHtml(shortcut.title)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png';">
         </div>
         <span class="font-normal text-zinc-900 dark:text-zinc-100 text-base truncate w-full px-1 group-hover:text-indigo-600 block mt-1">${escapeHtml(shortcut.title)}</span>
-        <span class="hidden md:inline-flex px-2 py-0.5 text-xs font-mono font-normal rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1 items-center gap-1" title="${escapeHtml(shortcut.userId || 'USR-001')}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(shortcut.userId || 'USR-001')}</span></span>
+        <span class="hidden md:inline-flex px-2 py-0.5 text-xs font-medium rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mt-1 items-center gap-1" title="Dibuat oleh: ${escapeHtml(creatorName)}"><i class="fa-solid fa-user text-[10px]"></i><span>${escapeHtml(creatorName)}</span></span>
       </a>
       <div class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-[2px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex justify-center items-center gap-1 sm:gap-2 pointer-events-none">
         <button onclick="editShortcut('${shortcut.id}')" class="px-2 py-1 pointer-events-auto bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-semibold flex items-center justify-center shadow-sm hover:scale-110 transition-all" title="Edit Shortcut">

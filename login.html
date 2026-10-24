@@ -12,7 +12,8 @@
     gtag('config', 'G-FL6WEZT848');
   </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Login Admin - Kelola FPManager</title>
   <!-- meta infoemasi -->
   <meta name="title" content="FPM - Freelance Project Manager - by Alwan">
@@ -58,7 +59,8 @@
   <!-- Google Fonts Preconnect & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
 
   <!-- Tailwind CSS -->
   <link href="css/tailwind.min.css" rel="stylesheet">
@@ -207,7 +209,8 @@
         <div class="text-center mb-8" data-aos="fade-down" data-aos-duration="600" data-aos-delay="2150">
           <h1 class="text-xl md:text-xl font-bold tracking-tight text-zinc-900 dark:text-white font-sans">Login
           </h1>
-          <p class="text-zinc-500 dark:text-zinc-400 mt-2 text-xs sm:text-base font-sans">Masuk untuk mengelola projek dan laporan
+          <p class="text-zinc-500 dark:text-zinc-400 mt-2 text-xs sm:text-base font-sans">Masuk untuk mengelola projek
+            dan laporan
             keuangan</p>
         </div>
 
@@ -369,16 +372,7 @@
 
     // Check query params for session expiration alert
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('reason') === 'session_expired' && errorAlert && errorMessage) {
-      errorMessage.textContent = "Sesi login Anda telah berakhir (3 hari). Demi keamanan, silakan masuk kembali.";
-      errorAlert.classList.remove('hidden');
-      errorAlert.classList.remove('bg-rose-50', 'border-rose-200', 'text-rose-700', 'dark:bg-rose-950/40', 'dark:border-rose-800/80', 'dark:text-rose-300');
-      errorAlert.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800', 'dark:bg-amber-950/40', 'dark:border-amber-800/80', 'dark:text-amber-300');
-      const icon = errorAlert.querySelector('i');
-      if (icon) {
-        icon.className = 'fa-solid fa-clock-rotate-left mr-2.5 text-base flex-shrink-0 text-amber-500 dark:text-amber-400';
-      }
-    }
+
 
     let isLoggingIn = false;
     if (loginForm) {

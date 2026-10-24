@@ -51,15 +51,28 @@ document.addEventListener('DOMContentLoaded', () => {
   loadLaporanData();
 });
 
-function updatePrintDate() {
-  const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const printDateEl = document.getElementById('printDate');
-  if (printDateEl) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Jakarta' };
-    const localeCode = isEn ? 'en-US' : 'id-ID';
-    const formatter = new Intl.DateTimeFormat(localeCode, options);
-    printDateEl.textContent = formatter.format(new Date());
+// Helper to resolve user ID into user's display name
+function getUserDisplayName(userId) {
+  if (!userId) return '-';
+  const uidStr = String(userId).trim().toLowerCase();
+  const users = window.allUsersList || [];
+  const found = users.find(u => {
+    const id = String(u.id || '').trim().toLowerCase();
+    const uId = String(u.userId || '').trim().toLowerCase();
+    const uname = String(u.username || '').trim().toLowerCase();
+    return id === uidStr || uId === uidStr || uname === uidStr;
+  });
+  if (found) {
+    return found.name || found.nama || found.username || userId;
   }
+  const cur = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+  if (cur && (String(cur.id || '').toLowerCase() === uidStr || String(cur.userId || '').toLowerCase() === uidStr)) {
+    return cur.name || cur.nama || cur.username || 'User';
+  }
+  if (uidStr === 'usr-001' || uidStr === '1' || uidStr === 'admin' || uidStr === 'wansmin') {
+    return (cur && cur.name) ? cur.name : 'Super Admin';
+  }
+  return userId;
 }
 
 // Load all project and financial data and compile reports
@@ -93,10 +106,15 @@ async function loadLaporanData() {
 
   // 2. BACKGROUND SERVER REVALIDATION
   try {
-    const [keuangan, proyek] = await Promise.all([
+    const [keuangan, proyek, users] = await Promise.all([
       API.getKeuangan(),
-      API.getProyek()
+      API.getProyek(),
+      (typeof API.getUsers === 'function') ? API.getUsers().catch(() => []) : []
     ]);
+
+    if (Array.isArray(users) && users.length > 0) {
+      window.allUsersList = users;
+    }
 
     rawKeuanganData = Array.isArray(keuangan) ? keuangan : [];
     rawProyekData = Array.isArray(proyek) ? proyek : [];
@@ -710,7 +728,8 @@ function renderDetailTables(filteredList) {
       const method = String(item.metodePembayaran || item.metode || item.sumber || '').toLowerCase();
       const user = String(item.userId || '').toLowerCase();
       const nom = String(item.nominal || '').toLowerCase();
-      return ket.includes(q) || method.includes(q) || user.includes(q) || nom.includes(q);
+      const userName = getUserDisplayName(item.userId || 'USR-001').toLowerCase();
+      return ket.includes(q) || method.includes(q) || user.includes(q) || userName.includes(q) || nom.includes(q);
     });
   }
 
@@ -730,6 +749,7 @@ function renderDetailTables(filteredList) {
         const rawDate = item.createdAt || item.tanggal || '';
         const method = item.metodePembayaran || item.metode || 'QRIS';
         const badgeMethod = renderPaymentMethodBadge(method, item.sumber);
+        const uName = getUserDisplayName(item.userId || 'USR-001');
 
         return `
           <tr class="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
@@ -738,7 +758,7 @@ function renderDetailTables(filteredList) {
             <td class="py-2.5 px-3 font-semibold text-zinc-900 dark:text-zinc-100">${escapeHtml(item.keterangan || 'Pengeluaran')}</td>
             <td class="py-2.5 px-3">${badgeMethod}</td>
             <td class="py-2.5 px-3 text-right font-mono font-bold text-rose-600 dark:text-rose-400">- ${formatRupiah(Number(item.nominal) || 0)}</td>
-            <td class="py-2.5 px-3 text-zinc-500 dark:text-zinc-400 text-[11px] font-mono">${escapeHtml(item.userId || 'USR-001')}</td>
+            <td class="py-2.5 px-3 text-zinc-600 dark:text-zinc-300 text-xs font-medium">${escapeHtml(uName)}</td>
           </tr>
         `;
       }).join('');
@@ -756,7 +776,8 @@ function renderDetailTables(filteredList) {
       const tujuanMethod = String(item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan || '').toLowerCase();
       const user = String(item.userId || '').toLowerCase();
       const nom = String(item.nominal || '').toLowerCase();
-      return ket.includes(q) || asalMethod.includes(q) || tujuanMethod.includes(q) || user.includes(q) || nom.includes(q);
+      const userName = getUserDisplayName(item.userId || 'USR-001').toLowerCase();
+      return ket.includes(q) || asalMethod.includes(q) || tujuanMethod.includes(q) || user.includes(q) || userName.includes(q) || nom.includes(q);
     });
   }
 
@@ -779,6 +800,7 @@ function renderDetailTables(filteredList) {
 
         const badgeAsal = renderPaymentMethodBadge(asalMethod, item.sumber);
         const badgeTujuan = renderPaymentMethodBadge(tujuanMethod, item.sumber);
+        const uName = getUserDisplayName(item.userId || 'USR-001');
 
         return `
           <tr class="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
@@ -798,7 +820,7 @@ function renderDetailTables(filteredList) {
               </div>
             </td>
             <td class="py-2.5 px-3 text-right font-mono font-bold text-purple-600 dark:text-purple-400">${formatRupiah(Number(item.nominal) || 0)}</td>
-            <td class="py-2.5 px-3 text-zinc-500 dark:text-zinc-400 text-[11px] font-mono">${escapeHtml(item.userId || 'USR-001')}</td>
+            <td class="py-2.5 px-3 text-zinc-600 dark:text-zinc-300 text-xs font-medium">${escapeHtml(uName)}</td>
           </tr>
         `;
       }).join('');
@@ -1219,7 +1241,7 @@ async function exportToExcel() {
       'Keterangan Beban': item.keterangan || 'Pengeluaran',
       'Metode Bayar': item.metodePembayaran || item.metode || 'QRIS',
       'Nominal Keluar (Rp)': Number(item.nominal) || 0,
-      'User PIC': item.userId || 'USR-001'
+      'User PIC': getUserDisplayName(item.userId || 'USR-001')
     }));
 
     // 4. Sheet 4: Riwayat Mutasi Saldo
@@ -1232,7 +1254,7 @@ async function exportToExcel() {
       'Rekening Asal': item.metodeBayarDp || item.metodeAsal || item.sumber || 'QRIS',
       'Rekening Tujuan': item.metodeBayarPelunasan || item.metodeTujuan || item.tujuan || 'BSI',
       'Jumlah Mutasi (Rp)': Number(item.nominal) || 0,
-      'User PIC': item.userId || 'USR-001'
+      'User PIC': getUserDisplayName(item.userId || 'USR-001')
     }));
 
     // Build Workbook

@@ -221,10 +221,10 @@ function applyDashboardRoleCustomizations() {
     if (statCardPendapatan) {
       statCardPendapatan.classList.add('cursor-pointer');
       statCardPendapatan.setAttribute('onclick', "showIncomeBreakdownModal()");
-      statCardPendapatan.setAttribute('title', 'Klik untuk melihat rincian pendapatan berdasarkan metode pembayaran');
+      statCardPendapatan.setAttribute('title', isEn ? 'Net Profit — click to see income breakdown' : 'Laba Bersih — klik untuk melihat rincian pendapatan');
     }
     if (highlightCardSubtext) {
-      highlightCardSubtext.textContent = isEn ? 'Click for income breakdown' : 'Klik untuk rincian selengkapnya';
+      highlightCardSubtext.textContent = isEn ? 'Net profit this period' : 'Laba bersih periode ini';
     }
     if (statCardTotal) {
       statCardTotal.classList.add('cursor-pointer');
@@ -232,17 +232,17 @@ function applyDashboardRoleCustomizations() {
       statCardTotal.setAttribute('title', 'Buka daftar projek');
     }
     if (statCardPengeluaran) {
-      statCardPengeluaran.setAttribute('href', 'pages/keuangan.html');
-      statCardPengeluaran.setAttribute('title', 'Buka modul Keuangan untuk melihat detail Pengeluaran');
+      statCardPengeluaran.setAttribute('onclick', "window.location.href='pages/user-management.html'");
+      statCardPengeluaran.setAttribute('title', isEn ? 'Open user management' : 'Buka halaman manajemen pengguna');
     }
     if (statCardKeuntungan) {
-      statCardKeuntungan.removeAttribute('onclick');
-      statCardKeuntungan.removeAttribute('title');
-      statCardKeuntungan.classList.remove('cursor-pointer');
+      statCardKeuntungan.setAttribute('onclick', "window.location.href='pages/tools.html'");
+      statCardKeuntungan.setAttribute('title', isEn ? 'Open Tools page' : 'Buka halaman Tools');
+      statCardKeuntungan.classList.add('cursor-pointer');
     }
     const title2 = document.getElementById('statCard2Title');
     if (title2) {
-      title2.textContent = isEn ? 'Total Income' : 'Total Pendapatan';
+      title2.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
     }
     const title1 = document.getElementById('statCard1Title');
     if (title1) {
@@ -254,7 +254,7 @@ function applyDashboardRoleCustomizations() {
     }
     const title4 = document.getElementById('statCard4Title');
     if (title4) {
-      title4.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
+      title4.textContent = isEn ? 'Total Tools' : 'Total Tools';
     }
     if (chartHeaderIcon) {
       chartHeaderIcon.className = 'fa-solid fa-chart-simple text-indigo-600 dark:text-indigo-400 mr-2';
@@ -337,7 +337,7 @@ async function loadDashboardData() {
 
   // 2. PARALLEL SERVER REVALIDATION (Eliminates sequential waterfall)
   try {
-    const [dashboardData, rawProjects, rawKeuangan] = await Promise.all([
+    const [dashboardData, rawProjects, rawKeuangan, rawUsers, rawTools] = await Promise.all([
       API.getDashboard().catch(err => {
         console.warn("API.getDashboard error:", err);
         return { stats: {} };
@@ -348,6 +348,14 @@ async function loadDashboardData() {
       }),
       canReadFinancials ? API.getKeuangan().catch(err => {
         console.warn("API.getKeuangan error:", err);
+        return [];
+      }) : Promise.resolve([]),
+      canReadFinancials ? API.getUsers().catch(err => {
+        console.warn("API.getUsers error:", err);
+        return [];
+      }) : Promise.resolve([]),
+      canReadFinancials ? API.getTools().catch(err => {
+        console.warn("API.getTools error:", err);
         return [];
       }) : Promise.resolve([])
     ]);
@@ -379,6 +387,11 @@ async function loadDashboardData() {
         if (!dashboardData.stats) dashboardData.stats = {};
         dashboardData.stats.totalProyek = allProjects.length;
       }
+      // Store total user count
+      if (!dashboardData.stats) dashboardData.stats = {};
+      dashboardData.stats.totalUser = Array.isArray(rawUsers) ? rawUsers.length : 0;
+      // Store total tools count
+      dashboardData.stats.totalTools = Array.isArray(rawTools) ? rawTools.length : 0;
     } else {
       // Role is Designer: calculate project metrics connected to current user's id_user / assign
       let userIdentifiers = [];
@@ -403,7 +416,7 @@ async function loadDashboardData() {
                 if (extraId) userIdentifiers.push(String(extraId).trim().toLowerCase());
               }
             }
-          } catch (uErr) {}
+          } catch (uErr) { }
         }
       }
 
@@ -512,7 +525,7 @@ async function loadDashboardData() {
         chartData: dashboardData.chartData,
         revisiProjects: dashboardData.revisiProjects
       }));
-    } catch(e) {}
+    } catch (e) { }
   } catch (error) {
     console.error("Error loading dashboard data:", error);
     if (!hasRenderedCached) {
@@ -541,17 +554,22 @@ function renderSummaryStats(stats) {
 
   if (canReadFinancials) {
     // Show Financial Metrics for Admin & Service roles
-    // 1. Primary Highlight Card in Welcome Banner: Total Pendapatan
+    // 1. Primary Highlight Card in Welcome Banner: Laba Bersih
     const title2 = document.getElementById('statCard2Title');
-    if (title2) title2.textContent = isEn ? 'Total Income' : 'Total Pendapatan';
+    if (title2) title2.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
-      val2.textContent = formatFinancialDisplay(totalPemasukan);
+      val2.textContent = formatFinancialDisplay(labaBersih);
+      if (labaBersih < 0 && !isFinancialsHidden) {
+        val2.className = 'text-xl sm:text-2xl md:text-3xl font-extrabold text-rose-300 tracking-tight block truncate leading-tight';
+      } else {
+        val2.className = 'text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight block truncate leading-tight';
+      }
     }
     const icon2 = document.getElementById('statCard2Icon');
     if (icon2) {
       const i2 = icon2.querySelector('i');
-      if (i2) i2.className = 'fa-solid fa-arrow-trend-up text-base sm:text-lg';
+      if (i2) i2.className = 'fa-solid fa-scale-balanced text-base sm:text-lg';
     }
 
     // 2. Card 1 in 3-card row: Total Projek
@@ -570,38 +588,36 @@ function renderSummaryStats(stats) {
       if (i1) i1.className = 'fa-solid fa-briefcase text-xs sm:text-sm md:text-base';
     }
 
-    // 3. Card 2 in 3-card row: Pengeluaran
+    // 3. Card 2 in 3-card row: Total User
     const title3 = document.getElementById('statCard3Title');
-    if (title3) title3.textContent = isEn ? 'Expenses' : 'Pengeluaran';
+    if (title3) title3.textContent = isEn ? 'Total Users' : 'Total User';
     const val3 = document.getElementById('statPengeluaran');
     if (val3) {
-      val3.textContent = formatFinancialDisplay(totalPengeluaran);
-      val3.className = 'text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight';
+      const totalUser = stats.totalUser !== undefined ? stats.totalUser : 0;
+      val3.textContent = `${totalUser} ${isEn ? 'Users' : 'User'}`;
+      val3.className = 'text-sm sm:text-lg md:text-2xl font-bold text-violet-600 dark:text-violet-400 block truncate leading-tight';
     }
     const icon3 = document.getElementById('statCard3Icon');
     if (icon3) {
-      icon3.className = 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      icon3.className = 'bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
       const i3 = icon3.querySelector('i');
-      if (i3) i3.className = 'fa-solid fa-arrow-trend-down text-xs sm:text-sm md:text-base';
+      if (i3) i3.className = 'fa-solid fa-users text-xs sm:text-sm md:text-base';
     }
 
-    // 4. Card 3 in 3-card row: Laba Bersih
+    // 4. Card 3 in 3-card row: Total Tools
     const title4 = document.getElementById('statCard4Title');
-    if (title4) title4.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
+    if (title4) title4.textContent = isEn ? 'Total Tools' : 'Total Tools';
     const val4 = document.getElementById('statKeuntungan');
     if (val4) {
-      val4.textContent = formatFinancialDisplay(labaBersih);
-      if (labaBersih < 0 && !isFinancialsHidden) {
-        val4.className = 'text-sm sm:text-lg md:text-2xl font-bold text-rose-600 dark:text-rose-400 block truncate leading-tight';
-      } else {
-        val4.className = 'text-sm sm:text-lg md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 block truncate leading-tight';
-      }
+      const totalTools = stats.totalTools !== undefined ? stats.totalTools : 0;
+      val4.textContent = `${totalTools} Tools`;
+      val4.className = 'text-sm sm:text-lg md:text-2xl font-bold text-amber-600 dark:text-amber-400 block truncate leading-tight';
     }
     const icon4 = document.getElementById('statCard4Icon');
     if (icon4) {
-      icon4.className = 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
+      icon4.className = 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 p-1.5 sm:p-2.5 md:p-3 rounded-xl shrink-0';
       const i4 = icon4.querySelector('i');
-      if (i4) i4.className = 'fa-solid fa-scale-balanced text-xs sm:text-sm md:text-base';
+      if (i4) i4.className = 'fa-solid fa-toolbox text-xs sm:text-sm md:text-base';
     }
   } else {
     // Show Project Status Metrics for Desainer & Non-financial roles
@@ -1397,8 +1413,8 @@ function showIncomeBreakdownModal() {
       <!-- Header -->
       <div class="flex items-center justify-between pb-3.5 border-b border-zinc-100 dark:border-zinc-800">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-950/60 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800 flex items-center justify-center text-lg shrink-0">
-            <i class="fa-solid fa-wallet"></i>
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-scale-balanced"></i>
           </div>
           <div>
             <h3 class="font-bold text-base sm:text-lg text-zinc-900 dark:text-white leading-tight">
@@ -1407,24 +1423,26 @@ function showIncomeBreakdownModal() {
             <p class="text-xs text-zinc-500 dark:text-zinc-400">${isEn ? 'Payment methods summary' : 'Ringkasan per metode pembayaran'}</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="toggleDashboardNominalPrivacy()" class="px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer" title="${isFinancialsHidden ? 'Tampilkan Nominal' : 'Sembunyikan Nominal'}">
-            <i class="fa-solid ${isFinancialsHidden ? 'fa-eye' : 'fa-eye-slash'}"></i>
-            <span>${isFinancialsHidden ? (isEn ? 'Show' : 'Tampilkan') : (isEn ? 'Hide' : 'Sembunyikan')}</span>
-          </button>
-          <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition cursor-pointer" title="Tutup">
-            <i class="fa-solid fa-xmark text-base"></i>
-          </button>
-        </div>
+        
       </div>
 
-      <!-- Total Income Summary Card -->
-      <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm">
-        <div>
-          <span class="text-xs font-semibold text-emerald-100 uppercase tracking-wider block">
-            ${isEn ? 'Total Income' : 'Total Pendapatan'}
-          </span>
-          <span class="text-xl sm:text-2xl font-bold block mt-0.5">${formatFinancialDisplay(totalIn)}</span>
+      <!-- Laba Bersih Summary Card (Primary) -->
+      <div class="p-4 rounded-xl bg-gradient-to-r ${(summary.saldo || 0) >= 0 ? 'from-indigo-600 to-violet-600' : 'from-rose-600 to-red-600'} text-white shadow-sm">
+        <span class="text-xs font-semibold text-indigo-100 uppercase tracking-wider block">
+          ${isEn ? 'Net Profit' : 'Laba Bersih'}
+        </span>
+        <span class="text-xl sm:text-2xl font-bold block mt-0.5">${formatFinancialDisplay(summary.saldo || 0)}</span>
+        <!-- Total Pendapatan & Pengeluaran as sub-info -->
+        <div class="flex items-center gap-4 mt-3 pt-3 border-t border-white/20">
+          <div>
+            <span class="text-[10px] text-indigo-100/80 uppercase tracking-wider block">${isEn ? 'Total Income' : 'Total Pendapatan'}</span>
+            <span class="text-sm font-semibold block">${formatFinancialDisplay(totalIn)}</span>
+          </div>
+          <div class="w-px h-8 bg-white/20"></div>
+          <div>
+            <span class="text-[10px] text-indigo-100/80 uppercase tracking-wider block">${isEn ? 'Expenses' : 'Pengeluaran'}</span>
+            <span class="text-sm font-semibold block">${formatFinancialDisplay(summary.totalOut || 0)}</span>
+          </div>
         </div>
       </div>
 
@@ -1459,19 +1477,7 @@ function showIncomeBreakdownModal() {
           `).join('')}
         </div>
       </div>
-
-      <!-- Footer Actions -->
-      <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2 flex-wrap">
-        <a href="pages/keuangan.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline">
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-          <span>${isEn ? 'Open Finance Module' : 'Buka Halaman Keuangan'}</span>
-        </a>
-
-        <button onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold text-xs rounded-xl transition cursor-pointer">
-          ${isEn ? 'Close' : 'Tutup'}
-        </button>
-      </div>
-
+ 
     </div>
   `;
 

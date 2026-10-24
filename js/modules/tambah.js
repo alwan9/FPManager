@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       let users = [];
       if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
         users = await API.getUsers();
+        if (Array.isArray(users) && users.length > 0) {
+          window.allUsersList = users;
+        }
       }
       const designers = (Array.isArray(users) ? users : []).filter(u => {
         const r = String(u.role || '').toLowerCase().trim();
@@ -414,10 +417,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : { id: 'USR-001' };
+    // Helper to resolve user ID into user's display name
+    function getUserDisplayName(userId) {
+      if (!userId) return 'User';
+      const uidStr = String(userId).trim().toLowerCase();
+      const users = window.allUsersList || [];
+      const found = users.find(u => {
+        const id = String(u.id || '').trim().toLowerCase();
+        const uId = String(u.userId || '').trim().toLowerCase();
+        const uname = String(u.username || '').trim().toLowerCase();
+        return id === uidStr || uId === uidStr || uname === uidStr;
+      });
+      if (found) {
+        return found.name || found.nama || found.username || userId;
+      }
+      const cur = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+      if (cur && (String(cur.id || '').toLowerCase() === uidStr || String(cur.userId || '').toLowerCase() === uidStr)) {
+        return cur.name || cur.nama || cur.username || 'User';
+      }
+      if (uidStr === 'usr-001' || uidStr === '1' || uidStr === 'admin' || uidStr === 'wansmin') {
+        return (cur && cur.name) ? cur.name : 'Super Admin';
+      }
+      return userId;
+    }
+
+    const currUser = typeof Auth !== 'undefined' ? Auth.getUser() : { id: 'USR-001', name: 'Super Admin' };
     const displayUserIdEl = document.getElementById('displayUserId');
     if (displayUserIdEl) {
-      displayUserIdEl.textContent = currUser ? currUser.id : 'USR-001';
+      const actualUid = currUser ? (currUser.id || 'USR-001') : 'USR-001';
+      displayUserIdEl.dataset.userId = actualUid;
+      displayUserIdEl.textContent = getUserDisplayName(actualUid);
+      displayUserIdEl.title = `User: ${displayUserIdEl.textContent}`;
     }
 
     if (proyekId) {
@@ -458,7 +488,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!proyek) return;
         currentPelunasan = Number(proyek.pelunasan) || 0;
         if (displayUserIdEl) {
-          displayUserIdEl.textContent = proyek.userId || (currUser ? currUser.id : 'USR-001');
+          const prjUid = proyek.userId || (currUser ? currUser.id : 'USR-001');
+          displayUserIdEl.dataset.userId = prjUid;
+          displayUserIdEl.textContent = getUserDisplayName(prjUid);
+          displayUserIdEl.title = `User: ${displayUserIdEl.textContent}`;
         }
         if (namaProyekInput) namaProyekInput.value = proyek.namaProyek || proyek.iDProyek || '';
         if (pelangganInput) pelangganInput.value = proyek.namaPelanggan || proyek.pelanggan || '';
@@ -975,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           : ((createDriveFolderCheckbox && createDriveFolderCheckbox.checked) ? "" : (gdriveLinkInput ? gdriveLinkInput.value.trim() : "")),
         designerId: assignDesignerSelect ? assignDesignerSelect.value : "",
         assignDesigner: assignDesignerSelect ? assignDesignerSelect.value : "",
-        userId: displayUserIdEl ? displayUserIdEl.textContent : (currUser ? currUser.id : 'USR-001')
+        userId: (displayUserIdEl && displayUserIdEl.dataset.userId) ? displayUserIdEl.dataset.userId : (currUser ? currUser.id : 'USR-001')
       };
       try {
         let result;

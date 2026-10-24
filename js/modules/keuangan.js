@@ -92,6 +92,20 @@ async function loadKeuanganData() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   let hasRenderedCached = false;
 
+  // Pre-fetch or ensure users list for resolving user names
+  if (!window.allUsersList || window.allUsersList.length === 0) {
+    if (typeof API !== 'undefined' && typeof API.getUsers === 'function') {
+      API.getUsers().then(users => {
+        if (Array.isArray(users) && users.length > 0) {
+          window.allUsersList = users;
+          if (typeof table !== 'undefined' && table && typeof table.rows === 'function') {
+            table.rows().invalidate().draw(false);
+          }
+        }
+      }).catch(e => console.warn('Users fetch skipped in keuangan:', e));
+    }
+  }
+
   // 1. FAST LOCAL CACHE RENDER (0ms)
   try {
     const local = (typeof FPManagerDB !== 'undefined') ? await FPManagerDB.getAll('keuangan') : [];
@@ -482,6 +496,30 @@ function renderPaymentMethodBadge(rawMethod, fallbackSumber) {
   return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700" title="Metode: ${cleanName}"><i class="fa-solid fa-credit-card text-zinc-500 text-[10px]"></i> ${cleanName}</span>`;
 }
 
+// Helper to resolve user ID into user's display name
+function getUserDisplayName(userId) {
+  if (!userId) return '-';
+  const uidStr = String(userId).trim().toLowerCase();
+  const users = window.allUsersList || [];
+  const found = users.find(u => {
+    const id = String(u.id || '').trim().toLowerCase();
+    const uId = String(u.userId || '').trim().toLowerCase();
+    const uname = String(u.username || '').trim().toLowerCase();
+    return id === uidStr || uId === uidStr || uname === uidStr;
+  });
+  if (found) {
+    return found.name || found.nama || found.username || userId;
+  }
+  const cur = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+  if (cur && (String(cur.id || '').toLowerCase() === uidStr || String(cur.userId || '').toLowerCase() === uidStr)) {
+    return cur.name || cur.nama || cur.username || 'User';
+  }
+  if (uidStr === 'usr-001' || uidStr === '1' || uidStr === 'admin' || uidStr === 'wansmin') {
+    return (cur && cur.name) ? cur.name : 'Super Admin';
+  }
+  return userId;
+}
+
 // Initialize DataTable for mutation ledger
 function initTable(data) {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
@@ -572,7 +610,7 @@ function initTable(data) {
             prjBadge = `<span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">${escapeHtml(data || '-')}</span>`;
           }
 
-          const userBadge = `<div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>`;
+          const userBadge = `<div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium" title="${escapeHtml(getUserDisplayName(uid))}"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(getUserDisplayName(uid))}</span></div>`;
 
           return `<div>${prjBadge}${userBadge}</div>`;
         }

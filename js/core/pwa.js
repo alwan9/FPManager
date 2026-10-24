@@ -309,7 +309,7 @@ function showAndroidInstallPrompt(callback) {
   if (!isStandalone && deferredPrompt && sessionStorage.getItem('pwa_install_prompt_dismissed') !== 'true') {
     const prompt = document.createElement('div');
     prompt.id = 'pwa-android-prompt';
-    prompt.className = 'fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-96 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
+    prompt.className = 'fixed bottom-[500px] left-4 right-4 md:left-auto md:right-6 md:w-96 bg-zinc-900 text-white rounded-2xl shadow-2xl p-5 border border-zinc-800 flex flex-col gap-4 z-[9998] transition-all duration-500 ease-out transform translate-y-10 opacity-0';
 
     prompt.innerHTML = `
       <div style="z-index: 99999;" class="flex items-start space-x-3">
@@ -987,7 +987,7 @@ function initPullToRefresh() {
       if (pullDistance > 10) {
         isPulling = true;
         indicator.classList.add('ptr-pulling');
-        
+
         const progress = Math.min(1, pullDistance / PULL_THRESHOLD);
         indicator.style.opacity = String(Math.min(1, pullDistance / 28));
         indicator.style.transform = `translate(-50%, ${pullDistance}px) scale(${0.7 + progress * 0.3})`;

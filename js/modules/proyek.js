@@ -261,6 +261,31 @@ function isProjectAssignedToCurrent(proyek) {
 }
 window.isProjectAssignedToCurrent = isProjectAssignedToCurrent;
 
+// Helper to resolve user ID into user's display name
+function getUserDisplayName(userId) {
+  if (!userId) return '-';
+  const uidStr = String(userId).trim().toLowerCase();
+  const users = window.allUsersList || [];
+  const found = users.find(u => {
+    const id = String(u.id || '').trim().toLowerCase();
+    const uId = String(u.userId || '').trim().toLowerCase();
+    const uname = String(u.username || '').trim().toLowerCase();
+    return id === uidStr || uId === uidStr || uname === uidStr;
+  });
+  if (found) {
+    return found.name || found.nama || found.username || userId;
+  }
+  const cur = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+  if (cur && (String(cur.id || '').toLowerCase() === uidStr || String(cur.userId || '').toLowerCase() === uidStr)) {
+    return cur.name || cur.nama || cur.username || 'User';
+  }
+  if (uidStr === 'usr-001' || uidStr === '1' || uidStr === 'admin' || uidStr === 'wansmin') {
+    return (cur && cur.name) ? cur.name : 'Super Admin';
+  }
+  return userId;
+}
+window.getUserDisplayName = getUserDisplayName;
+
 // Helper to render dataset to DataTable and counters
 function renderProyekDataset(listProyek) {
   if (!Array.isArray(listProyek)) return;
@@ -450,19 +475,20 @@ function initTable(data) {
           const rowData = row || {};
           const id = data || rowData.iDProyek || rowData.idProjek || rowData.id || '';
           const uid = rowData.userId || 'USR-001';
+          const uName = getUserDisplayName(uid);
           const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
           if (isDes) {
             return `
               <div>
                 <div><span class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 border border-zinc-200 dark:border-zinc-700 cursor-not-allowed select-none opacity-80" title="Salin ID Projek dinonaktifkan untuk role Desainer">${escapeHtml(id)}</span></div>
-                <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>
+                <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium" title="${escapeHtml(uName)}"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uName)}</span></div>
               </div>
             `;
           }
           return `
             <div>
               <div><span onclick="copyTextToClipboard('${escapeHtml(id)}', 'ID Proyek')" class="px-2 py-0.5 text-xs font-mono font-semibold rounded bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 cursor-pointer transition-colors" title="Klik untuk salin ID">${escapeHtml(id)}</span></div>
-              <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-400 font-mono"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uid)}</span></div>
+              <div class="mt-1 flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium" title="${escapeHtml(uName)}"><i class="fa-solid fa-user-circle text-[10px]"></i><span>${escapeHtml(uName)}</span></div>
             </div>
           `;
         }
@@ -998,7 +1024,9 @@ function populateDetailModal(proyek) {
 
   const modalUserIdEl = document.getElementById('modalUserId');
   if (modalUserIdEl) {
-    modalUserIdEl.textContent = userId;
+    const uName = getUserDisplayName(userId);
+    modalUserIdEl.textContent = uName;
+    modalUserIdEl.title = `User PIC: ${uName}`;
     modalUserIdEl.classList.remove('hidden');
   }
 
