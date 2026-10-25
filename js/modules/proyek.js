@@ -1,5 +1,11 @@
 let table; // Global table instance
 let currentProyek = null;
+
+// Helper: Cek apakah user saat ini memiliki role Designer atau Programmer
+function isWorkerRole() {
+  return typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Update status badge API
   const apiStatusBadge = document.getElementById('apiStatusBadge');
@@ -9,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     apiStatusBadge.title = 'Live Google Sheets Connected';
   }
 
-  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDes = (isWorkerRole());
   const btnBlankInvoice = document.getElementById('btnBlankInvoice');
   if (btnBlankInvoice) {
     if (isDes) {
@@ -214,7 +220,7 @@ window.getAssignColorStyles = getAssignColorStyles;
 
 // Helper: Check if a project is assigned to the currently logged in user
 function isProjectAssignedToCurrent(proyek) {
-  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDes = (isWorkerRole());
   if (!isDes) return true; // Super admin and service roles have full access
 
   const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
@@ -343,7 +349,7 @@ async function loadProyekData() {
           const r = String(u.role || '').toLowerCase().trim();
           const uname = String(u.username || '').toLowerCase().trim();
           const uid = String(u.id || u.userId || '').toUpperCase().trim();
-          return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+          return r === 'designer' || r === 'desainer' || r === 'programmer' || r === 'programer' || uname === 'wansmin' || uid === 'USR-001';
         });
       }
     }
@@ -374,7 +380,7 @@ async function loadProyekData() {
         const r = String(u.role || '').toLowerCase().trim();
         const uname = String(u.username || '').toLowerCase().trim();
         const uid = String(u.id || u.userId || '').toUpperCase().trim();
-        return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+        return r === 'designer' || r === 'desainer' || r === 'programmer' || r === 'programer' || uname === 'wansmin' || uid === 'USR-001';
       });
       try { localStorage.setItem('fpmanager_users_cache', JSON.stringify(users)); } catch(e) {}
     }
@@ -449,7 +455,7 @@ function initTable(data) {
       {
         data: null,
         orderable: false,
-        visible: !(typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()),
+        visible: !(isWorkerRole()),
         className: 'text-center w-10',
         render: function (data, type, row) {
           const rowData = row || data || {};
@@ -476,7 +482,7 @@ function initTable(data) {
           const id = data || rowData.iDProyek || rowData.idProjek || rowData.id || '';
           const uid = rowData.userId || 'USR-001';
           const uName = getUserDisplayName(uid);
-          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const isDes = (isWorkerRole());
           if (isDes) {
             return `
               <div>
@@ -529,7 +535,7 @@ function initTable(data) {
           const rowData = row || {};
           const wa = data || rowData.nomorWA || rowData.noWa || '';
           if (!wa) return '<span class="text-zinc-400 text-xs italic">-</span>';
-          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const isDes = (isWorkerRole());
           const displayWa = (isDes && typeof maskWhatsAppDigits === 'function') ? maskWhatsAppDigits(wa) : wa;
           const cleanWa = String(displayWa).startsWith('+') ? String(displayWa).slice(1) : String(displayWa);
           if (isDes) {
@@ -549,10 +555,10 @@ function initTable(data) {
             const r = String(u.role || '').toLowerCase().trim();
             const uname = String(u.username || '').toLowerCase().trim();
             const uid = String(u.id || u.userId || '').toUpperCase().trim();
-            return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+            return r === 'designer' || r === 'desainer' || r === 'programmer' || r === 'programer' || uname === 'wansmin' || uid === 'USR-001';
           });
           
-          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const isDes = (isWorkerRole());
           const colorStyle = getAssignColorStyles(dId);
 
           // If Designer role is viewing: show a read-only badge with the assigned designer name
@@ -585,9 +591,9 @@ function initTable(data) {
       },
       {
         data: 'dP',
-        visible: !(typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()),
+        visible: !(isWorkerRole()),
         render: function (data, type, row) {
-          if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) return '-';
+          if (isWorkerRole()) return '-';
           const rowData = row || {};
           const dpVal = Number(data !== undefined ? data : (rowData.totalDp !== undefined ? rowData.totalDp : (rowData.dp !== undefined ? rowData.dp : 0))) || 0;
           return `<span class="font-semibold text-zinc-900 dark:text-zinc-100">${formatRupiah(dpVal)}</span>`;
@@ -596,9 +602,9 @@ function initTable(data) {
       {
         data: 'pelunasan',
         className: 'hidden md:table-cell',
-        visible: !(typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()),
+        visible: !(isWorkerRole()),
         render: function (data, type, row) {
-          if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) return '-';
+          if (isWorkerRole()) return '-';
           const rowData = row || {};
           const totalNom = Number(rowData.nominalProyek || rowData.totalPembayaran || rowData.nominal || 0);
           const dpVal = Number(rowData.dP !== undefined ? rowData.dP : (rowData.totalDp !== undefined ? rowData.totalDp : (rowData.dp !== undefined ? rowData.dp : 0))) || 0;
@@ -714,7 +720,7 @@ function initTable(data) {
             const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
             const rowData = row || {};
             const prjId = rowData.iDProyek || rowData.idProjek || rowData.id || '';
-            const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+            const isDes = (isWorkerRole());
             const statusOptions = isDes
               ? ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Dibatalkan']
               : ['Menunggu', 'Sedang Dikerjakan', 'Revisi', 'Selesai', 'Belum Pembayaran', 'Dibatalkan'];
@@ -764,7 +770,7 @@ function initTable(data) {
         render: function (data, type, row) {
           const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
           const rowData = row || {};
-          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const isDes = (isWorkerRole());
           const canAccessDrive = !isDes || isProjectAssignedToCurrent(rowData);
 
           if (!canAccessDrive) {
@@ -794,7 +800,7 @@ function initTable(data) {
           const rowData = row || data || {};
           const id = rowData.iDProyek || rowData.idProjek || rowData.id || '';
           const escapedId = escapeHtml(id);
-          const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+          const isDes = (isWorkerRole());
           const isMobile = (typeof window !== 'undefined' && window.innerWidth < 768);
           const tip = (label) => isMobile ? '' : `title="${label}"`;
 
@@ -1004,7 +1010,7 @@ function populateDetailModal(proyek) {
 
   // 1. ID & User ID
   const modalIdEl = document.getElementById('modalId');
-  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDesigner = (isWorkerRole());
   const isDesRole = isDesigner;
   if (modalIdEl) {
     modalIdEl.textContent = proyekId;
@@ -1506,7 +1512,7 @@ function renderModalGDriveSection(proyek) {
   if (!proyek) return;
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const gdriveLink = proyek.gdriveLink || proyek.gdrive || '';
-  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDesigner = (isWorkerRole());
   const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(proyek);
 
   const activeBox = document.getElementById('modalGDriveActiveBox');
@@ -2039,7 +2045,7 @@ let isDeletingProyek = false;
 async function hapusProyek(id, name) {
   if (isDeletingProyek) return;
 
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (isWorkerRole()) {
     if (typeof Toast !== 'undefined') {
       Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk menghapus projek.");
     } else if (typeof showToast === 'function') {
@@ -2279,7 +2285,7 @@ async function generateAI(jenis) {
     return;
   }
 
-  const isDesigner = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDesigner = (isWorkerRole());
   const canAccessDrive = !isDesigner || isProjectAssignedToCurrent(currentProyek);
 
   const gdriveContainer = document.getElementById('gdriveInputContainer');
@@ -2416,7 +2422,7 @@ function copyAIText() {
 
 function sendAIWhatsapp() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (isWorkerRole()) {
     showToast({
       title: "Akses Ditolak",
       message: isEn ? "WhatsApp feature is disabled for Designer role." : "Fitur WhatsApp dinonaktifkan untuk role Desainer.",
@@ -2505,7 +2511,7 @@ async function updateProyekStatus(id, newStatus, selectEl) {
     const oldStatus = proyek.status || 'Menunggu';
 
     // Client-side role validation: Designer can only update status if assigned to this project
-    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    const isDes = (isWorkerRole());
 
     if (isDes && !isProjectAssignedToCurrent(proyek)) {
       showToast({
@@ -2806,7 +2812,7 @@ async function updateProyekAssign(id, newDesignerId, selectEl) {
       throw new Error("Projek tidak ditemukan di memori.");
     }
 
-    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    const isDes = (isWorkerRole());
     if (isDes) {
       showToast({
         title: "Akses Ditolak",
@@ -2936,7 +2942,7 @@ $(document).on('change', '.proyek-checkbox', function () {
 
 // Update status button batch delete & batch create invoice
 function updateBulkDeleteButton() {
-  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  const isDes = (isWorkerRole());
   const btnDelete = document.getElementById('btnBulkDelete');
   const btnInvoice = document.getElementById('btnBulkCreateInvoice');
 
@@ -2992,7 +2998,7 @@ function updateBulkDeleteButton() {
 window.selectedBulkProyekData = [];
 
 function openBulkInvoiceModal() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (isWorkerRole()) {
     if (typeof Toast !== 'undefined') {
       Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk membuat invoice.");
     } else if (typeof showToast === 'function') {
@@ -3097,7 +3103,7 @@ function toggleCustomerCustomInput(show) {
 }
 
 function proceedToBulkInvoice() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (isWorkerRole()) {
     if (typeof Toast !== 'undefined') {
       Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk membuat invoice.");
     }
@@ -3226,7 +3232,7 @@ let isBulkDeletingProyek = false;
 async function bulkDeleteProyek() {
   if (isBulkDeletingProyek) return;
 
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (isWorkerRole()) {
     if (typeof Toast !== 'undefined') {
       Toast.error("Akses Ditolak", "Role Desainer tidak memiliki izin untuk menghapus projek.");
     } else if (typeof showToast === 'function') {
@@ -3505,7 +3511,7 @@ function selectCalendarDate(dateStr, reRender = true) {
       </div>
     `;
   } else {
-    const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+    const isDes = (isWorkerRole());
     list.innerHTML = dayProjects.map(p => {
       const id = p.iDProyek || p.idProjek || p.id || '';
       const st = String(p.status || 'Menunggu');

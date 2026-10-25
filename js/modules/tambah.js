@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const r = String(u.role || '').toLowerCase().trim();
         const uname = String(u.username || '').toLowerCase().trim();
         const uid = String(u.id || u.userId || '').toUpperCase().trim();
-        return r === 'designer' || r === 'desainer' || uname === 'wansmin' || uid === 'USR-001';
+        return r === 'designer' || r === 'desainer' || r === 'programmer' || r === 'programer' || uname === 'wansmin' || uid === 'USR-001';
       });
 
       const currentVal = cachedSelectedDesignerId || assignDesignerSelect.value;

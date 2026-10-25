@@ -40,6 +40,9 @@
     if (r.includes('desain') || r.includes('designer')) {
       return 'Desainer';
     }
+    if (r.includes('program') || r.includes('developer') || r === 'dev') {
+      return 'Programmer';
+    }
     if (r.includes('service') || r.includes('teknisi')) {
       return 'Service / Teknisi';
     }
@@ -51,6 +54,9 @@
     const r = String(role || '').toLowerCase().trim();
     if (r.includes('super admin') || r.includes('admin')) {
       return 'bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 border-purple-200 dark:border-purple-800/60';
+    }
+    if (r.includes('program') || r.includes('developer') || r === 'dev') {
+      return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/60 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800/60';
     }
     if (r.includes('desainer') || r.includes('designer')) {
       return 'bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800/60';

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -247,8 +247,8 @@
       <!-- Page Content -->
       <section class="flex-grow p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
 
-        <!-- Stats Cards (2 Columns Mobile, 4 Columns Desktop) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+        <!-- Stats Cards (2 Columns Mobile, 5 Columns Desktop) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
           <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
             <div class="p-2 sm:p-3 bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300 rounded-lg sm:rounded-xl">
               <i class="fa-solid fa-users text-lg sm:text-2xl"></i>
@@ -288,6 +288,16 @@
               <h3 id="statDesainer" class="text-lg sm:text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
             </div>
           </div>
+
+          <div class="bg-white dark:bg-zinc-800 p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col sm:flex-row items-center space-y-1.5 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
+            <div class="p-2 sm:p-3 bg-cyan-100 text-cyan-600 dark:bg-cyan-900/50 dark:text-cyan-300 rounded-lg sm:rounded-xl">
+              <i class="fa-solid fa-code text-lg sm:text-2xl"></i>
+            </div>
+            <div>
+              <p class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight">Programmer</p>
+              <h3 id="statProgrammer" class="text-lg sm:text-2xl font-bold text-zinc-800 dark:text-white">0</h3>
+            </div>
+          </div>
         </div>
 
         <!-- Main User Table Card -->
@@ -295,7 +305,7 @@
           <div class="p-1.5 pb-3 mb-2 border-b border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
             <div>
               <h3 class="text-lg font-bold text-zinc-800 dark:text-white">Daftar Pengguna Sistem</h3>
-              <p class="text-sm text-zinc-500 dark:text-zinc-400">Kelola akun pengguna dengan 3 role utama: Super Admin, Designer, dan Service.</p>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">Kelola akun pengguna dengan 4 role utama: Super Admin, Designer, Programmer, dan Service.</p>
             </div>
             <button id="openAddUserModalBtn"
               class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all flex items-center space-x-2">
@@ -436,6 +446,7 @@
               class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
               <option value="service">Service (CRUD Projek, Invoices, Keuangan, Admin Tasks)</option>
               <option value="designer">Designer (Lihat Projek & CRUD Tools)</option>
+              <option value="programmer">Programmer (Lihat Projek & CRUD Tools)</option>
               <option value="super_admin">Super Admin (Akses Penuh Semua Fitur)</option>
             </select>
           </div>

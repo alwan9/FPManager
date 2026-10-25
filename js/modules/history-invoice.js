@@ -9,57 +9,14 @@ const HistoryInvoice = {
   pendingDeleteId: null,
 
   async init() {
-    // 1. Inisialisasi User Profile & Sidebar Info
-    if (typeof Auth !== 'undefined') {
-      const user = Auth.getUser();
-      if (user) {
-        const avatarEl = document.getElementById('userAvatarText');
-        const nameEl = document.getElementById('userNameText');
-        const rawAvatar = user.avatar || user.url_profile || user.urlprofile || user.foto || user.photo || user.avatar_url || user.avatarUrl || user.urlProfile || user.Url_profile || '';
-        const avatarUrl = (typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(rawAvatar) : (rawAvatar || '');
-        const initial = (user.name || user.username || 'A').charAt(0).toUpperCase();
-        if (avatarEl) {
-          avatarEl.classList.add('overflow-hidden');
-          if (avatarUrl) {
-            const img = document.createElement('img');
-            img.src = avatarUrl;
-            img.alt = initial;
-            img.className = 'h-full w-full object-cover rounded-xl';
-            img.onerror = function() {
-              this.remove();
-              avatarEl.textContent = initial;
-            };
-            avatarEl.replaceChildren(img);
-          } else {
-            avatarEl.textContent = initial;
-          }
-        }
-        if (nameEl) nameEl.textContent = user.name || user.username || 'User';
-      }
-    }
-
-    // 2. Setup Profile Dropdown & Search Handlers
+    // 1. Setup Search Handlers
     this.setupUIHandlers();
 
-    // 3. Load Data Invoices
+    // 2. Load Data Invoices
     await this.loadData();
   },
 
   setupUIHandlers() {
-    const profileBtn = document.getElementById('profileDropdownBtn');
-    const profileDropdown = document.getElementById('profileDropdown');
-    if (profileBtn && profileDropdown) {
-      profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        profileDropdown.classList.toggle('hidden');
-      });
-      document.addEventListener('click', () => {
-        if (!profileDropdown.classList.contains('hidden')) {
-          profileDropdown.classList.add('hidden');
-        }
-      });
-    }
-
     const searchInput = document.getElementById('customSearchInput');
     if (searchInput) {
       searchInput.addEventListener('keyup', () => {
@@ -128,7 +85,6 @@ const HistoryInvoice = {
   renderTable() {
     const data = this.invoices || [];
     const emptyState = document.getElementById('historyEmptyState');
-    const tableWrapper = document.getElementById('historyInvoiceTable');
 
     if (data.length === 0) {
       if (emptyState) emptyState.classList.remove('hidden');
@@ -154,10 +110,7 @@ const HistoryInvoice = {
           orderable: false,
           searchable: false,
           defaultContent: '',
-          className: 'text-center w-12 font-semibold text-zinc-500 font-mono text-xs col-number',
-          render: function () {
-            return '';
-          }
+          className: 'text-center w-12 font-semibold text-zinc-500 font-mono text-xs col-number'
         },
         {
           data: 'invoice_id',
@@ -244,7 +197,6 @@ const HistoryInvoice = {
           data: 'status',
           className: 'text-center whitespace-nowrap',
           render: (data, type, row) => {
-            const tot = Number(row.total || 0);
             const sisa = Number(row.sisa !== undefined ? row.sisa : 0);
             let status = data || (sisa <= 0 ? 'Lunas' : 'Belum Bayar');
             const stLower = String(status).toLowerCase();

@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const r = String(role).toLowerCase().trim();
     if (r === "super_admin" || r === "super admin" || r === "superadmin" || r.includes("admin") || r === "wansmin") return "super_admin";
     if (r === "desainer" || r === "designer") return "designer";
+    if (r === "programmer" || r === "programer" || r === "developer" || r === "dev") return "programmer";
     return "service";
   };
 
@@ -113,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             class="px-2.5 py-1 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium cursor-pointer">
             <option value="service" ${role === 'service' ? 'selected' : ''}>Service</option>
             <option value="designer" ${role === 'designer' ? 'selected' : ''}>Designer</option>
+            <option value="programmer" ${role === 'programmer' ? 'selected' : ''}>Programmer</option>
             <option value="super_admin" ${role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
           </select>
         `;
@@ -179,6 +181,8 @@ document.addEventListener("DOMContentLoaded", () => {
     statSuperAdmin.innerText = users.filter(u => normalizeRole(u.role) === 'super_admin').length;
     statService.innerText = users.filter(u => normalizeRole(u.role) === 'service').length;
     statDesainer.innerText = users.filter(u => normalizeRole(u.role) === 'designer').length;
+    const statProgrammer = document.getElementById("statProgrammer");
+    if (statProgrammer) statProgrammer.innerText = users.filter(u => normalizeRole(u.role) === 'programmer').length;
   };
 
   // Direct Inline Role Update
@@ -259,6 +263,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (role === 'designer') {
         roleLabel = "Designer";
         badgeClass = "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800";
+      } else if (role === 'programmer') {
+        roleLabel = "Programmer";
+        badgeClass = "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800";
       }
       detailRole.className = `px-2.5 py-1 text-xs font-semibold rounded-full border ${badgeClass}`;
       detailRole.innerText = roleLabel;

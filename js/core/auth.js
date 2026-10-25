@@ -185,6 +185,8 @@ const Auth = {
             result.user.role = "super_admin";
           } else if (rawRole === "desainer" || rawRole === "designer") {
             result.user.role = "designer";
+          } else if (rawRole === "programmer" || rawRole === "programer" || rawRole === "developer" || rawRole === "dev") {
+            result.user.role = "programmer";
           } else {
             result.user.role = "service";
           }
@@ -219,6 +221,8 @@ const Auth = {
             u.role = "super_admin";
           } else if (r === "desainer" || r === "designer") {
             u.role = "designer";
+          } else if (r === "programmer" || r === "programer" || r === "developer" || r === "dev") {
+            u.role = "programmer";
           } else {
             u.role = "service";
           }
@@ -268,8 +272,18 @@ const Auth = {
     return r === "designer" || r === "desainer";
   },
 
+  isProgrammer: () => {
+    if (Auth.isSuperAdmin()) return false;
+    const r = Auth.getRole();
+    return r === "programmer" || r === "programer" || r === "developer" || r === "dev";
+  },
+
+  isDesignerOrProgrammer: () => {
+    return Auth.isDesigner() || Auth.isProgrammer();
+  },
+
   isService: () => {
-    if (Auth.isSuperAdmin() || Auth.isDesigner()) return false;
+    if (Auth.isSuperAdmin() || Auth.isDesigner() || Auth.isProgrammer()) return false;
     return true;
   },
 
@@ -280,7 +294,7 @@ const Auth = {
 
     if (Auth.isSuperAdmin()) return true;
 
-    if (Auth.isDesigner()) {
+    if (Auth.isDesigner() || Auth.isProgrammer()) {
       const forbiddenForDesigner = [
         "tambah-proyek.html", "tambah-proyek",
         "keuangan.html", "keuangan",
@@ -325,7 +339,7 @@ const Auth = {
   },
 
   canAccessTools: () => {
-    return Auth.isSuperAdmin() || Auth.isDesigner();
+    return Auth.isSuperAdmin() || Auth.isDesigner() || Auth.isProgrammer();
   },
 
   canManageUsers: () => {
@@ -335,7 +349,7 @@ const Auth = {
   hasPermission: (perm) => {
     if (Auth.isSuperAdmin()) return true;
     if (perm === 'manage_users' || perm === 'settings') return false;
-    if (Auth.isDesigner() && (
+    if ((Auth.isDesigner() || Auth.isProgrammer()) && (
       perm === 'tambah' || perm === 'tambah_proyek' || perm === 'add_project' ||
       perm === 'keuangan' || perm === 'admin_tasks' || perm === 'laporan' ||
       perm === 'hapus' || perm === 'hapus_proyek' || perm === 'delete' || perm === 'delete_project' ||
@@ -483,8 +497,8 @@ const Auth = {
     const rootPath = isInPages ? "../" : "./";
     const pagesPath = isInPages ? "./" : "pages/";
 
-    if (Auth.isDesigner()) {
-      // Designer: Home, Projek, Tools, Profil
+    if (Auth.isDesigner() || Auth.isProgrammer()) {
+      // Designer & Programmer: Home, Projek, Tools, Profil
       bottomNav.innerHTML = `
         <!-- 1. Home -->
         <a href="${rootPath}index.html" class="${isHome ? activeClass : inactiveClass}">
@@ -862,6 +876,7 @@ const Auth = {
     // 3. Filter desktop sidebar navigation based on role
     const isSuper = Auth.isSuperAdmin();
     const isDes = Auth.isDesigner();
+    const isProg = Auth.isProgrammer();
     const isServ = Auth.isService();
 
     const navLinks = document.querySelectorAll("#navMenu .sidebar-link, #navMenu a");
@@ -870,7 +885,7 @@ const Auth = {
 
       // Keuangan Group
       if (el.closest("#navKeuanganGroup")) {
-        if (isDes) {
+        if (isDes || isProg) {
           el.closest("#navKeuanganGroup").classList.add("hidden");
         } else {
           el.closest("#navKeuanganGroup").classList.remove("hidden");
@@ -888,7 +903,7 @@ const Auth = {
 
       // Admin Tasks
       if (href.includes("admin-tasks.html")) {
-        if (isDes) {
+        if (isDes || isProg) {
           el.classList.add("hidden");
         } else {
           el.classList.remove("hidden");
@@ -1053,12 +1068,16 @@ const Auth = {
     // 6. Update Top Header Role Badge
     const userRoleBadge = document.getElementById("headerUserRoleBadge");
     if (userRoleBadge) {
+      const isProg = Auth.isProgrammer();
       if (isSuper) {
         userRoleBadge.innerText = "SUPER ADMIN";
         userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800";
       } else if (isDes) {
         userRoleBadge.innerText = "DESIGNER";
         userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+      } else if (isProg) {
+        userRoleBadge.innerText = "PROGRAMMER";
+        userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800";
       } else {
         userRoleBadge.innerText = "SERVICE";
         userRoleBadge.className = "hidden lg:inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800";
@@ -1068,7 +1087,7 @@ const Auth = {
 
   applyButtonPermissions: () => {
     // Tombol-tombol khusus yang hanya boleh untuk Super Admin atau Service
-    if (Auth.isDesigner()) {
+    if (Auth.isDesigner() || Auth.isProgrammer()) {
       const bulkDeleteBtn = document.getElementById("btnBulkDelete");
       if (bulkDeleteBtn) {
         bulkDeleteBtn.style.display = "none";

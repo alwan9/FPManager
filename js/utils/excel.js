@@ -1736,7 +1736,7 @@ function closeShortcutExcelDropdown() {
 }
 
 function downloadShortcutTemplateExcel() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengunduh template Excel.');
     return;
   }
@@ -1808,7 +1808,7 @@ function downloadShortcutTemplateExcel() {
 }
 
 async function exportShortcutsToExcel() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengekspor ke Excel.');
     return;
   }
@@ -1865,7 +1865,7 @@ async function exportShortcutsToExcel() {
 }
 
 function openImportShortcutModal() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengimpor dari Excel.');
     return;
   }
@@ -2394,7 +2394,7 @@ function closeToolExcelDropdown() {
 }
 
 function downloadToolsTemplateExcel() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengunduh template Excel.');
     return;
   }
@@ -2461,7 +2461,7 @@ function downloadToolsTemplateExcel() {
 }
 
 async function exportToolsToExcel() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengekspor ke Excel.');
     return;
   }
@@ -2518,7 +2518,7 @@ async function exportToolsToExcel() {
 }
 
 function openImportToolModal() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk mengimpor dari Excel.');
     return;
   }
@@ -2971,7 +2971,7 @@ async function executeBatchImportTools() {
 }
 
 function openToolsExcelHubModal() {
-  if (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner()) {
+  if (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer()))) {
     if (typeof Toast !== 'undefined') Toast.error('Akses Ditolak', 'Role Desainer tidak memiliki izin untuk fitur Excel.');
     return;
   }

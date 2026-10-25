@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply Shortcut Visibility on initial load
   applyShortcutsVisibility(isShortcutsVisible());
 
-  // Sembunyikan fitur Excel untuk desainer
-  const isDes = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function' && Auth.isDesigner());
+  // Sembunyikan fitur Excel untuk desainer & programmer
+  const isDes = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
   if (isDes) {
     const shortcutExcel = document.getElementById('shortcutExcelDropdownWrapper');
     if (shortcutExcel) { shortcutExcel.style.display = 'none'; shortcutExcel.classList.add('hidden'); }

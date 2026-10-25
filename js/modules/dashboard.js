@@ -2,8 +2,8 @@
 let isFinancialsHidden = localStorage.getItem('dashboard_hide_financials') !== 'false'; // Default: true (Hidden)
 
 function formatFinancialDisplay(number) {
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-  if (isDesainer) {
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
+  if (isRestrictedRole) {
     return '-';
   }
   if (isFinancialsHidden) {
@@ -14,14 +14,14 @@ function formatFinancialDisplay(number) {
 
 function updatePrivacyUI() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
   const btn = document.getElementById('toggleHideNominalBtn');
   const icon = document.getElementById('toggleHideNominalIcon');
   const text = document.getElementById('toggleHideNominalText');
   const cardEye = document.getElementById('cardPrivacyEyeIcon');
   const cardEyeBtn = document.getElementById('cardPrivacyEyeBtn');
 
-  if (isDesainer) {
+  if (isRestrictedRole) {
     if (btn) btn.classList.add('hidden');
     if (cardEye) cardEye.classList.add('hidden');
     if (cardEyeBtn) cardEyeBtn.classList.add('hidden');
@@ -48,8 +48,8 @@ function updatePrivacyUI() {
 }
 
 function toggleDashboardNominalPrivacy() {
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-  if (isDesainer) return;
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
+  if (isRestrictedRole) return;
 
   isFinancialsHidden = !isFinancialsHidden;
   localStorage.setItem('dashboard_hide_financials', isFinancialsHidden ? 'true' : 'false');
@@ -96,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function applyDashboardRoleCustomizations() {
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  const isProgrammer = (typeof Auth !== 'undefined' && typeof Auth.isProgrammer === 'function') ? Auth.isProgrammer() : false;
+  const isRestrictedWorker = isDesainer || isProgrammer;
   const user = (typeof Auth !== 'undefined') ? Auth.getUser() : null;
 
   const chartCard = document.getElementById('chartCard');
@@ -117,7 +119,7 @@ function applyDashboardRoleCustomizations() {
   const chartHeaderLink = document.getElementById('chartHeaderLink');
   const chartHeaderLinkText = document.getElementById('chartHeaderLinkText');
 
-  if (isDesainer) {
+  if (isRestrictedWorker) {
     // 1. Hide Nominal Privacy Toggle and Add Project Button
     if (toggleHideNominalBtn) toggleHideNominalBtn.classList.add('hidden');
     if (bannerAddProjectBtn) bannerAddProjectBtn.classList.add('hidden');
@@ -128,10 +130,15 @@ function applyDashboardRoleCustomizations() {
       incomeDetailBadge.classList.remove('inline-flex');
     }
 
-    // 2. Personalize Welcome Banner for Designer
-    const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : 'Designer';
+    // 2. Personalize Welcome Banner for Designer / Programmer
+    const roleDefaultName = isProgrammer ? 'Programmer' : 'Designer';
+    const displayName = (user && (user.nama || user.username)) ? (user.nama || user.username) : roleDefaultName;
+    const roleIcon = isProgrammer
+      ? '<i class="fa-solid fa-code text-cyan-300 ml-1 text-xl md:text-2xl"></i>'
+      : '<i class="fa-solid fa-palette text-amber-300 ml-1 text-xl md:text-2xl"></i>';
+
     if (dashWelcomeTitle) {
-      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> <i class="fa-solid fa-palette text-amber-300 ml-1 text-xl md:text-2xl"></i>`;
+      dashWelcomeTitle.innerHTML = `<span>${isEn ? 'Welcome' : 'Selamat Datang'} ${escapeHtml(displayName)}!</span> ${roleIcon}`;
     }
     if (dashWelcomeDesc) {
       dashWelcomeDesc.innerHTML = `<span class="hidden md:inline">${isEn ? 'Here is an overview of your active project progress and deadlines today.' : 'Berikut adalah ringkasan progres pengerjaan dan deadline projek Anda hari ini.'}</span><span class="inline md:hidden">${isEn ? 'Active projects progress overview today.' : 'Ringkasan progres projek hari ini.'}</span>`;
@@ -306,8 +313,8 @@ function isProjectAssignedToUser(p, user, userIdentifiers) {
 
 // Load all project and financial data for dashboard cards and charts
 async function loadDashboardData() {
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-  const canReadFinancials = !isDesainer;
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
+  const canReadFinancials = !isRestrictedRole;
   const currentUser = (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
 
   // 1. FAST LOCAL CACHE RENDER (0ms / Stale-While-Revalidate)
@@ -541,8 +548,8 @@ async function loadDashboardData() {
 // Render statistic card counters dynamically according to role
 function renderSummaryStats(stats) {
   window.lastDashboardStats = stats;
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-  const canReadFinancials = !isDesainer;
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
+  const canReadFinancials = !isRestrictedRole;
 
   const totalProyek = stats.totalProyek || 0;
   const totalPemasukan = stats.totalPemasukan || 0;
@@ -822,7 +829,8 @@ function renderRecentProjects(recent) {
   const container = document.getElementById('recentProyekList');
   container.innerHTML = '';
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
+  const isDesainer = isRestrictedRole;
 
   if (!recent || recent.length === 0) {
     container.innerHTML = `<div class="text-center py-8 text-zinc-400 text-sm">${isEn ? 'No projects registered yet.' : 'Belum ada projek terdaftar.'}</div>`;
@@ -1357,8 +1365,8 @@ window.escapeHtml = escapeHtml;
  * Mirroring Keuangan system as the sole Source of Truth.
  */
 function showIncomeBreakdownModal() {
-  const isDesainer = (typeof Auth !== 'undefined' && typeof Auth.isDesigner === 'function') ? Auth.isDesigner() : false;
-  if (isDesainer) {
+  const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
+  if (isRestrictedRole) {
     window.location.href = 'pages/proyek.html?status=Sedang%20Dikerjakan';
     return;
   }
