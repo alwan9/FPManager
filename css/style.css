@@ -2522,6 +2522,36 @@ html.dark .notif-topbar-badge {
   display: none !important;
 }
 
+/* ==========================================================================
+   Web Shortcuts Grid Layout: Android (4 cols) & Laptop / Desktop (10 cols)
+   ========================================================================== */
+#shortcutsContainer:not(.hidden) {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0.5rem !important;
+}
+
+@media (min-width: 640px) {
+  #shortcutsContainer:not(.hidden) {
+    gap: 0.75rem !important;
+  }
+}
+
+@media (min-width: 768px) {
+  #shortcutsContainer:not(.hidden) {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #shortcutsContainer:not(.hidden) {
+    grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+}
+
+
 
 
 

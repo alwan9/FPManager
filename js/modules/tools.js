@@ -211,7 +211,7 @@ function showToolsSkeletons() {
   }
 
   if (shortcutsContainer) {
-    shortcutsContainer.innerHTML = Array(6).fill(`
+    shortcutsContainer.innerHTML = Array(10).fill(`
       <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm border border-zinc-200 animate-pulse">
         <div class="w-12 h-12 bg-zinc-200 dark:bg-zinc-700 rounded-2xl mb-3"></div>
         <div class="h-3 w-16 bg-zinc-200 dark:bg-zinc-700 rounded"></div>

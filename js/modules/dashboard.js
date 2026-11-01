@@ -228,10 +228,10 @@ function applyDashboardRoleCustomizations() {
     if (statCardPendapatan) {
       statCardPendapatan.classList.add('cursor-pointer');
       statCardPendapatan.setAttribute('onclick', "showIncomeBreakdownModal()");
-      statCardPendapatan.setAttribute('title', isEn ? 'Net Profit — click to see income breakdown' : 'Laba Bersih — klik untuk melihat rincian pendapatan');
+      statCardPendapatan.setAttribute('title', isEn ? 'Net Profit — click to see payment details (QRIS, Shopee, BSI)' : 'Laba Bersih — klik untuk melihat rincian saldo QRIS, Shopee, BSI');
     }
     if (highlightCardSubtext) {
-      highlightCardSubtext.textContent = isEn ? 'Net profit this period' : 'Laba bersih periode ini';
+      highlightCardSubtext.textContent = isEn ? 'Net profit • Click for details (QRIS, Shopee, BSI)' : 'Laba bersih • Klik detail (QRIS, Shopee, BSI)';
     }
     if (statCardTotal) {
       statCardTotal.classList.add('cursor-pointer');
@@ -324,6 +324,9 @@ async function loadDashboardData() {
     if (rawCache) {
       const cached = JSON.parse(rawCache);
       if (cached && cached.stats) {
+        if (cached.financialSummary) {
+          window.dashboardFinancialSummary = cached.financialSummary;
+        }
         applyDashboardRoleCustomizations();
         if (cached.stats) renderSummaryStats(cached.stats);
         if (cached.deadlineAlerts) renderDeadlineAlerts(cached.deadlineAlerts);
@@ -333,6 +336,27 @@ async function loadDashboardData() {
         if (cached.revisiProjects) initDeadlineCalendar(cached.revisiProjects);
         hasRenderedCached = true;
       }
+    }
+    if (canReadFinancials && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.getAll === 'function') {
+      FPManagerDB.getAll('keuangan').then(localKeu => {
+        if (Array.isArray(localKeu) && localKeu.length > 0) {
+          const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(localKeu) : localKeu;
+          const sum = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
+          if (sum) {
+            window.dashboardFinancialSummary = sum;
+            if (window.lastDashboardStats) {
+              window.lastDashboardStats.totalPemasukan = sum.totalIn;
+              window.lastDashboardStats.totalPengeluaran = sum.totalOut;
+              window.lastDashboardStats.labaBersih = sum.saldo;
+              renderSummaryStats(window.lastDashboardStats);
+            }
+            const openModal = document.getElementById('dashboardIncomeBreakdownModal');
+            if (openModal && !openModal.classList.contains('hidden')) {
+              showIncomeBreakdownModal();
+            }
+          }
+        }
+      }).catch(e => console.debug('Fast local keuangan read skipped:', e));
     }
   } catch (e) {
     console.debug('Dashboard cache read skipped:', e);
@@ -378,7 +402,16 @@ async function loadDashboardData() {
     // Sync financial metrics 100% with Keuangan Parent Consolidated data (Source of Truth) for Admin
     if (canReadFinancials) {
       try {
-        const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(rawKeuangan) : rawKeuangan;
+        let keuList = (Array.isArray(rawKeuangan) && rawKeuangan.length > 0) ? rawKeuangan : null;
+        if (!keuList && typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.getAll === 'function') {
+          try {
+            const dbList = await FPManagerDB.getAll('keuangan');
+            if (Array.isArray(dbList) && dbList.length > 0) {
+              keuList = dbList;
+            }
+          } catch (e) { }
+        }
+        const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(keuList || []) : (keuList || []);
         const summary = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
         if (summary) {
           window.dashboardFinancialSummary = summary;
@@ -530,8 +563,13 @@ async function loadDashboardData() {
         deadlineAlerts: dashboardData.deadlineAlerts,
         recentProjects: dashboardData.recentProjects,
         chartData: dashboardData.chartData,
-        revisiProjects: dashboardData.revisiProjects
+        revisiProjects: dashboardData.revisiProjects,
+        financialSummary: window.dashboardFinancialSummary
       }));
+      const openModal = document.getElementById('dashboardIncomeBreakdownModal');
+      if (openModal && !openModal.classList.contains('hidden')) {
+        showIncomeBreakdownModal();
+      }
     } catch (e) { }
   } catch (error) {
     console.error("Error loading dashboard data:", error);
@@ -564,6 +602,10 @@ function renderSummaryStats(stats) {
     // 1. Primary Highlight Card in Welcome Banner: Laba Bersih
     const title2 = document.getElementById('statCard2Title');
     if (title2) title2.textContent = isEn ? 'Net Profit' : 'Laba Bersih';
+    const subtext2 = document.getElementById('highlightCardSubtext');
+    if (subtext2) {
+      subtext2.textContent = isEn ? 'Net profit • Click for details (QRIS, Shopee, BSI)' : 'Laba bersih • Klik detail (QRIS, Shopee, BSI)';
+    }
     const val2 = document.getElementById('statPendapatan');
     if (val2) {
       val2.textContent = formatFinancialDisplay(labaBersih);
@@ -1306,7 +1348,7 @@ function showDashboardSkeletons() {
 
   // Recent Projects
   const recentList = document.getElementById('recentProyekList');
-  recentList.innerHTML = Array(5).fill(`
+  recentList.innerHTML = Array(3).fill(`
     <div class="flex items-center justify-between p-3.5 sm:p-4 border border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 animate-pulse">
       <div class="min-w-0 flex-1 pr-2.5 space-y-2">
         <div class="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-700 rounded"></div>
@@ -1362,19 +1404,47 @@ window.escapeHtml = escapeHtml;
 
 /**
  * Display Modal: Rincian Pendapatan Berdasarkan Metode Pembayaran (QRIS, Shopee, BSI, dll)
- * Mirroring Keuangan system as the sole Source of Truth.
+ * Sinkron 100% dengan Halaman Keuangan (qrisSaldo, shopeeSaldo, bsiSaldo).
  */
-function showIncomeBreakdownModal() {
+async function showIncomeBreakdownModal() {
   const isRestrictedRole = (typeof Auth !== 'undefined' && ((typeof Auth.isDesigner === 'function' && Auth.isDesigner()) || (typeof Auth.isProgrammer === 'function' && Auth.isProgrammer())));
   if (isRestrictedRole) {
     window.location.href = 'pages/proyek.html?status=Sedang%20Dikerjakan';
     return;
   }
 
+  // Jika window.dashboardFinancialSummary belum siap, ambil dari IndexedDB (FPManagerDB) atau API
+  if (!window.dashboardFinancialSummary || !window.dashboardFinancialSummary.accountsMap || Object.keys(window.dashboardFinancialSummary.accountsMap).length === 0) {
+    if (typeof FPManagerDB !== 'undefined' && typeof FPManagerDB.getAll === 'function') {
+      try {
+        const local = await FPManagerDB.getAll('keuangan');
+        if (Array.isArray(local) && local.length > 0) {
+          const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(local) : local;
+          window.dashboardFinancialSummary = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
+        }
+      } catch (e) {
+        console.debug('showIncomeBreakdownModal local read error:', e);
+      }
+    }
+    if ((!window.dashboardFinancialSummary || !window.dashboardFinancialSummary.accountsMap) && typeof API !== 'undefined' && typeof API.getKeuangan === 'function') {
+      try {
+        const remote = await API.getKeuangan();
+        if (Array.isArray(remote) && remote.length > 0) {
+          const consolidated = typeof consolidateKeuanganList === 'function' ? consolidateKeuanganList(remote) : remote;
+          window.dashboardFinancialSummary = typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary(consolidated) : null;
+        }
+      } catch (e) {
+        console.debug('showIncomeBreakdownModal remote read error:', e);
+      }
+    }
+  }
+
   const isEn = (typeof CONFIG !== 'undefined' && CONFIG.LANG === 'en');
   const summary = window.dashboardFinancialSummary || (typeof calculateKeuanganSummary === 'function' ? calculateKeuanganSummary([]) : { totalIn: 0, totalOut: 0, saldo: 0, accountsMap: {} });
   const accountsMap = summary.accountsMap || {};
   const totalIn = summary.totalIn || 0;
+  const totalOut = summary.totalOut || 0;
+  const netSaldo = summary.saldo !== undefined ? summary.saldo : (totalIn - totalOut);
 
   let modal = document.getElementById('dashboardIncomeBreakdownModal');
   if (!modal) {
@@ -1385,8 +1455,29 @@ function showIncomeBreakdownModal() {
 
   modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 transition-all duration-200';
 
-  // Extract payment methods list
+  // Metadata tampilan persis seperti di Halaman Keuangan (Group 1: QRIS, Group 2: Shopee, Group 3: BSI)
   const defaultKeys = ['QRIS', 'Shopee', 'BSI'];
+  const displayMetaMap = {
+    'QRIS': {
+      name: 'QRIS',
+      sub: 'All Payment / Digital',
+      icon: 'fa-solid fa-qrcode text-indigo-500',
+      bgClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'
+    },
+    'Shopee': {
+      name: 'Shopee (@premium_dz)',
+      sub: 'Marketplace',
+      icon: 'fa-solid fa-bag-shopping text-orange-500',
+      bgClass: 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800'
+    },
+    'BSI': {
+      name: 'BSI (Bank Syariah Indonesia)',
+      sub: 'Bank Syariah',
+      icon: 'fa-solid fa-building-columns text-emerald-500',
+      bgClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+    }
+  };
+
   const allKeys = Array.from(new Set([...defaultKeys, ...Object.keys(accountsMap)]));
 
   const breakdownItems = allKeys.map(key => {
@@ -1394,26 +1485,50 @@ function showIncomeBreakdownModal() {
       name: key,
       totalIn: 0,
       totalOut: 0,
-      txCount: 0,
-      icon: key === 'QRIS' ? 'fa-solid fa-qrcode text-indigo-500' : (key === 'Shopee' ? 'fa-solid fa-bag-shopping text-orange-500' : 'fa-solid fa-building-columns text-emerald-500'),
-      bgClass: key === 'QRIS' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800' : (key === 'Shopee' ? 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400 border-orange-200 dark:border-orange-800' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800')
+      txCount: 0
     };
-    const income = acc.totalIn || 0;
-    const percentage = totalIn > 0 ? Math.round((income / totalIn) * 100) : 0;
-    return {
-      key,
+    const totalInVal = acc.totalIn || 0;
+    const totalOutVal = acc.totalOut || 0;
+    // Sesuai perhitungan di Halaman Keuangan: saldo = totalIn - totalOut (qrisSaldo, shopeeSaldo, bsiSaldo)
+    const saldo = totalInVal - totalOutVal;
+
+    const meta = displayMetaMap[key] || {
       name: acc.name || key,
-      groupName: acc.groupName || acc.type || 'Metode Pembayaran',
-      income,
-      percentage,
-      txCount: acc.txCount || 0,
+      sub: acc.groupName || acc.type || 'Metode Pembayaran',
       icon: acc.icon || 'fa-solid fa-wallet text-indigo-500',
       bgClass: acc.bgClass || 'bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
     };
-  }).filter(item => defaultKeys.includes(item.key) || item.income > 0 || item.txCount > 0);
 
-  // Sort: highest income first
-  breakdownItems.sort((a, b) => b.income - a.income);
+    let percentage = 0;
+    if (netSaldo > 0 && saldo > 0) {
+      percentage = Math.min(100, Math.round((saldo / netSaldo) * 100));
+    } else if (totalIn > 0 && totalInVal > 0) {
+      percentage = Math.min(100, Math.round((totalInVal / totalIn) * 100));
+    }
+
+    return {
+      key,
+      name: meta.name,
+      sub: meta.sub,
+      saldo,
+      totalIn: totalInVal,
+      totalOut: totalOutVal,
+      percentage,
+      txCount: acc.txCount || 0,
+      icon: meta.icon,
+      bgClass: meta.bgClass
+    };
+  }).filter(item => defaultKeys.includes(item.key) || item.saldo !== 0 || item.totalIn > 0 || item.txCount > 0);
+
+  // Urutan: QRIS, Shopee, BSI di urutan teratas persis seperti Halaman Keuangan, disusul lainnya
+  breakdownItems.sort((a, b) => {
+    const idxA = defaultKeys.indexOf(a.key);
+    const idxB = defaultKeys.indexOf(b.key);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return b.saldo - a.saldo;
+  });
 
   modal.innerHTML = `
     <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-all text-zinc-800 dark:text-zinc-100">
@@ -1426,20 +1541,20 @@ function showIncomeBreakdownModal() {
           </div>
           <div>
             <h3 class="font-bold text-base sm:text-lg text-zinc-900 dark:text-white leading-tight">
-              ${isEn ? 'Income Breakdown' : 'Rincian Pendapatan'}
+              ${isEn ? 'Income Detail & Wallet Balance' : 'Detail Pendapatan & Posisi Saldo'}
             </h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">${isEn ? 'Payment methods summary' : 'Ringkasan per metode pembayaran'}</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">${isEn ? 'Allocated balances matching Keuangan page (QRIS, Shopee, BSI)' : 'Posisi saldo kas aktif sesuai Halaman Keuangan (QRIS, Shopee, BSI)'}</p>
           </div>
         </div>
-        
+        <button type="button" onclick="document.getElementById('dashboardIncomeBreakdownModal').classList.add('hidden')" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition" title="Tutup Modal">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
       </div>
 
       <!-- Laba Bersih Summary Card (Primary) -->
-      <div class="p-4 rounded-xl bg-gradient-to-r ${(summary.saldo || 0) >= 0 ? 'from-indigo-600 to-violet-600' : 'from-rose-600 to-red-600'} text-white shadow-sm">
-        <span class="text-xs font-semibold text-indigo-100 uppercase tracking-wider block">
-          ${isEn ? 'Net Profit' : 'Laba Bersih'}
-        </span>
-        <span class="text-xl sm:text-2xl font-bold block mt-0.5">${formatFinancialDisplay(summary.saldo || 0)}</span>
+      <div class="p-4 rounded-xl bg-gradient-to-r ${(netSaldo || 0) >= 0 ? 'from-indigo-600 to-violet-600' : 'from-rose-600 to-red-600'} text-white shadow-sm">
+  
+        <span class="text-xl sm:text-2xl font-bold block mt-1">${formatFinancialDisplay(netSaldo)}</span>
         <!-- Total Pendapatan & Pengeluaran as sub-info -->
         <div class="flex items-center gap-4 mt-3 pt-3 border-t border-white/20">
           <div>
@@ -1448,44 +1563,60 @@ function showIncomeBreakdownModal() {
           </div>
           <div class="w-px h-8 bg-white/20"></div>
           <div>
-            <span class="text-[10px] text-indigo-100/80 uppercase tracking-wider block">${isEn ? 'Expenses' : 'Pengeluaran'}</span>
-            <span class="text-sm font-semibold block">${formatFinancialDisplay(summary.totalOut || 0)}</span>
+            <span class="text-[10px] text-indigo-100/80 uppercase tracking-wider block">${isEn ? 'Expenses' : 'Total Pengeluaran'}</span>
+            <span class="text-sm font-semibold block">${formatFinancialDisplay(totalOut)}</span>
           </div>
         </div>
       </div>
 
       <!-- Breakdown List by Payment Method -->
       <div class="space-y-2.5">
-        <div class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider px-0.5">
-          ${isEn ? 'Method Breakdown' : 'Rincian Nominal per Metode'}
+        <div class="flex items-center justify-between px-0.5">
+          <span class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+            ${isEn ? 'Balance per Payment Method' : 'Posisi Saldo per Metode Pembayaran'}
+          </span>
+       
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2.5">
           ${breakdownItems.map(item => `
-            <div class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/70 transition-colors">
-              <div class="flex items-center justify-between gap-3">
+            <div class="p-3 sm:p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/70 transition-colors">
+              <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 rounded-lg ${item.bgClass} flex items-center justify-center text-sm shrink-0">
+                  <div class="w-9 h-9 rounded-lg ${item.bgClass} flex items-center justify-center text-base shrink-0">
                     <i class="${item.icon}"></i>
                   </div>
                   <div class="min-w-0">
                     <div class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 truncate">${escapeHtml(item.name)}</div>
-                    <div class="text-[10px] text-zinc-400 dark:text-zinc-500 truncate">${item.txCount} Transaksi (${item.percentage}%)</div>
+                    <div class="text-[10px] text-zinc-400 dark:text-zinc-500 truncate flex items-center gap-1.5 mt-0.5">
+                      <span>${escapeHtml(item.sub)}</span>
+                      <span>&bull;</span>
+                      <span class="font-semibold text-zinc-600 dark:text-zinc-300">${item.txCount} Transaksi</span>
+                    </div>
                   </div>
                 </div>
                 <div class="text-right shrink-0">
-                  <div class="font-bold font-mono text-xs sm:text-sm text-green-600 dark:text-green-400">${formatFinancialDisplay(item.income)}</div>
+                  <div class="font-bold font-mono text-sm sm:text-base ${item.saldo < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${formatFinancialDisplay(item.saldo)}</div>
                 </div>
               </div>
+
               <!-- Progress Bar -->
               <div class="w-full bg-zinc-200 dark:bg-zinc-700 h-1.5 rounded-full mt-2.5 overflow-hidden">
-                <div class="bg-green-500 h-full rounded-full transition-all duration-300" style="width: ${item.percentage}%"></div>
+                <div class="${item.saldo < 0 ? 'bg-rose-500' : 'bg-indigo-500'} h-full rounded-full transition-all duration-300" style="width: ${item.percentage}%"></div>
               </div>
             </div>
           `).join('')}
         </div>
       </div>
- 
+
+      <!-- Quick Link to Keuangan -->
+      <div class="pt-2">
+        <a href="pages/keuangan.html" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 transition">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>${isEn ? 'Open Full Finance Page' : 'Buka Halaman Keuangan Lengkap'}</span>
+        </a>
+      </div>
+
     </div>
   `;
 
@@ -1497,6 +1628,3 @@ function showIncomeBreakdownModal() {
   };
 }
 window.showIncomeBreakdownModal = showIncomeBreakdownModal;
-
-
-
