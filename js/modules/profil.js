@@ -712,6 +712,191 @@ async function handleSaveProfileInfo(e) {
   }
 }
 
+
+// =================================================================
+// SISTEM PROFILE BACKDROP / COVER FOTO
+// =================================================================
+function loadProfileBackdrop(user) {
+  if (!user && typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') {
+    user = Auth.getUser();
+  }
+  if (!user) return;
+  const userId = user.id || user.username || 'usr';
+  const backdrop = user.backdrop || localStorage.getItem('fp_backdrop_' + userId) || '';
+
+  const backdropEl = document.getElementById('profileBackdropImage');
+  const btnRemove = document.getElementById('btnRemoveBackdrop');
+
+  if (backdropEl) {
+    if (backdrop && backdrop.trim()) {
+      const formatted = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(backdrop) : backdrop;
+      backdropEl.style.backgroundImage = 'url("' + sanitizeUrl(formatted) + '")';
+      if (btnRemove) btnRemove.classList.remove('hidden');
+    } else {
+      backdropEl.style.backgroundImage = 'none';
+      if (btnRemove) btnRemove.classList.add('hidden');
+    }
+  }
+}
+
+function handleBackdropFileSelect(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    if (typeof Toast !== 'undefined') Toast.error('Error', 'Harap pilih file gambar valid!');
+    else if (typeof showToast === 'function') showToast('Harap pilih file gambar valid!', 'error');
+    return;
+  }
+
+  // Limit file size to 10MB
+  if (file.size > 10 * 1024 * 1024) {
+    if (typeof Toast !== 'undefined') Toast.error('Error', 'Ukuran gambar sampul maksimal adalah 10MB!');
+    else if (typeof showToast === 'function') showToast('Ukuran gambar sampul maksimal adalah 10MB!', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (evt) {
+    const img = new Image();
+    img.onload = function () {
+      // Compress and scale to banner resolution (max 1280px wide, max 480px high)
+      const maxW = 1280;
+      const maxH = 480;
+      let targetW = img.width;
+      let targetH = img.height;
+
+      const scale = Math.min(1, maxW / targetW, maxH / targetH);
+      targetW = Math.round(targetW * scale);
+      targetH = Math.round(targetH * scale);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      saveProfileBackdrop(compressedDataUrl);
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+
+  e.target.value = '';
+}
+
+let isBackdropSubmitting = false;
+async function saveProfileBackdrop(dataUrl) {
+  if (isBackdropSubmitting || !dataUrl) return;
+  isBackdropSubmitting = true;
+
+  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+  const userId = user.id || user.username || 'USR-001';
+
+  // Preview immediately
+  const backdropEl = document.getElementById('profileBackdropImage');
+  if (backdropEl) {
+    backdropEl.style.backgroundImage = 'url("' + dataUrl + '")';
+  }
+  const btnRemove = document.getElementById('btnRemoveBackdrop');
+  if (btnRemove) {
+    btnRemove.classList.remove('hidden');
+  }
+
+  if (typeof Toast !== 'undefined') {
+    Toast.info('Menyimpan Sampul...', 'Foto sampul sedang diproses dan diunggah.');
+  }
+
+  let finalBackdrop = dataUrl;
+
+  try {
+    if (dataUrl.startsWith('data:image/')) {
+      const ext = dataUrl.split(';')[0].split('/')[1] || 'jpg';
+      const folderId = (typeof CONFIG !== 'undefined' && CONFIG.PROFILE_FOLDER_ID) ? CONFIG.PROFILE_FOLDER_ID : '1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE';
+      try {
+        const uploadRes = await API.uploadFile('backdrop-' + userId + '.' + ext, 'image/' + ext, dataUrl, { isProfile: true, folderId: folderId });
+        if (uploadRes && uploadRes.success && uploadRes.url) {
+          finalBackdrop = uploadRes.url;
+        } else {
+          console.warn('Drive upload fallback: using dataUrl for backdrop');
+          finalBackdrop = dataUrl;
+        }
+      } catch (uploadErr) {
+        console.warn('Drive upload error fallback:', uploadErr);
+        finalBackdrop = dataUrl;
+      }
+    }
+
+    // Persist locally
+    localStorage.setItem('fp_backdrop_' + userId, finalBackdrop);
+    user.backdrop = finalBackdrop;
+    if (typeof Auth !== 'undefined' && typeof Auth.syncUserSession === 'function') {
+      Auth.syncUserSession(user);
+    } else {
+      sessionStorage.setItem('user', JSON.stringify(user));
+      if (localStorage.getItem('user')) localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    // Persist to database if supported
+    if (typeof API !== 'undefined' && typeof API.updateUser === 'function') {
+      await API.updateUser(userId, { backdrop: finalBackdrop });
+    }
+
+    loadProfileBackdrop(user);
+
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Sampul Diperbarui', 'Foto sampul profil berhasil disimpan.');
+    } else if (typeof showToast === 'function') {
+      showToast('Foto sampul profil berhasil disimpan!', 'success');
+    }
+  } catch (err) {
+    console.error('Save backdrop error:', err);
+    if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan saat menyimpan foto sampul.');
+  } finally {
+    isBackdropSubmitting = false;
+  }
+}
+
+async function removeProfileBackdrop() {
+  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+  const userId = user.id || user.username || 'USR-001';
+
+  localStorage.removeItem('fp_backdrop_' + userId);
+  user.backdrop = '';
+  delete user.backdrop;
+
+  if (typeof Auth !== 'undefined' && typeof Auth.syncUserSession === 'function') {
+    Auth.syncUserSession(user);
+  } else {
+    sessionStorage.setItem('user', JSON.stringify(user));
+    if (localStorage.getItem('user')) localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  const backdropEl = document.getElementById('profileBackdropImage');
+  if (backdropEl) {
+    backdropEl.style.backgroundImage = 'none';
+  }
+  const btnRemove = document.getElementById('btnRemoveBackdrop');
+  if (btnRemove) {
+    btnRemove.classList.add('hidden');
+  }
+
+  try {
+    if (typeof API !== 'undefined' && typeof API.updateUser === 'function') {
+      await API.updateUser(userId, { backdrop: '' });
+    }
+  } catch (e) {
+    console.warn('API remove backdrop warning:', e);
+  }
+
+  if (typeof Toast !== 'undefined') {
+    Toast.success('Sampul Dihapus', 'Foto sampul profil telah dihapus.');
+  } else if (typeof showToast === 'function') {
+    showToast('Foto sampul profil telah dihapus.', 'success');
+  }
+}
+
 // Window Exports
 window.openPhotoAdjuster = openPhotoAdjuster;
 window.closePhotoAdjuster = closePhotoAdjuster;
@@ -721,3 +906,7 @@ window.handleAvatarFileSelect = handleAvatarFileSelect;
 window.removeProfilePhoto = removeProfilePhoto;
 window.handleSaveProfileInfo = handleSaveProfileInfo;
 window.loadProfileData = loadProfileData;
+window.loadProfileBackdrop = loadProfileBackdrop;
+window.handleBackdropFileSelect = handleBackdropFileSelect;
+window.saveProfileBackdrop = saveProfileBackdrop;
+window.removeProfileBackdrop = removeProfileBackdrop;
