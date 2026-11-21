@@ -47,6 +47,7 @@ const urlsToCache = [
   './assets/img/icon-192.png',
   './assets/img/icon-512.png',
   './assets/img/logo.webp',
+  './assets/fpmanager-splash.svg',
   './assets/img/qris.jpg',
   './assets/img/ttd.png',
   './assets/watermark/wm_white.png',

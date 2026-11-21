@@ -80,9 +80,9 @@
     <div></div>
 
     <!-- Logo and loader container -->
-    <div class="flex flex-col items-center space-y-6">
-      <div class="p-4 transform hover:scale-105 transition-transform duration-300">
-        <img src="./assets/img/logo.webp" alt="FPManager Logo" class="h-16 w-auto object-contain drop-shadow">
+    <div class="flex flex-col items-center justify-center text-center space-y-6 w-full max-w-xs sm:max-w-sm mx-auto">
+      <div class="w-full flex items-center justify-center p-2">
+        <img src="./assets/fpmanager-splash.svg" alt="FPManager Logo" class="splash-logo object-contain drop-shadow-md mx-auto block transition-transform duration-300 hover:scale-105" style="width: 70%; max-width: 220px; height: auto;">
       </div>
 
       <!-- Progress Bar -->
@@ -428,15 +428,19 @@
     window.addEventListener('load', () => {
       const splash = document.getElementById('splashLoader');
       if (splash) {
-        setTimeout(() => {
+        const hideSplash = () => {
+          if (splash.dataset.hidden) return;
+          splash.dataset.hidden = 'true';
           splash.classList.add('opacity-0');
           setTimeout(() => {
             splash.classList.add('hidden');
             if (typeof AOS !== 'undefined') {
               AOS.refresh();
             }
-          }, 300);
-        }, 150);
+          }, 500);
+        };
+        splash.addEventListener('click', hideSplash);
+        setTimeout(hideSplash, 2500);
       }
     });
   </script>

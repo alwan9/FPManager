@@ -700,6 +700,10 @@ html.dark #splashLoader {
   color: #f4f4f5 !important;
 }
 
+html.dark #splashLoader .splash-logo {
+  filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.45)) brightness(1.2);
+}
+
 html.dark #splashLoader .bg-zinc-100 {
   background-color: #27272a !important;
 }

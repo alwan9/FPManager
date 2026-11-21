@@ -1334,6 +1334,12 @@ html:not(.dark) #mobileBottomNav span.text-zinc-200 {
   }
 }
 
+.splash-logo {
+  width: 70%;
+  max-width: 220px;
+  height: auto;
+}
+
 .splash-loading-progress {
   position: absolute;
   top: 0;
