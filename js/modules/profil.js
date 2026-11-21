@@ -68,7 +68,8 @@ function loadProfileData() {
 
   const aInput = document.getElementById('profAvatarUrl');
   if (aInput) {
-    aInput.value = avatar;
+    aInput.value = avatar || '';
+    delete aInput.dataset.cleared;
     aInput.oninput = () => {
       const liveVal = aInput.value.trim();
       const liveFormatted = (typeof Auth !== 'undefined' && typeof Auth.formatAvatarUrl === 'function') ? Auth.formatAvatarUrl(liveVal) : liveVal;
@@ -81,6 +82,15 @@ function loadProfileData() {
         }
       }
     };
+  }
+
+  const btnRemove = document.getElementById('btnRemoveAvatar');
+  if (btnRemove) {
+    if (avatar && avatar.trim()) {
+      btnRemove.classList.remove('hidden');
+    } else {
+      btnRemove.classList.add('hidden');
+    }
   }
 
   // Render Session Browser Info
@@ -361,7 +371,7 @@ function applyPhotoCrop() {
   const size = canvas ? canvas.width : 280;
   const radius = size * 0.42;
 
-  const exportSize = 360; // High resolution square avatar
+  const exportSize = 250; // High resolution square avatar
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = exportSize;
   exportCanvas.height = exportSize;
@@ -386,7 +396,7 @@ function applyPhotoCrop() {
   expCtx.drawImage(img, -expDrawW / 2, -expDrawH / 2, expDrawW, expDrawH);
   expCtx.restore();
 
-  const croppedDataUrl = exportCanvas.toDataURL('image/jpeg', 0.88);
+  const croppedDataUrl = exportCanvas.toDataURL('image/jpeg', 0.85);
 
   // Update UI avatar preview
   const avatarEl = document.getElementById('profileAvatarLarge');
@@ -398,15 +408,51 @@ function applyPhotoCrop() {
   const aInput = document.getElementById('profAvatarUrl');
   if (aInput) {
     aInput.value = croppedDataUrl;
+    delete aInput.dataset.cleared;
+  }
+
+  const btnRemove = document.getElementById('btnRemoveAvatar');
+  if (btnRemove) {
+    btnRemove.classList.remove('hidden');
   }
 
   closePhotoAdjuster();
 
   if (typeof Toast !== 'undefined') {
-    Toast.success('Foto Disesuaikan', 'Klik "Simpan Perubahan" untuk menyimpan ke database.');
-  } else if (typeof showToast === 'function') {
-    showToast('Foto disesuaikan! Klik Simpan Perubahan untuk menyimpan.', 'success');
+    Toast.info('Menyimpan Foto...', 'Foto profil sedang diproses dan disimpan ke database.');
   }
+
+  // Auto-save so the cropped picture is immediately persisted
+  handleSaveProfileInfo();
+}
+
+function removeProfilePhoto() {
+  const aInput = document.getElementById('profAvatarUrl');
+  if (aInput) {
+    aInput.value = '';
+    aInput.dataset.cleared = 'true';
+  }
+  cropState.img = null;
+
+  const btnRemove = document.getElementById('btnRemoveAvatar');
+  if (btnRemove) {
+    btnRemove.classList.add('hidden');
+  }
+
+  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : {};
+  const nInput = document.getElementById('profName');
+  const initial = ((nInput && nInput.value.trim()) || user.name || 'A').charAt(0).toUpperCase();
+
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.textContent = initial;
+  }
+
+  if (typeof Toast !== 'undefined') {
+    Toast.info('Menghapus Foto...', 'Menghapus foto profil dari database.');
+  }
+
+  handleSaveProfileInfo();
 }
 
 function openPhotoAdjusterWithImage(img) {
@@ -517,14 +563,21 @@ window.handleAvatarFileSelect = handleAvatarFileSelect;
 // Handle Save Profile Info
 let isProfileSubmitting = false;
 async function handleSaveProfileInfo(e) {
-  e.preventDefault();
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
 
-  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const form = document.getElementById('profileInfoForm');
+  const submitBtn = (e && e.target && typeof e.target.querySelector === 'function')
+    ? e.target.querySelector('button[type="submit"]')
+    : (form ? form.querySelector('button[type="submit"]') : null);
+
   if (isProfileSubmitting || (submitBtn && submitBtn.disabled)) return;
 
-  const name = document.getElementById('profName').value.trim();
-  const email = document.getElementById('profEmail').value.trim();
-  const rawPhone = document.getElementById('profPhone').value.trim();
+  const nameInput = document.getElementById('profName');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const emailInput = document.getElementById('profEmail');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const phoneInput = document.getElementById('profPhone');
+  const rawPhone = phoneInput ? phoneInput.value.trim() : '';
   let cleanPhone = rawPhone.replace(/[^\d]/g, '');
   if (cleanPhone.startsWith('0')) {
     cleanPhone = '62' + cleanPhone.slice(1);
@@ -532,7 +585,22 @@ async function handleSaveProfileInfo(e) {
     cleanPhone = '62' + cleanPhone;
   }
   const phone = cleanPhone;
-  const avatar = document.getElementById('profAvatarUrl') ? document.getElementById('profAvatarUrl').value.trim() : '';
+
+  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+  const aInput = document.getElementById('profAvatarUrl');
+
+  let avatar = '';
+  if (aInput) {
+    if (aInput.dataset && aInput.dataset.cleared === 'true') {
+      avatar = '';
+    } else if (aInput.value && aInput.value.trim()) {
+      avatar = aInput.value.trim();
+    } else {
+      avatar = user.avatar || user.url_profile || user.urlprofile || user.foto || '';
+    }
+  } else {
+    avatar = user.avatar || user.url_profile || user.urlprofile || user.foto || '';
+  }
 
   if (!name) {
     if (typeof Toast !== 'undefined') Toast.error('Error', 'Nama lengkap tidak boleh kosong!');
@@ -541,63 +609,49 @@ async function handleSaveProfileInfo(e) {
   }
 
   isProfileSubmitting = true;
-  const user = (typeof Auth !== 'undefined' && Auth.getUser) ? Auth.getUser() : JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
-
-  const origBtnText = submitBtn ? submitBtn.innerHTML : 'Simpan Perubahan';
+  const origBtnText = submitBtn ? submitBtn.innerHTML : '<i class="fa-solid fa-floppy-disk"></i><span>Simpan Perubahan</span>';
   if (submitBtn) {
     submitBtn.disabled = true;
     submitBtn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Spreadsheet...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan profil...';
   }
 
   let finalAvatar = avatar;
-  if (avatar.startsWith('data:image/')) {
+  if (avatar && avatar.startsWith('data:image/')) {
     if (submitBtn) {
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah foto ke Google Drive...';
     }
     try {
       const ext = avatar.split(';')[0].split('/')[1] || 'jpg';
       const folderId = (typeof CONFIG !== 'undefined' && CONFIG.PROFILE_FOLDER_ID) ? CONFIG.PROFILE_FOLDER_ID : '1ps66jVi9PYmw8a9BWV_tgyBjYsiKnKXE';
-      const uploadRes = await API.uploadFile(`avatar-${user.id || 'usr'}.${ext}`, `image/${ext}`, avatar, { isProfile: true, folderId });
+      const uploadRes = await API.uploadFile(`avatar-${user.id || user.username || 'usr'}.${ext}`, `image/${ext}`, avatar, { isProfile: true, folderId });
       if (uploadRes && uploadRes.success && uploadRes.url) {
         finalAvatar = uploadRes.url;
       } else {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
-          submitBtn.innerHTML = origBtnText;
-        }
-        isProfileSubmitting = false;
-        const errMsg = (uploadRes && uploadRes.message) ? uploadRes.message : 'Gagal mengunggah foto ke Google Drive.';
-        if (typeof Toast !== 'undefined') Toast.error('Upload Gagal', errMsg);
-        else if (typeof showToast === 'function') showToast({ title: 'Upload Gagal', message: errMsg, type: 'error' });
-        return;
+        console.warn('Drive upload fallback: using direct image data.', uploadRes);
+        finalAvatar = avatar;
       }
     } catch (uploadErr) {
-      isProfileSubmitting = false;
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
-        submitBtn.innerHTML = origBtnText;
-      }
-      if (typeof Toast !== 'undefined') Toast.error('Upload Error', 'Terjadi kesalahan saat mengunggah foto.');
-      return;
+      console.warn('Drive upload error fallback:', uploadErr);
+      finalAvatar = avatar;
     }
   }
 
   if (submitBtn) {
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Spreadsheet...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Database...';
   }
 
   try {
-    let res = { success: false, message: 'Gagal menghubungkan ke Spreadsheet' };
-    if (typeof API !== 'undefined' && typeof API.updateUser === 'function' && user.id) {
-      res = await API.updateUser(user.id, { name, email, phone, avatar: finalAvatar });
+    let res = { success: false, message: 'Gagal menghubungkan ke Database' };
+    const userId = user.id || user.username || 'USR-001';
+
+    if (typeof API !== 'undefined' && typeof API.updateUser === 'function') {
+      res = await API.updateUser(userId, { name, email, phone, avatar: finalAvatar });
     } else if (typeof CONFIG !== 'undefined' && CONFIG.API_URL) {
       const body = new URLSearchParams();
       body.append('action', 'updateUser');
-      body.append('id', user.id || 'USR-001');
-      body.append('userId', user.id || 'USR-001');
+      body.append('id', userId);
+      body.append('userId', userId);
       body.append('role', user.role || 'service');
       body.append('token', typeof Auth !== 'undefined' && Auth.getToken ? Auth.getToken() : '');
       body.append('data', JSON.stringify({ name, email, phone, avatar: finalAvatar }));
@@ -607,34 +661,47 @@ async function handleSaveProfileInfo(e) {
     }
 
     if (res && res.success) {
-      // Sync local user object only after successful spreadsheet write
+      // Sync local user object
       user.name = name;
       user.email = email;
       user.phone = phone;
       user.avatar = finalAvatar;
+      user.url_profile = finalAvatar;
+      user.urlprofile = finalAvatar;
 
-      sessionStorage.setItem('user', JSON.stringify(user));
-      if (localStorage.getItem('user')) {
-        localStorage.setItem('user', JSON.stringify(user));
+      if (typeof Auth !== 'undefined' && typeof Auth.syncUserSession === 'function') {
+        Auth.syncUserSession(user);
+      } else {
+        sessionStorage.setItem('user', JSON.stringify(user));
+        if (localStorage.getItem('user')) {
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+      }
+
+      if (aInput) {
+        aInput.value = finalAvatar;
+        delete aInput.dataset.cleared;
       }
 
       loadProfileData();
-      if (typeof Auth !== 'undefined' && typeof Auth.applyMenuPermissions === 'function') Auth.applyMenuPermissions();
+      if (typeof Auth !== 'undefined' && typeof Auth.applyMenuPermissions === 'function') {
+        Auth.applyMenuPermissions();
+      }
 
       if (typeof Toast !== 'undefined') {
-        Toast.success('Profil Diperbarui', 'Data profil berhasil disimpan langsung di Spreadsheet.');
+        Toast.success('Profil Diperbarui', 'Data profil & foto berhasil disimpan.');
       } else if (typeof showToast === 'function') {
-        showToast('Data profil berhasil disimpan di Spreadsheet!', 'success');
+        showToast('Data profil berhasil disimpan!', 'success');
       }
     } else {
-      const errMsg = (res && res.message) ? res.message : 'Gagal menyimpan data ke Spreadsheet.';
+      const errMsg = (res && res.message) ? res.message : 'Gagal menyimpan data ke Database.';
       if (typeof Toast !== 'undefined') Toast.error('Gagal', errMsg);
       else if (typeof showToast === 'function') showToast({ title: 'Gagal', message: errMsg, type: 'error' });
     }
   } catch (err) {
     console.error('API sync exception:', err);
-    if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.');
-    else if (typeof showToast === 'function') showToast({ title: 'Error', message: 'Terjadi kesalahan koneksi saat menyimpan ke Spreadsheet.', type: 'error' });
+    if (typeof Toast !== 'undefined') Toast.error('Error', 'Terjadi kesalahan koneksi saat menyimpan profil.');
+    else if (typeof showToast === 'function') showToast({ title: 'Error', message: 'Terjadi kesalahan koneksi saat menyimpan profil.', type: 'error' });
   } finally {
     isProfileSubmitting = false;
     if (submitBtn) {
@@ -645,3 +712,12 @@ async function handleSaveProfileInfo(e) {
   }
 }
 
+// Window Exports
+window.openPhotoAdjuster = openPhotoAdjuster;
+window.closePhotoAdjuster = closePhotoAdjuster;
+window.applyPhotoCrop = applyPhotoCrop;
+window.nudgeCrop = nudgeCrop;
+window.handleAvatarFileSelect = handleAvatarFileSelect;
+window.removeProfilePhoto = removeProfilePhoto;
+window.handleSaveProfileInfo = handleSaveProfileInfo;
+window.loadProfileData = loadProfileData;

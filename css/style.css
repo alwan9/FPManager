@@ -1868,9 +1868,22 @@ html:not(.dark) aside a.sidebar-link.bg-zinc-800:hover {
   color: #4338ca !important;
 }
 
-html:not(.dark) aside .logo-full img,
-html:not(.dark) aside .logo-mini img {
+html:not(.dark) aside .logo-full img:not([src*=".svg"]),
+html:not(.dark) aside .logo-mini img:not([src*=".svg"]) {
   filter: brightness(0.15) !important;
+}
+
+aside .logo-full img[src*=".svg"] {
+  filter: none;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
+}
+
+aside .logo-full:hover img[src*=".svg"] {
+  transform: scale(1.03);
+}
+
+html.dark aside .logo-full img[src*=".svg"] {
+  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.35)) brightness(1.15) !important;
 }
 
 html:not(.dark) aside .sidebar-link.text-red-400 {
